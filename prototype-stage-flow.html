@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark">
+    <link rel="icon" href="data:,">
+    <title>Prototype — Étape complète | Les Lanternes de Cendre</title>
+    <link rel="stylesheet" href="prototype-stage-flow.css">
+    <script src="prototype-stage-flow.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#prototype-main">Aller au choix en cours</a>
+
+    <header class="prototype-header">
+      <div>
+        <p class="eyebrow">Prototype jetable — aucune donnée sauvegardée</p>
+        <p class="brand">Les Lanternes de Cendre</p>
+      </div>
+      <div class="header-actions">
+        <span id="variant-name" class="variant-chip"></span>
+        <button id="reset-prototype" class="quiet-button" type="button">Recommencer l’étape</button>
+      </div>
+    </header>
+
+    <main id="prototype-main" tabindex="-1"></main>
+
+    <p id="announcer" class="visually-hidden" aria-live="polite" aria-atomic="true"></p>
+
+    <nav class="prototype-switcher" aria-label="Changer de variante de prototype">
+      <button id="previous-variant" type="button" aria-label="Variante précédente">←</button>
+      <span id="switcher-label" aria-live="polite"></span>
+      <button id="next-variant" type="button" aria-label="Variante suivante">→</button>
+    </nav>
+  </body>
+</html>
