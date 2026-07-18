@@ -49,4 +49,10 @@ Captures du second prototype :
 
 Dans chaque variante, essayer de sélectionner une plateforme, planifier un bâtiment, laisser ou traiter la fuite de vapeur, atteindre la halte, tenir conseil puis choisir la route. L’état reste partagé lors du changement de variante.
 
+## Verdict humain provisoire
+
+Aucune variante n'est validée comme interface du jeu. La variante A suscite une préférence faible, sans conviction suffisante pour en faire une direction.
+
+Ce prototype est une **source primaire jetable**, pas une autorité de conception. Il sert à exposer des hypothèses et à provoquer des réactions. Seules les décisions formulées explicitement dans le ticket et la carte Wayfinder font référence ; la composition visuelle devra être réévaluée avec un prototype de rendu plus fidèle, après le choix du moteur et de la direction artistique.
+
 Code jetable, sans persistance, sans backend, sans tests de production. Ces artefacts servent uniquement à choisir une structure d'interaction ; ils ne doivent pas être fusionnés tels quels dans la V1.
