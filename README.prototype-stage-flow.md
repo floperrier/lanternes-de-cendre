@@ -28,4 +28,10 @@ Les flèches de la barre inférieure, ou les touches `←` et `→`, changent de
 
 ## Statut
 
-Code jetable, sans persistance, sans backend, sans tests de production. Le prototype sert uniquement à choisir une structure d’interaction ; il ne doit pas être fusionné tel quel dans la V1.
+Le premier prototype a rempli son rôle de contre-exemple : son découpage en sept phases successives a été écarté au profit d'une gestion continue de la cité-caravane, rythmée par des incidents et interrompue seulement par les décisions irréversibles.
+
+La direction spatiale retenue est une **cité-caravane en grappe** : plusieurs plateformes avancent sur des files parallèles irrégulières autour du phare, puis peuvent se déployer et se réorganiser pendant une halte.
+
+- [Croquis accepté — Cité-caravane en grappe](output/concepts/cite-caravane-en-grappe.png)
+
+Code jetable, sans persistance, sans backend, sans tests de production. Ces artefacts servent uniquement à choisir une structure d'interaction ; ils ne doivent pas être fusionnés tels quels dans la V1.
