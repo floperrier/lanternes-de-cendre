@@ -34,4 +34,19 @@ La direction spatiale retenue est une **cité-caravane en grappe** : plusieurs p
 
 - [Croquis accepté — Cité-caravane en grappe](output/concepts/cite-caravane-en-grappe.png)
 
+Le second prototype remplace les phases par un même Temps du convoi partagé entre la ville, les incidents et les opérations. Trois organisations de la vue principale sont comparables avec `?variant=A`, `B` ou `C` :
+
+- [Prototype temps réel — Cité vivante](prototype-realtime-caravan.html?variant=A)
+- [Prototype temps réel — Poste du phare](prototype-realtime-caravan.html?variant=B)
+- [Prototype temps réel — Table d’exploitation](prototype-realtime-caravan.html?variant=C)
+
+Captures du second prototype :
+
+- [Variante A — Cité vivante](output/playwright/realtime-variant-a.png)
+- [Variante B — Poste du phare](output/playwright/realtime-variant-b.png)
+- [Variante C — Table d’exploitation](output/playwright/realtime-variant-c.png)
+- [Variante A — largeur étroite](output/playwright/realtime-variant-a-narrow.png)
+
+Dans chaque variante, essayer de sélectionner une plateforme, planifier un bâtiment, laisser ou traiter la fuite de vapeur, atteindre la halte, tenir conseil puis choisir la route. L’état reste partagé lors du changement de variante.
+
 Code jetable, sans persistance, sans backend, sans tests de production. Ces artefacts servent uniquement à choisir une structure d'interaction ; ils ne doivent pas être fusionnés tels quels dans la V1.
