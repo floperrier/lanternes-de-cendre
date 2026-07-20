@@ -4,33 +4,15 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="dark">
-    <meta name="theme-color" content="#171813">
+    <meta name="theme-color" content="#090b0b">
     <link rel="icon" href="data:,">
-    <title>Prototype expédition — Les Lanternes de Cendre</title>
+    <title>Prototype recommandé — Expédition à distance</title>
     <link rel="stylesheet" href="prototype-expedition-contract.css">
     <script src="prototype-expedition-contract.js" defer></script>
   </head>
   <body>
-    <a class="skip-link" href="#prototype-main">Aller à la table d’expédition</a>
-
-    <header class="prototype-header">
-      <div>
-        <p class="eyebrow">Prototype jetable · état partagé en mémoire</p>
-        <p class="brand">Les Lanternes de Cendre</p>
-      </div>
-      <div class="header-actions">
-        <span id="variant-chip" class="variant-chip"></span>
-        <button id="reset-prototype" class="quiet-button" type="button">Réinitialiser</button>
-      </div>
-    </header>
-
+    <a class="skip-link" href="#prototype-main">Aller à l’opération active</a>
     <main id="prototype-main" tabindex="-1"></main>
     <p id="announcer" class="visually-hidden" aria-live="polite" aria-atomic="true"></p>
-
-    <nav class="prototype-switcher" aria-label="Changer de variante de prototype" data-prototype-only>
-      <button id="previous-variant" type="button" aria-label="Variante précédente">←</button>
-      <span id="switcher-label" aria-live="polite"></span>
-      <button id="next-variant" type="button" aria-label="Variante suivante">→</button>
-    </nav>
   </body>
 </html>
