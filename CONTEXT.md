@@ -8,6 +8,10 @@ Ce glossaire fixe le vocabulaire propre au jeu afin que la conception, le conten
 Une communauté mobile d’environ cent vingt à deux cent cinquante habitants, répartie sur plusieurs plateformes qui avancent en grappe autour du phare et peuvent se déployer pendant une halte.
 _Avoid_: Véhicule unique
 
+**Coupe habitée**:
+La représentation oblique de la Cité-caravane qui rend simultanément visibles sa Formation en grappe, ses Plateformes mobiles, le Phare et des signes de vie intérieure.
+_Avoid_: Plan technique, Carte du convoi, Décor inhabité
+
 **Habitant**:
 Un membre de la cité-caravane simulé au sein de foyers, métiers et groupes sociaux sans recevoir le détail relationnel d’un compagnon.
 _Avoid_: Compagnon anonyme

@@ -9,7 +9,7 @@ export function EtatTextuel({ projection }: EtatTextuelProps) {
     <aside className="etat-textuel" aria-labelledby="titre-cite-caravane">
       <div className="veille">
         <h2>Première veille</h2>
-        <time dateTime={`PT${projection.horloge.replace(":", "M")}S`}>
+        <time dateTime={projection.dureeIso}>
           {projection.horloge}
         </time>
         <p>Temps du convoi</p>
@@ -19,7 +19,6 @@ export function EtatTextuel({ projection }: EtatTextuelProps) {
       <section
         className="etat-cite"
         aria-labelledby="titre-cite-caravane"
-        data-state-fingerprint={projection.empreinte}
       >
         <h2 id="titre-cite-caravane">Cité-caravane</h2>
         <ul>

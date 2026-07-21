@@ -82,12 +82,12 @@ describe("commandes du Temps du convoi", () => {
     expect(transition.evenements).toEqual([
       {
         type: "temps-du-convoi.ecoule",
-        de: 0,
-        a: 60,
+        secondeInitiale: 0,
+        secondeFinale: 60,
       },
       {
         type: "temps-du-convoi.premiere-minute-atteinte",
-        a: 60,
+        secondeAtteinte: 60,
       },
     ]);
     expect(empreinteEtat(transition.etat)).toBe("40022b43");

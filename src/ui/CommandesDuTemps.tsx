@@ -24,7 +24,7 @@ export function CommandesDuTemps({
 
   return (
     <footer className="commandes-du-temps">
-      <time dateTime={`PT${projection.horloge.replace(":", "M")}S`}>
+      <time dateTime={projection.dureeIso}>
         {projection.horloge}
       </time>
 

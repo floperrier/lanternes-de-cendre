@@ -1,8 +1,17 @@
+export type GraineDeCampagne = string;
+export type IdentifiantPlateformeMobile =
+  | "phare"
+  | "foyers"
+  | "atelier"
+  | "serres"
+  | "reservoirs"
+  | "vigie"
+  | "forge";
 export type VitesseDuConvoi = 0 | 1 | 2 | 4;
 
 export interface EtatCampagne {
   readonly version: 1;
-  readonly graine: string;
+  readonly graine: GraineDeCampagne;
   readonly tempsDuConvoi: {
     readonly secondes: number;
     readonly vitesse: VitesseDuConvoi;
@@ -12,7 +21,7 @@ export interface EtatCampagne {
     readonly phare: "actif";
     readonly formation: {
       readonly type: "grappe";
-      readonly plateformes: readonly string[];
+      readonly plateformes: readonly IdentifiantPlateformeMobile[];
     };
   };
 }
@@ -35,12 +44,12 @@ export type EvenementDeDomaine =
     }
   | {
       readonly type: "temps-du-convoi.ecoule";
-      readonly de: number;
-      readonly a: number;
+      readonly secondeInitiale: number;
+      readonly secondeFinale: number;
     }
   | {
       readonly type: "temps-du-convoi.premiere-minute-atteinte";
-      readonly a: 60;
+      readonly secondeAtteinte: 60;
     };
 
 export interface TransitionDeCampagne {
@@ -48,7 +57,9 @@ export interface TransitionDeCampagne {
   readonly evenements: readonly EvenementDeDomaine[];
 }
 
-export function creerCampagneInitiale(graine: string): EtatCampagne {
+export function creerCampagneInitiale(
+  graine: GraineDeCampagne,
+): EtatCampagne {
   return {
     version: 1,
     graine,
@@ -88,15 +99,15 @@ export function appliquerCommande(
     if (nouvellesSecondes !== etat.tempsDuConvoi.secondes) {
       evenements.push({
         type: "temps-du-convoi.ecoule",
-        de: etat.tempsDuConvoi.secondes,
-        a: nouvellesSecondes,
+        secondeInitiale: etat.tempsDuConvoi.secondes,
+        secondeFinale: nouvellesSecondes,
       });
     }
 
     if (etat.tempsDuConvoi.secondes < 60 && nouvellesSecondes >= 60) {
       evenements.push({
         type: "temps-du-convoi.premiere-minute-atteinte",
-        a: 60,
+        secondeAtteinte: 60,
       });
     }
 

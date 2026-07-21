@@ -1,47 +1,68 @@
 import {
   appliquerCommande,
   creerCampagneInitiale,
-  empreinteEtat,
   type CommandeCampagne,
   type EtatCampagne,
   type EvenementDeDomaine,
+  type GraineDeCampagne,
   type VitesseDuConvoi,
 } from "../simulation/campagne";
 
 export interface ProjectionDeCampagne {
-  readonly graine: string;
+  readonly graine: GraineDeCampagne;
   readonly horloge: string;
+  readonly dureeIso: string;
   readonly statutDuTemps: "En pause" | "En marche";
   readonly vitesse: VitesseDuConvoi;
   readonly habitants: number;
   readonly phare: "actif";
   readonly formation: "grappe";
   readonly nombreDePlateformes: number;
-  readonly empreinte: string;
 }
 
 export interface ApplicationCampagne {
   readonly lireEtat: () => EtatCampagne;
-  readonly lireProjection: () => ProjectionDeCampagne;
   readonly envoyerCommande: (
     commande: CommandeCampagne,
   ) => readonly EvenementDeDomaine[];
   readonly sabonner: (ecouteur: () => void) => () => void;
 }
 
-function formaterHorloge(secondes: number): string {
-  const minutes = Math.floor(secondes / 60);
-  const reste = secondes % 60;
+interface TempsDecompose {
+  readonly minutes: number;
+  readonly secondesRestantes: number;
+}
 
-  return `${minutes.toString().padStart(2, "0")}:${reste
+function decomposerTemps(secondes: number): TempsDecompose {
+  return {
+    minutes: Math.floor(secondes / 60),
+    secondesRestantes: secondes % 60,
+  };
+}
+
+function formaterHorloge({
+  minutes,
+  secondesRestantes,
+}: TempsDecompose): string {
+  return `${minutes.toString().padStart(2, "0")}:${secondesRestantes
     .toString()
     .padStart(2, "0")}`;
 }
 
+function formaterDureeIso({
+  minutes,
+  secondesRestantes,
+}: TempsDecompose): string {
+  return `PT${minutes}M${secondesRestantes}S`;
+}
+
 export function projeterCampagne(etat: EtatCampagne): ProjectionDeCampagne {
+  const temps = decomposerTemps(etat.tempsDuConvoi.secondes);
+
   return {
     graine: etat.graine,
-    horloge: formaterHorloge(etat.tempsDuConvoi.secondes),
+    horloge: formaterHorloge(temps),
+    dureeIso: formaterDureeIso(temps),
     statutDuTemps:
       etat.tempsDuConvoi.vitesse === 0 ? "En pause" : "En marche",
     vitesse: etat.tempsDuConvoi.vitesse,
@@ -49,19 +70,17 @@ export function projeterCampagne(etat: EtatCampagne): ProjectionDeCampagne {
     phare: etat.citeCaravane.phare,
     formation: etat.citeCaravane.formation.type,
     nombreDePlateformes: etat.citeCaravane.formation.plateformes.length,
-    empreinte: empreinteEtat(etat),
   };
 }
 
 export function creerApplicationCampagne(
-  graine: string,
+  graine: GraineDeCampagne,
 ): ApplicationCampagne {
   let etat = creerCampagneInitiale(graine);
   const ecouteurs = new Set<() => void>();
 
   return {
     lireEtat: () => etat,
-    lireProjection: () => projeterCampagne(etat),
     envoyerCommande: (commande) => {
       const transition = appliquerCommande(etat, commande);
       etat = transition.etat;
