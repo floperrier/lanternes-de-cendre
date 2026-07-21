@@ -171,6 +171,14 @@ _Avoid_: État réel omniscient
 L’assemblée qui clôt un tronçon de route, arbitre les tensions accumulées et peut également être convoquée par une halte prolongée ou une crise sociale majeure.
 _Avoid_: Notification périodique
 
+**Événement narratif**:
+Une situation écrite déclenchée à une fenêtre nommée de la campagne et susceptible de produire une décision ou une évolution narrative ; ses variantes de présentation ne constituent pas de nouveaux événements.
+_Avoid_: Notification, Tirage aléatoire sans cause
+
+**Fait de campagne**:
+La mémoire persistante et nommée d’une décision ou d’un résultat, avec sa cause, ses acteurs, sa cible et son moment, que les événements ultérieurs et l’épilogue peuvent rappeler.
+_Avoid_: Drapeau caché, Score moral global
+
 **Incident**:
 Un événement issu de l’état du convoi qui laisse au Porte-Lanterne un délai d’intervention, puis se résout selon les affectations, compétences et doctrine s’il est ignoré.
 _Avoid_: Événement aléatoire périodique
