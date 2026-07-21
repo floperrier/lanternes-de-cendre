@@ -260,6 +260,14 @@ _Avoid_: Modificateur caché
 Un groupe persistant de personnes déplacées, suivi par son origine, sa destination envisagée, sa taille, son état dominant et la mémoire des décisions du Porte-Lanterne ; une cohorte accueillie rejoint les habitants de la cité-caravane.
 _Avoid_: Flux démographique abstrait, Réfugié simulé individuellement
 
+**Démonstration**:
+Le début gratuit d’une véritable Campagne, préparé avec une Graine de campagne représentative et poursuivable sans rupture après achat de la V1.
+_Avoid_: Scénario promotionnel séparé, Tutoriel jetable
+
+**Accès premium**:
+Le droit permanent d’un joueur ayant acheté la V1 à accéder à l’ensemble de sa Campagne, distinct de la progression sauvegardée et restaurable indépendamment de celle-ci.
+_Avoid_: Abonnement, Sauvegarde cloud, Achat lié à un seul navigateur
+
 **Campagne**:
 Une traversée complète des trois régions, conçue pour durer environ dix à douze heures et aboutir à l’une des conclusions de la V1.
 _Avoid_: Mode infini
