@@ -37,6 +37,7 @@ import {
   confirmerEngagementDeRoute,
   creerEtatDesRoutesInitial,
   traiterJalonsDeRoute,
+  trouverEngagementDeRouteActif,
   trouverTronconDeRoute,
   type EtatDesRoutes,
   type EvenementDeRoute,
@@ -509,6 +510,11 @@ export function appliquerCommande(
     if (etat.infrastructure.deploiement === "halte") {
       return { etat, evenements: [] };
     }
+    if (trouverEngagementDeRouteActif(etat.routes) !== undefined) {
+      throw new Error(
+        "La Halte ne peut pas être déployée pendant une traversée en cours.",
+      );
+    }
     return {
       etat: {
         ...etat,
@@ -617,6 +623,14 @@ export function appliquerCommande(
   }
 
   if (commande.type === "engagement-de-route.confirmer") {
+    if (
+      etat.infrastructure.deploiement === "halte" ||
+      etat.infrastructure.chantierActif !== null
+    ) {
+      throw new Error(
+        "La Halte doit être repliée et tout Chantier terminé avant une traversée.",
+      );
+    }
     const transition = confirmerEngagementDeRoute(
       etat.routes,
       commande.tronconId,

@@ -265,7 +265,9 @@ export function appliquerConsommationDeRouteAUnStock(
     : appliquerVariationAUnStock(stock, -quantite);
 }
 
-function engagementActif(etat: EtatDesRoutes): EngagementDeRoute | undefined {
+export function trouverEngagementDeRouteActif(
+  etat: EtatDesRoutes,
+): EngagementDeRoute | undefined {
   return etat.engagements.find((engagement) => engagement.statut === "en-cours");
 }
 
@@ -273,7 +275,7 @@ export function listerTronconsEngageables(etat: EtatDesRoutes): readonly {
   readonly troncon: TronconDeRoute;
   readonly destination: IdentifiantDeLieu;
 }[] {
-  if (engagementActif(etat) !== undefined) {
+  if (trouverEngagementDeRouteActif(etat) !== undefined) {
     return [];
   }
 
@@ -293,7 +295,7 @@ export function confirmerEngagementDeRoute(
   tronconId: IdentifiantDeTroncon,
   secondeCourante: number,
 ): TransitionDeRoute {
-  if (engagementActif(etat) !== undefined) {
+  if (trouverEngagementDeRouteActif(etat) !== undefined) {
     throw new Error("Un Engagement de route est déjà en cours.");
   }
 
@@ -345,7 +347,7 @@ export function traiterJalonsDeRoute(
   secondeInitiale: number,
   secondeFinale: number,
 ): TransitionDeRoute {
-  const engagement = engagementActif(etat);
+  const engagement = trouverEngagementDeRouteActif(etat);
   if (
     engagement === undefined ||
     engagement.arriveeA <= secondeInitiale ||

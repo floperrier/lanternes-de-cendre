@@ -4,15 +4,26 @@ test("un Chantier de Halte survit à la reprise et transforme la silhouette", as
   page,
 }) => {
   test.setTimeout(90_000);
+  await page.emulateMedia({ reducedMotion: "reduce" });
   await page.clock.install();
   await page.goto("/");
 
   const infrastructure = page.getByRole("region", { name: "Infrastructure" });
   await expect(infrastructure).toContainText("5 Plateformes · 8 installations · 4 Emplacements libres");
-  await expect(page.getByTestId("coupe-habitee")).toHaveAttribute(
+  const coupeHabitee = page.getByTestId("coupe-habitee");
+  await expect(coupeHabitee).toHaveAttribute(
     "data-installations",
     "8",
   );
+  await expect(coupeHabitee).toHaveAttribute("data-ready", "true");
+  expect((await coupeHabitee.screenshot()).byteLength).toBeGreaterThan(5_000);
+
+  const largeurInitiale = (await coupeHabitee.boundingBox())?.width;
+  await page.setViewportSize({ width: 900, height: 800 });
+  await expect
+    .poll(async () => (await coupeHabitee.boundingBox())?.width)
+    .not.toBe(largeurInitiale);
+  expect((await coupeHabitee.screenshot()).byteLength).toBeGreaterThan(5_000);
 
   await infrastructure.getByRole("button", { name: "Déployer la Halte" }).click();
   await expect(infrastructure.getByRole("alert")).toContainText(
@@ -42,7 +53,7 @@ test("un Chantier de Halte survit à la reprise et transforme la silhouette", as
   await page.getByRole("button", { name: "Vitesse 1×" }).click();
   await page.clock.runFor(30_000);
 
-  await expect(page.getByTestId("coupe-habitee")).toHaveAttribute(
+  await expect(coupeHabitee).toHaveAttribute(
     "data-installations",
     "9",
   );
@@ -58,6 +69,7 @@ test("un Chantier de Halte survit à la reprise et transforme la silhouette", as
 test("les sélections suivent l’implantation après un déplacement", async ({
   page,
 }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
   await page.clock.install();
   await page.goto("/");
   const infrastructure = page.getByRole("region", { name: "Infrastructure" });

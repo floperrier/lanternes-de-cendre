@@ -41,6 +41,7 @@ import {
   TRONCONS_DE_ROUTE,
   appliquerConsommationDeRouteAUnStock,
   creerEtatDesRoutesInitial,
+  trouverEngagementDeRouteActif,
   trouverTronconDeRoute,
   type EtatDesRoutes,
 } from "../simulation/routes";
@@ -133,6 +134,8 @@ export interface EtatCampagneV2
   };
 }
 
+export type EtatCampagneAvantRoutes = Omit<EtatCampagne, "routes">;
+
 export function estObjet(valeur: unknown): valeur is ObjetInconnu {
   return (
     valeur !== null && typeof valeur === "object" && !Array.isArray(valeur)
@@ -220,7 +223,7 @@ export function estCommandeV2(valeur: unknown): valeur is CommandeCampagne {
 }
 
 export function estCommande(valeur: unknown): valeur is CommandeCampagne {
-  if (estCommandeV2(valeur)) {
+  if (estCommandeAvantRoutes(valeur)) {
     return true;
   }
   if (!estObjet(valeur) || typeof valeur.type !== "string") {
@@ -231,16 +234,6 @@ export function estCommande(valeur: unknown): valeur is CommandeCampagne {
       (troncon) => troncon.id === valeur.tronconId,
     );
   }
-  if (valeur.type === "halte.deployer" || valeur.type === "halte.replier") {
-    return true;
-  }
-  if (valeur.type === "chantier.engager") {
-    return (
-      PRIORITES_DE_CHANTIER.has(String(valeur.priorite)) &&
-      estOrdreDeChantier(valeur.ordre)
-    );
-  }
-
   return false;
 }
 
@@ -263,6 +256,25 @@ function estOrdreDeChantier(valeur: unknown): valeur is OrdreDeChantier {
     typeof valeur.origineId === "string" &&
     typeof valeur.destinationId === "string" &&
     valeur.origineId !== valeur.destinationId
+  );
+}
+
+export function estCommandeAvantRoutes(
+  valeur: unknown,
+): valeur is CommandeCampagne {
+  if (estCommandeV2(valeur)) {
+    return true;
+  }
+  if (!estObjet(valeur) || typeof valeur.type !== "string") {
+    return false;
+  }
+  if (valeur.type === "halte.deployer" || valeur.type === "halte.replier") {
+    return true;
+  }
+  return (
+    valeur.type === "chantier.engager" &&
+    PRIORITES_DE_CHANTIER.has(String(valeur.priorite)) &&
+    estOrdreDeChantier(valeur.ordre)
   );
 }
 
@@ -926,6 +938,7 @@ function calculerStockAttendu(
   faits: readonly ObjetInconnu[],
   infrastructure: EtatInfrastructure,
   routes: EtatDesRoutes,
+  reinitialiserReliquatApresConsommationMateriaux = true,
 ): { readonly quantite: number; readonly reliquatDeFlux: number } {
   const initial = PILOTAGE_INITIAL.economie.stocks[id];
   let stock = { ...initial };
@@ -1051,7 +1064,14 @@ function calculerStockAttendu(
         (total, chantier) => total + chantier.materiauxConsommes,
         0,
       ) + (infrastructure.chantierActif?.materiauxConsommes ?? 0);
-    stock = appliquerVariationAUnStock(stock, -consommes);
+    if (reinitialiserReliquatApresConsommationMateriaux) {
+      stock = appliquerVariationAUnStock(stock, -consommes);
+    } else {
+      stock = {
+        ...stock,
+        quantite: Math.max(0, stock.quantite - consommes),
+      };
+    }
   }
   return {
     quantite: stock.quantite,
@@ -1415,6 +1435,9 @@ export function lireEtatCourant(valeur: unknown): EtatCampagne | undefined {
       narration.faitsDeCampagne,
     ) ||
     !estEtatDesRoutes(routes, parties.tempsDuConvoi.secondes) ||
+    (trouverEngagementDeRouteActif(routes) !== undefined &&
+      (infrastructure.deploiement === "halte" ||
+        infrastructure.chantierActif !== null)) ||
     !estEtatPilotage(
       pilotage,
       parties.tempsDuConvoi.secondes,
@@ -1446,6 +1469,99 @@ export function lireEtatCourant(valeur: unknown): EtatCampagne | undefined {
   }
 
   return valeur as unknown as EtatCampagne;
+}
+
+export function lireEtatAvantRoutes(
+  valeur: unknown,
+): EtatCampagneAvantRoutes | undefined {
+  if (
+    !estObjet(valeur) ||
+    valeur.version !== VERSION_SIMULATION_COURANTE ||
+    "routes" in valeur
+  ) {
+    return undefined;
+  }
+  const pilotage = valeur.pilotage;
+  if (!estObjet(pilotage) || !estObjet(pilotage.economie)) {
+    return undefined;
+  }
+  const stocks = pilotage.economie.stocks;
+  if (!estObjet(stocks) || !estObjet(stocks.materiaux)) {
+    return undefined;
+  }
+  const materiaux = stocks.materiaux;
+  const valeurNormalisee =
+    materiaux.quantite === 0
+      ? {
+          ...valeur,
+          pilotage: {
+            ...pilotage,
+            economie: {
+              ...pilotage.economie,
+              stocks: {
+                ...stocks,
+                materiaux: { ...materiaux, reliquatDeFlux: 0 },
+              },
+            },
+          },
+        }
+      : valeur;
+  const routes = creerEtatDesRoutesInitial();
+  const etatNormalise = lireEtatCourant({
+    ...valeurNormalisee,
+    routes,
+  });
+  if (etatNormalise === undefined) {
+    return undefined;
+  }
+  const materiauxHistoriques = calculerStockAttendu(
+    "materiaux",
+    etatNormalise.tempsDuConvoi.secondes,
+    etatNormalise.narration.faitsDeCampagne as unknown as readonly ObjetInconnu[],
+    etatNormalise.infrastructure,
+    routes,
+    false,
+  );
+  return materiaux.quantite !== materiauxHistoriques.quantite ||
+    materiaux.reliquatDeFlux !== materiauxHistoriques.reliquatDeFlux
+    ? undefined
+    : (valeur as EtatCampagneAvantRoutes);
+}
+
+export function projeterEtatAvantRoutesHistorique(
+  etat: EtatCampagne,
+): EtatCampagneAvantRoutes {
+  const materiaux = calculerStockAttendu(
+    "materiaux",
+    etat.tempsDuConvoi.secondes,
+    etat.narration.faitsDeCampagne as unknown as readonly ObjetInconnu[],
+    etat.infrastructure,
+    creerEtatDesRoutesInitial(),
+    false,
+  );
+  return {
+    version: etat.version,
+    graine: etat.graine,
+    tempsDuConvoi: etat.tempsDuConvoi,
+    citeCaravane: etat.citeCaravane,
+    narration: etat.narration,
+    pilotage: {
+      ...etat.pilotage,
+      economie: {
+        ...etat.pilotage.economie,
+        stocks: {
+          ...etat.pilotage.economie.stocks,
+          materiaux: {
+            ...etat.pilotage.economie.stocks.materiaux,
+            ...materiaux,
+          },
+        },
+      },
+    },
+    infrastructure: etat.infrastructure,
+    echeances: etat.echeances,
+    fluxPseudoAleatoires: etat.fluxPseudoAleatoires,
+  };
 }
 
 export function lireEtatV2(valeur: unknown): EtatCampagneV2 | undefined {

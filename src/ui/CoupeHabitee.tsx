@@ -43,6 +43,7 @@ export function CoupeHabitee({
     let annule = false;
     let initialisee = false;
     let detruite = false;
+    let observateur: ResizeObserver | null = null;
 
     const detruireApplication = () => {
       if (initialisee && !detruite) {
@@ -135,7 +136,33 @@ export function CoupeHabitee({
       ajusterScene();
       application.stage.addChild(scene);
       application.stage.addChild(silhouettes);
+      application.renderer.render(application.stage);
       conteneur.dataset.ready = "true";
+
+      observateur = new ResizeObserver(() => {
+        if (annule || detruite) {
+          return;
+        }
+        const largeur = conteneur.clientWidth;
+        const hauteur = conteneur.clientHeight;
+        if (largeur <= 0 || hauteur <= 0) {
+          return;
+        }
+        if (
+          largeur !== application.screen.width ||
+          hauteur !== application.screen.height
+        ) {
+          application.renderer.resize(largeur, hauteur);
+        }
+        if (
+          largeurPrecedente !== application.screen.width ||
+          hauteurPrecedente !== application.screen.height
+        ) {
+          ajusterScene();
+        }
+        application.renderer.render(application.stage);
+      });
+      observateur.observe(conteneur);
 
       const animerPresentation = (ticker: Ticker) => {
         if (
@@ -150,13 +177,18 @@ export function CoupeHabitee({
         }
       };
 
-      application.ticker.add(animerPresentation);
+      if (mouvementReduit) {
+        application.ticker.stop();
+      } else {
+        application.ticker.add(animerPresentation);
+      }
     }
 
     void monterCoupeHabitee();
 
     return () => {
       annule = true;
+      observateur?.disconnect();
       if (conteneur !== null) {
         delete conteneur.dataset.ready;
       }

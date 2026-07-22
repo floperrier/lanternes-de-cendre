@@ -1,4 +1,8 @@
-import type { EtatPilotage, IdentifiantDeStock } from "./pilotage";
+import {
+  appliquerVariationAUnStock,
+  type EtatPilotage,
+  type IdentifiantDeStock,
+} from "./pilotage";
 
 export const IDENTIFIANTS_DE_QUARTIER = [
   "intendance",
@@ -1023,10 +1027,10 @@ export function faireProgresserChantier(
       ...pilotage.economie,
       stocks: {
         ...pilotage.economie.stocks,
-        materiaux: {
-          ...pilotage.economie.stocks.materiaux,
-          quantite: pilotage.economie.stocks.materiaux.quantite - consommation,
-        },
+        materiaux: appliquerVariationAUnStock(
+          pilotage.economie.stocks.materiaux,
+          -consommation,
+        ),
       },
     },
   };

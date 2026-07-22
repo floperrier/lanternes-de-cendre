@@ -213,6 +213,53 @@ describe("commandes du Temps du convoi", () => {
 });
 
 describe("Engagement de route et Jalon du monde", () => {
+  it("interdit de déployer la Halte pendant une traversée", () => {
+    const enTraversee = appliquerCommande(
+      creerCampagneInitiale("CENDRE-01"),
+      {
+        type: "engagement-de-route.confirmer",
+        tronconId: "digue-des-puits",
+      },
+    ).etat;
+
+    expect(() =>
+      appliquerCommande(enTraversee, { type: "halte.deployer" }),
+    ).toThrow("pendant une traversée");
+  });
+
+  it("interdit une traversée tant que la Halte est déployée ou un Chantier actif", () => {
+    const enPause = appliquerCommande(creerCampagneInitiale("CENDRE-01"), {
+      type: "temps-du-convoi.regler-vitesse",
+      vitesse: 0,
+    }).etat;
+    const enHalte = appliquerCommande(enPause, {
+      type: "halte.deployer",
+    }).etat;
+
+    expect(() =>
+      appliquerCommande(enHalte, {
+        type: "engagement-de-route.confirmer",
+        tronconId: "digue-des-puits",
+      }),
+    ).toThrow("Halte doit être repliée");
+
+    const enChantier = appliquerCommande(enHalte, {
+      type: "chantier.engager",
+      ordre: {
+        type: "construction",
+        definitionId: "condenseur-thermique",
+        emplacementId: "intendance.polyvalent",
+      },
+      priorite: "haute",
+    }).etat;
+    expect(() =>
+      appliquerCommande(enChantier, {
+        type: "engagement-de-route.confirmer",
+        tronconId: "digue-des-puits",
+      }),
+    ).toThrow("tout Chantier terminé");
+  });
+
   it("annule le reliquat quand la consommation de route épuise exactement un stock", () => {
     const avantEngagement = appliquerCommande(
       creerCampagneInitiale("CENDRE-01"),

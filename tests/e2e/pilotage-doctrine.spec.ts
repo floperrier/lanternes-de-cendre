@@ -26,6 +26,7 @@ test("les Autonomies précèdent les détails économiques sourcés", async ({
 test("la Doctrine pilote un Incident et le Journal causal au clavier", async ({
   page,
 }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
   await page.clock.install();
   await page.goto("/");
 

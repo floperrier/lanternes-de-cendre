@@ -162,6 +162,9 @@ export function AtlasPixi({ projection }: AtlasPixiProps) {
     };
 
     const dessiner = () => {
+      if (!initialisee || annule || detruite) {
+        return;
+      }
       if (application.screen.width <= 0 || application.screen.height <= 0) {
         return;
       }

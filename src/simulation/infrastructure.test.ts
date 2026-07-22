@@ -370,4 +370,27 @@ describe("Déploiement de halte et Chantiers structurels", () => {
     );
     expect(aMiParcours.etat.infrastructure.chantierActif).not.toBeNull();
   });
+
+  it("annule le reliquat quand un Chantier épuise exactement les Matériaux", () => {
+    const apresTrenteCinqHeures = appliquerCommande(
+      creerCampagneInitiale("CENDRE-01"),
+      { type: "temps-du-convoi.ecouler", secondesReelles: 126_000 },
+    ).etat;
+    expect(apresTrenteCinqHeures.pilotage.economie.stocks.materiaux).toMatchObject(
+      { quantite: 12, reliquatDeFlux: 0 },
+    );
+    const chantierEngage = reprendreTemps(
+      engagerCondenseur(deployerHalte(apresTrenteCinqHeures)),
+    );
+
+    const achevement = appliquerCommande(chantierEngage, {
+      type: "temps-du-convoi.ecouler",
+      secondesReelles: 60,
+    }).etat;
+
+    expect(achevement.pilotage.economie.stocks.materiaux).toMatchObject({
+      quantite: 0,
+      reliquatDeFlux: 0,
+    });
+  });
 });

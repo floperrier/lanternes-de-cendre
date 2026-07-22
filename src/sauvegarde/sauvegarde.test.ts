@@ -10,6 +10,7 @@ import {
   appliquerCommande,
   creerCampagneInitiale,
   empreinteEtat,
+  type CommandeCampagne,
   type EtatCampagne,
 } from "../simulation/campagne";
 import { tirerEntierNonSigne } from "../simulation/aleatoire";
@@ -80,6 +81,27 @@ function retirerRoutes(etat: EtatCampagne): Record<string, unknown> {
   return sansRoutes;
 }
 
+function retirerSeulementRoutes(etat: EtatCampagne): Record<string, unknown> {
+  const sansRoutes = { ...etat } as Record<string, unknown>;
+  delete sansRoutes.routes;
+  return sansRoutes;
+}
+
+function avecReliquatHistoriqueDeMateriaux(
+  etat: Record<string, unknown>,
+  reliquatDeFlux: number,
+): Record<string, unknown> {
+  const copie = structuredClone(etat) as Record<string, unknown> & {
+    pilotage: {
+      economie: {
+        stocks: { materiaux: { reliquatDeFlux: number } };
+      };
+    };
+  };
+  copie.pilotage.economie.stocks.materiaux.reliquatDeFlux = reliquatDeFlux;
+  return copie;
+}
+
 function reordonnerProprietes(valeur: unknown): unknown {
   if (Array.isArray(valeur)) {
     return valeur.map(reordonnerProprietes);
@@ -95,6 +117,25 @@ function reordonnerProprietes(valeur: unknown): unknown {
 }
 
 describe("sauvegarde portable", () => {
+  it("refuse une Halte déployée pendant un Engagement de route actif", () => {
+    const enTraversee = appliquerCommande(
+      creerCampagneInitiale("CENDRE-01"),
+      {
+        type: "engagement-de-route.confirmer",
+        tronconId: "digue-des-puits",
+      },
+    ).etat;
+    const incoherent: EtatCampagne = {
+      ...enTraversee,
+      infrastructure: {
+        ...enTraversee.infrastructure,
+        deploiement: "halte",
+      },
+    };
+
+    expect(lireEtatCourant(incoherent)).toBeUndefined();
+  });
+
   it("refuse une installation finale sans historique de Chantier causal", () => {
     const falsifie = structuredClone(creerCampagneInitiale("CENDRE-01"));
     const plateformes = falsifie.infrastructure.plateformes as unknown as Array<{
@@ -439,6 +480,155 @@ describe("sauvegarde portable", () => {
         ],
       },
     });
+    expect(
+      importerSauvegarde(exporterSauvegarde(importation.sauvegarde)).statut,
+    ).toBe("compatible");
+  });
+
+  it("migre une sauvegarde v2 de simulation 3 en préservant Infrastructure et Conseil", () => {
+    const snapshot = creerCampagneInitiale("CENDRE-01");
+    const snapshotAvantRoutes = retirerSeulementRoutes(snapshot);
+    const commandes: readonly CommandeCampagne[] = [
+      { type: "temps-du-convoi.regler-vitesse", vitesse: 0 },
+      { type: "halte.deployer" },
+      {
+        type: "chantier.engager",
+        ordre: {
+          type: "construction",
+          definitionId: "condenseur-thermique",
+          emplacementId: "intendance.polyvalent",
+        },
+        priorite: "haute",
+      },
+      {
+        type: "compagnon.affecter",
+        compagnonId: "ilyana-voss",
+        quartierId: "intendance",
+      },
+    ];
+    let etat = snapshot;
+    const commandesAvantRoutes = commandes.map((commande, sequence) => {
+      etat = appliquerCommande(etat, commande).etat;
+      return {
+        sequence,
+        commande,
+        empreinteApres: empreinteEtat(
+          retirerSeulementRoutes(etat) as unknown as EtatCampagne,
+        ),
+      };
+    });
+    const etatAvantRoutes = retirerSeulementRoutes(etat);
+    const empreinteSnapshot = empreinteEtat(
+      snapshotAvantRoutes as unknown as EtatCampagne,
+    );
+    const empreinte = empreinteEtat(
+      etatAvantRoutes as unknown as EtatCampagne,
+    );
+    const archive = JSON.stringify({
+      format: "lanternes-de-cendre.sauvegarde",
+      id: "archive-v2-infrastructure-conseil",
+      version: 2,
+      versions: { simulation: 3, contenu: 1, aleatoire: 1, empreinte: 1 },
+      graine: "CENDRE-01",
+      horloge: { secondes: 0 },
+      etat: etatAvantRoutes,
+      reproduction: {
+        snapshot: snapshotAvantRoutes,
+        empreinteSnapshot,
+        commandes: commandesAvantRoutes,
+      },
+      empreinte,
+    });
+
+    const importation = importerSauvegarde(archive);
+
+    expect(importation.statut).toBe("migree");
+    if (importation.statut !== "migree") {
+      throw new Error("La sauvegarde pré-Atlas devrait être migrée.");
+    }
+    expect(importation.sauvegarde.etat.routes).toEqual(snapshot.routes);
+    expect(importation.sauvegarde.etat.infrastructure).toEqual(
+      etat.infrastructure,
+    );
+    expect(importation.sauvegarde.etat.narration.faitsDeCampagne).toEqual(
+      etat.narration.faitsDeCampagne,
+    );
+    expect(
+      importerSauvegarde(exporterSauvegarde(importation.sauvegarde)).statut,
+    ).toBe("compatible");
+  });
+
+  it("migre le reliquat historique laissé par l’épuisement exact d’un Chantier", () => {
+    const snapshot = creerCampagneInitiale("CENDRE-01");
+    const commandes: readonly CommandeCampagne[] = [
+      {
+        type: "incident.ordonner",
+        incidentId: "purification.pompe-instable",
+        ordre: "securiser-pompe",
+      },
+      { type: "temps-du-convoi.ecouler", secondesReelles: 124_201 },
+      { type: "temps-du-convoi.regler-vitesse", vitesse: 0 },
+      { type: "halte.deployer" },
+      {
+        type: "chantier.engager",
+        ordre: {
+          type: "construction",
+          definitionId: "condenseur-thermique",
+          emplacementId: "intendance.polyvalent",
+        },
+        priorite: "haute",
+      },
+      { type: "temps-du-convoi.regler-vitesse", vitesse: 1 },
+      { type: "temps-du-convoi.ecouler", secondesReelles: 60 },
+    ];
+    let etat = snapshot;
+    const commandesHistoriques = commandes.map((commande, sequence) => {
+      etat = appliquerCommande(etat, commande).etat;
+      const sansRoutes = retirerSeulementRoutes(etat);
+      const etatHistorique =
+        sequence === commandes.length - 1
+          ? avecReliquatHistoriqueDeMateriaux(sansRoutes, -122)
+          : sansRoutes;
+      return {
+        sequence,
+        commande,
+        empreinteApres: empreinteEtat(
+          etatHistorique as unknown as EtatCampagne,
+        ),
+      };
+    });
+    const etatHistorique = avecReliquatHistoriqueDeMateriaux(
+      retirerSeulementRoutes(etat),
+      -122,
+    );
+    const snapshotAvantRoutes = retirerSeulementRoutes(snapshot);
+    const archive = JSON.stringify({
+      format: "lanternes-de-cendre.sauvegarde",
+      id: "archive-v2-reliquat-chantier",
+      version: 2,
+      versions: { simulation: 3, contenu: 1, aleatoire: 1, empreinte: 1 },
+      graine: "CENDRE-01",
+      horloge: { secondes: 124_261 },
+      etat: etatHistorique,
+      reproduction: {
+        snapshot: snapshotAvantRoutes,
+        empreinteSnapshot: empreinteEtat(
+          snapshotAvantRoutes as unknown as EtatCampagne,
+        ),
+        commandes: commandesHistoriques,
+      },
+      empreinte: empreinteEtat(etatHistorique as unknown as EtatCampagne),
+    });
+
+    const importation = importerSauvegarde(archive);
+
+    expect(importation.statut).toBe("migree");
+    if (importation.statut !== "migree") {
+      throw new Error("Le reliquat historique devrait être migré.");
+    }
+    expect(
+      importation.sauvegarde.etat.pilotage.economie.stocks.materiaux,
+    ).toMatchObject({ quantite: 0, reliquatDeFlux: 0 });
     expect(
       importerSauvegarde(exporterSauvegarde(importation.sauvegarde)).statut,
     ).toBe("compatible");

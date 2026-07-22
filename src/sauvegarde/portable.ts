@@ -44,15 +44,6 @@ function trouverSousVersionFuture(
     return undefined;
   }
 
-  if (
-    valeur.version === VERSION_SAUVEGARDE_AVANT_ROUTES &&
-    typeof valeur.versions.simulation === "number" &&
-    Number.isInteger(valeur.versions.simulation) &&
-    valeur.versions.simulation > VERSION_SAUVEGARDE_AVANT_ROUTES
-  ) {
-    return { nom: "simulation", version: valeur.versions.simulation };
-  }
-
   for (const nom of NOMS_DES_SOUS_VERSIONS) {
     const version = valeur.versions[nom];
     if (
