@@ -7,6 +7,7 @@ import type { VitesseDuConvoi } from "../simulation/campagne";
 interface CommandesDuTempsProps {
   readonly application: ApplicationCampagne;
   readonly projection: ProjectionDeCampagne;
+  readonly bloque?: boolean;
 }
 
 const VITESSES: readonly Exclude<VitesseDuConvoi, 0>[] = [1, 2, 4];
@@ -14,6 +15,7 @@ const VITESSES: readonly Exclude<VitesseDuConvoi, 0>[] = [1, 2, 4];
 export function CommandesDuTemps({
   application,
   projection,
+  bloque = false,
 }: CommandesDuTempsProps) {
   const reglerVitesse = (vitesse: VitesseDuConvoi) => {
     application.envoyerCommande({
@@ -23,7 +25,10 @@ export function CommandesDuTemps({
   };
 
   return (
-    <footer className="commandes-du-temps">
+    <footer
+      className="commandes-du-temps"
+      inert={bloque ? true : undefined}
+    >
       <time dateTime={projection.dureeIso}>
         {projection.horloge}
       </time>
@@ -38,6 +43,7 @@ export function CommandesDuTemps({
         <button
           type="button"
           aria-pressed={projection.vitesse === 0}
+          disabled={bloque}
           onClick={() => reglerVitesse(0)}
         >
           Pause
@@ -48,6 +54,7 @@ export function CommandesDuTemps({
             type="button"
             aria-label={`Vitesse ${vitesse}×`}
             aria-pressed={projection.vitesse === vitesse}
+            disabled={bloque}
             onClick={() => reglerVitesse(vitesse)}
           >
             {vitesse}×

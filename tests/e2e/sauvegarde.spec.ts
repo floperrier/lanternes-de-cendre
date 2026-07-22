@@ -25,7 +25,7 @@ test("IndexedDB applique le même contrat tournant et protège les archives inco
       nomDeBase,
       nombreDeSnapshots: 2,
     });
-    const creerArchive = (id: string, version = 3) => ({
+    const creerArchive = (id: string, version = 4) => ({
       id,
       version,
       contenu: JSON.stringify({ id, version }),
@@ -50,11 +50,11 @@ test("IndexedDB applique le même contrat tournant et protège les archives inco
         format: "lanternes-de-cendre.sauvegarde",
         id: "meme-id",
         version: 2,
-        versions: { simulation: 4 },
+        versions: { simulation: 5 },
         padding,
       });
-    const archiveA = creerArchiveCollision("4wzx");
-    const archiveB = creerArchiveCollision("b6cd");
+    const archiveA = creerArchiveCollision("1f8l--w6ndij");
+    const archiveB = creerArchiveCollision("2f7t-gqiv95");
     const importsConcurrents = await Promise.all([
       moduleSession.importerCampagne(port, archiveA),
       moduleSession.importerCampagne(port, archiveB),
@@ -92,17 +92,17 @@ test("IndexedDB applique le même contrat tournant et protège les archives inco
     "incompatible",
     "incompatible",
   ]);
-  expect(resultat.empreintes).toEqual(["e18e3194", "e18e3194"]);
+  expect(resultat.empreintes).toEqual(["af02f567", "af02f567"]);
   const archivesAttendues = [
     {
       id: "troisieme",
-      version: 3,
-      contenu: JSON.stringify({ id: "troisieme", version: 3 }),
+      version: 4,
+      contenu: JSON.stringify({ id: "troisieme", version: 4 }),
     },
     {
       id: "deuxieme",
-      version: 3,
-      contenu: JSON.stringify({ id: "deuxieme", version: 3 }),
+      version: 4,
+      contenu: JSON.stringify({ id: "deuxieme", version: 4 }),
     },
     {
       id: "meme-id",
@@ -111,8 +111,8 @@ test("IndexedDB applique le même contrat tournant et protège les archives inco
         format: "lanternes-de-cendre.sauvegarde",
         id: "meme-id",
         version: 2,
-        versions: { simulation: 4 },
-        padding: "b6cd",
+        versions: { simulation: 5 },
+        padding: "2f7t-gqiv95",
       }),
       protegeeDeLaRotation: true,
     },
@@ -123,8 +123,8 @@ test("IndexedDB applique le même contrat tournant et protège les archives inco
         format: "lanternes-de-cendre.sauvegarde",
         id: "meme-id",
         version: 2,
-        versions: { simulation: 4 },
-        padding: "4wzx",
+        versions: { simulation: 5 },
+        padding: "1f8l--w6ndij",
       }),
       protegeeDeLaRotation: true,
     },

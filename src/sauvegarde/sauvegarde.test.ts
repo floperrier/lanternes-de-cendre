@@ -30,6 +30,7 @@ interface EtatV2HistoriqueMutable {
   version: number;
   infrastructure?: unknown;
   routes?: unknown;
+  crises?: unknown;
   citeCaravane: { formation: { plateformes: string[] } };
 }
 
@@ -63,6 +64,7 @@ function retirerRoutes(etat: EtatCampagne): Record<string, unknown> {
   const sansRoutes = { ...etat } as Record<string, unknown>;
   delete sansRoutes.routes;
   delete sansRoutes.infrastructure;
+  delete sansRoutes.crises;
   sansRoutes.citeCaravane = {
     ...etat.citeCaravane,
     formation: {
@@ -84,7 +86,16 @@ function retirerRoutes(etat: EtatCampagne): Record<string, unknown> {
 function retirerSeulementRoutes(etat: EtatCampagne): Record<string, unknown> {
   const sansRoutes = { ...etat } as Record<string, unknown>;
   delete sansRoutes.routes;
+  delete sansRoutes.crises;
+  sansRoutes.version = 3;
   return sansRoutes;
+}
+
+function retirerCrises(etat: EtatCampagne): Record<string, unknown> {
+  const avantCrises = { ...etat } as Record<string, unknown>;
+  delete avantCrises.crises;
+  avantCrises.version = 3;
+  return avantCrises;
 }
 
 function avecReliquatHistoriqueDeMateriaux(
@@ -272,6 +283,7 @@ describe("sauvegarde portable", () => {
     for (const etat of [archive.etat, archive.reproduction.snapshot]) {
       delete etat.infrastructure;
       delete etat.routes;
+      delete etat.crises;
       etat.version = 2;
       etat.citeCaravane.formation.plateformes = plateformesLegacy;
     }
@@ -300,6 +312,61 @@ describe("sauvegarde portable", () => {
       "machines",
       "atelier-operations",
     ]);
+  });
+
+  it("migre une sauvegarde de simulation 2 après le débit maintenu", () => {
+    const snapshot = creerCampagneInitiale("CENDRE-01");
+    const commande: CommandeCampagne = {
+      type: "incident.ordonner",
+      incidentId: "purification.pompe-instable",
+      ordre: "maintenir-debit",
+    };
+    const etat = appliquerCommande(snapshot, commande).etat;
+    const convertirEnV2 = (source: EtatCampagne) => {
+      const historique = retirerRoutes(source);
+      historique.version = 2;
+      return historique;
+    };
+    const snapshotV2 = convertirEnV2(snapshot);
+    const etatV2 = convertirEnV2(etat);
+    const archive = JSON.stringify({
+      format: "lanternes-de-cendre.sauvegarde",
+      id: "archive-v2-debit-maintenu",
+      version: 2,
+      versions: { simulation: 2, contenu: 1, aleatoire: 1, empreinte: 1 },
+      graine: "CENDRE-01",
+      horloge: { secondes: 0 },
+      etat: etatV2,
+      reproduction: {
+        snapshot: snapshotV2,
+        empreinteSnapshot: empreinteEtat(
+          snapshotV2 as unknown as EtatCampagne,
+        ),
+        commandes: [
+          {
+            sequence: 0,
+            commande,
+            empreinteApres: empreinteEtat(etatV2 as unknown as EtatCampagne),
+          },
+        ],
+      },
+      empreinte: empreinteEtat(etatV2 as unknown as EtatCampagne),
+    });
+
+    const importation = importerSauvegarde(archive);
+
+    expect(importation.statut).toBe("migree");
+    if (importation.statut !== "migree") {
+      throw new Error("La sauvegarde v2 après incident devrait être migrée.");
+    }
+    expect(importation.sauvegarde.etat.crises).toMatchObject({
+      approvisionnementEau: "assure",
+      faitAnnonceurHistoriqueIgnore: true,
+      alerte: null,
+    });
+    expect(
+      importerSauvegarde(exporterSauvegarde(importation.sauvegarde)).statut,
+    ).toBe("compatible");
   });
 
   it("reprend un Chantier en cours avec sa priorité et ses ressources consommées", () => {
@@ -462,10 +529,10 @@ describe("sauvegarde portable", () => {
       throw new Error("La sauvegarde v2 devrait migrer vers l’Atlas v3.");
     }
     expect(importation.sauvegarde).toMatchObject({
-      version: 3,
-      versions: { simulation: 3 },
+      version: 4,
+      versions: { simulation: 4 },
       etat: {
-        version: 3,
+        version: 4,
         routes: {
           position: "halte-du-puits-sec",
           engagements: [],
@@ -473,7 +540,7 @@ describe("sauvegarde portable", () => {
         },
       },
       reproduction: {
-        snapshot: { version: 3, routes: { position: "halte-du-puits-sec" } },
+        snapshot: { version: 4, routes: { position: "halte-du-puits-sec" } },
         commandes: [
           { sequence: 0, commande: { type: "temps-du-convoi.regler-vitesse" } },
           { sequence: 1, commande: { type: "temps-du-convoi.ecouler" } },
@@ -504,6 +571,11 @@ describe("sauvegarde portable", () => {
         type: "compagnon.affecter",
         compagnonId: "ilyana-voss",
         quartierId: "intendance",
+      },
+      {
+        type: "incident.ordonner",
+        incidentId: "purification.pompe-instable",
+        ordre: "maintenir-debit",
       },
     ];
     let etat = snapshot;
@@ -553,6 +625,82 @@ describe("sauvegarde portable", () => {
     expect(importation.sauvegarde.etat.narration.faitsDeCampagne).toEqual(
       etat.narration.faitsDeCampagne,
     );
+    expect(importation.sauvegarde.etat.crises).toMatchObject({
+      approvisionnementEau: "assure",
+      faitAnnonceurHistoriqueIgnore: true,
+      alerte: null,
+    });
+    expect(
+      importerSauvegarde(exporterSauvegarde(importation.sauvegarde)).statut,
+    ).toBe("compatible");
+  });
+
+  it("migre une sauvegarde v3 en ajoutant l'état initial des Crises", () => {
+    const snapshot = creerCampagneInitiale("CENDRE-01");
+    const commandes: readonly CommandeCampagne[] = [
+      { type: "temps-du-convoi.regler-vitesse", vitesse: 4 },
+      { type: "temps-du-convoi.ecouler", secondesReelles: 15 },
+      {
+        type: "incident.ordonner",
+        incidentId: "purification.pompe-instable",
+        ordre: "maintenir-debit",
+      },
+    ];
+    let etat = snapshot;
+    const commandesHistoriques = commandes.map((commande, sequence) => {
+      etat = appliquerCommande(etat, commande).etat;
+      return {
+        sequence,
+        commande,
+        empreinteApres: empreinteEtat(
+          retirerCrises(etat) as unknown as EtatCampagne,
+        ),
+      };
+    });
+    const snapshotHistorique = retirerCrises(snapshot);
+    const etatHistorique = retirerCrises(etat);
+    const archive = JSON.stringify({
+      format: "lanternes-de-cendre.sauvegarde",
+      id: "archive-v3-avant-crises",
+      version: 3,
+      versions: { simulation: 3, contenu: 1, aleatoire: 1, empreinte: 1 },
+      graine: "CENDRE-01",
+      horloge: { secondes: 60 },
+      etat: etatHistorique,
+      reproduction: {
+        snapshot: snapshotHistorique,
+        empreinteSnapshot: empreinteEtat(
+          snapshotHistorique as unknown as EtatCampagne,
+        ),
+        commandes: commandesHistoriques,
+      },
+      empreinte: empreinteEtat(etatHistorique as unknown as EtatCampagne),
+    });
+
+    const importation = importerSauvegarde(archive);
+
+    expect(importation.statut).toBe("migree");
+    if (importation.statut !== "migree") {
+      throw new Error("La sauvegarde antérieure aux Crises devrait être migrée.");
+    }
+    expect(importation.sauvegarde).toMatchObject({
+      version: 4,
+      versions: { simulation: 4 },
+      etat: {
+        version: 4,
+        crises: {
+          approvisionnementEau: "assure",
+          faitAnnonceurHistoriqueIgnore: true,
+          alerte: null,
+          criseActive: null,
+          cicatrices: [],
+          recuperations: [],
+        },
+      },
+      reproduction: {
+        snapshot: { version: 4, crises: { approvisionnementEau: "assure" } },
+      },
+    });
     expect(
       importerSauvegarde(exporterSauvegarde(importation.sauvegarde)).statut,
     ).toBe("compatible");
@@ -649,9 +797,9 @@ describe("sauvegarde portable", () => {
 
     expect(sauvegarde).toMatchObject({
       format: "lanternes-de-cendre.sauvegarde",
-      version: 3,
+      version: 4,
       versions: {
-        simulation: 3,
+        simulation: 4,
         contenu: 1,
         aleatoire: 1,
         empreinte: 1,
@@ -659,7 +807,7 @@ describe("sauvegarde portable", () => {
       graine: "CENDRE-01",
       horloge: { secondes: 60 },
       etat: {
-        version: 3,
+        version: 4,
         echeances: [],
         fluxPseudoAleatoires: {
           "evenements-narratifs": {
@@ -793,6 +941,126 @@ describe("sauvegarde portable", () => {
       etat: importation.sauvegarde.etat,
       empreinte: sauvegarde.empreinte,
     });
+  });
+
+  it("persiste et rejoue la Crise, sa Cicatrice et la récupération amorcée", () => {
+    const application = creerApplicationCampagne("CENDRE-01");
+    const reproduction = suivreReproduction(application);
+    application.envoyerCommande({
+      type: "incident.ordonner",
+      incidentId: "purification.pompe-instable",
+      ordre: "maintenir-debit",
+    });
+    application.envoyerCommande({
+      type: "temps-du-convoi.ecouler",
+      secondesReelles: 180,
+    });
+    application.envoyerCommande({
+      type: "crise.declencher",
+      criseId: "penurie-eau.pompe-purification",
+    });
+    application.envoyerCommande({
+      type: "crise.resoudre",
+      criseId: "penurie-eau.pompe-purification",
+      reponseId: "mobiliser-les-remedes",
+    });
+    const sauvegarde = creerSauvegarde(
+      application.lireEtat(),
+      reproduction,
+    );
+
+    const importation = importerSauvegarde(exporterSauvegarde(sauvegarde));
+
+    expect(importation.statut).toBe("compatible");
+    expect(sauvegarde.etat.crises).toMatchObject({
+      approvisionnementEau: "sous-tension",
+      criseActive: null,
+      cicatrices: [
+        { id: "cicatrice.reserve-de-remedes-entamee", irreversible: true },
+      ],
+      recuperations: [
+        { garantie: "mobilite-minimale", horizonTroncons: 2 },
+      ],
+    });
+    expect(rejouerReproduction(reproduction)).toEqual({
+      statut: "termine",
+      etat: sauvegarde.etat,
+      empreinte: sauvegarde.empreinte,
+    });
+  });
+
+  it("refuse une Crise active dont le Temps du convoi n’est pas suspendu", () => {
+    let etat = creerCampagneInitiale("CENDRE-01");
+    etat = appliquerCommande(etat, {
+      type: "incident.ordonner",
+      incidentId: "purification.pompe-instable",
+      ordre: "maintenir-debit",
+    }).etat;
+    etat = appliquerCommande(etat, {
+      type: "temps-du-convoi.ecouler",
+      secondesReelles: 180,
+    }).etat;
+    etat = appliquerCommande(etat, {
+      type: "crise.declencher",
+      criseId: "penurie-eau.pompe-purification",
+    }).etat;
+    const falsifie: EtatCampagne = {
+      ...etat,
+      tempsDuConvoi: { ...etat.tempsDuConvoi, vitesse: 1 },
+    };
+
+    expect(lireEtatCourant(falsifie)).toBeUndefined();
+  });
+
+  it("refuse une rupture falsifiée qui contredit les 16 L annoncés", () => {
+    let etat = creerCampagneInitiale("CENDRE-01");
+    etat = appliquerCommande(etat, {
+      type: "incident.ordonner",
+      incidentId: "purification.pompe-instable",
+      ordre: "maintenir-debit",
+    }).etat;
+    etat = appliquerCommande(etat, {
+      type: "temps-du-convoi.ecouler",
+      secondesReelles: 180,
+    }).etat;
+    etat = appliquerCommande(etat, {
+      type: "crise.declencher",
+      criseId: "penurie-eau.pompe-purification",
+    }).etat;
+    const falsifie = structuredClone(etat) as unknown as {
+      pilotage: {
+        economie: {
+          stocks: { eau: { quantite: number; reliquatDeFlux: number } };
+        };
+      };
+      narration: {
+        faitsDeCampagne: Array<{
+          id: string;
+          effets: { materiels: Array<{ variation?: number }> };
+        }>;
+      };
+    };
+    falsifie.pilotage.economie.stocks.eau.quantite = 0;
+    falsifie.pilotage.economie.stocks.eau.reliquatDeFlux = 0;
+    const rupture = falsifie.narration.faitsDeCampagne.find(
+      (fait) => fait.id === "crise.purification.eau-contaminee",
+    );
+    if (rupture === undefined) {
+      throw new Error("Le Fait de rupture devrait exister.");
+    }
+    rupture.effets.materiels[0]!.variation = -759;
+
+    expect(lireEtatCourant(falsifie)).toBeUndefined();
+  });
+
+  it("refuse un marqueur historique sans Fait annonciateur", () => {
+    const etat = creerCampagneInitiale("CENDRE-01");
+    const falsifie: EtatCampagne = {
+      ...etat,
+      crises: { ...etat.crises, faitAnnonceurHistoriqueIgnore: true },
+    };
+
+    expect(lireEtatCourant(falsifie)).toBeUndefined();
   });
 
   it("valide chronologiquement un Engagement qui épuise exactement l’Eau", () => {
@@ -1055,9 +1323,9 @@ describe("sauvegarde portable", () => {
       throw new Error("La fixture v1 devrait être migrée.");
     }
     expect(importation.sauvegarde).toMatchObject({
-      version: 3,
+      version: 4,
       etat: {
-        version: 3,
+        version: 4,
         tempsDuConvoi: { vitesse: 4 },
         echeances: [],
         fluxPseudoAleatoires: {
@@ -1076,7 +1344,7 @@ describe("sauvegarde portable", () => {
         },
       },
       reproduction: {
-        snapshot: { version: 3 },
+        snapshot: { version: 4 },
         commandes: [
           {
             sequence: 0,
@@ -1393,12 +1661,12 @@ describe("sauvegarde portable", () => {
       version: 99,
       archiveOriginale,
       explication:
-        "Cette sauvegarde utilise la version 99, plus récente que la version 3 prise en charge. L’original est conservé et peut être réexporté.",
+        "Cette sauvegarde utilise la version 99, plus récente que la version 4 prise en charge. L’original est conservé et peut être réexporté.",
     });
   });
 
   it.each([
-    ["simulation", 4],
+    ["simulation", 5],
     ["contenu", 2],
     ["aleatoire", 2],
     ["empreinte", 2],

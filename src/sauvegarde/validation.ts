@@ -4,12 +4,14 @@ import {
   VITESSES_DU_CONVOI,
   type CommandeCampagne,
   type EtatCampagne,
+  type FaitDeCampagne,
   type GraineDeCampagne,
   type IdentifiantPlateformeMobile,
   type VitesseDuConvoi,
 } from "../simulation/campagne";
 import {
   VERSION_ALEATOIRE_COURANTE,
+  VERSION_SIMULATION_AVANT_CRISES,
   VERSION_SIMULATION_AVANT_ROUTES,
   VERSION_SIMULATION_COURANTE,
   VERSION_SIMULATION_INITIALE,
@@ -64,6 +66,16 @@ import {
   estFaitDuConseil,
   estIdentifiantDeFaitDuConseil,
 } from "./validation-conseil";
+import {
+  DEFINITIONS_DES_REPONSES_A_LA_CRISE,
+  FAIT_ANNONCANT_LA_CRISE,
+  IDENTIFIANTS_DE_FAITS_DE_CRISE,
+  IDENTIFIANT_DE_LA_CRISE_DE_REFERENCE,
+  annoncerCriseApresFaits,
+  creerEtatDesCrisesInitial,
+  declencherCrise,
+  type EtatDesCrises,
+} from "../simulation/crise";
 
 const EMPREINTE = /^[0-9a-f]{8}$/;
 const IDENTIFIANTS_PLATEFORMES_LEGACY_V1 = [
@@ -90,6 +102,7 @@ const IDENTIFIANTS_DE_FAITS_CONNUS = new Set([
   ...IDENTIFIANTS_DE_FAITS_DU_CATALOGUE,
   ...IDENTIFIANTS_DE_FAITS_D_INCIDENT,
   ...IDENTIFIANTS_DE_FAITS_DU_CONSEIL,
+  ...IDENTIFIANTS_DE_FAITS_DE_CRISE,
 ]);
 const DEFINITIONS_DE_FAITS_DU_CATALOGUE = new Map(
   catalogueDEvenements.evenements.flatMap((evenement) =>
@@ -123,7 +136,7 @@ export interface EtatCampagneV1 {
 export interface EtatCampagneV2
   extends Omit<
     EtatCampagne,
-    "version" | "routes" | "infrastructure" | "citeCaravane"
+    "version" | "routes" | "infrastructure" | "crises" | "citeCaravane"
   > {
   readonly version: typeof VERSION_SIMULATION_AVANT_ROUTES;
   readonly citeCaravane: Omit<EtatCampagne["citeCaravane"], "formation"> & {
@@ -134,7 +147,15 @@ export interface EtatCampagneV2
   };
 }
 
-export type EtatCampagneAvantRoutes = Omit<EtatCampagne, "routes">;
+export interface EtatCampagneAvantRoutes
+  extends Omit<EtatCampagne, "version" | "routes" | "crises"> {
+  readonly version: typeof VERSION_SIMULATION_AVANT_CRISES;
+}
+
+export interface EtatCampagneAvantCrises
+  extends Omit<EtatCampagne, "version" | "crises"> {
+  readonly version: typeof VERSION_SIMULATION_AVANT_CRISES;
+}
 
 export function estObjet(valeur: unknown): valeur is ObjetInconnu {
   return (
@@ -223,18 +244,37 @@ export function estCommandeV2(valeur: unknown): valeur is CommandeCampagne {
 }
 
 export function estCommande(valeur: unknown): valeur is CommandeCampagne {
-  if (estCommandeAvantRoutes(valeur)) {
+  if (estCommandeAvantCrises(valeur)) {
     return true;
   }
   if (!estObjet(valeur) || typeof valeur.type !== "string") {
     return false;
   }
-  if (valeur.type === "engagement-de-route.confirmer") {
-    return TRONCONS_DE_ROUTE.some(
-      (troncon) => troncon.id === valeur.tronconId,
+  if (valeur.type === "crise.declencher") {
+    return valeur.criseId === IDENTIFIANT_DE_LA_CRISE_DE_REFERENCE;
+  }
+  if (valeur.type === "crise.resoudre") {
+    return (
+      valeur.criseId === IDENTIFIANT_DE_LA_CRISE_DE_REFERENCE &&
+      DEFINITIONS_DES_REPONSES_A_LA_CRISE.some(
+        (reponse) => reponse.id === valeur.reponseId,
+      )
     );
   }
   return false;
+}
+
+export function estCommandeAvantCrises(
+  valeur: unknown,
+): valeur is CommandeCampagne {
+  if (estCommandeAvantRoutes(valeur)) {
+    return true;
+  }
+  return (
+    estObjet(valeur) &&
+    valeur.type === "engagement-de-route.confirmer" &&
+    TRONCONS_DE_ROUTE.some((troncon) => troncon.id === valeur.tronconId)
+  );
 }
 
 function estOrdreDeChantier(valeur: unknown): valeur is OrdreDeChantier {
@@ -339,11 +379,15 @@ function memesChaines(
   );
 }
 
-function estEffetStock(valeur: unknown, variation: number): boolean {
+function estEffetStock(
+  valeur: unknown,
+  variation: number,
+  stock = "materiaux",
+): boolean {
   return (
     estObjet(valeur) &&
     valeur.type === "stock.modifie" &&
-    valeur.stock === "materiaux" &&
+    valeur.stock === stock &&
     valeur.variation === variation
   );
 }
@@ -422,6 +466,56 @@ function estFaitDeCampagneV2(valeur: unknown): boolean {
           effet.valeur,
         ),
       )
+    );
+  }
+
+  if (IDENTIFIANTS_DE_FAITS_DE_CRISE.includes(valeur.id as never)) {
+    if (valeur.id === IDENTIFIANTS_DE_FAITS_DE_CRISE[0]) {
+      return (
+        valeur.cause === FAIT_ANNONCANT_LA_CRISE &&
+        memesChaines(acteurs, [
+          "equipes-purification",
+          "foyers-du-convoi",
+        ]) &&
+        valeur.cible === "reserve-deau-purifiee" &&
+        materiels.length === 1 &&
+        estObjet(materiels[0]) &&
+        materiels[0].type === "stock.modifie" &&
+        materiels[0].stock === "eau" &&
+        estNombreFini(materiels[0].variation) &&
+        materiels[0].variation <= 0 &&
+        humains.length === 1 &&
+        estEffetHumain(humains[0], "habitants.exposes", "nombre", 0)
+      );
+    }
+    if (valeur.cause !== IDENTIFIANT_DE_LA_CRISE_DE_REFERENCE) {
+      return false;
+    }
+    if (valeur.id === IDENTIFIANTS_DE_FAITS_DE_CRISE[1]) {
+      return (
+        memesChaines(acteurs, ["porte-lanterne", "equipes-purification"]) &&
+        valeur.cible === "pompe-purification" &&
+        materiels.length === 1 &&
+        estEffetStock(materiels[0], -4) &&
+        humains.length === 0
+      );
+    }
+    if (valeur.id === IDENTIFIANTS_DE_FAITS_DE_CRISE[2]) {
+      return (
+        memesChaines(acteurs, ["porte-lanterne", "equipes-purification"]) &&
+        valeur.cible === "pompe-purification" &&
+        materiels.length === 1 &&
+        estEffetStock(materiels[0], -5, "remedes") &&
+        humains.length === 0
+      );
+    }
+    return (
+      valeur.id === IDENTIFIANTS_DE_FAITS_DE_CRISE[3] &&
+      memesChaines(acteurs, ["porte-lanterne", "foyers-exposes"]) &&
+      valeur.cible === "foyers-du-convoi" &&
+      materiels.length === 0 &&
+      humains.length === 1 &&
+      estEffetHumain(humains[0], "habitants.modifies", "variation", -8)
     );
   }
 
@@ -1022,7 +1116,9 @@ function calculerStockAttendu(
       index,
       engagement,
     })),
-  ].sort((gauche, droite) => {
+  ]
+    .filter((occurrence) => occurrence.moment <= secondesFinales)
+    .sort((gauche, droite) => {
     if (gauche.moment !== droite.moment) {
       return gauche.moment - droite.moment;
     }
@@ -1031,7 +1127,7 @@ function calculerStockAttendu(
       priorite[gauche.type] - priorite[droite.type] ||
       gauche.index - droite.index
     );
-  });
+    });
 
   for (const occurrence of occurrences) {
     appliquerFlux(occurrence.moment - secondeCourante);
@@ -1273,6 +1369,24 @@ function estCausaliteDeNarrationValide(
     }
   }
 
+  for (const fait of faits) {
+    if (
+      IDENTIFIANTS_DE_FAITS_DE_CRISE.includes(fait.id as never) &&
+      estObjet(fait.effets) &&
+      Array.isArray(fait.effets.humains)
+    ) {
+      for (const effet of fait.effets.humains) {
+        if (
+          estObjet(effet) &&
+          effet.type === "habitants.modifies" &&
+          estNombreFini(effet.variation)
+        ) {
+          habitantsAttendus += effet.variation;
+        }
+      }
+    }
+  }
+
   const nombreDeFaitsDIncident = faits.filter((fait) =>
     IDENTIFIANTS_DE_FAITS_D_INCIDENT.includes(fait.id as never),
   ).length;
@@ -1290,6 +1404,187 @@ function estCausaliteDeNarrationValide(
     nombreDeFaitsDIncident === (pilotage.incidentActif === null ? 1 : 0) &&
     resolutionDIncidentEstPossible &&
     estCausaliteDuConseilValide(faits)
+  );
+}
+
+function sontStructurellementEgaux(gauche: unknown, droite: unknown): boolean {
+  if (Object.is(gauche, droite)) {
+    return true;
+  }
+  if (Array.isArray(gauche) || Array.isArray(droite)) {
+    return (
+      Array.isArray(gauche) &&
+      Array.isArray(droite) &&
+      gauche.length === droite.length &&
+      gauche.every((membre, index) =>
+        sontStructurellementEgaux(membre, droite[index]),
+      )
+    );
+  }
+  if (!estObjet(gauche) || !estObjet(droite)) {
+    return false;
+  }
+  const clesGauche = Object.keys(gauche).sort();
+  const clesDroite = Object.keys(droite).sort();
+  return (
+    clesGauche.length === clesDroite.length &&
+    clesGauche.every(
+      (cle, index) =>
+        cle === clesDroite[index] &&
+        sontStructurellementEgaux(gauche[cle], droite[cle]),
+    )
+  );
+}
+
+function estEtatDesCrises(
+  valeur: unknown,
+  secondesCourantes: number,
+  vitesse: VitesseDuConvoi,
+  faits: readonly ObjetInconnu[],
+  infrastructure: EtatInfrastructure,
+  routes: EtatDesRoutes,
+  autoriserMarqueurHistoriqueSansFait = false,
+): valeur is EtatDesCrises {
+  const faitAnnonceur = faits.find(
+    (fait) => fait.id === FAIT_ANNONCANT_LA_CRISE,
+  );
+  const faitDeRupture = faits.find(
+    (fait) => fait.id === IDENTIFIANTS_DE_FAITS_DE_CRISE[0],
+  );
+  const identifiantsDeResolution = [
+    IDENTIFIANTS_DE_FAITS_DE_CRISE[1],
+    IDENTIFIANTS_DE_FAITS_DE_CRISE[2],
+    IDENTIFIANTS_DE_FAITS_DE_CRISE[3],
+  ] as const;
+  const faitsDeResolution = faits.filter((fait) =>
+    identifiantsDeResolution.includes(fait.id as never),
+  );
+  if (
+    faits.filter((fait) => fait.id === IDENTIFIANTS_DE_FAITS_DE_CRISE[0])
+      .length > 1 ||
+    faitsDeResolution.length > 1 ||
+    (faitDeRupture !== undefined && faitAnnonceur === undefined) ||
+    (faitsDeResolution.length > 0 && faitDeRupture === undefined)
+  ) {
+    return false;
+  }
+
+  if (
+    estObjet(valeur) &&
+    valeur.faitAnnonceurHistoriqueIgnore === true
+  ) {
+    return (
+      (faitAnnonceur !== undefined ||
+        autoriserMarqueurHistoriqueSansFait) &&
+      faitDeRupture === undefined &&
+      faitsDeResolution.length === 0 &&
+      sontStructurellementEgaux(valeur, {
+        ...creerEtatDesCrisesInitial(),
+        faitAnnonceurHistoriqueIgnore: true,
+      })
+    );
+  }
+  if (
+    !estObjet(valeur) ||
+    valeur.faitAnnonceurHistoriqueIgnore !== false
+  ) {
+    return false;
+  }
+
+  let attendu = creerEtatDesCrisesInitial();
+  if (faitAnnonceur !== undefined) {
+    attendu = annoncerCriseApresFaits(
+      attendu,
+      [faitAnnonceur as unknown as FaitDeCampagne],
+    ).etat;
+  }
+  if (faitDeRupture !== undefined) {
+    if (
+      faitDeRupture.moment !== (faitAnnonceur!.moment as number) + 180 ||
+      faitDeRupture.moment > secondesCourantes
+    ) {
+      return false;
+    }
+    const faitsAvantRupture = faits.filter(
+      (fait) =>
+        fait !== faitDeRupture &&
+        (fait.moment as number) <= (faitDeRupture.moment as number),
+    );
+    const eauAvantRupture = calculerStockAttendu(
+      "eau",
+      faitDeRupture.moment as number,
+      faitsAvantRupture,
+      infrastructure,
+      routes,
+    ).quantite;
+    const effets = faitDeRupture.effets as ObjetInconnu;
+    const effetDEau = (effets.materiels as ObjetInconnu[])[0];
+    if (
+      effetDEau.variation !== Math.min(0, 16 - eauAvantRupture)
+    ) {
+      return false;
+    }
+    const declenchement = declencherCrise(
+      attendu,
+      eauAvantRupture,
+      faitDeRupture.moment as number,
+    );
+    if (declenchement === undefined) {
+      return false;
+    }
+    attendu = declenchement.etat;
+  }
+  const faitDeResolution = faitsDeResolution[0];
+  if (faitDeResolution !== undefined) {
+    if (
+      faitDeRupture === undefined ||
+      (faitDeResolution.moment as number) < (faitDeRupture.moment as number)
+    ) {
+      return false;
+    }
+    const cause = identifiantsDeResolution.find(
+      (id) => id === faitDeResolution.id,
+    );
+    if (cause === undefined) {
+      return false;
+    }
+    const reponseId = cause.replace(
+      "crise.purification.",
+      "",
+    );
+    const definition = DEFINITIONS_DES_REPONSES_A_LA_CRISE.find(
+      (candidate) => candidate.id === reponseId,
+    );
+    if (definition === undefined) {
+      return false;
+    }
+    const cicatrice = {
+      ...definition.cicatrice,
+      cause,
+      acquiseA: faitDeResolution.moment as number,
+    };
+    attendu = {
+      ...attendu,
+      approvisionnementEau: "sous-tension",
+      alerte: null,
+      criseActive: null,
+      cicatrices: [cicatrice],
+      recuperations: [
+        {
+          ...definition.recuperation,
+          id: "recuperation.1",
+          cause: cicatrice.id,
+        },
+      ],
+    };
+  }
+  const suspensionRequise =
+    attendu.criseActive !== null ||
+    (attendu.alerte !== null &&
+      attendu.alerte.ruptureA <= secondesCourantes);
+  return (
+    (!suspensionRequise || vitesse === 0) &&
+    sontStructurellementEgaux(valeur, attendu)
   );
 }
 
@@ -1404,7 +1699,11 @@ export function lireEtatV1(valeur: unknown): EtatCampagneV1 | undefined {
   return { version: VERSION_SIMULATION_INITIALE, ...parties };
 }
 
-export function lireEtatCourant(valeur: unknown): EtatCampagne | undefined {
+function lireEtatAvecSchemaCourant(
+  valeur: unknown,
+  validerCrises: boolean,
+  autoriserMarqueurHistoriqueSansFait = false,
+): EtatCampagne | undefined {
   if (
     !estObjet(valeur) ||
     valeur.version !== VERSION_SIMULATION_COURANTE
@@ -1421,6 +1720,7 @@ export function lireEtatCourant(valeur: unknown): EtatCampagne | undefined {
   const pilotage = valeur.pilotage;
   const infrastructure = valeur.infrastructure;
   const routes = valeur.routes;
+  const crises = valeur.crises;
 
   if (
     parties === undefined ||
@@ -1435,6 +1735,16 @@ export function lireEtatCourant(valeur: unknown): EtatCampagne | undefined {
       narration.faitsDeCampagne,
     ) ||
     !estEtatDesRoutes(routes, parties.tempsDuConvoi.secondes) ||
+    (validerCrises &&
+      !estEtatDesCrises(
+        crises,
+        parties.tempsDuConvoi.secondes,
+        parties.tempsDuConvoi.vitesse,
+        narration.faitsDeCampagne,
+        infrastructure,
+        routes,
+        autoriserMarqueurHistoriqueSansFait,
+      )) ||
     (trouverEngagementDeRouteActif(routes) !== undefined &&
       (infrastructure.deploiement === "halte" ||
         infrastructure.chantierActif !== null)) ||
@@ -1471,12 +1781,22 @@ export function lireEtatCourant(valeur: unknown): EtatCampagne | undefined {
   return valeur as unknown as EtatCampagne;
 }
 
+export function lireEtatCourant(valeur: unknown): EtatCampagne | undefined {
+  return lireEtatAvecSchemaCourant(valeur, true);
+}
+
+export function lireSnapshotCourant(
+  valeur: unknown,
+): EtatCampagne | undefined {
+  return lireEtatAvecSchemaCourant(valeur, true, true);
+}
+
 export function lireEtatAvantRoutes(
   valeur: unknown,
 ): EtatCampagneAvantRoutes | undefined {
   if (
     !estObjet(valeur) ||
-    valeur.version !== VERSION_SIMULATION_COURANTE ||
+    valeur.version !== VERSION_SIMULATION_AVANT_CRISES ||
     "routes" in valeur
   ) {
     return undefined;
@@ -1507,10 +1827,12 @@ export function lireEtatAvantRoutes(
         }
       : valeur;
   const routes = creerEtatDesRoutesInitial();
-  const etatNormalise = lireEtatCourant({
+  const etatNormalise = lireEtatAvecSchemaCourant({
     ...valeurNormalisee,
+    version: VERSION_SIMULATION_COURANTE,
     routes,
-  });
+    crises: creerEtatDesCrisesInitial(),
+  }, false);
   if (etatNormalise === undefined) {
     return undefined;
   }
@@ -1525,7 +1847,7 @@ export function lireEtatAvantRoutes(
   return materiaux.quantite !== materiauxHistoriques.quantite ||
     materiaux.reliquatDeFlux !== materiauxHistoriques.reliquatDeFlux
     ? undefined
-    : (valeur as EtatCampagneAvantRoutes);
+    : (valeur as unknown as EtatCampagneAvantRoutes);
 }
 
 export function projeterEtatAvantRoutesHistorique(
@@ -1540,7 +1862,7 @@ export function projeterEtatAvantRoutesHistorique(
     false,
   );
   return {
-    version: etat.version,
+    version: VERSION_SIMULATION_AVANT_CRISES,
     graine: etat.graine,
     tempsDuConvoi: etat.tempsDuConvoi,
     citeCaravane: etat.citeCaravane,
@@ -1574,7 +1896,7 @@ export function lireEtatV2(valeur: unknown): EtatCampagneV2 | undefined {
     return undefined;
   }
   const infrastructure = creerInfrastructureInitiale();
-  const etatCourant = lireEtatCourant({
+  const etatCourant = lireEtatAvecSchemaCourant({
     ...valeur,
     version: VERSION_SIMULATION_COURANTE,
     citeCaravane: estObjet(valeur.citeCaravane)
@@ -1590,10 +1912,30 @@ export function lireEtatV2(valeur: unknown): EtatCampagneV2 | undefined {
       : valeur.citeCaravane,
     infrastructure,
     routes: creerEtatDesRoutesInitial(),
-  });
+    crises: creerEtatDesCrisesInitial(),
+  }, false);
   return etatCourant === undefined
     ? undefined
     : (valeur as unknown as EtatCampagneV2);
+}
+
+export function lireEtatAvantCrises(
+  valeur: unknown,
+): EtatCampagneAvantCrises | undefined {
+  if (
+    !estObjet(valeur) ||
+    valeur.version !== VERSION_SIMULATION_AVANT_CRISES ||
+    "crises" in valeur
+  ) {
+    return undefined;
+  }
+  return lireEtatAvecSchemaCourant({
+    ...valeur,
+    version: VERSION_SIMULATION_COURANTE,
+    crises: creerEtatDesCrisesInitial(),
+  }, false) === undefined
+    ? undefined
+    : (valeur as unknown as EtatCampagneAvantCrises);
 }
 
 function lireReproductionCourante(
@@ -1606,7 +1948,7 @@ function lireReproductionCourante(
   ) {
     return undefined;
   }
-  const snapshot = lireEtatCourant(valeur.snapshot);
+  const snapshot = lireSnapshotCourant(valeur.snapshot);
   if (snapshot === undefined) {
     return undefined;
   }

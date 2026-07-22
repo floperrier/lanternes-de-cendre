@@ -1,0 +1,99 @@
+import { expect, test } from "@playwright/test";
+
+test("la Crise suspend le convoi, expose ses coûts et persiste sa récupération", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.clock.install();
+  await page.goto("/");
+
+  const incident = page.getByRole("region", {
+    name: "Pompe de purification instable",
+  });
+  await incident.getByRole("button", { name: "Maintenir le débit" }).click();
+
+  await expect(
+    page.getByRole("heading", {
+      name: "Aggravation annoncée — purification instable",
+    }),
+  ).toBeVisible();
+  await expect(page.getByText("Fenêtre de décision :")).toContainText(
+    "dans 3 min",
+  );
+
+  await page.getByRole("button", { name: "English" }).click();
+  await page.getByRole("button", { name: "Vitesse 4×" }).click();
+  await page.clock.runFor(45_000);
+
+  const crise = page.getByRole("alertdialog", {
+    name: "Crisis — Purified water contaminated",
+  });
+  await expect(crise).toBeVisible();
+  await expect(crise).toContainText("16 L remain usable");
+  await expect(crise).toContainText("4 Materials");
+  await expect(crise).toContainText("5 Remedies");
+  await expect(crise).toContainText("8 inhabitants evacuated");
+  await expect(crise).toContainText("Last resort");
+  await expect(crise).not.toContainText("%");
+
+  const reponses = crise.getByRole("button", {
+    name: "Confirm this response",
+  });
+  await expect(reponses).toHaveCount(3);
+  for (const reponse of await reponses.all()) {
+    await expect(reponse).toBeEnabled();
+  }
+  await expect(
+    crise.getByRole("button", {
+      name: "Confirm this response — Isolate the circuit and ration Water",
+      exact: true,
+    }),
+  ).toBeFocused();
+  await page.keyboard.press("Shift+Tab");
+  await expect(
+    crise.getByRole("button", {
+      name: "Confirm this response — Evacuate exposed Hearths toward High Well",
+      exact: true,
+    }),
+  ).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(reponses.first()).toBeFocused();
+  await expect(page.locator(".commandes-du-temps > time")).toHaveText(
+    "03:00",
+  );
+  await expect(page.locator(".scene-layout")).toHaveAttribute("inert", "");
+  await expect(page.getByText("En pause").first()).toBeVisible();
+  for (const commande of await page
+    .locator(".commandes-du-temps button")
+    .all()) {
+    await expect(commande).toBeDisabled();
+  }
+
+  await expect(crise).toContainText("Known cost");
+  await expect(crise).toContainText("Worst credible consequence");
+
+  const rationnement = crise
+    .getByRole("article")
+    .filter({ hasText: "Isolate the circuit and ration Water" });
+  await rationnement
+    .getByRole("button", { name: "Confirm this response" })
+    .click();
+
+  const etatDesCrises = page.getByRole("region", {
+    name: "Crises and Scars",
+  });
+  await expect(etatDesCrises).toContainText("Water rationing");
+  await expect(etatDesCrises).toContainText("Survival baseline preserved");
+  await expect(etatDesCrises).toContainText(
+    "Build or obtain purification capacity.",
+  );
+
+  await page.getByRole("button", { name: "Sauvegarder" }).click();
+  await expect(page.getByText("Sauvegarde à jour.")).toBeVisible();
+  await page.reload();
+
+  await expect(
+    page.getByRole("region", { name: "Crises et Cicatrices" }),
+  ).toContainText("Rationnement de l’Eau");
+  await expect(page.getByText("Socle de survie préservé")).toBeVisible();
+});

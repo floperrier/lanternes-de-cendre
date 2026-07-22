@@ -12,6 +12,7 @@ import {
 import type { GraineDeCampagne } from "./graine";
 import { formaterEmpreinteFnv1a32V1 } from "./empreinte";
 import {
+  appliquerVariationAUnStock,
   creerPilotageInitial,
   engagerTransitionDeDoctrine,
   ordonnerResolutionDIncident,
@@ -52,6 +53,18 @@ import {
   type EvenementDAffectationDeCompagnon,
   type EvenementDeDecisionDuConseil,
 } from "./conseil";
+import {
+  annoncerCriseApresFaits,
+  creerEtatDesCrisesInitial,
+  criseAttendSonCheckpoint,
+  declencherCrise,
+  prochaineSecondeDeCrise,
+  resoudreCrise as resoudreCriseActive,
+  type CommandeDeDeclenchementDeCrise,
+  type CommandeDeResolutionDeCrise,
+  type EtatDesCrises,
+  type EvenementDeCrise,
+} from "./crise";
 
 export type { GraineDeCampagne } from "./graine";
 export const IDENTIFIANTS_PLATEFORMES_MOBILES =
@@ -93,6 +106,7 @@ export interface EtatCampagne {
   readonly pilotage: EtatPilotage;
   readonly infrastructure: EtatInfrastructure;
   readonly routes: EtatDesRoutes;
+  readonly crises: EtatDesCrises;
   readonly echeances: readonly EcheanceDeCampagne[];
   readonly fluxPseudoAleatoires: Readonly<{
     "evenements-narratifs": FluxPseudoAleatoire;
@@ -121,7 +135,9 @@ export type CommandeCampagne =
     }
   | CommandeDeDoctrine
   | CommandeDIncident
-  | CommandeDInfrastructure;
+  | CommandeDInfrastructure
+  | CommandeDeDeclenchementDeCrise
+  | CommandeDeResolutionDeCrise;
 
 export type EvenementDeDomaine =
   | {
@@ -155,7 +171,8 @@ export type EvenementDeDomaine =
   | EvenementDeDoctrine
   | EvenementDIncidentResolu
   | EvenementDInfrastructure
-  | EvenementDeRoute;
+  | EvenementDeRoute
+  | EvenementDeCrise;
 
 export interface TransitionDeCampagne {
   readonly etat: EtatCampagne;
@@ -186,6 +203,7 @@ export function creerCampagneInitiale(graine: GraineDeCampagne): EtatCampagne {
     pilotage: creerPilotageInitial(),
     infrastructure: creerInfrastructureInitiale(),
     routes: creerEtatDesRoutesInitial(),
+    crises: creerEtatDesCrisesInitial(),
     echeances: [],
     fluxPseudoAleatoires: {
       "evenements-narratifs": creerFluxPseudoAleatoire(
@@ -417,6 +435,19 @@ export function appliquerCommande(
   etat: EtatCampagne,
   commande: CommandeCampagne,
 ): TransitionDeCampagne {
+  const checkpointDeCriseRequis = criseAttendSonCheckpoint(
+    etat.crises,
+    etat.tempsDuConvoi.secondes,
+  );
+  if (
+    (etat.crises.criseActive !== null && commande.type !== "crise.resoudre") ||
+    (checkpointDeCriseRequis && commande.type !== "crise.declencher")
+  ) {
+    throw new Error(
+      "La Crise doit être résolue avant de donner un autre ordre au convoi.",
+    );
+  }
+
   if (commande.type === "temps-du-convoi.ecouler") {
     if (
       !Number.isInteger(commande.secondesReelles) ||
@@ -427,9 +458,14 @@ export function appliquerCommande(
       );
     }
 
-    const nouvellesSecondes =
+    const secondesDemandees =
       etat.tempsDuConvoi.secondes +
       commande.secondesReelles * etat.tempsDuConvoi.vitesse;
+    const secondeDeCrise = prochaineSecondeDeCrise(
+      etat.crises,
+      secondesDemandees,
+    );
+    const nouvellesSecondes = secondeDeCrise ?? secondesDemandees;
     const evenements: EvenementDeDomaine[] = [];
 
     if (nouvellesSecondes !== etat.tempsDuConvoi.secondes) {
@@ -493,6 +529,28 @@ export function appliquerCommande(
     );
     nouvelEtat = { ...nouvelEtat, routes: jalonsDeRoute.etat };
     evenements.push(...jalonsDeRoute.evenements);
+
+    const alerteDeCrise = nouvelEtat.crises.alerte;
+    if (secondeDeCrise !== undefined && alerteDeCrise !== null) {
+      nouvelEtat = {
+        ...nouvelEtat,
+        tempsDuConvoi: { ...nouvelEtat.tempsDuConvoi, vitesse: 0 },
+      };
+      evenements.push({
+        type: "crise.checkpoint-requis",
+        criseId: alerteDeCrise.id,
+        cause: alerteDeCrise.cause,
+        moment: secondeDeCrise,
+        sauvegardeAtomiqueRequise: true,
+      });
+      if (etat.tempsDuConvoi.vitesse !== 0) {
+        evenements.push({
+          type: "temps-du-convoi.vitesse-modifiee",
+          vitessePrecedente: etat.tempsDuConvoi.vitesse,
+          vitesse: 0,
+        });
+      }
+    }
 
     return { etat: nouvelEtat, evenements };
   }
@@ -589,13 +647,92 @@ export function appliquerCommande(
       commande,
       etat.tempsDuConvoi.secondes,
     );
-    return {
-      etat: enregistrerFaitsDeCampagne(
+    const etatAvecFaits = enregistrerFaitsDeCampagne(
         { ...etat, pilotage: transition.etat },
         transition.faitsProduits,
-      ),
-      evenements: transition.evenements,
+      );
+    const annonce = annoncerCriseApresFaits(
+      etatAvecFaits.crises,
+      transition.faitsProduits,
+    );
+    return {
+      etat: { ...etatAvecFaits, crises: annonce.etat },
+      evenements: [...transition.evenements, ...annonce.evenements],
     };
+  }
+
+  if (commande.type === "crise.declencher") {
+    if (
+      commande.criseId !== etat.crises.alerte?.id ||
+      !checkpointDeCriseRequis ||
+      etat.tempsDuConvoi.vitesse !== 0
+    ) {
+      throw new Error(
+        `La Crise « ${commande.criseId} » n’attend pas de checkpoint.`,
+      );
+    }
+    const crise = declencherCrise(
+      etat.crises,
+      etat.pilotage.economie.stocks.eau.quantite,
+      etat.tempsDuConvoi.secondes,
+    );
+    if (crise === undefined) {
+      throw new Error(`La Crise « ${commande.criseId} » ne peut pas débuter.`);
+    }
+    const eau = etat.pilotage.economie.stocks.eau;
+    const etatEnCrise = enregistrerFaitsDeCampagne(
+      {
+        ...etat,
+        crises: crise.etat,
+        pilotage: {
+          ...etat.pilotage,
+          economie: {
+            ...etat.pilotage.economie,
+            stocks: {
+              ...etat.pilotage.economie.stocks,
+              eau: appliquerVariationAUnStock(eau, crise.variationDEau),
+            },
+          },
+        },
+      },
+      [crise.fait],
+    );
+    return { etat: etatEnCrise, evenements: [crise.evenement] };
+  }
+
+  if (commande.type === "crise.resoudre") {
+    const resolution = resoudreCriseActive(
+      etat.crises,
+      etat.pilotage,
+      etat.citeCaravane.habitants,
+      commande,
+      etat.tempsDuConvoi.secondes,
+    );
+    let stocks = etat.pilotage.economie.stocks;
+    if (resolution.variationDeStock !== undefined) {
+      const { stock, variation } = resolution.variationDeStock;
+      stocks = {
+        ...stocks,
+        [stock]: appliquerVariationAUnStock(stocks[stock], variation),
+      };
+    }
+    const etatResolu = enregistrerFaitsDeCampagne(
+      {
+        ...etat,
+        citeCaravane: {
+          ...etat.citeCaravane,
+          habitants:
+            etat.citeCaravane.habitants + resolution.variationDHabitants,
+        },
+        pilotage: {
+          ...etat.pilotage,
+          economie: { ...etat.pilotage.economie, stocks },
+        },
+        crises: resolution.etat,
+      },
+      [resolution.fait],
+    );
+    return { etat: etatResolu, evenements: [resolution.evenement] };
   }
 
   if (commande.type === "compagnon.affecter") {

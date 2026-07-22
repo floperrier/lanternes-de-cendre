@@ -1,4 +1,8 @@
-import { migrerSauvegardeV1, migrerSauvegardeV2 } from "./migration";
+import {
+  migrerSauvegardeV1,
+  migrerSauvegardeV2,
+  migrerSauvegardeV3,
+} from "./migration";
 import { lireSauvegardeCourante, estObjet } from "./validation";
 import type {
   ResultatImportSauvegarde,
@@ -9,6 +13,7 @@ import {
   NOMS_DES_SOUS_VERSIONS,
   VERSION_SAUVEGARDE_COURANTE,
   VERSION_SAUVEGARDE_AVANT_ROUTES,
+  VERSION_SAUVEGARDE_AVANT_CRISES,
   VERSION_SAUVEGARDE_INITIALE,
   VERSIONS_DU_SNAPSHOT_COURANT,
   type NomDeSousVersion,
@@ -145,13 +150,28 @@ export function importerSauvegarde(
         };
   }
 
+  if (version === VERSION_SAUVEGARDE_AVANT_CRISES) {
+    const sauvegarde = migrerSauvegardeV3(valeur);
+    return sauvegarde === undefined
+      ? {
+          statut: "invalide",
+          archiveOriginale,
+          explication: "La sauvegarde v3 est incomplète ou incohérente.",
+        }
+      : {
+          statut: "migree",
+          sauvegarde,
+          archiveOriginale,
+        };
+  }
+
   const sauvegarde = lireSauvegardeCourante(valeur);
   return sauvegarde === undefined
     ? {
         statut: "invalide",
         archiveOriginale,
         explication:
-          "La sauvegarde v3 est incomplète, altérée ou diverge lors du replay.",
+          "La sauvegarde v4 est incomplète, altérée ou diverge lors du replay.",
       }
     : { statut: "compatible", sauvegarde };
 }

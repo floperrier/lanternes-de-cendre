@@ -8,7 +8,9 @@ import {
 import { projeterPilotage } from "../application/pilotage";
 import { projeterCompagnonEtConseil } from "../application/conseil";
 import { projeterAtlas } from "../application/routes";
+import { projeterCrises } from "../application/crise";
 import type { Langue } from "../content/types";
+import { criseAttendSonCheckpoint } from "../simulation/crise";
 import {
   type ControleurDeSessionCampagne,
   type EtatDuControleurDeSession,
@@ -23,6 +25,7 @@ import { PanneauDePilotage } from "./PanneauDePilotage";
 import { PanneauSauvegarde } from "./PanneauSauvegarde";
 import { RubanNarratif } from "./RubanNarratif";
 import { SelecteurDeLangue } from "./SelecteurDeLangue";
+import { CriseDuConvoi } from "./CriseDuConvoi";
 
 interface PropsCampagne {
   readonly etatDuControleur: Extract<
@@ -45,6 +48,13 @@ function CampagnePersistante({ etatDuControleur, controleur }: PropsCampagne) {
   const projectionDInfrastructure = projeterInfrastructure(etat, langue);
   const projectionDuConseil = projeterCompagnonEtConseil(etat, langue);
   const projectionDeLAtlas = projeterAtlas(etat, langue);
+  const projectionDesCrises = projeterCrises(etat, langue);
+  const checkpointDeCriseRequis = criseAttendSonCheckpoint(
+    etat.crises,
+    etat.tempsDuConvoi.secondes,
+  );
+  const criseBloquante =
+    checkpointDeCriseRequis || projectionDesCrises.active !== null;
 
   useEffect(() => {
     const horloge = window.setInterval(() => {
@@ -61,7 +71,10 @@ function CampagnePersistante({ etatDuControleur, controleur }: PropsCampagne) {
 
   return (
     <main className="app-shell">
-      <header className="app-header">
+      <header
+        className="app-header"
+        inert={projectionDesCrises.active !== null ? true : undefined}
+      >
         <div>
           <h1>Les Lanternes de Cendre</h1>
           <p aria-label={`Graine de campagne ${projection.graine}`}>
@@ -82,7 +95,10 @@ function CampagnePersistante({ etatDuControleur, controleur }: PropsCampagne) {
         </div>
       </header>
 
-      <div className="scene-layout">
+      <div
+        className="scene-layout"
+        inert={criseBloquante ? true : undefined}
+      >
         <div className="surface-du-monde">
           <CoupeHabitee
             implantation={projeterImplantationPixi(projectionDInfrastructure)}
@@ -106,11 +122,19 @@ function CampagnePersistante({ etatDuControleur, controleur }: PropsCampagne) {
             projection={projectionDuPilotage}
             compagnon={projectionDuConseil.compagnon}
             langue={langue}
+            crises={projectionDesCrises}
           />
         </div>
       </div>
 
-      {projection.evenementNarratif !== null ? (
+      {projectionDesCrises.active !== null ? (
+        <CriseDuConvoi
+          application={application}
+          crise={projectionDesCrises.active}
+          langue={langue}
+        />
+      ) : checkpointDeCriseRequis ? null : projection.evenementNarratif !==
+        null ? (
         <RubanNarratif
           application={application}
           evenement={projection.evenementNarratif}
@@ -124,7 +148,11 @@ function CampagnePersistante({ etatDuControleur, controleur }: PropsCampagne) {
         />
       ) : null}
 
-      <CommandesDuTemps application={application} projection={projection} />
+      <CommandesDuTemps
+        application={application}
+        projection={projection}
+        bloque={criseBloquante}
+      />
     </main>
   );
 }

@@ -236,21 +236,37 @@ const JOURNAL_GENERIQUE: Readonly<
         "Pompe de purification — circuit isolé",
       "incident.purification.pompe-instable.debit-maintenu":
         "Pompe de purification — débit maintenu",
+      "crise.purification.eau-contaminee":
+        "Réserve d’Eau — contamination isolée",
+      "crise.purification.isoler-et-rationner":
+        "Crise de purification — circuit isolé et Eau rationnée",
+      "crise.purification.mobiliser-les-remedes":
+        "Crise de purification — Remèdes mobilisés",
+      "crise.purification.evacuer-les-foyers-exposes":
+        "Crise de purification — Foyers évacués",
       "prologue.cohorte-accueillie": "Cohorte accueillie",
       "prologue.cohorte-orientee": "Cohorte orientée vers Veille-Basse",
     },
     causes: {
       [INCIDENT_INITIAL.id]: INCIDENT_INITIAL.cause,
+      "incident.purification.pompe-instable.debit-maintenu":
+        "Pompe maintenue en service malgré le joint dégradé",
+      "penurie-eau.pompe-purification": "Crise de pénurie d’Eau",
       "prologue.signaux-sous-la-cendre": "Des signaux sous la cendre",
     },
     acteurs: {
       "porte-lanterne": "Porte-Lanterne",
       "equipes-entretien": "Équipes d’entretien",
       "cohorte-de-refugies": "Cohorte de réfugiés",
+      "equipes-purification": "Équipes de purification",
+      "foyers-du-convoi": "Foyers du convoi",
+      "foyers-exposes": "Foyers exposés",
     },
     cibles: {
       "pompe-purification": "Pompe de purification",
       "cohorte-de-refugies": "Cohorte de réfugiés",
+      "reserve-deau-purifiee": "Réserve d’Eau purifiée",
+      "foyers-du-convoi": "Foyers du convoi",
     },
   },
   en: {
@@ -261,21 +277,37 @@ const JOURNAL_GENERIQUE: Readonly<
         "Purification pump — circuit isolated",
       "incident.purification.pompe-instable.debit-maintenu":
         "Purification pump — flow maintained",
+      "crise.purification.eau-contaminee":
+        "Water reserve — contamination isolated",
+      "crise.purification.isoler-et-rationner":
+        "Purification crisis — circuit isolated and Water rationed",
+      "crise.purification.mobiliser-les-remedes":
+        "Purification crisis — Remedies mobilized",
+      "crise.purification.evacuer-les-foyers-exposes":
+        "Purification crisis — Hearths evacuated",
       "prologue.cohorte-accueillie": "Cohort welcomed",
       "prologue.cohorte-orientee": "Cohort directed to Veille-Basse",
     },
     causes: {
       [INCIDENT_INITIAL.id]: "Purification pump instability",
+      "incident.purification.pompe-instable.debit-maintenu":
+        "Pump kept running despite the degraded seal",
+      "penurie-eau.pompe-purification": "Water shortage crisis",
       "prologue.signaux-sous-la-cendre": "Signals beneath the ash",
     },
     acteurs: {
       "porte-lanterne": "Lantern-Bearer",
       "equipes-entretien": "Maintenance crews",
       "cohorte-de-refugies": "Refugee cohort",
+      "equipes-purification": "Purification crews",
+      "foyers-du-convoi": "Convoy Hearths",
+      "foyers-exposes": "Exposed Hearths",
     },
     cibles: {
       "pompe-purification": "Purification pump",
       "cohorte-de-refugies": "Refugee cohort",
+      "reserve-deau-purifiee": "Purified Water reserve",
+      "foyers-du-convoi": "Convoy Hearths",
     },
   },
 };

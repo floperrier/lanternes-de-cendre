@@ -44,6 +44,123 @@ function suivreReproduction(
 }
 
 describe("contrôleur de session persistante", () => {
+  it("persiste atomiquement le point de reprise qui précède une Crise", async () => {
+    const port = creerPortDePersistanceMemoire({ nombreDeSnapshots: 2 });
+    const controleur = creerControleurDeSessionCampagne({
+      port,
+      graine: "CENDRE-01",
+      delaiDEcriture: 60_000,
+    });
+    await controleur.attendreOuverture();
+    const application = applicationOuverte(controleur.lireEtat());
+    application.envoyerCommande({
+      type: "incident.ordonner",
+      incidentId: "purification.pompe-instable",
+      ordre: "maintenir-debit",
+    });
+    application.envoyerCommande({
+      type: "temps-du-convoi.ecouler",
+      secondesReelles: 180,
+    });
+    await controleur.sauvegarderMaintenant();
+
+    const archives = await port.lister();
+    expect(archives).toHaveLength(2);
+    const importations = archives.map((archive) =>
+      importerSauvegarde(archive.contenu),
+    );
+    expect(importations.every((resultat) => resultat.statut === "compatible"))
+      .toBe(true);
+    const etats = importations.flatMap((resultat) =>
+      resultat.statut === "compatible" ? [resultat.sauvegarde.etat] : [],
+    );
+    expect(etats).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          tempsDuConvoi: { secondes: 180, vitesse: 0 },
+          crises: {
+            approvisionnementEau: "sous-tension",
+            faitAnnonceurHistoriqueIgnore: false,
+            alerte: expect.objectContaining({ ruptureA: 180 }),
+            criseActive: null,
+            cicatrices: [],
+            recuperations: [],
+          },
+        }),
+        expect.objectContaining({
+          tempsDuConvoi: { secondes: 180, vitesse: 0 },
+          crises: expect.objectContaining({
+            approvisionnementEau: "rupture",
+            criseActive: expect.objectContaining({
+              id: "penurie-eau.pompe-purification",
+            }),
+          }),
+        }),
+      ]),
+    );
+    controleur.fermer();
+  });
+
+  it("n'entre pas en Crise si le checkpoint échoue puis reprend après réessai", async () => {
+    const memoire = creerPortDePersistanceMemoire({ nombreDeSnapshots: 2 });
+    let echouerProchaineEcriture = false;
+    let signalerEchec: (() => void) | undefined;
+    const echecObserve = new Promise<void>((resolve) => {
+      signalerEchec = resolve;
+    });
+    const port: PortDePersistanceSauvegardes = {
+      ...memoire,
+      enregistrer: async (archive) => {
+        if (echouerProchaineEcriture) {
+          echouerProchaineEcriture = false;
+          signalerEchec?.();
+          throw new Error("quota indisponible");
+        }
+        await memoire.enregistrer(archive);
+      },
+    };
+    const controleur = creerControleurDeSessionCampagne({
+      port,
+      graine: "CENDRE-01",
+      delaiDEcriture: 60_000,
+    });
+    await controleur.attendreOuverture();
+    const application = applicationOuverte(controleur.lireEtat());
+    application.envoyerCommande({
+      type: "incident.ordonner",
+      incidentId: "purification.pompe-instable",
+      ordre: "maintenir-debit",
+    });
+    echouerProchaineEcriture = true;
+
+    application.envoyerCommande({
+      type: "temps-du-convoi.ecouler",
+      secondesReelles: 180,
+    });
+    await echecObserve;
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(application.lireEtat()).toMatchObject({
+      tempsDuConvoi: { secondes: 180, vitesse: 0 },
+      crises: {
+        approvisionnementEau: "sous-tension",
+        criseActive: null,
+        alerte: { ruptureA: 180 },
+      },
+    });
+    expect(controleur.lireEtat()).toMatchObject({
+      statut: "ouverte",
+      erreurSauvegarde: expect.stringContaining("quota indisponible"),
+    });
+
+    await controleur.sauvegarderMaintenant();
+
+    expect(application.lireEtat().crises.criseActive).toMatchObject({
+      id: "penurie-eau.pompe-purification",
+    });
+    controleur.fermer();
+  });
+
   it("coalesce les écritures et repart du dernier checkpoint", async () => {
     const port = creerPortDePersistanceMemoire({ nombreDeSnapshots: 5 });
     const controleur = creerControleurDeSessionCampagne({

@@ -14,6 +14,11 @@ import { catalogueDEvenements } from "../content/catalogue";
 import type { EffetsDeFait } from "../simulation/faits";
 import { creerInfrastructureInitiale } from "../simulation/infrastructure";
 import { creerEtatDesRoutesInitial } from "../simulation/routes";
+import {
+  creerEtatDesCrisesInitial,
+  FAIT_ANNONCANT_LA_CRISE,
+  ignorerFaitAnnonceurHistorique,
+} from "../simulation/crise";
 import { creerSauvegarde } from "./snapshot";
 import type {
   CommandeDeReproduction,
@@ -21,6 +26,7 @@ import type {
   SauvegardeCampagne,
 } from "./types";
 import {
+  VERSION_SIMULATION_AVANT_CRISES,
   VERSION_SIMULATION_COURANTE,
   VERSION_SIMULATION_INITIALE,
 } from "../simulation/versions";
@@ -28,19 +34,24 @@ import {
   FORMAT_SAUVEGARDE,
   VERSION_CONTENU_COURANTE,
   VERSION_SAUVEGARDE_AVANT_ROUTES,
+  VERSION_SAUVEGARDE_AVANT_CRISES,
   VERSION_SAUVEGARDE_INITIALE,
   VERSIONS_DU_SNAPSHOT_COURANT,
 } from "./version";
 import {
+  estCommandeAvantCrises,
   estCommandeAvantRoutes,
   estCommandeV2,
   estCommandeV1,
   estObjet,
+  lireEtatAvantCrises,
   lireEtatAvantRoutes,
   lireEtatCourant,
+  lireSnapshotCourant,
   lireEtatV1,
   lireEtatV2,
   projeterEtatAvantRoutesHistorique,
+  type EtatCampagneAvantCrises,
   type EtatCampagneAvantRoutes,
   type EtatCampagneV1,
   type EtatCampagneV2,
@@ -57,6 +68,17 @@ const PLATEFORMES_DE_LA_SIMULATION_V2 = [
   "vigie",
   "forge",
 ] as const;
+
+function creerEtatDesCrisesDepuisHistorique(
+  faits: readonly { readonly id: string }[],
+  ignorerFaitAnnonceur = false,
+) {
+  const initial = creerEtatDesCrisesInitial();
+  return ignorerFaitAnnonceur ||
+    faits.some((fait) => fait.id === FAIT_ANNONCANT_LA_CRISE)
+    ? ignorerFaitAnnonceurHistorique(initial)
+    : initial;
+}
 
 function sontStructurellementEgaux(gauche: unknown, droite: unknown): boolean {
   if (Object.is(gauche, droite)) {
@@ -141,6 +163,7 @@ function migrerEtatV1(etat: EtatCampagneV1): EtatCampagne {
     pilotage: pilotage.etat,
     infrastructure,
     routes: creerEtatDesRoutesInitial(),
+    crises: creerEtatDesCrisesDepuisHistorique(etat.narration.faitsDeCampagne),
     citeCaravane: {
       ...etat.citeCaravane,
       formation: {
@@ -160,7 +183,10 @@ function migrerEtatV1(etat: EtatCampagneV1): EtatCampagne {
   };
 }
 
-function migrerEtatV2(etat: EtatCampagneV2): EtatCampagne {
+function migrerEtatV2(
+  etat: EtatCampagneV2,
+  ignorerFaitAnnonceur = false,
+): EtatCampagne {
   const infrastructure = creerInfrastructureInitiale();
   return {
     ...etat,
@@ -176,6 +202,10 @@ function migrerEtatV2(etat: EtatCampagneV2): EtatCampagne {
     },
     infrastructure,
     routes: creerEtatDesRoutesInitial(),
+    crises: creerEtatDesCrisesDepuisHistorique(
+      etat.narration.faitsDeCampagne,
+      ignorerFaitAnnonceur,
+    ),
   };
 }
 
@@ -198,9 +228,13 @@ function normaliserEtatV2(etat: EtatCampagne): EtatCampagneV2 {
   };
 }
 
-function migrerEtatAvantRoutes(etat: EtatCampagneAvantRoutes): EtatCampagne {
+function migrerEtatAvantRoutes(
+  etat: EtatCampagneAvantRoutes,
+  ignorerFaitAnnonceur = false,
+): EtatCampagne {
   return {
     ...etat,
+    version: VERSION_SIMULATION_COURANTE,
     pilotage: {
       ...etat.pilotage,
       economie: {
@@ -215,6 +249,41 @@ function migrerEtatAvantRoutes(etat: EtatCampagneAvantRoutes): EtatCampagne {
       },
     },
     routes: creerEtatDesRoutesInitial(),
+    crises: creerEtatDesCrisesDepuisHistorique(
+      etat.narration.faitsDeCampagne,
+      ignorerFaitAnnonceur,
+    ),
+  };
+}
+
+function migrerEtatAvantCrises(
+  etat: EtatCampagneAvantCrises,
+  ignorerFaitAnnonceur = false,
+): EtatCampagne {
+  return {
+    ...etat,
+    version: VERSION_SIMULATION_COURANTE,
+    crises: creerEtatDesCrisesDepuisHistorique(
+      etat.narration.faitsDeCampagne,
+      ignorerFaitAnnonceur,
+    ),
+  };
+}
+
+function normaliserEtatAvantCrises(
+  etat: EtatCampagne,
+): EtatCampagneAvantCrises {
+  return {
+    version: VERSION_SIMULATION_AVANT_CRISES,
+    graine: etat.graine,
+    tempsDuConvoi: etat.tempsDuConvoi,
+    citeCaravane: etat.citeCaravane,
+    narration: etat.narration,
+    pilotage: etat.pilotage,
+    infrastructure: etat.infrastructure,
+    routes: etat.routes,
+    echeances: etat.echeances,
+    fluxPseudoAleatoires: etat.fluxPseudoAleatoires,
   };
 }
 
@@ -313,7 +382,7 @@ export function migrerSauvegardeV1(
   }
 
   if (
-    lireEtatCourant(snapshot) === undefined ||
+    lireSnapshotCourant(snapshot) === undefined ||
     lireEtatCourant(etat) === undefined
   ) {
     return undefined;
@@ -327,7 +396,7 @@ export function migrerSauvegardeV1(
   const sauvegarde = creerSauvegarde(etat, reproduction);
   return {
     ...sauvegarde,
-    id: `${valeur.id}-v3-${sauvegarde.empreinte}`,
+    id: `${valeur.id}-v4-${sauvegarde.empreinte}`,
   };
 }
 
@@ -371,7 +440,10 @@ function migrerSauvegardeV2Legacy(
     return undefined;
   }
 
-  const snapshot = migrerEtatV2(snapshotV2);
+  const ignorerFaitAnnonceur = etatDeclareV2.narration.faitsDeCampagne.some(
+    (fait) => fait.id === FAIT_ANNONCANT_LA_CRISE,
+  );
+  const snapshot = migrerEtatV2(snapshotV2, ignorerFaitAnnonceur);
   let etat = snapshot;
   const commandes: CommandeDeReproduction[] = [];
   try {
@@ -404,7 +476,7 @@ function migrerSauvegardeV2Legacy(
 
   if (
     !sontStructurellementEgaux(normaliserEtatV2(etat), etatDeclareV2) ||
-    lireEtatCourant(snapshot) === undefined ||
+    lireSnapshotCourant(snapshot) === undefined ||
     lireEtatCourant(etat) === undefined
   ) {
     return undefined;
@@ -418,7 +490,7 @@ function migrerSauvegardeV2Legacy(
   const sauvegarde = creerSauvegarde(etat, reproduction);
   return {
     ...sauvegarde,
-    id: `${valeur.id}-v3-${sauvegarde.empreinte}`,
+    id: `${valeur.id}-v4-${sauvegarde.empreinte}`,
   };
 }
 
@@ -430,7 +502,7 @@ function migrerSauvegardeAvantRoutes(
     typeof valeur.id !== "string" ||
     valeur.version !== VERSION_SAUVEGARDE_AVANT_ROUTES ||
     !estObjet(valeur.versions) ||
-    valeur.versions.simulation !== VERSION_SIMULATION_COURANTE ||
+    valeur.versions.simulation !== VERSION_SIMULATION_AVANT_CRISES ||
     valeur.versions.contenu !== VERSIONS_DU_SNAPSHOT_COURANT.contenu ||
     valeur.versions.aleatoire !== VERSIONS_DU_SNAPSHOT_COURANT.aleatoire ||
     valeur.versions.empreinte !== VERSIONS_DU_SNAPSHOT_COURANT.empreinte ||
@@ -466,7 +538,14 @@ function migrerSauvegardeAvantRoutes(
     return undefined;
   }
 
-  const snapshot = migrerEtatAvantRoutes(snapshotAvantRoutes);
+  const ignorerFaitAnnonceur =
+    etatDeclareAvantRoutes.narration.faitsDeCampagne.some(
+      (fait) => fait.id === FAIT_ANNONCANT_LA_CRISE,
+    );
+  const snapshot = migrerEtatAvantRoutes(
+    snapshotAvantRoutes,
+    ignorerFaitAnnonceur,
+  );
   let etat = snapshot;
   const commandes: CommandeDeReproduction[] = [];
   try {
@@ -502,7 +581,7 @@ function migrerSauvegardeAvantRoutes(
       projeterEtatAvantRoutesHistorique(etat),
       etatDeclareAvantRoutes,
     ) ||
-    lireEtatCourant(snapshot) === undefined ||
+    lireSnapshotCourant(snapshot) === undefined ||
     lireEtatCourant(etat) === undefined
   ) {
     return undefined;
@@ -516,7 +595,7 @@ function migrerSauvegardeAvantRoutes(
   const sauvegarde = creerSauvegarde(etat, reproduction);
   return {
     ...sauvegarde,
-    id: `${valeur.id}-v3-${sauvegarde.empreinte}`,
+    id: `${valeur.id}-v4-${sauvegarde.empreinte}`,
   };
 }
 
@@ -524,7 +603,107 @@ export function migrerSauvegardeV2(
   valeur: ObjetInconnu,
 ): SauvegardeCampagne | undefined {
   return estObjet(valeur.versions) &&
-    valeur.versions.simulation === VERSION_SIMULATION_COURANTE
+    valeur.versions.simulation === VERSION_SIMULATION_AVANT_CRISES
     ? migrerSauvegardeAvantRoutes(valeur)
     : migrerSauvegardeV2Legacy(valeur);
+}
+
+export function migrerSauvegardeV3(
+  valeur: ObjetInconnu,
+): SauvegardeCampagne | undefined {
+  if (
+    valeur.format !== FORMAT_SAUVEGARDE ||
+    typeof valeur.id !== "string" ||
+    valeur.version !== VERSION_SAUVEGARDE_AVANT_CRISES ||
+    !estObjet(valeur.versions) ||
+    valeur.versions.simulation !== VERSION_SIMULATION_AVANT_CRISES ||
+    valeur.versions.contenu !== VERSIONS_DU_SNAPSHOT_COURANT.contenu ||
+    valeur.versions.aleatoire !== VERSIONS_DU_SNAPSHOT_COURANT.aleatoire ||
+    valeur.versions.empreinte !== VERSIONS_DU_SNAPSHOT_COURANT.empreinte ||
+    typeof valeur.graine !== "string" ||
+    !estObjet(valeur.horloge) ||
+    typeof valeur.horloge.secondes !== "number" ||
+    !Number.isFinite(valeur.horloge.secondes) ||
+    !estObjet(valeur.reproduction) ||
+    !Array.isArray(valeur.reproduction.commandes) ||
+    typeof valeur.reproduction.empreinteSnapshot !== "string" ||
+    !EMPREINTE.test(valeur.reproduction.empreinteSnapshot) ||
+    typeof valeur.empreinte !== "string" ||
+    !EMPREINTE.test(valeur.empreinte)
+  ) {
+    return undefined;
+  }
+
+  const snapshotV3 = lireEtatAvantCrises(valeur.reproduction.snapshot);
+  const etatDeclareV3 = lireEtatAvantCrises(valeur.etat);
+  if (
+    snapshotV3 === undefined ||
+    etatDeclareV3 === undefined ||
+    valeur.graine !== etatDeclareV3.graine ||
+    valeur.horloge.secondes !== etatDeclareV3.tempsDuConvoi.secondes ||
+    empreinteEtat(snapshotV3 as unknown as EtatCampagne) !==
+      valeur.reproduction.empreinteSnapshot ||
+    empreinteEtat(etatDeclareV3 as unknown as EtatCampagne) !== valeur.empreinte
+  ) {
+    return undefined;
+  }
+
+  const ignorerFaitAnnonceur = etatDeclareV3.narration.faitsDeCampagne.some(
+    (fait) => fait.id === FAIT_ANNONCANT_LA_CRISE,
+  );
+  const snapshot = migrerEtatAvantCrises(
+    snapshotV3,
+    ignorerFaitAnnonceur,
+  );
+  let etat = snapshot;
+  const commandes: CommandeDeReproduction[] = [];
+  try {
+    for (const [index, entree] of valeur.reproduction.commandes.entries()) {
+      if (
+        !estObjet(entree) ||
+        entree.sequence !== index ||
+        !estCommandeAvantCrises(entree.commande) ||
+        typeof entree.empreinteApres !== "string" ||
+        !EMPREINTE.test(entree.empreinteApres)
+      ) {
+        return undefined;
+      }
+      etat = appliquerCommande(etat, entree.commande).etat;
+      const empreinteLegacy = empreinteEtat(
+        normaliserEtatAvantCrises(etat) as unknown as EtatCampagne,
+      );
+      if (empreinteLegacy !== entree.empreinteApres) {
+        return undefined;
+      }
+      commandes.push({
+        sequence: index,
+        commande: entree.commande,
+        empreinteApres: empreinteEtat(etat),
+      });
+    }
+  } catch {
+    return undefined;
+  }
+
+  if (
+    !sontStructurellementEgaux(
+      normaliserEtatAvantCrises(etat),
+      etatDeclareV3,
+    ) ||
+    lireSnapshotCourant(snapshot) === undefined ||
+    lireEtatCourant(etat) === undefined
+  ) {
+    return undefined;
+  }
+
+  const reproduction: ReproductionDeCampagne = {
+    snapshot,
+    empreinteSnapshot: empreinteEtat(snapshot),
+    commandes,
+  };
+  const sauvegarde = creerSauvegarde(etat, reproduction);
+  return {
+    ...sauvegarde,
+    id: `${valeur.id}-v4-${sauvegarde.empreinte}`,
+  };
 }

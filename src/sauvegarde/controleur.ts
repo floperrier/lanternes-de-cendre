@@ -5,6 +5,10 @@ import {
   type GraineDeCampagne,
 } from "../simulation/campagne";
 import {
+  criseAttendSonCheckpoint,
+  IDENTIFIANT_DE_LA_CRISE_DE_REFERENCE,
+} from "../simulation/crise";
+import {
   creerPortDePersistanceIndexedDb,
   type ArchivePersistante,
   type PortDePersistanceSauvegardes,
@@ -194,6 +198,31 @@ export function creerControleurDeSessionCampagne({
     }, delaiDEcriture);
   };
 
+  const declencherCriseApresCheckpoint = (
+    applicationDuCheckpoint: ApplicationCampagne,
+    generationDuCheckpoint: number,
+  ) => {
+    if (
+      generationDuCheckpoint !== generation ||
+      application !== applicationDuCheckpoint
+    ) {
+      return;
+    }
+    const etatCourant = applicationDuCheckpoint.lireEtat();
+    if (
+      !criseAttendSonCheckpoint(
+        etatCourant.crises,
+        etatCourant.tempsDuConvoi.secondes,
+      )
+    ) {
+      return;
+    }
+    applicationDuCheckpoint.envoyerCommande({
+      type: "crise.declencher",
+      criseId: IDENTIFIANT_DE_LA_CRISE_DE_REFERENCE,
+    });
+  };
+
   const brancherOuverture = (
     ouverture: ResultatOuvertureCampagne,
     erreurSauvegarde: string | undefined = undefined,
@@ -206,7 +235,7 @@ export function creerControleurDeSessionCampagne({
       commandes: [...ouverture.reproduction.commandes],
     };
     seDesabonnerDesCommandes = application.sabonnerAuxCommandes(
-      (commande, nouvelEtat) => {
+      (commande, nouvelEtat, evenements) => {
         if (journal === undefined) {
           return;
         }
@@ -215,6 +244,42 @@ export function creerControleurDeSessionCampagne({
           commande,
           empreinteApres: empreinteEtat(nouvelEtat),
         });
+        if (
+          evenements.some(
+            (evenement) => evenement.type === "crise.checkpoint-requis",
+          )
+        ) {
+          const generationDuCheckpoint = generation;
+          const applicationDuCheckpoint = application;
+          if (applicationDuCheckpoint === undefined) {
+            return;
+          }
+          if (temporisation !== undefined) {
+            clearTimeout(temporisation);
+            temporisation = undefined;
+          }
+          publierStatutSauvegarde("Point de reprise avant Crise en cours…");
+          void enfilerSauvegarde(generationDuCheckpoint)
+            .then(() => {
+              if (generationDuCheckpoint !== generation) {
+                return;
+              }
+              publierStatutSauvegarde(
+                "Point de reprise avant Crise enregistré.",
+              );
+              declencherCriseApresCheckpoint(
+                applicationDuCheckpoint,
+                generationDuCheckpoint,
+              );
+            })
+            .catch((erreur: unknown) => {
+              if (generationDuCheckpoint === generation) {
+                const message = `Le point de reprise avant Crise a échoué : ${messageDErreur(erreur)}`;
+                publierStatutSauvegarde(message, message);
+              }
+            });
+          return;
+        }
         planifierSauvegarde();
       },
     );
@@ -224,6 +289,9 @@ export function creerControleurDeSessionCampagne({
       statutSauvegarde: ouverture.explication ?? "",
       erreurSauvegarde,
     });
+    if (application !== undefined) {
+      declencherCriseApresCheckpoint(application, generation);
+    }
   };
 
   const ouverture = ouvrirCampagne(port, graine)
@@ -249,7 +317,15 @@ export function creerControleurDeSessionCampagne({
         temporisation = undefined;
       }
       try {
-        await enfilerSauvegarde(generation);
+        const generationDeLEcriture = generation;
+        const applicationSauvegardee = application;
+        await enfilerSauvegarde(generationDeLEcriture);
+        if (applicationSauvegardee !== undefined) {
+          declencherCriseApresCheckpoint(
+            applicationSauvegardee,
+            generationDeLEcriture,
+          );
+        }
       } catch (erreur) {
         const message = messageDErreur(erreur);
         publierStatutSauvegarde(message, message);

@@ -50,7 +50,11 @@ export interface ApplicationCampagne {
   ) => readonly EvenementDeDomaine[];
   readonly sabonner: (ecouteur: () => void) => () => void;
   readonly sabonnerAuxCommandes: (
-    ecouteur: (commande: CommandeCampagne, etat: EtatCampagne) => void,
+    ecouteur: (
+      commande: CommandeCampagne,
+      etat: EtatCampagne,
+      evenements: readonly EvenementDeDomaine[],
+    ) => void,
   ) => () => void;
 }
 
@@ -187,7 +191,11 @@ function creerApplication(
   let etat = etatInitial;
   const ecouteurs = new Set<() => void>();
   const ecouteursDeCommandes = new Set<
-    (commande: CommandeCampagne, etat: EtatCampagne) => void
+    (
+      commande: CommandeCampagne,
+      etat: EtatCampagne,
+      evenements: readonly EvenementDeDomaine[],
+    ) => void
   >();
 
   return {
@@ -195,7 +203,9 @@ function creerApplication(
     envoyerCommande: (commande) => {
       const transition = appliquerCommande(etat, commande);
       etat = transition.etat;
-      ecouteursDeCommandes.forEach((ecouteur) => ecouteur(commande, etat));
+      ecouteursDeCommandes.forEach((ecouteur) =>
+        ecouteur(commande, etat, transition.evenements),
+      );
       ecouteurs.forEach((ecouteur) => ecouteur());
       return transition.evenements;
     },
