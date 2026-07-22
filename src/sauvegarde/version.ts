@@ -9,6 +9,7 @@ export const FORMAT_SAUVEGARDE = "lanternes-de-cendre.sauvegarde" as const;
 export const VERSION_SAUVEGARDE_INITIALE = 1 as const;
 export const VERSION_SAUVEGARDE_AVANT_ROUTES = 2 as const;
 export const VERSION_SAUVEGARDE_AVANT_CRISES = 3 as const;
+export const VERSION_SAUVEGARDE_AVANT_EXPEDITIONS = 3 as const;
 export const VERSION_SAUVEGARDE_COURANTE = 4 as const;
 export { VERSION_CONTENU_COURANTE } from "../content/types";
 

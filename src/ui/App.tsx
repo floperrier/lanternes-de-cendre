@@ -9,6 +9,7 @@ import { projeterPilotage } from "../application/pilotage";
 import { projeterCompagnonEtConseil } from "../application/conseil";
 import { projeterAtlas } from "../application/routes";
 import { projeterCrises } from "../application/crise";
+import { projeterExpedition } from "../application/expeditions";
 import type { Langue } from "../content/types";
 import { criseAttendSonCheckpoint } from "../simulation/crise";
 import {
@@ -26,6 +27,7 @@ import { PanneauSauvegarde } from "./PanneauSauvegarde";
 import { RubanNarratif } from "./RubanNarratif";
 import { SelecteurDeLangue } from "./SelecteurDeLangue";
 import { CriseDuConvoi } from "./CriseDuConvoi";
+import { OrdreDistantDExpedition } from "./OrdreDistantDExpedition";
 
 interface PropsCampagne {
   readonly etatDuControleur: Extract<
@@ -55,6 +57,7 @@ function CampagnePersistante({ etatDuControleur, controleur }: PropsCampagne) {
   );
   const criseBloquante =
     checkpointDeCriseRequis || projectionDesCrises.active !== null;
+  const projectionDExpedition = projeterExpedition(etat, langue);
 
   useEffect(() => {
     const horloge = window.setInterval(() => {
@@ -107,6 +110,7 @@ function CampagnePersistante({ etatDuControleur, controleur }: PropsCampagne) {
           <Atlas
             application={application}
             projection={projectionDeLAtlas}
+            expedition={projectionDExpedition}
             langue={langue}
           />
         </div>
@@ -133,8 +137,14 @@ function CampagnePersistante({ etatDuControleur, controleur }: PropsCampagne) {
           crise={projectionDesCrises.active}
           langue={langue}
         />
-      ) : checkpointDeCriseRequis ? null : projection.evenementNarratif !==
+      ) : checkpointDeCriseRequis ? null : projectionDExpedition.ordreImportant !==
         null ? (
+        <OrdreDistantDExpedition
+          application={application}
+          expedition={projectionDExpedition}
+          langue={langue}
+        />
+      ) : projection.evenementNarratif !== null ? (
         <RubanNarratif
           application={application}
           evenement={projection.evenementNarratif}

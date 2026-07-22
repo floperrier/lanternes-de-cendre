@@ -31,6 +31,7 @@ interface EtatV2HistoriqueMutable {
   infrastructure?: unknown;
   routes?: unknown;
   crises?: unknown;
+  expeditions?: unknown;
   citeCaravane: { formation: { plateformes: string[] } };
 }
 
@@ -65,6 +66,7 @@ function retirerRoutes(etat: EtatCampagne): Record<string, unknown> {
   delete sansRoutes.routes;
   delete sansRoutes.infrastructure;
   delete sansRoutes.crises;
+  delete sansRoutes.expeditions;
   sansRoutes.citeCaravane = {
     ...etat.citeCaravane,
     formation: {
@@ -87,6 +89,7 @@ function retirerSeulementRoutes(etat: EtatCampagne): Record<string, unknown> {
   const sansRoutes = { ...etat } as Record<string, unknown>;
   delete sansRoutes.routes;
   delete sansRoutes.crises;
+  delete sansRoutes.expeditions;
   sansRoutes.version = 3;
   return sansRoutes;
 }
@@ -94,6 +97,7 @@ function retirerSeulementRoutes(etat: EtatCampagne): Record<string, unknown> {
 function retirerCrises(etat: EtatCampagne): Record<string, unknown> {
   const avantCrises = { ...etat } as Record<string, unknown>;
   delete avantCrises.crises;
+  delete avantCrises.expeditions;
   avantCrises.version = 3;
   return avantCrises;
 }
@@ -284,6 +288,7 @@ describe("sauvegarde portable", () => {
       delete etat.infrastructure;
       delete etat.routes;
       delete etat.crises;
+      delete etat.expeditions;
       etat.version = 2;
       etat.citeCaravane.formation.plateformes = plateformesLegacy;
     }
@@ -1750,5 +1755,222 @@ describe("sauvegarde portable", () => {
       statut: "invalide",
       explication: "La sauvegarde v1 est incomplète ou incohérente.",
     });
+  });
+
+  it("reprend et rejoue le Bilan complet d’une Expédition", () => {
+    const application = creerApplicationCampagne("CENDRE-01");
+    const reproduction = suivreReproduction(application);
+    application.envoyerCommande({
+      type: "expedition.lancer",
+      expeditionId: "vannes-grises",
+    });
+    application.envoyerCommande({
+      type: "temps-du-convoi.ecouler",
+      secondesReelles: 9_420,
+    });
+    application.envoyerCommande({
+      type: "expedition.ordonner",
+      expeditionId: "vannes-grises",
+      intention: "forcer-galerie",
+    });
+    application.envoyerCommande({
+      type: "temps-du-convoi.ecouler",
+      secondesReelles: 7_500,
+    });
+
+    const sauvegarde = creerSauvegarde(
+      application.lireEtat(),
+      reproduction,
+    );
+    const importation = importerSauvegarde(exporterSauvegarde(sauvegarde));
+
+    expect(importation.statut).toBe("compatible");
+    if (importation.statut !== "compatible") {
+      throw new Error("L’Expédition terminée devrait être compatible.");
+    }
+    expect(importation.sauvegarde.version).toBe(4);
+    expect(importation.sauvegarde.etat.expeditions.operations[0]).toMatchObject({
+      statut: "terminee",
+      ordresDistants: [{ intention: "forcer-galerie", moment: 9_420 }],
+      bilan: {
+        blessures: ["exposition-cendre-traitee"],
+        renseignements: ["debit-fort-vannes-grises-confirme"],
+        engagements: [],
+        cicatrices: ["liora.exposition-prolongee"],
+      },
+    });
+    expect(rejouerReproduction(importation.sauvegarde.reproduction)).toEqual({
+      statut: "termine",
+      etat: importation.sauvegarde.etat,
+      empreinte: importation.sauvegarde.empreinte,
+    });
+  });
+
+  it("migre une sauvegarde v3 en ajoutant l’Expédition prête", () => {
+    const application = creerApplicationCampagne("CENDRE-01");
+    const reproduction = suivreReproduction(application);
+    application.envoyerCommande({
+      type: "temps-du-convoi.regler-vitesse",
+      vitesse: 4,
+    });
+    const sauvegarde = creerSauvegarde(
+      application.lireEtat(),
+      reproduction,
+    );
+    const retirerExpeditions = (etat: EtatCampagne) => {
+      const historique = { ...etat } as Record<string, unknown>;
+      delete historique.crises;
+      delete historique.expeditions;
+      historique.version = 3;
+      return historique;
+    };
+    const etatHistorique = retirerExpeditions(sauvegarde.etat);
+    const snapshotHistorique = retirerExpeditions(
+      sauvegarde.reproduction.snapshot,
+    );
+    const archiveV3 = {
+      ...sauvegarde,
+      version: 3,
+      versions: { ...sauvegarde.versions, simulation: 3 },
+      etat: etatHistorique,
+      empreinte: empreinteEtat(etatHistorique as unknown as EtatCampagne),
+      reproduction: {
+        ...sauvegarde.reproduction,
+        snapshot: snapshotHistorique,
+        empreinteSnapshot: empreinteEtat(
+          snapshotHistorique as unknown as EtatCampagne,
+        ),
+        commandes: sauvegarde.reproduction.commandes.map((entree) => ({
+          ...entree,
+          empreinteApres: empreinteEtat(
+            etatHistorique as unknown as EtatCampagne,
+          ),
+        })),
+      },
+    };
+
+    const importation = importerSauvegarde(JSON.stringify(archiveV3));
+
+    expect(importation.statut).toBe("migree");
+    if (importation.statut !== "migree") {
+      throw new Error("La sauvegarde v3 devrait être migrée.");
+    }
+    expect(importation.sauvegarde.version).toBe(4);
+    expect(importation.sauvegarde.etat.expeditions.operations[0]).toMatchObject({
+      id: "vannes-grises",
+      statut: "prete",
+    });
+    expect(importation.sauvegarde.reproduction.commandes).toMatchObject([
+      {
+        sequence: 0,
+        commande: {
+          type: "temps-du-convoi.regler-vitesse",
+          vitesse: 4,
+        },
+      },
+    ]);
+  });
+
+  it("refuse une échéance d’Expédition impossible dans une archive v3", () => {
+    const application = creerApplicationCampagne("CENDRE-01");
+    const sauvegarde = creerSauvegarde(
+      application.lireEtat(),
+      creerReproductionInitiale(application.lireEtat()),
+    );
+    const retirerExpeditionsEtAjouterEcheance = (etat: EtatCampagne) => {
+      const historique = { ...etat } as Record<string, unknown>;
+      delete historique.crises;
+      delete historique.expeditions;
+      historique.version = 3;
+      historique.echeances = [
+        {
+          id: "expedition-future",
+          secondeDEcheance: 60,
+          cause: "commande-v4-impossible",
+          commande: {
+            type: "expedition.lancer",
+            expeditionId: "vannes-grises",
+          },
+        },
+      ];
+      return historique;
+    };
+    const etatHistorique = retirerExpeditionsEtAjouterEcheance(
+      sauvegarde.etat,
+    );
+    const snapshotHistorique = retirerExpeditionsEtAjouterEcheance(
+      sauvegarde.reproduction.snapshot,
+    );
+    const archiveV3 = {
+      ...sauvegarde,
+      version: 3,
+      versions: { ...sauvegarde.versions, simulation: 3 },
+      etat: etatHistorique,
+      empreinte: empreinteEtat(etatHistorique as unknown as EtatCampagne),
+      reproduction: {
+        ...sauvegarde.reproduction,
+        snapshot: snapshotHistorique,
+        empreinteSnapshot: empreinteEtat(
+          snapshotHistorique as unknown as EtatCampagne,
+        ),
+      },
+    };
+
+    expect(importerSauvegarde(JSON.stringify(archiveV3))).toMatchObject({
+      statut: "invalide",
+      explication: "La sauvegarde v3 est incomplète ou incohérente.",
+    });
+  });
+
+  it("refuse un Bilan d’Expédition dont la Cicatrice a été effacée", () => {
+    let etat = creerCampagneInitiale("CENDRE-01");
+    etat = appliquerCommande(etat, {
+      type: "expedition.lancer",
+      expeditionId: "vannes-grises",
+    }).etat;
+    etat = appliquerCommande(etat, {
+      type: "temps-du-convoi.ecouler",
+      secondesReelles: 9_420,
+    }).etat;
+    etat = appliquerCommande(etat, {
+      type: "expedition.ordonner",
+      expeditionId: "vannes-grises",
+      intention: "forcer-galerie",
+    }).etat;
+    etat = appliquerCommande(etat, {
+      type: "temps-du-convoi.ecouler",
+      secondesReelles: 7_500,
+    }).etat;
+    const falsifie = structuredClone(etat) as unknown as {
+      expeditions: {
+        operations: [{ bilan: { cicatrices: string[] } }];
+      };
+    };
+    falsifie.expeditions.operations[0].bilan.cicatrices = [];
+
+    expect(lireEtatCourant(falsifie)).toBeUndefined();
+  });
+
+  it("refuse un rapport d’Expédition effacé du Journal causal", () => {
+    let etat = appliquerCommande(creerCampagneInitiale("CENDRE-01"), {
+      type: "expedition.lancer",
+      expeditionId: "vannes-grises",
+    }).etat;
+    etat = appliquerCommande(etat, {
+      type: "temps-du-convoi.ecouler",
+      secondesReelles: 9_420,
+    }).etat;
+    const copie = structuredClone(etat);
+    const falsifie = {
+      ...copie,
+      narration: {
+        ...copie.narration,
+        faitsDeCampagne: copie.narration.faitsDeCampagne.filter(
+        (fait) => fait.cause !== "ecart.passerelle-rompue",
+        ),
+      },
+    };
+
+    expect(lireEtatCourant(falsifie)).toBeUndefined();
   });
 });

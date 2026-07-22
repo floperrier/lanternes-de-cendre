@@ -6,15 +6,18 @@ import {
 } from "react";
 
 import type { ApplicationCampagne } from "../application/application";
+import type { ProjectionDExpedition } from "../application/expeditions";
 import type {
   ProjectionDeLAtlas,
   TronconProjete,
 } from "../application/routes";
 import { AtlasPixi } from "./AtlasPixi";
+import { ExpeditionDansAtlas } from "./ExpeditionDansAtlas";
 
 interface AtlasProps {
   readonly application: ApplicationCampagne;
   readonly projection: ProjectionDeLAtlas;
+  readonly expedition: ProjectionDExpedition;
   readonly langue: "fr" | "en";
 }
 
@@ -99,7 +102,7 @@ function TronconDansAtlas({
   );
 }
 
-export function Atlas({ application, projection, langue }: AtlasProps) {
+export function Atlas({ application, projection, expedition, langue }: AtlasProps) {
   const [tronconAConfirmer, choisirTroncon] = useState<TronconProjete | null>(
     null,
   );
@@ -189,6 +192,12 @@ export function Atlas({ application, projection, langue }: AtlasProps) {
         </div>
         <h2 id="titre-atlas">{projection.titre}</h2>
       </header>
+
+      <ExpeditionDansAtlas
+        application={application}
+        projection={expedition}
+        langue={langue}
+      />
 
       {projection.engagement === null ? null : (
         <p className="atlas__engagement" role="status">

@@ -471,6 +471,218 @@ summary:focus-visible,
   gap: 0.6rem;
 }
 
+.expedition-atlas {
+  display: grid;
+  gap: 0.85rem;
+  padding: 0.9rem;
+  margin-bottom: 0.9rem;
+  background: rgba(7, 16, 20, 0.94);
+  border: 1px solid var(--ambre);
+  box-shadow: inset 0 2px 0 rgba(224, 154, 53, 0.22);
+}
+
+.expedition-atlas > header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.expedition-atlas h3,
+.expedition-atlas h4,
+.expedition-atlas h5,
+.expedition-atlas p,
+.expedition-atlas dl,
+.expedition-atlas ol,
+.expedition-atlas ul {
+  margin: 0;
+}
+
+.expedition-atlas h3,
+.expedition-atlas__bilan h4 {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 1.55rem;
+}
+
+.expedition-atlas > header p,
+.expedition-atlas__bilan > p:first-child {
+  color: var(--ambre);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.expedition-atlas > header > strong {
+  padding: 0.25rem 0.45rem;
+  color: #fff2d9;
+  background: #241c11;
+  border: 1px solid var(--cuivre-clair);
+  font-size: 0.75rem;
+}
+
+.expedition-atlas h4 {
+  margin-bottom: 0.45rem;
+  color: #fff2d9;
+  font-size: 0.85rem;
+}
+
+.expedition-atlas h5,
+.expedition-atlas dt {
+  color: var(--texte-secondaire);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.expedition-atlas__mandat,
+.expedition-atlas__prevision,
+.expedition-atlas__comparaison,
+.expedition-atlas__memoire {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+.expedition-atlas__mandat > div,
+.expedition-atlas__prevision article,
+.expedition-atlas__comparaison p,
+.expedition-atlas__memoire section {
+  min-width: 0;
+  padding: 0.55rem;
+  background: #0a1215;
+  border-left: 2px solid var(--cuivre-clair);
+}
+
+.expedition-atlas__mandat dd,
+.expedition-atlas__prevision strong,
+.expedition-atlas__comparaison span,
+.expedition-atlas__memoire p {
+  display: block;
+  margin: 0.2rem 0 0;
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+.expedition-atlas__prevision ul,
+.expedition-atlas__memoire ul {
+  padding-left: 1rem;
+  color: var(--texte-secondaire);
+  font-size: 0.73rem;
+  line-height: 1.35;
+}
+
+.expedition-atlas__prevision small,
+.expedition-atlas__suivi li small {
+  display: block;
+  margin-top: 0.25rem;
+  color: var(--texte-secondaire);
+  font-size: 0.7rem;
+}
+
+.expedition-atlas__mesures {
+  display: grid;
+  grid-template-columns: minmax(10rem, 1fr) auto auto;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.55rem;
+  background: #0a1215;
+}
+
+.expedition-atlas__mesures label,
+.expedition-atlas__mesures progress {
+  width: 100%;
+}
+
+.expedition-atlas__mesures label span {
+  display: block;
+  font-size: 0.75rem;
+}
+
+.expedition-atlas__mesures progress {
+  accent-color: var(--ambre);
+}
+
+.expedition-atlas__suivi ol {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.5rem 0 0;
+  list-style: none;
+}
+
+.expedition-atlas__suivi li {
+  display: grid;
+  grid-template-columns: 3.4rem minmax(0, 1fr);
+  gap: 0.15rem 0.55rem;
+  padding: 0.45rem;
+  border-left: 2px solid var(--cuivre-clair);
+}
+
+.expedition-atlas__suivi li time {
+  grid-row: 1 / span 2;
+  color: var(--ambre);
+  font-variant-numeric: tabular-nums;
+  font-size: 0.72rem;
+}
+
+.expedition-atlas__bilan {
+  display: grid;
+  gap: 0.65rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--cuivre);
+}
+
+.expedition-atlas__action {
+  min-height: 2.9rem;
+  padding: 0.55rem 0.8rem;
+  color: #fff2d9;
+  background: #241c11;
+  border: 1px solid var(--ambre);
+  cursor: pointer;
+}
+
+.expedition-atlas__action:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.ordre-distant-expedition {
+  max-width: 76rem;
+  margin: 0 auto;
+}
+
+.ordre-distant-expedition__contexte {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.ordre-distant-expedition__contexte > div {
+  padding: 0.65rem;
+  background: #0a1215;
+  border-left: 2px solid var(--cuivre-clair);
+}
+
+.ordre-distant-expedition__contexte dt {
+  color: var(--texte-secondaire);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.ordre-distant-expedition__contexte dd {
+  margin: 0.25rem 0 0;
+}
+
+.ordre-distant-expedition__temps {
+  padding: 0.6rem;
+  color: #fff2d9;
+  background: #241c11;
+  border-left: 3px solid var(--ambre);
+}
+
 .coupe-habitee canvas {
   display: block;
   width: 100%;
@@ -1438,6 +1650,13 @@ summary:focus-visible,
   .atlas {
     max-height: none;
     overflow: visible;
+  }
+
+  .expedition-atlas__mandat,
+  .expedition-atlas__prevision,
+  .expedition-atlas__memoire,
+  .ordre-distant-expedition__contexte {
+    grid-template-columns: 1fr;
   }
 
   .etat-textuel {

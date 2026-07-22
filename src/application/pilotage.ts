@@ -261,12 +261,20 @@ const JOURNAL_GENERIQUE: Readonly<
       "equipes-purification": "Équipes de purification",
       "foyers-du-convoi": "Foyers du convoi",
       "foyers-exposes": "Foyers exposés",
+      liora: "Liora",
+      "equipe-vannes-grises": "Équipe des Vannes Grises",
     },
     cibles: {
       "pompe-purification": "Pompe de purification",
       "cohorte-de-refugies": "Cohorte de réfugiés",
       "reserve-deau-purifiee": "Réserve d’Eau purifiée",
       "foyers-du-convoi": "Foyers du convoi",
+      "station-vannes-grises": "Station des Vannes Grises",
+      "canal-sec": "Canal sec",
+      "passerelle-rompue": "Passerelle rompue",
+      "sas-contamine": "Sas contaminé",
+      "salle-des-pompes": "Salle des pompes",
+      "atelier-operations": "Atelier–Opérations",
     },
   },
   en: {
@@ -302,14 +310,54 @@ const JOURNAL_GENERIQUE: Readonly<
       "equipes-purification": "Purification crews",
       "foyers-du-convoi": "Convoy Hearths",
       "foyers-exposes": "Exposed Hearths",
+      liora: "Liora",
+      "equipe-vannes-grises": "Grey Sluices team",
     },
     cibles: {
       "pompe-purification": "Purification pump",
       "cohorte-de-refugies": "Refugee cohort",
       "reserve-deau-purifiee": "Purified Water reserve",
       "foyers-du-convoi": "Convoy Hearths",
+      "station-vannes-grises": "Grey Sluices Station",
+      "canal-sec": "Dry channel",
+      "passerelle-rompue": "Broken footbridge",
+      "sas-contamine": "Contaminated airlock",
+      "salle-des-pompes": "Pump room",
+      "atelier-operations": "Workshop–Operations",
     },
   },
+};
+
+const TITRES_DES_RAPPORTS_D_EXPEDITION: Readonly<
+  Record<Langue, Readonly<Record<string, string>>>
+> = {
+  fr: {
+    "mandat.vannes-grises.confirme": "Expédition — mandat confirmé",
+    "jalon.canal-sec": "Expédition — canal sec atteint",
+    "ecart.passerelle-rompue": "Expédition — détour autonome consigné",
+    "ecart.sas-contamine": "Expédition — sas traité dans le mandat",
+    "ecart.salle-des-pompes-alimentee":
+      "Expédition — rupture du mandat consignée",
+    "ordre.couper-contourner": "Expédition — ordre de contournement transmis",
+    "ordre.forcer-galerie": "Expédition — ordre de forcer transmis",
+    "ordre.ordonner-repli": "Expédition — ordre de repli transmis",
+  },
+  en: {
+    "mandat.vannes-grises.confirme": "Expedition — mandate confirmed",
+    "jalon.canal-sec": "Expedition — dry channel reached",
+    "ecart.passerelle-rompue": "Expedition — autonomous detour recorded",
+    "ecart.sas-contamine": "Expedition — airlock handled within mandate",
+    "ecart.salle-des-pompes-alimentee":
+      "Expedition — mandate breach recorded",
+    "ordre.couper-contourner": "Expedition — bypass order sent",
+    "ordre.forcer-galerie": "Expedition — force-through order sent",
+    "ordre.ordonner-repli": "Expedition — withdrawal order sent",
+  },
+};
+
+const TITRES_DE_RETOUR_D_EXPEDITION: Readonly<Record<Langue, string>> = {
+  fr: "Expédition — équipe revenue à Atelier–Opérations",
+  en: "Expedition — team returned to Workshop–Operations",
 };
 
 function textesDeJournalDuConseil(fait: FaitDeCampagne, langue: Langue) {
@@ -317,8 +365,13 @@ function textesDeJournalDuConseil(fait: FaitDeCampagne, langue: Langue) {
 }
 
 function titrerFait(fait: FaitDeCampagne, langue: Langue): string {
+  const titreDeRetour = fait.id.includes(".retour.")
+    ? TITRES_DE_RETOUR_D_EXPEDITION[langue]
+    : undefined;
   const titre =
     textesDeJournalDuConseil(fait, langue)?.titre.modele ??
+    titreDeRetour ??
+    TITRES_DES_RAPPORTS_D_EXPEDITION[langue][fait.cause] ??
     JOURNAL_GENERIQUE[langue].titres[fait.id];
   if (titre === undefined) {
     throw new Error(

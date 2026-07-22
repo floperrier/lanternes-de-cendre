@@ -65,6 +65,18 @@ import {
   type EtatDesCrises,
   type EvenementDeCrise,
 } from "./crise";
+import {
+  creerFaitPourRapportDExpedition,
+  creerEtatDesExpeditionsInitial,
+  lancerExpedition,
+  ordonnerExpedition,
+  secondesAvantProchaineEcheanceDExpedition,
+  traiterEcheancesDExpedition,
+  type CommandeDExpedition,
+  type EtatDesExpeditions,
+  type EvenementDExpedition,
+  type MouvementDeStockDExpedition,
+} from "./expeditions";
 
 export type { GraineDeCampagne } from "./graine";
 export const IDENTIFIANTS_PLATEFORMES_MOBILES =
@@ -107,6 +119,7 @@ export interface EtatCampagne {
   readonly infrastructure: EtatInfrastructure;
   readonly routes: EtatDesRoutes;
   readonly crises: EtatDesCrises;
+  readonly expeditions: EtatDesExpeditions;
   readonly echeances: readonly EcheanceDeCampagne[];
   readonly fluxPseudoAleatoires: Readonly<{
     "evenements-narratifs": FluxPseudoAleatoire;
@@ -137,7 +150,8 @@ export type CommandeCampagne =
   | CommandeDIncident
   | CommandeDInfrastructure
   | CommandeDeDeclenchementDeCrise
-  | CommandeDeResolutionDeCrise;
+  | CommandeDeResolutionDeCrise
+  | CommandeDExpedition;
 
 export type EvenementDeDomaine =
   | {
@@ -172,7 +186,8 @@ export type EvenementDeDomaine =
   | EvenementDIncidentResolu
   | EvenementDInfrastructure
   | EvenementDeRoute
-  | EvenementDeCrise;
+  | EvenementDeCrise
+  | EvenementDExpedition;
 
 export interface TransitionDeCampagne {
   readonly etat: EtatCampagne;
@@ -204,6 +219,7 @@ export function creerCampagneInitiale(graine: GraineDeCampagne): EtatCampagne {
     infrastructure: creerInfrastructureInitiale(),
     routes: creerEtatDesRoutesInitial(),
     crises: creerEtatDesCrisesInitial(),
+    expeditions: creerEtatDesExpeditionsInitial(),
     echeances: [],
     fluxPseudoAleatoires: {
       "evenements-narratifs": creerFluxPseudoAleatoire(
@@ -330,6 +346,74 @@ function enregistrerFaitsDeCampagne(
   };
 }
 
+function appliquerMouvementsDeStocksDExpedition(
+  etat: EtatCampagne,
+  mouvements: readonly MouvementDeStockDExpedition[],
+): EtatCampagne {
+  if (mouvements.length === 0) {
+    return etat;
+  }
+  const stocks = { ...etat.pilotage.economie.stocks };
+  for (const mouvement of mouvements) {
+    stocks[mouvement.stock] = appliquerVariationAUnStock(
+      stocks[mouvement.stock],
+      mouvement.variation,
+    );
+  }
+  return {
+    ...etat,
+    pilotage: {
+      ...etat.pilotage,
+      economie: { ...etat.pilotage.economie, stocks },
+    },
+  };
+}
+
+function enregistrerNouveauxRapportsDExpedition(
+  etatAvant: EtatCampagne,
+  etatApres: EtatCampagne,
+): EtatCampagne {
+  const nombresDeRapportsAvant = new Map(
+    etatAvant.expeditions.operations.map((operation) => [
+      operation.id,
+      operation.rapports.length,
+    ]),
+  );
+  const faits = etatApres.expeditions.operations.flatMap((operation) =>
+    operation.rapports
+      .slice(nombresDeRapportsAvant.get(operation.id) ?? 0)
+      .map((rapport) =>
+        creerFaitPourRapportDExpedition(operation.id, rapport),
+      ),
+  );
+  return enregistrerFaitsDeCampagne(etatApres, faits);
+}
+
+function verifierStocksPourMouvementsDExpedition(
+  etat: EtatCampagne,
+  mouvements: readonly MouvementDeStockDExpedition[],
+): void {
+  const variations = new Map<string, number>();
+  for (const mouvement of mouvements) {
+    variations.set(
+      mouvement.stock,
+      (variations.get(mouvement.stock) ?? 0) + mouvement.variation,
+    );
+  }
+  const stockInsuffisant = [...variations].some(
+    ([stock, variation]) =>
+      variation < 0 &&
+      etat.pilotage.economie.stocks[
+        stock as keyof typeof etat.pilotage.economie.stocks
+      ].quantite < -variation,
+  );
+  if (stockInsuffisant) {
+    throw new Error(
+      "Les stocks requis pour l’Expédition des Vannes Grises sont insuffisants.",
+    );
+  }
+}
+
 function traiterPilotageEtChantier(
   etat: EtatCampagne,
   secondeInitiale: number,
@@ -343,10 +427,15 @@ function traiterPilotageEtChantier(
     const secondesAvantFin = secondesAvantFinDuChantier(
       nouvelEtat.infrastructure,
     );
-    const prochaineLimite =
-      secondesAvantFin === undefined
-        ? secondeFinale
-        : Math.min(secondeFinale, curseur + secondesAvantFin);
+    const secondesAvantEcheanceDExpedition =
+      secondesAvantProchaineEcheanceDExpedition(
+        nouvelEtat.expeditions,
+        curseur,
+      );
+    const prochainesLimites = [secondesAvantFin, secondesAvantEcheanceDExpedition]
+      .filter((secondes): secondes is number => secondes !== undefined)
+      .map((secondes) => curseur + secondes);
+    const prochaineLimite = Math.min(secondeFinale, ...prochainesLimites);
     const pilotage = traiterEcheancesDePilotage(
       nouvelEtat.pilotage,
       curseur,
@@ -370,6 +459,22 @@ function traiterPilotageEtChantier(
       infrastructure: infrastructure.infrastructure,
     };
     evenements.push(...infrastructure.evenements);
+
+    const etatAvantExpeditions = nouvelEtat;
+    const expeditions = traiterEcheancesDExpedition(
+      nouvelEtat.expeditions,
+      curseur,
+      prochaineLimite,
+    );
+    nouvelEtat = appliquerMouvementsDeStocksDExpedition(
+      { ...nouvelEtat, expeditions: expeditions.etat },
+      expeditions.mouvementsDeStocks,
+    );
+    nouvelEtat = enregistrerNouveauxRapportsDExpedition(
+      etatAvantExpeditions,
+      nouvelEtat,
+    );
+    evenements.push(...expeditions.evenements);
     curseur = prochaineLimite;
   }
 
@@ -744,6 +849,42 @@ export function appliquerCommande(
     return {
       etat: enregistrerFaitsDeCampagne(etat, [transition.faitProduit]),
       evenements: [transition.evenement],
+    };
+  }
+
+  if (commande.type === "expedition.lancer") {
+    const transition = lancerExpedition(
+      etat.expeditions,
+      commande,
+      etat.tempsDuConvoi.secondes,
+    );
+    verifierStocksPourMouvementsDExpedition(
+      etat,
+      transition.mouvementsDeStocks,
+    );
+    const etatApresLancement = appliquerMouvementsDeStocksDExpedition(
+      { ...etat, expeditions: transition.etat },
+      transition.mouvementsDeStocks,
+    );
+    return {
+      etat: enregistrerNouveauxRapportsDExpedition(
+        etat,
+        etatApresLancement,
+      ),
+      evenements: transition.evenements,
+    };
+  }
+
+  if (commande.type === "expedition.ordonner") {
+    const transition = ordonnerExpedition(
+      etat.expeditions,
+      commande,
+      etat.tempsDuConvoi.secondes,
+    );
+    const etatApresOrdre = { ...etat, expeditions: transition.etat };
+    return {
+      etat: enregistrerNouveauxRapportsDExpedition(etat, etatApresOrdre),
+      evenements: transition.evenements,
     };
   }
 

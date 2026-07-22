@@ -19,6 +19,7 @@ import {
   FAIT_ANNONCANT_LA_CRISE,
   ignorerFaitAnnonceurHistorique,
 } from "../simulation/crise";
+import { creerEtatDesExpeditionsInitial } from "../simulation/expeditions";
 import { creerSauvegarde } from "./snapshot";
 import type {
   CommandeDeReproduction,
@@ -164,6 +165,7 @@ function migrerEtatV1(etat: EtatCampagneV1): EtatCampagne {
     infrastructure,
     routes: creerEtatDesRoutesInitial(),
     crises: creerEtatDesCrisesDepuisHistorique(etat.narration.faitsDeCampagne),
+    expeditions: creerEtatDesExpeditionsInitial(),
     citeCaravane: {
       ...etat.citeCaravane,
       formation: {
@@ -206,6 +208,7 @@ function migrerEtatV2(
       etat.narration.faitsDeCampagne,
       ignorerFaitAnnonceur,
     ),
+    expeditions: creerEtatDesExpeditionsInitial(),
   };
 }
 
@@ -253,6 +256,7 @@ function migrerEtatAvantRoutes(
       etat.narration.faitsDeCampagne,
       ignorerFaitAnnonceur,
     ),
+    expeditions: creerEtatDesExpeditionsInitial(),
   };
 }
 
@@ -267,6 +271,7 @@ function migrerEtatAvantCrises(
       etat.narration.faitsDeCampagne,
       ignorerFaitAnnonceur,
     ),
+    expeditions: creerEtatDesExpeditionsInitial(),
   };
 }
 

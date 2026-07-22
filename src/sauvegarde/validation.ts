@@ -4,7 +4,6 @@ import {
   VITESSES_DU_CONVOI,
   type CommandeCampagne,
   type EtatCampagne,
-  type FaitDeCampagne,
   type GraineDeCampagne,
   type IdentifiantPlateformeMobile,
   type VitesseDuConvoi,
@@ -27,7 +26,10 @@ import {
   type EtatPilotage,
 } from "../simulation/pilotage";
 import { catalogueDEvenements, trouverEvenement } from "../content/catalogue";
-import { IDENTIFIANTS_DE_FAITS_D_INCIDENT } from "../simulation/faits";
+import {
+  IDENTIFIANTS_DE_FAITS_D_INCIDENT,
+  type FaitDeCampagne,
+} from "../simulation/faits";
 import {
   calculerModificateursEconomiques,
   CATALOGUE_D_INSTALLATIONS,
@@ -47,8 +49,16 @@ import {
   trouverTronconDeRoute,
   type EtatDesRoutes,
 } from "../simulation/routes";
+import {
+  creerEtatDesExpeditionsInitial,
+  type EtatDesExpeditions,
+} from "../simulation/expeditions";
 import { rejouerReproduction } from "./replay";
 import { estEtatDesRoutes } from "./validationRoutes";
+import {
+  estEtatDesExpeditions,
+  estJournalDExpeditionCoherent,
+} from "./validationExpeditions";
 import type {
   CommandeDeReproduction,
   ReproductionDeCampagne,
@@ -136,7 +146,12 @@ export interface EtatCampagneV1 {
 export interface EtatCampagneV2
   extends Omit<
     EtatCampagne,
-    "version" | "routes" | "infrastructure" | "crises" | "citeCaravane"
+    | "version"
+    | "routes"
+    | "infrastructure"
+    | "crises"
+    | "expeditions"
+    | "citeCaravane"
   > {
   readonly version: typeof VERSION_SIMULATION_AVANT_ROUTES;
   readonly citeCaravane: Omit<EtatCampagne["citeCaravane"], "formation"> & {
@@ -148,14 +163,19 @@ export interface EtatCampagneV2
 }
 
 export interface EtatCampagneAvantRoutes
-  extends Omit<EtatCampagne, "version" | "routes" | "crises"> {
+  extends Omit<
+    EtatCampagne,
+    "version" | "routes" | "crises" | "expeditions"
+  > {
   readonly version: typeof VERSION_SIMULATION_AVANT_CRISES;
 }
 
 export interface EtatCampagneAvantCrises
-  extends Omit<EtatCampagne, "version" | "crises"> {
+  extends Omit<EtatCampagne, "version" | "crises" | "expeditions"> {
   readonly version: typeof VERSION_SIMULATION_AVANT_CRISES;
 }
+
+export type EtatCampagneV3 = EtatCampagneAvantCrises;
 
 export function estObjet(valeur: unknown): valeur is ObjetInconnu {
   return (
@@ -243,12 +263,32 @@ export function estCommandeV2(valeur: unknown): valeur is CommandeCampagne {
   return false;
 }
 
+export function estCommandeAvantCrises(
+  valeur: unknown,
+): valeur is CommandeCampagne {
+  if (estCommandeAvantRoutes(valeur)) {
+    return true;
+  }
+  return (
+    estObjet(valeur) &&
+    valeur.type === "engagement-de-route.confirmer" &&
+    TRONCONS_DE_ROUTE.some((troncon) => troncon.id === valeur.tronconId)
+  );
+}
+
+export function estCommandeV3(valeur: unknown): valeur is CommandeCampagne {
+  return estCommandeAvantCrises(valeur);
+}
+
 export function estCommande(valeur: unknown): valeur is CommandeCampagne {
-  if (estCommandeAvantCrises(valeur)) {
+  if (estCommandeV3(valeur)) {
     return true;
   }
   if (!estObjet(valeur) || typeof valeur.type !== "string") {
     return false;
+  }
+  if (valeur.type === "expedition.lancer") {
+    return valeur.expeditionId === "vannes-grises";
   }
   if (valeur.type === "crise.declencher") {
     return valeur.criseId === IDENTIFIANT_DE_LA_CRISE_DE_REFERENCE;
@@ -261,19 +301,12 @@ export function estCommande(valeur: unknown): valeur is CommandeCampagne {
       )
     );
   }
-  return false;
-}
-
-export function estCommandeAvantCrises(
-  valeur: unknown,
-): valeur is CommandeCampagne {
-  if (estCommandeAvantRoutes(valeur)) {
-    return true;
-  }
   return (
-    estObjet(valeur) &&
-    valeur.type === "engagement-de-route.confirmer" &&
-    TRONCONS_DE_ROUTE.some((troncon) => troncon.id === valeur.tronconId)
+    valeur.type === "expedition.ordonner" &&
+    valeur.expeditionId === "vannes-grises" &&
+    ["couper-contourner", "forcer-galerie", "ordonner-repli"].includes(
+      String(valeur.intention),
+    )
   );
 }
 
@@ -432,13 +465,19 @@ function estFaitDeCampagneV2(valeur: unknown): boolean {
   }
   const effets = valeur.effets;
   if (
-    !IDENTIFIANTS_DE_FAITS_CONNUS.has(String(valeur.id)) ||
     !estObjet(effets) ||
     !Array.isArray(effets.materiels) ||
     !effets.materiels.every(estEffetMaterielDeFait) ||
     !Array.isArray(effets.humains) ||
     !effets.humains.every(estEffetHumainDeFait)
   ) {
+    return false;
+  }
+
+  if (String(valeur.id).startsWith("expedition.vannes-grises.")) {
+    return effets.materiels.length === 0 && effets.humains.length === 0;
+  }
+  if (!IDENTIFIANTS_DE_FAITS_CONNUS.has(String(valeur.id))) {
     return false;
   }
 
@@ -1032,6 +1071,7 @@ function calculerStockAttendu(
   faits: readonly ObjetInconnu[],
   infrastructure: EtatInfrastructure,
   routes: EtatDesRoutes,
+  expeditions: EtatDesExpeditions,
   reinitialiserReliquatApresConsommationMateriaux = true,
 ): { readonly quantite: number; readonly reliquatDeFlux: number } {
   const initial = PILOTAGE_INITIAL.economie.stocks[id];
@@ -1110,6 +1150,14 @@ function calculerStockAttendu(
       fait,
     })),
     ...transitions,
+    ...expeditions.operations.flatMap((operation) =>
+      operation.mouvementsDeStocks.map((mouvement, index) => ({
+        type: "expedition" as const,
+        moment: mouvement.moment,
+        index,
+        mouvement,
+      })),
+    ),
     ...routes.engagements.map((engagement, index) => ({
       type: "engagement" as const,
       moment: engagement.engageA,
@@ -1122,7 +1170,12 @@ function calculerStockAttendu(
     if (gauche.moment !== droite.moment) {
       return gauche.moment - droite.moment;
     }
-    const priorite = { fait: 0, infrastructure: 1, engagement: 2 } as const;
+    const priorite = {
+      fait: 0,
+      infrastructure: 1,
+      expedition: 2,
+      engagement: 3,
+    } as const;
     return (
       priorite[gauche.type] - priorite[droite.type] ||
       gauche.index - droite.index
@@ -1144,6 +1197,13 @@ function calculerStockAttendu(
       }
     } else if (occurrence.type === "infrastructure") {
       fluxParHeure += occurrence.variationDeFlux;
+    } else if (occurrence.type === "expedition") {
+      if (occurrence.mouvement.stock === id) {
+        stock = appliquerVariationAUnStock(
+          stock,
+          occurrence.mouvement.variation,
+        );
+      }
     } else {
       stock = appliquerConsommationDeRouteAUnStock(
         id,
@@ -1181,6 +1241,7 @@ function estEtatPilotage(
   faits: readonly ObjetInconnu[],
   infrastructure: EtatInfrastructure,
   routes: EtatDesRoutes,
+  expeditions: EtatDesExpeditions,
 ): valeur is EtatPilotage {
   if (!estObjet(valeur)) {
     return false;
@@ -1219,6 +1280,7 @@ function estEtatPilotage(
       faits,
       infrastructure,
       routes,
+      expeditions,
     );
     if (
       stock.quantite !== calcule.quantite ||
@@ -1443,6 +1505,7 @@ function estEtatDesCrises(
   faits: readonly ObjetInconnu[],
   infrastructure: EtatInfrastructure,
   routes: EtatDesRoutes,
+  expeditions: EtatDesExpeditions,
   autoriserMarqueurHistoriqueSansFait = false,
 ): valeur is EtatDesCrises {
   const faitAnnonceur = faits.find(
@@ -1516,6 +1579,7 @@ function estEtatDesCrises(
       faitsAvantRupture,
       infrastructure,
       routes,
+      expeditions,
     ).quantite;
     const effets = faitDeRupture.effets as ObjetInconnu;
     const effetDEau = (effets.materiels as ObjetInconnu[])[0];
@@ -1721,6 +1785,7 @@ function lireEtatAvecSchemaCourant(
   const infrastructure = valeur.infrastructure;
   const routes = valeur.routes;
   const crises = valeur.crises;
+  const expeditions = valeur.expeditions;
 
   if (
     parties === undefined ||
@@ -1735,6 +1800,11 @@ function lireEtatAvecSchemaCourant(
       narration.faitsDeCampagne,
     ) ||
     !estEtatDesRoutes(routes, parties.tempsDuConvoi.secondes) ||
+    !estEtatDesExpeditions(expeditions, parties.tempsDuConvoi.secondes) ||
+    !estJournalDExpeditionCoherent(
+      expeditions,
+      narration.faitsDeCampagne as unknown as readonly FaitDeCampagne[],
+    ) ||
     (validerCrises &&
       !estEtatDesCrises(
         crises,
@@ -1743,6 +1813,7 @@ function lireEtatAvecSchemaCourant(
         narration.faitsDeCampagne,
         infrastructure,
         routes,
+        expeditions,
         autoriserMarqueurHistoriqueSansFait,
       )) ||
     (trouverEngagementDeRouteActif(routes) !== undefined &&
@@ -1754,6 +1825,7 @@ function lireEtatAvecSchemaCourant(
       narration.faitsDeCampagne,
       infrastructure,
       routes,
+      expeditions,
     ) ||
     !estCausaliteDeNarrationValide(parties, pilotage) ||
     !Array.isArray(valeur.echeances) ||
@@ -1797,7 +1869,9 @@ export function lireEtatAvantRoutes(
   if (
     !estObjet(valeur) ||
     valeur.version !== VERSION_SIMULATION_AVANT_CRISES ||
-    "routes" in valeur
+    "routes" in valeur ||
+    "crises" in valeur ||
+    "expeditions" in valeur
   ) {
     return undefined;
   }
@@ -1832,6 +1906,7 @@ export function lireEtatAvantRoutes(
     version: VERSION_SIMULATION_COURANTE,
     routes,
     crises: creerEtatDesCrisesInitial(),
+    expeditions: creerEtatDesExpeditionsInitial(),
   }, false);
   if (etatNormalise === undefined) {
     return undefined;
@@ -1842,6 +1917,7 @@ export function lireEtatAvantRoutes(
     etatNormalise.narration.faitsDeCampagne as unknown as readonly ObjetInconnu[],
     etatNormalise.infrastructure,
     routes,
+    creerEtatDesExpeditionsInitial(),
     false,
   );
   return materiaux.quantite !== materiauxHistoriques.quantite ||
@@ -1859,6 +1935,7 @@ export function projeterEtatAvantRoutesHistorique(
     etat.narration.faitsDeCampagne as unknown as readonly ObjetInconnu[],
     etat.infrastructure,
     creerEtatDesRoutesInitial(),
+    creerEtatDesExpeditionsInitial(),
     false,
   );
   return {
@@ -1886,12 +1963,38 @@ export function projeterEtatAvantRoutesHistorique(
   };
 }
 
+export function lireEtatV3(valeur: unknown): EtatCampagneV3 | undefined {
+  if (
+    !estObjet(valeur) ||
+    valeur.version !== VERSION_SIMULATION_AVANT_CRISES ||
+    "crises" in valeur ||
+    "expeditions" in valeur ||
+    !Array.isArray(valeur.echeances) ||
+    !valeur.echeances.every(
+      (echeance) => estObjet(echeance) && estCommandeV3(echeance.commande),
+    )
+  ) {
+    return undefined;
+  }
+  const etatCourant = lireEtatAvecSchemaCourant({
+    ...valeur,
+    version: VERSION_SIMULATION_COURANTE,
+    crises: creerEtatDesCrisesInitial(),
+    expeditions: creerEtatDesExpeditionsInitial(),
+  }, false);
+  return etatCourant === undefined
+    ? undefined
+    : (valeur as unknown as EtatCampagneV3);
+}
+
 export function lireEtatV2(valeur: unknown): EtatCampagneV2 | undefined {
   if (
     !estObjet(valeur) ||
     valeur.version !== VERSION_SIMULATION_AVANT_ROUTES ||
     "routes" in valeur ||
-    "infrastructure" in valeur
+    "infrastructure" in valeur ||
+    "crises" in valeur ||
+    "expeditions" in valeur
   ) {
     return undefined;
   }
@@ -1913,6 +2016,7 @@ export function lireEtatV2(valeur: unknown): EtatCampagneV2 | undefined {
     infrastructure,
     routes: creerEtatDesRoutesInitial(),
     crises: creerEtatDesCrisesInitial(),
+    expeditions: creerEtatDesExpeditionsInitial(),
   }, false);
   return etatCourant === undefined
     ? undefined
@@ -1922,20 +2026,7 @@ export function lireEtatV2(valeur: unknown): EtatCampagneV2 | undefined {
 export function lireEtatAvantCrises(
   valeur: unknown,
 ): EtatCampagneAvantCrises | undefined {
-  if (
-    !estObjet(valeur) ||
-    valeur.version !== VERSION_SIMULATION_AVANT_CRISES ||
-    "crises" in valeur
-  ) {
-    return undefined;
-  }
-  return lireEtatAvecSchemaCourant({
-    ...valeur,
-    version: VERSION_SIMULATION_COURANTE,
-    crises: creerEtatDesCrisesInitial(),
-  }, false) === undefined
-    ? undefined
-    : (valeur as unknown as EtatCampagneAvantCrises);
+  return lireEtatV3(valeur);
 }
 
 function lireReproductionCourante(

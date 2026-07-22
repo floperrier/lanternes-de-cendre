@@ -6,6 +6,7 @@ import {
   empreinteEtat,
 } from "./campagne";
 import { creerInfrastructureInitiale } from "./infrastructure";
+import { creerEtatDesExpeditionsInitial } from "./expeditions";
 
 describe("Graine de campagne", () => {
   it("crée le même état initial sérialisable pour CENDRE-01", () => {
@@ -142,6 +143,7 @@ describe("Graine de campagne", () => {
         jalons: [],
       }),
       echeances: [],
+      expeditions: creerEtatDesExpeditionsInitial(),
       fluxPseudoAleatoires: {
         "evenements-narratifs": {
           algorithme: "xoshiro128**",
