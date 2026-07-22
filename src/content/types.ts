@@ -138,10 +138,120 @@ export interface InstallationDuCatalogue {
   readonly textes: Readonly<Record<Langue, TextesDInstallation>>;
 }
 
+export interface TextesDuCompagnonDuConseil {
+  readonly nom: TexteCompile;
+  readonly competenceMajeure: TexteCompile;
+  readonly competenceSecondaire: TexteCompile;
+  readonly trait: TexteCompile;
+  readonly ambivalence: TexteCompile;
+  readonly conviction: TexteCompile;
+  readonly projet: TexteCompile;
+  readonly etatPersonnel: TexteCompile;
+  readonly contrainte: TexteCompile;
+  readonly voieDeSoin: TexteCompile;
+  readonly quartier: TexteCompile;
+  readonly informationOuverte: TexteCompile;
+}
+
+export interface LibellesDuCompagnonEtDuConseil {
+  readonly typeCompagnon: TexteCompile;
+  readonly competenceMajeure: TexteCompile;
+  readonly competenceSecondaire: TexteCompile;
+  readonly trait: TexteCompile;
+  readonly conviction: TexteCompile;
+  readonly projet: TexteCompile;
+  readonly etatPersonnel: TexteCompile;
+  readonly soin: TexteCompile;
+  readonly affecter: TexteCompile;
+  readonly affectee: TexteCompile;
+  readonly informationOuverte: TexteCompile;
+  readonly conseil: TexteCompile;
+  readonly faitConnu: TexteCompile;
+  readonly source: TexteCompile;
+  readonly recommandationMorale: TexteCompile;
+  readonly enjeuPersonnel: TexteCompile;
+  readonly decision: TexteCompile;
+  readonly reponseOuverte: TexteCompile;
+}
+
+export interface TextesDUnSujetDuConseil {
+  readonly titre: TexteCompile;
+  readonly voix: Readonly<
+    Record<
+      string,
+      {
+        readonly faitConnu: TexteCompile;
+        readonly source: TexteCompile;
+        readonly dateSource: TexteCompile;
+        readonly recommandationMorale: TexteCompile;
+        readonly enjeuPersonnel: TexteCompile;
+      }
+    >
+  >;
+  readonly decisions: Readonly<Record<string, TexteCompile>>;
+}
+
+export interface TextesDUnConseil {
+  readonly titre: TexteCompile;
+  readonly compagnon: TextesDuCompagnonDuConseil;
+  readonly libelles: LibellesDuCompagnonEtDuConseil;
+  readonly sujets: Readonly<Record<string, TextesDUnSujetDuConseil>>;
+  readonly journal: Readonly<
+    Record<
+      string,
+      {
+        readonly titre: TexteCompile;
+        readonly cause: TexteCompile;
+        readonly acteurs: readonly TexteCompile[];
+        readonly cible: TexteCompile;
+      }
+    >
+  >;
+}
+
+export interface ConseilDuCatalogue {
+  readonly id: string;
+  readonly compagnon: {
+    readonly id: string;
+    readonly competences: {
+      readonly majeure: string;
+      readonly secondaire: string;
+    };
+    readonly trait: string;
+    readonly conviction: string;
+    readonly projet: string;
+    readonly etatPersonnel: {
+      readonly id: string;
+      readonly contrainte: string;
+      readonly voieDeSoin: string;
+    };
+    readonly affectation: {
+      readonly quartier: string;
+      readonly occupation: "tete-de-quartier";
+      readonly faitProduit: string;
+      readonly cause: string;
+    };
+  };
+  readonly sujets: readonly {
+    readonly id: string;
+    readonly voix: readonly {
+      readonly compagnonId: string;
+      readonly criteres: readonly string[];
+    }[];
+    readonly decisions: readonly {
+      readonly id: string;
+      readonly faitProduit: string;
+      readonly ouverteParAffectation: boolean;
+    }[];
+  }[];
+  readonly textes: Readonly<Record<Langue, TextesDUnConseil>>;
+}
+
 export interface CatalogueDEvenements {
   readonly version: typeof VERSION_CONTENU_COURANTE;
   readonly evenements: readonly EvenementDuCatalogue[];
   readonly installations: readonly InstallationDuCatalogue[];
+  readonly conseils: readonly ConseilDuCatalogue[];
 }
 
 export function figerProfondement<T>(valeur: T): T {

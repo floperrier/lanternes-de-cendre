@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import assets from "../../content/assets/manifest.yaml?raw";
+import conseils from "../../content/conseils/premiere-veille.yaml?raw";
 import evenements from "../../content/evenements/prologue.yaml?raw";
 import infrastructure from "../../content/infrastructure.yaml?raw";
 import traductionEn from "../../content/locales/en.yaml?raw";
@@ -17,6 +18,7 @@ import {
 const sourcesValides: SourcesDuCatalogue = {
   evenements,
   infrastructure,
+  conseils,
   references,
   traductions: {
     fr: traductionFr,
@@ -32,7 +34,10 @@ const sourcesValides: SourcesDuCatalogue = {
 };
 
 function avecSource(
-  champ: keyof Pick<SourcesDuCatalogue, "evenements" | "references" | "assets">,
+  champ: keyof Pick<
+    SourcesDuCatalogue,
+    "evenements" | "conseils" | "references" | "assets"
+  >,
   transformer: (source: string) => string,
 ): SourcesDuCatalogue {
   return {
@@ -48,6 +53,7 @@ describe("compilateur du catalogue d’Événements narratifs", () => {
     expect(catalogue.version).toBe(1);
     expect(catalogue.evenements).toHaveLength(1);
     expect(catalogue.installations).toHaveLength(9);
+    expect(catalogue.conseils).toHaveLength(1);
     expect(catalogue.evenements[0]).toMatchObject({
       id: "prologue.signaux-sous-la-cendre",
       famille: "conflits-regionaux",
@@ -80,6 +86,43 @@ describe("compilateur du catalogue d’Événements narratifs", () => {
     expect(Object.isFrozen(catalogue)).toBe(true);
     expect(Object.isFrozen(catalogue.evenements)).toBe(true);
     expect(Object.isFrozen(catalogue.evenements[0]?.choix)).toBe(true);
+    expect(catalogue.conseils[0]).toMatchObject({
+      id: "conseil.premiere-veille",
+      compagnon: {
+        id: "ilyana-voss",
+        competences: { majeure: "intendance", secondaire: "diplomatie" },
+        affectation: {
+          quartier: "intendance",
+          occupation: "tete-de-quartier",
+          faitProduit: "compagnon.ilyana-voss.affectee-intendance",
+        },
+      },
+    });
+    expect(catalogue.conseils[0]?.textes.en.titre.modele).toBe(
+      "First Watch Council",
+    );
+    expect(Object.isFrozen(catalogue.conseils[0]?.textes.fr.sujets)).toBe(
+      true,
+    );
+  });
+
+  it("rejette une traduction manquante du Conseil", () => {
+    const sources = {
+      ...sourcesValides,
+      traductions: {
+        ...sourcesValides.traductions,
+        en: sourcesValides.traductions.en.replace(
+          /^ {2}conseil\.premiere-veille\.titre:.*\n/m,
+          "",
+        ),
+      },
+    };
+
+    expect(() => compilerCatalogue(sources)).toThrowError(
+      expect.objectContaining<Partial<ErreurDeContenu>>({
+        code: "traduction",
+      }),
+    );
   });
 
   it("accepte un Événement sans asset", () => {

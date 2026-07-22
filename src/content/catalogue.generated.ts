@@ -1079,5 +1079,769 @@ export default {
         }
       }
     }
+  ],
+  "conseils": [
+    {
+      "id": "conseil.premiere-veille",
+      "compagnon": {
+        "id": "ilyana-voss",
+        "competences": {
+          "majeure": "intendance",
+          "secondaire": "diplomatie"
+        },
+        "trait": "minutieuse-intransigeante",
+        "conviction": "eau-sure-pour-tous",
+        "projet": "circuit-de-purification-redondant",
+        "etatPersonnel": {
+          "id": "brulures-de-cendre-stabilisees",
+          "contrainte": "eviter-eau-contaminee",
+          "voieDeSoin": "filtres-et-repos-en-halo"
+        },
+        "affectation": {
+          "quartier": "intendance",
+          "occupation": "tete-de-quartier",
+          "faitProduit": "compagnon.ilyana-voss.affectee-intendance",
+          "cause": "affectation.porte-lanterne"
+        }
+      },
+      "sujets": [
+        {
+          "id": "purification-et-partage-de-l-eau",
+          "voix": [
+            {
+              "compagnonId": "ilyana-voss",
+              "criteres": [
+                "affectation-au-quartier",
+                "competence-majeure",
+                "conviction-concernee",
+                "enjeu-personnel"
+              ]
+            }
+          ],
+          "decisions": [
+            {
+              "id": "securiser-circuit",
+              "faitProduit": "conseil.premiere-veille.circuit-securise",
+              "ouverteParAffectation": true
+            },
+            {
+              "id": "maintenir-distribution",
+              "faitProduit": "conseil.premiere-veille.distribution-maintenue",
+              "ouverteParAffectation": false
+            }
+          ]
+        }
+      ],
+      "textes": {
+        "fr": {
+          "titre": {
+            "cle": "conseil.premiere-veille.titre",
+            "modele": "Conseil de la première veille",
+            "variables": [],
+            "valeurs": {}
+          },
+          "compagnon": {
+            "nom": {
+              "cle": "compagnon.ilyana-voss.nom",
+              "modele": "Ilyana Voss",
+              "variables": [],
+              "valeurs": {}
+            },
+            "competenceMajeure": {
+              "cle": "competence.intendance",
+              "modele": "Intendance",
+              "variables": [],
+              "valeurs": {}
+            },
+            "competenceSecondaire": {
+              "cle": "competence.diplomatie",
+              "modele": "Diplomatie",
+              "variables": [],
+              "valeurs": {}
+            },
+            "trait": {
+              "cle": "compagnon.ilyana-voss.trait",
+              "modele": "Minutieuse, jusqu’à l’intransigeance",
+              "variables": [],
+              "valeurs": {}
+            },
+            "ambivalence": {
+              "cle": "compagnon.ilyana-voss.ambivalence",
+              "modele": "Elle décèle les écarts infimes, mais se raidit sous la pression.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "conviction": {
+              "cle": "compagnon.ilyana-voss.conviction",
+              "modele": "Chaque Habitant a droit à une eau sûre.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "projet": {
+              "cle": "compagnon.ilyana-voss.projet",
+              "modele": "Établir un circuit de purification redondant.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "etatPersonnel": {
+              "cle": "compagnon.ilyana-voss.etat",
+              "modele": "Brûlures de cendre stabilisées",
+              "variables": [],
+              "valeurs": {}
+            },
+            "contrainte": {
+              "cle": "compagnon.ilyana-voss.contrainte",
+              "modele": "Éviter toute exposition à l’eau contaminée.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "voieDeSoin": {
+              "cle": "compagnon.ilyana-voss.soin",
+              "modele": "Renouveler ses filtres et se reposer sous le Halo de veille.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "quartier": {
+              "cle": "quartier.intendance.nom",
+              "modele": "Intendance",
+              "variables": [],
+              "valeurs": {}
+            },
+            "informationOuverte": {
+              "cle": "compagnon.ilyana-voss.information-ouverte",
+              "modele": "Le clapet secondaire peut isoler la pompe douze minutes sans interrompre l’eau des Foyers.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "libelles": {
+            "typeCompagnon": {
+              "cle": "interface.compagnon.type",
+              "modele": "Compagnon",
+              "variables": [],
+              "valeurs": {}
+            },
+            "competenceMajeure": {
+              "cle": "interface.compagnon.competence-majeure",
+              "modele": "Compétence majeure",
+              "variables": [],
+              "valeurs": {}
+            },
+            "competenceSecondaire": {
+              "cle": "interface.compagnon.competence-secondaire",
+              "modele": "Compétence secondaire",
+              "variables": [],
+              "valeurs": {}
+            },
+            "trait": {
+              "cle": "interface.compagnon.trait",
+              "modele": "Trait ambivalent",
+              "variables": [],
+              "valeurs": {}
+            },
+            "conviction": {
+              "cle": "interface.compagnon.conviction",
+              "modele": "Conviction",
+              "variables": [],
+              "valeurs": {}
+            },
+            "projet": {
+              "cle": "interface.compagnon.projet",
+              "modele": "Projet",
+              "variables": [],
+              "valeurs": {}
+            },
+            "etatPersonnel": {
+              "cle": "interface.compagnon.etat",
+              "modele": "État personnel",
+              "variables": [],
+              "valeurs": {}
+            },
+            "soin": {
+              "cle": "interface.compagnon.soin",
+              "modele": "Soin",
+              "variables": [],
+              "valeurs": {}
+            },
+            "affecter": {
+              "cle": "interface.compagnon.affecter-intendance",
+              "modele": "Affecter à l’Intendance",
+              "variables": [],
+              "valeurs": {}
+            },
+            "affectee": {
+              "cle": "interface.compagnon.affectee",
+              "modele": "Affectée",
+              "variables": [],
+              "valeurs": {}
+            },
+            "informationOuverte": {
+              "cle": "interface.compagnon.information-ouverte",
+              "modele": "Information ouverte",
+              "variables": [],
+              "valeurs": {}
+            },
+            "conseil": {
+              "cle": "interface.conseil.type",
+              "modele": "Conseil",
+              "variables": [],
+              "valeurs": {}
+            },
+            "faitConnu": {
+              "cle": "interface.conseil.fait-connu",
+              "modele": "Fait connu",
+              "variables": [],
+              "valeurs": {}
+            },
+            "source": {
+              "cle": "interface.conseil.source",
+              "modele": "Source",
+              "variables": [],
+              "valeurs": {}
+            },
+            "recommandationMorale": {
+              "cle": "interface.conseil.recommandation",
+              "modele": "Recommandation morale",
+              "variables": [],
+              "valeurs": {}
+            },
+            "enjeuPersonnel": {
+              "cle": "interface.conseil.enjeu",
+              "modele": "Enjeu personnel",
+              "variables": [],
+              "valeurs": {}
+            },
+            "decision": {
+              "cle": "interface.conseil.decision",
+              "modele": "Décision du Porte-Lanterne",
+              "variables": [],
+              "valeurs": {}
+            },
+            "reponseOuverte": {
+              "cle": "interface.conseil.reponse-ouverte",
+              "modele": "Réponse ouverte par l’Affectation d’Ilyana",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "sujets": {
+            "purification-et-partage-de-l-eau": {
+              "titre": {
+                "cle": "conseil.premiere-veille.sujet.eau.titre",
+                "modele": "Purification et partage de l’eau",
+                "variables": [],
+                "valeurs": {}
+              },
+              "voix": {
+                "ilyana-voss": {
+                  "faitConnu": {
+                    "cle": "conseil.premiere-veille.voix.fait-connu",
+                    "modele": "Le clapet secondaire tiendra douze minutes avant la chute de pression.",
+                    "variables": [],
+                    "valeurs": {}
+                  },
+                  "source": {
+                    "cle": "conseil.premiere-veille.voix.source",
+                    "modele": "Relevé de pression de l’Intendance",
+                    "variables": [],
+                    "valeurs": {}
+                  },
+                  "dateSource": {
+                    "cle": "conseil.premiere-veille.voix.date",
+                    "modele": "relevé à 00:00",
+                    "variables": [],
+                    "valeurs": {}
+                  },
+                  "recommandationMorale": {
+                    "cle": "conseil.premiere-veille.voix.recommandation",
+                    "modele": "Ilyana recommande de protéger l’eau des Foyers avant le débit des ateliers.",
+                    "variables": [],
+                    "valeurs": {}
+                  },
+                  "enjeuPersonnel": {
+                    "cle": "conseil.premiere-veille.voix.enjeu",
+                    "modele": "Ses brûlures de cendre récidiveraient au contact d’une eau mal filtrée.",
+                    "variables": [],
+                    "valeurs": {}
+                  }
+                }
+              },
+              "decisions": {
+                "securiser-circuit": {
+                  "cle": "conseil.premiere-veille.decision.securiser",
+                  "modele": "Prioriser la sécurisation du circuit",
+                  "variables": [],
+                  "valeurs": {}
+                },
+                "maintenir-distribution": {
+                  "cle": "conseil.premiere-veille.decision.maintenir",
+                  "modele": "Maintenir la distribution vers les ateliers",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              }
+            }
+          },
+          "journal": {
+            "compagnon.ilyana-voss.affectee-intendance": {
+              "titre": {
+                "cle": "journal.conseil.affectation.titre",
+                "modele": "Ilyana Voss affectée à l’Intendance",
+                "variables": [],
+                "valeurs": {}
+              },
+              "cause": {
+                "cle": "journal.conseil.affectation.cause",
+                "modele": "Affectation ordonnée par le Porte-Lanterne",
+                "variables": [],
+                "valeurs": {}
+              },
+              "acteurs": [
+                {
+                  "cle": "journal.acteur.porte-lanterne",
+                  "modele": "Porte-Lanterne",
+                  "variables": [],
+                  "valeurs": {}
+                },
+                {
+                  "cle": "compagnon.ilyana-voss.nom",
+                  "modele": "Ilyana Voss",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ],
+              "cible": {
+                "cle": "quartier.intendance.nom",
+                "modele": "Intendance",
+                "variables": [],
+                "valeurs": {}
+              }
+            },
+            "conseil.premiere-veille.circuit-securise": {
+              "titre": {
+                "cle": "journal.conseil.decision.securiser.titre",
+                "modele": "Conseil — circuit de purification sécurisé",
+                "variables": [],
+                "valeurs": {}
+              },
+              "cause": {
+                "cle": "journal.conseil.cause",
+                "modele": "Conseil de la première veille",
+                "variables": [],
+                "valeurs": {}
+              },
+              "acteurs": [
+                {
+                  "cle": "journal.acteur.porte-lanterne",
+                  "modele": "Porte-Lanterne",
+                  "variables": [],
+                  "valeurs": {}
+                },
+                {
+                  "cle": "compagnon.ilyana-voss.nom",
+                  "modele": "Ilyana Voss",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ],
+              "cible": {
+                "cle": "quartier.intendance.nom",
+                "modele": "Intendance",
+                "variables": [],
+                "valeurs": {}
+              }
+            },
+            "conseil.premiere-veille.distribution-maintenue": {
+              "titre": {
+                "cle": "journal.conseil.decision.maintenir.titre",
+                "modele": "Conseil — distribution maintenue vers les ateliers",
+                "variables": [],
+                "valeurs": {}
+              },
+              "cause": {
+                "cle": "journal.conseil.cause",
+                "modele": "Conseil de la première veille",
+                "variables": [],
+                "valeurs": {}
+              },
+              "acteurs": [
+                {
+                  "cle": "journal.acteur.porte-lanterne",
+                  "modele": "Porte-Lanterne",
+                  "variables": [],
+                  "valeurs": {}
+                },
+                {
+                  "cle": "compagnon.ilyana-voss.nom",
+                  "modele": "Ilyana Voss",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ],
+              "cible": {
+                "cle": "quartier.intendance.nom",
+                "modele": "Intendance",
+                "variables": [],
+                "valeurs": {}
+              }
+            }
+          }
+        },
+        "en": {
+          "titre": {
+            "cle": "conseil.premiere-veille.titre",
+            "modele": "First Watch Council",
+            "variables": [],
+            "valeurs": {}
+          },
+          "compagnon": {
+            "nom": {
+              "cle": "compagnon.ilyana-voss.nom",
+              "modele": "Ilyana Voss",
+              "variables": [],
+              "valeurs": {}
+            },
+            "competenceMajeure": {
+              "cle": "competence.intendance",
+              "modele": "Stewardship",
+              "variables": [],
+              "valeurs": {}
+            },
+            "competenceSecondaire": {
+              "cle": "competence.diplomatie",
+              "modele": "Diplomacy",
+              "variables": [],
+              "valeurs": {}
+            },
+            "trait": {
+              "cle": "compagnon.ilyana-voss.trait",
+              "modele": "Meticulous, to the point of intransigence",
+              "variables": [],
+              "valeurs": {}
+            },
+            "ambivalence": {
+              "cle": "compagnon.ilyana-voss.ambivalence",
+              "modele": "She spots the smallest deviations, but hardens under pressure.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "conviction": {
+              "cle": "compagnon.ilyana-voss.conviction",
+              "modele": "Every inhabitant deserves safe water.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "projet": {
+              "cle": "compagnon.ilyana-voss.projet",
+              "modele": "Build a redundant purification circuit.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "etatPersonnel": {
+              "cle": "compagnon.ilyana-voss.etat",
+              "modele": "Stabilized ash burns",
+              "variables": [],
+              "valeurs": {}
+            },
+            "contrainte": {
+              "cle": "compagnon.ilyana-voss.contrainte",
+              "modele": "Avoid any exposure to contaminated water.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "voieDeSoin": {
+              "cle": "compagnon.ilyana-voss.soin",
+              "modele": "Renew her filters and rest inside the watch halo.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "quartier": {
+              "cle": "quartier.intendance.nom",
+              "modele": "Stewardship",
+              "variables": [],
+              "valeurs": {}
+            },
+            "informationOuverte": {
+              "cle": "compagnon.ilyana-voss.information-ouverte",
+              "modele": "The secondary valve can isolate the pump for twelve minutes without cutting water to the living quarters.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "libelles": {
+            "typeCompagnon": {
+              "cle": "interface.compagnon.type",
+              "modele": "Companion",
+              "variables": [],
+              "valeurs": {}
+            },
+            "competenceMajeure": {
+              "cle": "interface.compagnon.competence-majeure",
+              "modele": "Major skill",
+              "variables": [],
+              "valeurs": {}
+            },
+            "competenceSecondaire": {
+              "cle": "interface.compagnon.competence-secondaire",
+              "modele": "Secondary skill",
+              "variables": [],
+              "valeurs": {}
+            },
+            "trait": {
+              "cle": "interface.compagnon.trait",
+              "modele": "Ambivalent trait",
+              "variables": [],
+              "valeurs": {}
+            },
+            "conviction": {
+              "cle": "interface.compagnon.conviction",
+              "modele": "Conviction",
+              "variables": [],
+              "valeurs": {}
+            },
+            "projet": {
+              "cle": "interface.compagnon.projet",
+              "modele": "Project",
+              "variables": [],
+              "valeurs": {}
+            },
+            "etatPersonnel": {
+              "cle": "interface.compagnon.etat",
+              "modele": "Personal condition",
+              "variables": [],
+              "valeurs": {}
+            },
+            "soin": {
+              "cle": "interface.compagnon.soin",
+              "modele": "Care",
+              "variables": [],
+              "valeurs": {}
+            },
+            "affecter": {
+              "cle": "interface.compagnon.affecter-intendance",
+              "modele": "Assign to Stewardship",
+              "variables": [],
+              "valeurs": {}
+            },
+            "affectee": {
+              "cle": "interface.compagnon.affectee",
+              "modele": "Assigned",
+              "variables": [],
+              "valeurs": {}
+            },
+            "informationOuverte": {
+              "cle": "interface.compagnon.information-ouverte",
+              "modele": "Unlocked information",
+              "variables": [],
+              "valeurs": {}
+            },
+            "conseil": {
+              "cle": "interface.conseil.type",
+              "modele": "Council",
+              "variables": [],
+              "valeurs": {}
+            },
+            "faitConnu": {
+              "cle": "interface.conseil.fait-connu",
+              "modele": "Known fact",
+              "variables": [],
+              "valeurs": {}
+            },
+            "source": {
+              "cle": "interface.conseil.source",
+              "modele": "Source",
+              "variables": [],
+              "valeurs": {}
+            },
+            "recommandationMorale": {
+              "cle": "interface.conseil.recommandation",
+              "modele": "Moral recommendation",
+              "variables": [],
+              "valeurs": {}
+            },
+            "enjeuPersonnel": {
+              "cle": "interface.conseil.enjeu",
+              "modele": "Personal stake",
+              "variables": [],
+              "valeurs": {}
+            },
+            "decision": {
+              "cle": "interface.conseil.decision",
+              "modele": "Lantern-Bearer decision",
+              "variables": [],
+              "valeurs": {}
+            },
+            "reponseOuverte": {
+              "cle": "interface.conseil.reponse-ouverte",
+              "modele": "Response unlocked by Ilyana’s Assignment",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "sujets": {
+            "purification-et-partage-de-l-eau": {
+              "titre": {
+                "cle": "conseil.premiere-veille.sujet.eau.titre",
+                "modele": "Water purification and sharing",
+                "variables": [],
+                "valeurs": {}
+              },
+              "voix": {
+                "ilyana-voss": {
+                  "faitConnu": {
+                    "cle": "conseil.premiere-veille.voix.fait-connu",
+                    "modele": "The secondary valve will hold for twelve minutes before pressure drops.",
+                    "variables": [],
+                    "valeurs": {}
+                  },
+                  "source": {
+                    "cle": "conseil.premiere-veille.voix.source",
+                    "modele": "Stewardship pressure reading",
+                    "variables": [],
+                    "valeurs": {}
+                  },
+                  "dateSource": {
+                    "cle": "conseil.premiere-veille.voix.date",
+                    "modele": "recorded at 00:00",
+                    "variables": [],
+                    "valeurs": {}
+                  },
+                  "recommandationMorale": {
+                    "cle": "conseil.premiere-veille.voix.recommandation",
+                    "modele": "Ilyana recommends protecting water for the living quarters before workshop throughput.",
+                    "variables": [],
+                    "valeurs": {}
+                  },
+                  "enjeuPersonnel": {
+                    "cle": "conseil.premiere-veille.voix.enjeu",
+                    "modele": "Her ash burns would flare again if exposed to poorly filtered water.",
+                    "variables": [],
+                    "valeurs": {}
+                  }
+                }
+              },
+              "decisions": {
+                "securiser-circuit": {
+                  "cle": "conseil.premiere-veille.decision.securiser",
+                  "modele": "Prioritize circuit safety",
+                  "variables": [],
+                  "valeurs": {}
+                },
+                "maintenir-distribution": {
+                  "cle": "conseil.premiere-veille.decision.maintenir",
+                  "modele": "Maintain distribution to the workshops",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              }
+            }
+          },
+          "journal": {
+            "compagnon.ilyana-voss.affectee-intendance": {
+              "titre": {
+                "cle": "journal.conseil.affectation.titre",
+                "modele": "Ilyana Voss assigned to Stewardship",
+                "variables": [],
+                "valeurs": {}
+              },
+              "cause": {
+                "cle": "journal.conseil.affectation.cause",
+                "modele": "Assignment ordered by the Lantern-Bearer",
+                "variables": [],
+                "valeurs": {}
+              },
+              "acteurs": [
+                {
+                  "cle": "journal.acteur.porte-lanterne",
+                  "modele": "Lantern-Bearer",
+                  "variables": [],
+                  "valeurs": {}
+                },
+                {
+                  "cle": "compagnon.ilyana-voss.nom",
+                  "modele": "Ilyana Voss",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ],
+              "cible": {
+                "cle": "quartier.intendance.nom",
+                "modele": "Stewardship",
+                "variables": [],
+                "valeurs": {}
+              }
+            },
+            "conseil.premiere-veille.circuit-securise": {
+              "titre": {
+                "cle": "journal.conseil.decision.securiser.titre",
+                "modele": "Council — purification circuit secured",
+                "variables": [],
+                "valeurs": {}
+              },
+              "cause": {
+                "cle": "journal.conseil.cause",
+                "modele": "First Watch Council",
+                "variables": [],
+                "valeurs": {}
+              },
+              "acteurs": [
+                {
+                  "cle": "journal.acteur.porte-lanterne",
+                  "modele": "Lantern-Bearer",
+                  "variables": [],
+                  "valeurs": {}
+                },
+                {
+                  "cle": "compagnon.ilyana-voss.nom",
+                  "modele": "Ilyana Voss",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ],
+              "cible": {
+                "cle": "quartier.intendance.nom",
+                "modele": "Stewardship",
+                "variables": [],
+                "valeurs": {}
+              }
+            },
+            "conseil.premiere-veille.distribution-maintenue": {
+              "titre": {
+                "cle": "journal.conseil.decision.maintenir.titre",
+                "modele": "Council — distribution to the workshops maintained",
+                "variables": [],
+                "valeurs": {}
+              },
+              "cause": {
+                "cle": "journal.conseil.cause",
+                "modele": "First Watch Council",
+                "variables": [],
+                "valeurs": {}
+              },
+              "acteurs": [
+                {
+                  "cle": "journal.acteur.porte-lanterne",
+                  "modele": "Lantern-Bearer",
+                  "variables": [],
+                  "valeurs": {}
+                },
+                {
+                  "cle": "compagnon.ilyana-voss.nom",
+                  "modele": "Ilyana Voss",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ],
+              "cible": {
+                "cle": "quartier.intendance.nom",
+                "modele": "Stewardship",
+                "variables": [],
+                "valeurs": {}
+              }
+            }
+          }
+        }
+      }
+    }
   ]
 } as const;

@@ -1,0 +1,200 @@
+version: 1
+conseils:
+  - id: conseil.premiere-veille
+    titre:
+      cle: conseil.premiere-veille.titre
+      variables: []
+    compagnon:
+      id: ilyana-voss
+      competences:
+        majeure: intendance
+        secondaire: diplomatie
+      trait: minutieuse-intransigeante
+      conviction: eau-sure-pour-tous
+      projet: circuit-de-purification-redondant
+      etat_personnel:
+        id: brulures-de-cendre-stabilisees
+        contrainte: eviter-eau-contaminee
+        voie_de_soin: filtres-et-repos-en-halo
+      affectation:
+        quartier: intendance
+        occupation: tete-de-quartier
+        fait_produit: compagnon.ilyana-voss.affectee-intendance
+        cause: affectation.porte-lanterne
+        journal:
+          titre:
+            cle: journal.conseil.affectation.titre
+            variables: []
+          cause:
+            cle: journal.conseil.affectation.cause
+            variables: []
+          acteurs:
+            - cle: journal.acteur.porte-lanterne
+              variables: []
+            - cle: compagnon.ilyana-voss.nom
+              variables: []
+          cible:
+            cle: quartier.intendance.nom
+            variables: []
+      textes:
+        nom:
+          cle: compagnon.ilyana-voss.nom
+          variables: []
+        competence_majeure:
+          cle: competence.intendance
+          variables: []
+        competence_secondaire:
+          cle: competence.diplomatie
+          variables: []
+        trait:
+          cle: compagnon.ilyana-voss.trait
+          variables: []
+        ambivalence:
+          cle: compagnon.ilyana-voss.ambivalence
+          variables: []
+        conviction:
+          cle: compagnon.ilyana-voss.conviction
+          variables: []
+        projet:
+          cle: compagnon.ilyana-voss.projet
+          variables: []
+        etat_personnel:
+          cle: compagnon.ilyana-voss.etat
+          variables: []
+        contrainte:
+          cle: compagnon.ilyana-voss.contrainte
+          variables: []
+        voie_de_soin:
+          cle: compagnon.ilyana-voss.soin
+          variables: []
+        quartier:
+          cle: quartier.intendance.nom
+          variables: []
+        information_ouverte:
+          cle: compagnon.ilyana-voss.information-ouverte
+          variables: []
+    libelles:
+      type_compagnon:
+        cle: interface.compagnon.type
+        variables: []
+      competence_majeure:
+        cle: interface.compagnon.competence-majeure
+        variables: []
+      competence_secondaire:
+        cle: interface.compagnon.competence-secondaire
+        variables: []
+      trait:
+        cle: interface.compagnon.trait
+        variables: []
+      conviction:
+        cle: interface.compagnon.conviction
+        variables: []
+      projet:
+        cle: interface.compagnon.projet
+        variables: []
+      etat_personnel:
+        cle: interface.compagnon.etat
+        variables: []
+      soin:
+        cle: interface.compagnon.soin
+        variables: []
+      affecter:
+        cle: interface.compagnon.affecter-intendance
+        variables: []
+      affectee:
+        cle: interface.compagnon.affectee
+        variables: []
+      information_ouverte:
+        cle: interface.compagnon.information-ouverte
+        variables: []
+      conseil:
+        cle: interface.conseil.type
+        variables: []
+      fait_connu:
+        cle: interface.conseil.fait-connu
+        variables: []
+      source:
+        cle: interface.conseil.source
+        variables: []
+      recommandation_morale:
+        cle: interface.conseil.recommandation
+        variables: []
+      enjeu_personnel:
+        cle: interface.conseil.enjeu
+        variables: []
+      decision:
+        cle: interface.conseil.decision
+        variables: []
+      reponse_ouverte:
+        cle: interface.conseil.reponse-ouverte
+        variables: []
+    sujets:
+      - id: purification-et-partage-de-l-eau
+        titre:
+          cle: conseil.premiere-veille.sujet.eau.titre
+          variables: []
+        voix:
+          - compagnon: ilyana-voss
+            criteres:
+              - affectation-au-quartier
+              - competence-majeure
+              - conviction-concernee
+              - enjeu-personnel
+            fait_connu:
+              cle: conseil.premiere-veille.voix.fait-connu
+              variables: []
+            source:
+              cle: conseil.premiere-veille.voix.source
+              variables: []
+            date_source:
+              cle: conseil.premiere-veille.voix.date
+              variables: []
+            recommandation_morale:
+              cle: conseil.premiere-veille.voix.recommandation
+              variables: []
+            enjeu_personnel:
+              cle: conseil.premiere-veille.voix.enjeu
+              variables: []
+        decisions:
+          - id: securiser-circuit
+            fait_produit: conseil.premiere-veille.circuit-securise
+            ouverte_par_affectation: true
+            libelle:
+              cle: conseil.premiere-veille.decision.securiser
+              variables: []
+            journal:
+              titre:
+                cle: journal.conseil.decision.securiser.titre
+                variables: []
+              cause:
+                cle: journal.conseil.cause
+                variables: []
+              acteurs:
+                - cle: journal.acteur.porte-lanterne
+                  variables: []
+                - cle: compagnon.ilyana-voss.nom
+                  variables: []
+              cible:
+                cle: quartier.intendance.nom
+                variables: []
+          - id: maintenir-distribution
+            fait_produit: conseil.premiere-veille.distribution-maintenue
+            ouverte_par_affectation: false
+            libelle:
+              cle: conseil.premiere-veille.decision.maintenir
+              variables: []
+            journal:
+              titre:
+                cle: journal.conseil.decision.maintenir.titre
+                variables: []
+              cause:
+                cle: journal.conseil.cause
+                variables: []
+              acteurs:
+                - cle: journal.acteur.porte-lanterne
+                  variables: []
+                - cle: compagnon.ilyana-voss.nom
+                  variables: []
+              cible:
+                cle: quartier.intendance.nom
+                variables: []

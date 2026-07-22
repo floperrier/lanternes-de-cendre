@@ -33,6 +33,14 @@ import {
   type EvenementDInfrastructure,
 } from "./infrastructure";
 import { VERSION_SIMULATION_COURANTE } from "./versions";
+import {
+  affecterCompagnon,
+  deciderAuConseil,
+  type CommandeDAffectationDeCompagnon,
+  type CommandeDeDecisionDuConseil,
+  type EvenementDAffectationDeCompagnon,
+  type EvenementDeDecisionDuConseil,
+} from "./conseil";
 
 export type { GraineDeCampagne } from "./graine";
 export const IDENTIFIANTS_PLATEFORMES_MOBILES =
@@ -93,6 +101,8 @@ export type CommandeCampagne =
       readonly evenementId: string;
       readonly choixId: string;
     }
+  | CommandeDAffectationDeCompagnon
+  | CommandeDeDecisionDuConseil
   | CommandeDeDoctrine
   | CommandeDIncident
   | CommandeDInfrastructure;
@@ -124,6 +134,8 @@ export type EvenementDeDomaine =
       readonly effets: readonly EffetDEvenement[];
       readonly faitsProduits: readonly string[];
     }
+  | EvenementDAffectationDeCompagnon
+  | EvenementDeDecisionDuConseil
   | EvenementDeDoctrine
   | EvenementDIncidentResolu
   | EvenementDInfrastructure;
@@ -552,6 +564,30 @@ export function appliquerCommande(
         transition.faitsProduits,
       ),
       evenements: transition.evenements,
+    };
+  }
+
+  if (commande.type === "compagnon.affecter") {
+    const transition = affecterCompagnon(
+      etat.narration.faitsDeCampagne,
+      commande,
+      etat.tempsDuConvoi.secondes,
+    );
+    return {
+      etat: enregistrerFaitsDeCampagne(etat, [transition.faitProduit]),
+      evenements: [transition.evenement],
+    };
+  }
+
+  if (commande.type === "conseil.decider") {
+    const transition = deciderAuConseil(
+      etat.narration.faitsDeCampagne,
+      commande,
+      etat.tempsDuConvoi.secondes,
+    );
+    return {
+      etat: enregistrerFaitsDeCampagne(etat, [transition.faitProduit]),
+      evenements: [transition.evenement],
     };
   }
 

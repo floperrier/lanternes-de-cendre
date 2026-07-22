@@ -2,6 +2,7 @@ import catalogueGenere from "./catalogue.generated";
 import {
   figerProfondement,
   type CatalogueDEvenements,
+  type ConseilDuCatalogue,
   type EvenementDuCatalogue,
   type Langue,
   type TextesDInstallation,
@@ -24,4 +25,8 @@ export function trouverTextesDInstallation(
   return catalogueDEvenements.installations.find(
     (installation) => installation.id === id,
   )?.textes[langue];
+}
+
+export function trouverConseil(id: string): ConseilDuCatalogue | undefined {
+  return catalogueDEvenements.conseils.find((conseil) => conseil.id === id);
 }

@@ -250,6 +250,7 @@ summary:focus-visible,
 
 .economie-du-convoi,
 .incident-du-convoi,
+.panneau-compagnon,
 .doctrine-du-convoi,
 .journal-causal {
   padding: 1.1rem 1.25rem;
@@ -259,6 +260,7 @@ summary:focus-visible,
 .economie-du-convoi h2,
 .economie-du-convoi h3,
 .incident-du-convoi h2,
+.panneau-compagnon h2,
 .journal-causal h2,
 .panneau-de-pilotage p {
   margin: 0;
@@ -266,6 +268,7 @@ summary:focus-visible,
 
 .economie-du-convoi h2,
 .incident-du-convoi h2,
+.panneau-compagnon h2,
 .journal-causal h2 {
   font-family: "Cormorant Garamond", Georgia, serif;
   font-size: 1.55rem;
@@ -505,6 +508,133 @@ summary:focus-visible,
 .transition-de-doctrine {
   margin-top: 0.5rem !important;
   color: var(--ambre) !important;
+}
+
+.panneau-compagnon {
+  display: grid;
+  gap: 0.75rem;
+  background: #0e181c;
+}
+
+.panneau-compagnon__type {
+  color: var(--ambre);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.profil-compagnon {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0;
+}
+
+.profil-compagnon > div {
+  display: grid;
+  grid-template-columns: 7.5rem minmax(0, 1fr);
+  gap: 0.6rem;
+  padding-top: 0.45rem;
+  border-top: 1px solid #30291f;
+}
+
+.profil-compagnon dt {
+  color: var(--texte-secondaire);
+  font-size: 0.78rem;
+}
+
+.profil-compagnon dd {
+  display: grid;
+  gap: 0.2rem;
+  margin: 0;
+  font-size: 0.84rem;
+  line-height: 1.3;
+}
+
+.profil-compagnon dd span {
+  color: var(--texte-secondaire);
+}
+
+.panneau-compagnon > button {
+  min-height: 2.75rem;
+  padding: 0.55rem 0.75rem;
+  color: var(--texte);
+  background: #241c11;
+  border: 1px solid var(--ambre);
+  cursor: pointer;
+}
+
+.affectation-compagnon {
+  display: grid;
+  gap: 0.4rem;
+  padding: 0.65rem 0.75rem;
+  background: #111a1d;
+  border-left: 2px solid var(--ambre);
+}
+
+.affectation-compagnon p {
+  color: var(--texte-secondaire);
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+.affectation-compagnon p:first-child,
+.affectation-compagnon strong {
+  color: var(--texte);
+}
+
+.ruban-du-conseil {
+  max-width: 74rem;
+  margin: 0 auto;
+}
+
+.sujets-du-conseil h3,
+.voix-du-conseil h4 {
+  margin: 0;
+  font-family: "Cormorant Garamond", Georgia, serif;
+}
+
+.sujets-du-conseil h3 {
+  font-size: 1.45rem;
+}
+
+.voix-du-conseil {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.voix-du-conseil article {
+  padding: 0.85rem;
+  background: #0a1215;
+  border-left: 2px solid var(--cuivre-clair);
+}
+
+.voix-du-conseil h4 {
+  color: var(--ambre);
+  font-size: 1.25rem;
+}
+
+.voix-du-conseil dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+  margin: 0.65rem 0 0;
+}
+
+.voix-du-conseil dt {
+  color: var(--texte-secondaire);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.voix-du-conseil dd {
+  margin: 0.2rem 0 0;
+  font-size: 0.85rem;
+  line-height: 1.35;
 }
 
 .journal-causal > p,
@@ -1043,6 +1173,8 @@ summary:focus-visible,
 
 @media (max-width: 480px) {
   .ruban-narratif__choix,
+  .voix-du-conseil,
+  .voix-du-conseil dl,
   .commandes-du-temps fieldset {
     grid-template-columns: 1fr;
   }

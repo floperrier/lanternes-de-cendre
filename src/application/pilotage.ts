@@ -1,5 +1,6 @@
 import type { EtatCampagne } from "../simulation/campagne";
 import type { Langue } from "../content/types";
+import { PREMIER_CONSEIL } from "../simulation/conseil";
 import type {
   EffetHumainDeFait,
   EffetMaterielDeFait,
@@ -216,44 +217,77 @@ function formaterMoment(secondes: number): string {
     .padStart(2, "0")}`;
 }
 
-const TITRES_FRANCAIS_DES_FAITS = {
-  "incident.purification.pompe-instable.securisee":
-    "Pompe de purification — joint remplacé",
-  "incident.purification.pompe-instable.circuit-isole":
-    "Pompe de purification — circuit isolé",
-  "incident.purification.pompe-instable.debit-maintenu":
-    "Pompe de purification — débit maintenu",
-  "prologue.cohorte-accueillie": "Cohorte accueillie",
-  "prologue.cohorte-orientee": "Cohorte orientée vers Veille-Basse",
-} as const;
-
-type IdentifiantDeFaitAvecTitre = keyof typeof TITRES_FRANCAIS_DES_FAITS;
-
-const TITRES_ANGLAIS_DES_FAITS = {
-  "incident.purification.pompe-instable.securisee":
-    "Purification pump — seal replaced",
-  "incident.purification.pompe-instable.circuit-isole":
-    "Purification pump — circuit isolated",
-  "incident.purification.pompe-instable.debit-maintenu":
-    "Purification pump — flow maintained",
-  "prologue.cohorte-accueillie": "Cohort welcomed",
-  "prologue.cohorte-orientee": "Cohort directed to Veille-Basse",
-} as const satisfies Readonly<Record<IdentifiantDeFaitAvecTitre, string>>;
-
-const TITRES_DES_FAITS: Readonly<
+const JOURNAL_GENERIQUE: Readonly<
   Record<
     Langue,
-    Readonly<Record<IdentifiantDeFaitAvecTitre, string>>
+    {
+      readonly titres: Readonly<Record<string, string>>;
+      readonly causes: Readonly<Record<string, string>>;
+      readonly acteurs: Readonly<Record<string, string>>;
+      readonly cibles: Readonly<Record<string, string>>;
+    }
   >
 > = {
-  fr: TITRES_FRANCAIS_DES_FAITS,
-  en: TITRES_ANGLAIS_DES_FAITS,
+  fr: {
+    titres: {
+      "incident.purification.pompe-instable.securisee":
+        "Pompe de purification — joint remplacé",
+      "incident.purification.pompe-instable.circuit-isole":
+        "Pompe de purification — circuit isolé",
+      "incident.purification.pompe-instable.debit-maintenu":
+        "Pompe de purification — débit maintenu",
+      "prologue.cohorte-accueillie": "Cohorte accueillie",
+      "prologue.cohorte-orientee": "Cohorte orientée vers Veille-Basse",
+    },
+    causes: {
+      [INCIDENT_INITIAL.id]: INCIDENT_INITIAL.cause,
+      "prologue.signaux-sous-la-cendre": "Des signaux sous la cendre",
+    },
+    acteurs: {
+      "porte-lanterne": "Porte-Lanterne",
+      "equipes-entretien": "Équipes d’entretien",
+      "cohorte-de-refugies": "Cohorte de réfugiés",
+    },
+    cibles: {
+      "pompe-purification": "Pompe de purification",
+      "cohorte-de-refugies": "Cohorte de réfugiés",
+    },
+  },
+  en: {
+    titres: {
+      "incident.purification.pompe-instable.securisee":
+        "Purification pump — seal replaced",
+      "incident.purification.pompe-instable.circuit-isole":
+        "Purification pump — circuit isolated",
+      "incident.purification.pompe-instable.debit-maintenu":
+        "Purification pump — flow maintained",
+      "prologue.cohorte-accueillie": "Cohort welcomed",
+      "prologue.cohorte-orientee": "Cohort directed to Veille-Basse",
+    },
+    causes: {
+      [INCIDENT_INITIAL.id]: "Purification pump instability",
+      "prologue.signaux-sous-la-cendre": "Signals beneath the ash",
+    },
+    acteurs: {
+      "porte-lanterne": "Lantern-Bearer",
+      "equipes-entretien": "Maintenance crews",
+      "cohorte-de-refugies": "Refugee cohort",
+    },
+    cibles: {
+      "pompe-purification": "Purification pump",
+      "cohorte-de-refugies": "Refugee cohort",
+    },
+  },
 };
 
+function textesDeJournalDuConseil(fait: FaitDeCampagne, langue: Langue) {
+  return PREMIER_CONSEIL.textes[langue].journal[fait.id];
+}
+
 function titrerFait(fait: FaitDeCampagne, langue: Langue): string {
-  const titre = (
-    TITRES_DES_FAITS[langue] as Readonly<Partial<Record<string, string>>>
-  )[fait.id];
+  const titre =
+    textesDeJournalDuConseil(fait, langue)?.titre.modele ??
+    JOURNAL_GENERIQUE[langue].titres[fait.id];
   if (titre === undefined) {
     throw new Error(
       `Le Fait de campagne « ${fait.id} » ne possède pas de titre joueur.`,
@@ -262,61 +296,99 @@ function titrerFait(fait: FaitDeCampagne, langue: Langue): string {
   return titre;
 }
 
-function expliquerCause(fait: FaitDeCampagne): string {
-  const causes: Readonly<Record<string, string>> = {
-    [INCIDENT_INITIAL.id]: INCIDENT_INITIAL.cause,
-    "prologue.signaux-sous-la-cendre": "Des signaux sous la cendre",
-  };
-  return causes[fait.cause] ?? fait.cause;
+function expliquerCause(fait: FaitDeCampagne, langue: Langue): string {
+  return (
+    textesDeJournalDuConseil(fait, langue)?.cause.modele ??
+    JOURNAL_GENERIQUE[langue].causes[fait.cause] ??
+    fait.cause
+  );
 }
 
-function libellerActeur(acteur: string): string {
-  const acteurs: Readonly<Record<string, string>> = {
-    "porte-lanterne": "Porte-Lanterne",
-    "equipes-entretien": "Équipes d’entretien",
-    "cohorte-de-refugies": "Cohorte de réfugiés",
-  };
-  return acteurs[acteur] ?? acteur;
+function libellerActeurs(
+  fait: FaitDeCampagne,
+  langue: Langue,
+): readonly string[] {
+  const textes = textesDeJournalDuConseil(fait, langue);
+  if (textes !== undefined) {
+    return textes.acteurs.map((acteur) => acteur.modele);
+  }
+  return fait.acteurs.map(
+    (acteur) => JOURNAL_GENERIQUE[langue].acteurs[acteur] ?? acteur,
+  );
 }
 
-function libellerCible(cible: string): string {
-  const cibles: Readonly<Record<string, string>> = {
-    "pompe-purification": "Pompe de purification",
-    "cohorte-de-refugies": "Cohorte de réfugiés",
-  };
-  return cibles[cible] ?? cible;
+function libellerCible(fait: FaitDeCampagne, langue: Langue): string {
+  return (
+    textesDeJournalDuConseil(fait, langue)?.cible.modele ??
+    JOURNAL_GENERIQUE[langue].cibles[fait.cible] ??
+    fait.cible
+  );
 }
 
-function decrireEffetMateriel(effet: EffetMaterielDeFait): string {
+function decrireEffetMateriel(
+  effet: EffetMaterielDeFait,
+  langue: Langue,
+): string {
   if (effet.type === "stock.modifie") {
     const quantite = Math.abs(effet.variation);
+    if (langue === "en") {
+      const noms = {
+        vivres: "food unit",
+        eau: "water unit",
+        combustible: "fuel unit",
+        materiaux: "material",
+        remedes: "medicine",
+      } as const;
+      const action = effet.variation < 0 ? "consumed" : "recovered";
+      return `${quantite} ${noms[effet.stock]}${quantite > 1 ? "s" : ""} ${action}`;
+    }
     const action = effet.variation < 0 ? "consommé" : "récupéré";
-    return `${quantite} ${NOMS_DES_STOCKS[effet.stock]} ${action}${
-      quantite > 1 ? "s" : ""
-    }`;
+    return `${quantite} ${NOMS_DES_STOCKS[effet.stock]} ${action}${quantite > 1 ? "s" : ""}`;
   }
 
   const descriptions = {
-    securisee: "Pompe de purification sécurisée",
-    stabilisee: "Circuit de purification stabilisé",
-    degradee: "Filtres de purification dégradés",
+    fr: {
+      securisee: "Pompe de purification sécurisée",
+      stabilisee: "Circuit de purification stabilisé",
+      degradee: "Filtres de purification dégradés",
+    },
+    en: {
+      securisee: "Purification pump secured",
+      stabilisee: "Purification circuit stabilized",
+      degradee: "Purification filters degraded",
+    },
   } as const;
-  return descriptions[effet.etat];
+  return descriptions[langue][effet.etat];
 }
 
-function decrireEffetHumain(effet: EffetHumainDeFait): string {
+function decrireEffetHumain(
+  effet: EffetHumainDeFait,
+  langue: Langue,
+): string {
   if (effet.type === "habitants.modifies") {
     const quantite = Math.abs(effet.variation);
+    if (langue === "en") {
+      return `${quantite} inhabitant${quantite > 1 ? "s" : ""} ${
+        effet.variation >= 0 ? "welcomed" : "departed"
+      }`;
+    }
     return `${quantite} Habitant${quantite > 1 ? "s" : ""} ${
       effet.variation >= 0 ? "accueilli" : "parti"
     }${quantite > 1 ? "s" : ""}`;
   }
   if (effet.type === "habitants.exposes") {
+    if (langue === "en") {
+      return effet.nombre === 0
+        ? "No inhabitant exposed"
+        : `${effet.nombre} inhabitants exposed`;
+    }
     return effet.nombre === 0
       ? "Aucun Habitant exposé"
       : `${effet.nombre} Habitants exposés`;
   }
-  return `${effet.nombre} Habitants placés sous surveillance médicale`;
+  return langue === "en"
+    ? `${effet.nombre} inhabitants placed under medical supervision`
+    : `${effet.nombre} Habitants placés sous surveillance médicale`;
 }
 
 function projeterFaitDansLeJournal(
@@ -326,11 +398,15 @@ function projeterFaitDansLeJournal(
   return {
     id: fait.id,
     titre: titrerFait(fait, langue),
-    cause: expliquerCause(fait),
-    acteurs: fait.acteurs.map(libellerActeur),
-    cible: libellerCible(fait.cible),
-    effetsMateriels: fait.effets.materiels.map(decrireEffetMateriel),
-    effetsHumains: fait.effets.humains.map(decrireEffetHumain),
+    cause: expliquerCause(fait, langue),
+    acteurs: libellerActeurs(fait, langue),
+    cible: libellerCible(fait, langue),
+    effetsMateriels: fait.effets.materiels.map((effet) =>
+      decrireEffetMateriel(effet, langue),
+    ),
+    effetsHumains: fait.effets.humains.map((effet) =>
+      decrireEffetHumain(effet, langue),
+    ),
     moment: formaterMoment(fait.moment),
   };
 }

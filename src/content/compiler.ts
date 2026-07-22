@@ -9,6 +9,7 @@ import {
   type AssetCompile,
   type CatalogueDEvenements,
   type ChoixDEvenement,
+  type ConseilDuCatalogue,
   type ConditionDEvenement,
   type EffetDEvenement,
   type EvenementDuCatalogue,
@@ -42,6 +43,7 @@ export class ErreurDeContenu extends Error {
 export interface SourcesDuCatalogue {
   readonly evenements: string;
   readonly infrastructure: string;
+  readonly conseils: string;
   readonly references: string;
   readonly traductions: Readonly<Record<Langue, string>>;
   readonly assets: string;
@@ -54,6 +56,7 @@ type ObjetSource = Record<string, unknown>;
 
 interface ReferencesCompilees {
   readonly acteurs: ReadonlySet<string>;
+  readonly quartiers: ReadonlySet<string>;
   readonly fenetres: ReadonlySet<string>;
   readonly destinationsEcho: ReadonlySet<string>;
   readonly faits: ReadonlySet<string>;
@@ -145,6 +148,14 @@ function nombre(valeur: unknown, chemin: string): number {
   return valeur;
 }
 
+function booleen(valeur: unknown, chemin: string): boolean {
+  if (typeof valeur !== "boolean") {
+    echouer("schema", chemin, "booléen attendu");
+  }
+
+  return valeur;
+}
+
 function chaineOuNull(valeur: unknown, chemin: string): string | null {
   return valeur === null ? null : chaine(valeur, chemin);
 }
@@ -171,6 +182,7 @@ function compilerReferences(source: string): ReferencesCompilees {
 
   return {
     acteurs: new Set(chaines(racine.acteurs, "references.yaml/acteurs")),
+    quartiers: new Set(chaines(racine.quartiers, "references.yaml/quartiers")),
     fenetres: new Set(chaines(racine.fenetres, "references.yaml/fenetres")),
     destinationsEcho: new Set(
       chaines(
@@ -881,6 +893,436 @@ function compilerInstallations(
   );
 }
 
+const COMPETENCES_DE_COMPAGNON = new Set([
+  "technique",
+  "intendance",
+  "soin",
+  "terrain",
+  "diplomatie",
+]);
+const CRITERES_DE_PERTINENCE_DU_CONSEIL = new Set([
+  "affectation-au-quartier",
+  "competence-majeure",
+  "competence-secondaire",
+  "conviction-concernee",
+  "enjeu-personnel",
+]);
+
+function compilerConseil(
+  source: unknown,
+  index: number,
+  references: ReferencesCompilees,
+  traductions: Readonly<Record<Langue, TraductionCompilee>>,
+): ConseilDuCatalogue {
+  const chemin = `conseils.yaml/conseils/${index}`;
+  const conseil = objet(source, chemin);
+  const id = chaine(conseil.id, `${chemin}/id`);
+  const compagnonSource = objet(conseil.compagnon, `${chemin}/compagnon`);
+  const compagnonId = chaine(compagnonSource.id, `${chemin}/compagnon/id`);
+  verifierReference(
+    references.acteurs,
+    compagnonId,
+    `${chemin}/compagnon/id`,
+  );
+  const competences = objet(
+    compagnonSource.competences,
+    `${chemin}/compagnon/competences`,
+  );
+  const competenceMajeure = chaine(
+    competences.majeure,
+    `${chemin}/compagnon/competences/majeure`,
+  );
+  const competenceSecondaire = chaine(
+    competences.secondaire,
+    `${chemin}/compagnon/competences/secondaire`,
+  );
+  [competenceMajeure, competenceSecondaire].forEach((competence) => {
+    if (!COMPETENCES_DE_COMPAGNON.has(competence)) {
+      echouer(
+        "reference",
+        `${chemin}/compagnon/competences`,
+        `compétence inconnue « ${competence} »`,
+      );
+    }
+  });
+  if (competenceMajeure === competenceSecondaire) {
+    echouer(
+      "schema",
+      `${chemin}/compagnon/competences`,
+      "les compétences majeure et secondaire doivent être distinctes",
+    );
+  }
+
+  const etatPersonnelSource = objet(
+    compagnonSource.etat_personnel,
+    `${chemin}/compagnon/etat_personnel`,
+  );
+  const affectationSource = objet(
+    compagnonSource.affectation,
+    `${chemin}/compagnon/affectation`,
+  );
+  const quartier = chaine(
+    affectationSource.quartier,
+    `${chemin}/compagnon/affectation/quartier`,
+  );
+  verifierReference(
+    references.quartiers,
+    quartier,
+    `${chemin}/compagnon/affectation/quartier`,
+  );
+  if (affectationSource.occupation !== "tete-de-quartier") {
+    echouer(
+      "schema",
+      `${chemin}/compagnon/affectation/occupation`,
+      "l’occupation « tete-de-quartier » est requise",
+    );
+  }
+  const faitDAffectation = chaine(
+    affectationSource.fait_produit,
+    `${chemin}/compagnon/affectation/fait_produit`,
+  );
+  verifierReference(
+    references.faits,
+    faitDAffectation,
+    `${chemin}/compagnon/affectation/fait_produit`,
+  );
+
+  const sujetsSources = tableau(conseil.sujets, `${chemin}/sujets`).map(
+    (sujet, sujetIndex) => ({
+      chemin: `${chemin}/sujets/${sujetIndex}`,
+      valeur: objet(sujet, `${chemin}/sujets/${sujetIndex}`),
+    }),
+  );
+  if (sujetsSources.length < 1 || sujetsSources.length > 3) {
+    echouer("schema", `${chemin}/sujets`, "un à trois sujets requis");
+  }
+  const sujets = sujetsSources.map(({ chemin: cheminSujet, valeur }) => {
+    const sujetId = chaine(valeur.id, `${cheminSujet}/id`);
+    const voixSources = tableau(valeur.voix, `${cheminSujet}/voix`).map(
+      (voix, voixIndex) => ({
+        chemin: `${cheminSujet}/voix/${voixIndex}`,
+        valeur: objet(voix, `${cheminSujet}/voix/${voixIndex}`),
+      }),
+    );
+    if (voixSources.length < 1 || voixSources.length > 2) {
+      echouer("schema", `${cheminSujet}/voix`, "une à deux voix requises");
+    }
+    const voix = voixSources.map(({ chemin: cheminVoix, valeur: voix }) => {
+      const voixCompagnonId = chaine(
+        voix.compagnon,
+        `${cheminVoix}/compagnon`,
+      );
+      if (voixCompagnonId !== compagnonId) {
+        echouer(
+          "reference",
+          `${cheminVoix}/compagnon`,
+          `Compagnon inconnu « ${voixCompagnonId} »`,
+        );
+      }
+      const criteres = chaines(voix.criteres, `${cheminVoix}/criteres`);
+      criteres.forEach((critere, critereIndex) => {
+        if (!CRITERES_DE_PERTINENCE_DU_CONSEIL.has(critere)) {
+          echouer(
+            "reference",
+            `${cheminVoix}/criteres/${critereIndex}`,
+            `critère inconnu « ${critere} »`,
+          );
+        }
+      });
+      return { compagnonId: voixCompagnonId, criteres };
+    });
+    const decisionsSources = tableau(
+      valeur.decisions,
+      `${cheminSujet}/decisions`,
+    ).map((decision, decisionIndex) => ({
+      chemin: `${cheminSujet}/decisions/${decisionIndex}`,
+      valeur: objet(decision, `${cheminSujet}/decisions/${decisionIndex}`),
+    }));
+    if (decisionsSources.length !== 2) {
+      echouer("schema", `${cheminSujet}/decisions`, "deux décisions requises");
+    }
+    const decisions = decisionsSources.map(
+      ({ chemin: cheminDecision, valeur: decision }) => {
+        const faitProduit = chaine(
+          decision.fait_produit,
+          `${cheminDecision}/fait_produit`,
+        );
+        verifierReference(
+          references.faits,
+          faitProduit,
+          `${cheminDecision}/fait_produit`,
+        );
+        return {
+          id: chaine(decision.id, `${cheminDecision}/id`),
+          faitProduit,
+          ouverteParAffectation: booleen(
+            decision.ouverte_par_affectation,
+            `${cheminDecision}/ouverte_par_affectation`,
+          ),
+        };
+      },
+    );
+    return { id: sujetId, voix, decisions };
+  });
+
+  const compilerJournal = (
+    journalSource: unknown,
+    cheminJournal: string,
+    langue: Langue,
+  ) => {
+    const journal = objet(journalSource, cheminJournal);
+    return {
+      titre: compilerTexte(
+        journal.titre,
+        `${cheminJournal}/titre`,
+        traductions,
+        langue,
+      ),
+      cause: compilerTexte(
+        journal.cause,
+        `${cheminJournal}/cause`,
+        traductions,
+        langue,
+      ),
+      acteurs: tableau(journal.acteurs, `${cheminJournal}/acteurs`).map(
+        (acteur, acteurIndex) =>
+          compilerTexte(
+            acteur,
+            `${cheminJournal}/acteurs/${acteurIndex}`,
+            traductions,
+            langue,
+          ),
+      ),
+      cible: compilerTexte(
+        journal.cible,
+        `${cheminJournal}/cible`,
+        traductions,
+        langue,
+      ),
+    };
+  };
+  const compilerTextes = (langue: Langue) => {
+    const textesCompagnon = objet(
+      compagnonSource.textes,
+      `${chemin}/compagnon/textes`,
+    );
+    const compilerTexteDuCompagnon = (cleSource: string) =>
+      compilerTexte(
+        textesCompagnon[cleSource],
+        `${chemin}/compagnon/textes/${cleSource}`,
+        traductions,
+        langue,
+      );
+    const libellesSource = objet(conseil.libelles, `${chemin}/libelles`);
+    const compilerLibelle = (cleSource: string) =>
+      compilerTexte(
+        libellesSource[cleSource],
+        `${chemin}/libelles/${cleSource}`,
+        traductions,
+        langue,
+      );
+    const sujetsTextes = Object.fromEntries(
+      sujetsSources.map(({ chemin: cheminSujet, valeur: sujet }, sujetIndex) => {
+        const voixSources = tableau(sujet.voix, `${cheminSujet}/voix`);
+        const decisionsSources = tableau(
+          sujet.decisions,
+          `${cheminSujet}/decisions`,
+        );
+        return [
+          sujets[sujetIndex]!.id,
+          {
+            titre: compilerTexte(
+              sujet.titre,
+              `${cheminSujet}/titre`,
+              traductions,
+              langue,
+            ),
+            voix: Object.fromEntries(
+              voixSources.map((voixBrute, voixIndex) => {
+                const cheminVoix = `${cheminSujet}/voix/${voixIndex}`;
+                const voix = objet(voixBrute, cheminVoix);
+                const voixCompagnonId = sujets[sujetIndex]!.voix[voixIndex]!
+                  .compagnonId;
+                return [
+                  voixCompagnonId,
+                  {
+                    faitConnu: compilerTexte(
+                      voix.fait_connu,
+                      `${cheminVoix}/fait_connu`,
+                      traductions,
+                      langue,
+                    ),
+                    source: compilerTexte(
+                      voix.source,
+                      `${cheminVoix}/source`,
+                      traductions,
+                      langue,
+                    ),
+                    dateSource: compilerTexte(
+                      voix.date_source,
+                      `${cheminVoix}/date_source`,
+                      traductions,
+                      langue,
+                    ),
+                    recommandationMorale: compilerTexte(
+                      voix.recommandation_morale,
+                      `${cheminVoix}/recommandation_morale`,
+                      traductions,
+                      langue,
+                    ),
+                    enjeuPersonnel: compilerTexte(
+                      voix.enjeu_personnel,
+                      `${cheminVoix}/enjeu_personnel`,
+                      traductions,
+                      langue,
+                    ),
+                  },
+                ];
+              }),
+            ),
+            decisions: Object.fromEntries(
+              decisionsSources.map((decisionBrute, decisionIndex) => {
+                const cheminDecision = `${cheminSujet}/decisions/${decisionIndex}`;
+                const decision = objet(decisionBrute, cheminDecision);
+                return [
+                  sujets[sujetIndex]!.decisions[decisionIndex]!.id,
+                  compilerTexte(
+                    decision.libelle,
+                    `${cheminDecision}/libelle`,
+                    traductions,
+                    langue,
+                  ),
+                ];
+              }),
+            ),
+          },
+        ];
+      }),
+    );
+    const journal = Object.fromEntries([
+      [
+        faitDAffectation,
+        compilerJournal(
+          affectationSource.journal,
+          `${chemin}/compagnon/affectation/journal`,
+          langue,
+        ),
+      ],
+      ...sujetsSources.flatMap(({ chemin: cheminSujet, valeur: sujet }, sujetIndex) =>
+        tableau(sujet.decisions, `${cheminSujet}/decisions`).map(
+          (decisionBrute, decisionIndex) => {
+            const cheminDecision = `${cheminSujet}/decisions/${decisionIndex}`;
+            const decision = objet(decisionBrute, cheminDecision);
+            return [
+              sujets[sujetIndex]!.decisions[decisionIndex]!.faitProduit,
+              compilerJournal(
+                decision.journal,
+                `${cheminDecision}/journal`,
+                langue,
+              ),
+            ] as const;
+          },
+        ),
+      ),
+    ]);
+
+    return {
+      titre: compilerTexte(
+        conseil.titre,
+        `${chemin}/titre`,
+        traductions,
+        langue,
+      ),
+      compagnon: {
+        nom: compilerTexteDuCompagnon("nom"),
+        competenceMajeure: compilerTexteDuCompagnon(
+          "competence_majeure",
+        ),
+        competenceSecondaire: compilerTexteDuCompagnon(
+          "competence_secondaire",
+        ),
+        trait: compilerTexteDuCompagnon("trait"),
+        ambivalence: compilerTexteDuCompagnon("ambivalence"),
+        conviction: compilerTexteDuCompagnon("conviction"),
+        projet: compilerTexteDuCompagnon("projet"),
+        etatPersonnel: compilerTexteDuCompagnon(
+          "etat_personnel",
+        ),
+        contrainte: compilerTexteDuCompagnon("contrainte"),
+        voieDeSoin: compilerTexteDuCompagnon("voie_de_soin"),
+        quartier: compilerTexteDuCompagnon("quartier"),
+        informationOuverte: compilerTexteDuCompagnon(
+          "information_ouverte",
+        ),
+      },
+      libelles: {
+        typeCompagnon: compilerLibelle("type_compagnon"),
+        competenceMajeure: compilerLibelle("competence_majeure"),
+        competenceSecondaire: compilerLibelle("competence_secondaire"),
+        trait: compilerLibelle("trait"),
+        conviction: compilerLibelle("conviction"),
+        projet: compilerLibelle("projet"),
+        etatPersonnel: compilerLibelle("etat_personnel"),
+        soin: compilerLibelle("soin"),
+        affecter: compilerLibelle("affecter"),
+        affectee: compilerLibelle("affectee"),
+        informationOuverte: compilerLibelle("information_ouverte"),
+        conseil: compilerLibelle("conseil"),
+        faitConnu: compilerLibelle("fait_connu"),
+        source: compilerLibelle("source"),
+        recommandationMorale: compilerLibelle("recommandation_morale"),
+        enjeuPersonnel: compilerLibelle("enjeu_personnel"),
+        decision: compilerLibelle("decision"),
+        reponseOuverte: compilerLibelle("reponse_ouverte"),
+      },
+      sujets: sujetsTextes,
+      journal,
+    };
+  };
+
+  return {
+    id,
+    compagnon: {
+      id: compagnonId,
+      competences: {
+        majeure: competenceMajeure,
+        secondaire: competenceSecondaire,
+      },
+      trait: chaine(compagnonSource.trait, `${chemin}/compagnon/trait`),
+      conviction: chaine(
+        compagnonSource.conviction,
+        `${chemin}/compagnon/conviction`,
+      ),
+      projet: chaine(compagnonSource.projet, `${chemin}/compagnon/projet`),
+      etatPersonnel: {
+        id: chaine(etatPersonnelSource.id, `${chemin}/compagnon/etat_personnel/id`),
+        contrainte: chaine(
+          etatPersonnelSource.contrainte,
+          `${chemin}/compagnon/etat_personnel/contrainte`,
+        ),
+        voieDeSoin: chaine(
+          etatPersonnelSource.voie_de_soin,
+          `${chemin}/compagnon/etat_personnel/voie_de_soin`,
+        ),
+      },
+      affectation: {
+        quartier,
+        occupation: "tete-de-quartier",
+        faitProduit: faitDAffectation,
+        cause: chaine(
+          affectationSource.cause,
+          `${chemin}/compagnon/affectation/cause`,
+        ),
+      },
+    },
+    sujets,
+    textes: {
+      fr: compilerTextes("fr"),
+      en: compilerTextes("en"),
+    },
+  };
+}
+
 export function compilerCatalogue(
   sources: SourcesDuCatalogue,
 ): CatalogueDEvenements {
@@ -933,9 +1375,40 @@ export function compilerCatalogue(
     echouer("schema", "evenements.yaml/evenements", "catalogue vide");
   }
 
+  const racineDesConseils = objet(
+    parserYaml(sources.conseils, "conseils.yaml"),
+    "conseils.yaml",
+  );
+  verifierVersion(racineDesConseils, "conseils.yaml");
+  const identifiantsDesConseils = new Set<string>();
+  const conseils = tableau(
+    racineDesConseils.conseils,
+    "conseils.yaml/conseils",
+  ).map((conseil, index) => {
+    const compile = compilerConseil(
+      conseil,
+      index,
+      references,
+      traductions,
+    );
+    if (identifiantsDesConseils.has(compile.id)) {
+      echouer(
+        "schema",
+        `conseils.yaml/conseils/${index}/id`,
+        `identifiant stable dupliqué « ${compile.id} »`,
+      );
+    }
+    identifiantsDesConseils.add(compile.id);
+    return compile;
+  });
+  if (conseils.length === 0) {
+    echouer("schema", "conseils.yaml/conseils", "catalogue vide");
+  }
+
   return figerProfondement({
     version: VERSION_CONTENU_COURANTE,
     evenements,
     installations,
+    conseils,
   });
 }

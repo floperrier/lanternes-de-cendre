@@ -6,12 +6,14 @@ import {
   projeterInfrastructure,
 } from "../application/infrastructure";
 import { projeterPilotage } from "../application/pilotage";
+import { projeterCompagnonEtConseil } from "../application/conseil";
 import type { Langue } from "../content/types";
 import {
   type ControleurDeSessionCampagne,
   type EtatDuControleurDeSession,
 } from "../sauvegarde/controleur";
 import { CommandesDuTemps } from "./CommandesDuTemps";
+import { ConseilDuConvoi } from "./ConseilDuConvoi";
 import { CoupeHabitee } from "./CoupeHabitee";
 import { EtatTextuel } from "./EtatTextuel";
 import { InfrastructureDuConvoi } from "./InfrastructureDuConvoi";
@@ -39,6 +41,7 @@ function CampagnePersistante({ etatDuControleur, controleur }: PropsCampagne) {
   const projection = projeterCampagne(etat, langue);
   const projectionDuPilotage = projeterPilotage(etat, langue);
   const projectionDInfrastructure = projeterInfrastructure(etat, langue);
+  const projectionDuConseil = projeterCompagnonEtConseil(etat, langue);
 
   useEffect(() => {
     const horloge = window.setInterval(() => {
@@ -91,6 +94,8 @@ function CampagnePersistante({ etatDuControleur, controleur }: PropsCampagne) {
           <PanneauDePilotage
             application={application}
             projection={projectionDuPilotage}
+            compagnon={projectionDuConseil.compagnon}
+            langue={langue}
           />
         </div>
       </div>
@@ -99,6 +104,12 @@ function CampagnePersistante({ etatDuControleur, controleur }: PropsCampagne) {
         <RubanNarratif
           application={application}
           evenement={projection.evenementNarratif}
+          langue={langue}
+        />
+      ) : projectionDuConseil.conseil !== null ? (
+        <ConseilDuConvoi
+          application={application}
+          conseil={projectionDuConseil.conseil}
           langue={langue}
         />
       ) : null}

@@ -10,6 +10,7 @@ const lire = (chemin: string) => readFileSync(resolve(racine, chemin), "utf8");
 const catalogue = compilerCatalogue({
   evenements: lire("content/evenements/prologue.yaml"),
   infrastructure: lire("content/infrastructure.yaml"),
+  conseils: lire("content/conseils/premiere-veille.yaml"),
   references: lire("content/references.yaml"),
   traductions: {
     fr: lire("content/locales/fr.yaml"),
@@ -36,5 +37,5 @@ if (!existsSync(destination) || readFileSync(destination, "utf8") !== sortie) {
 }
 
 console.log(
-  `${catalogue.evenements.length} Événement narratif compilé dans ${destination}`,
+  `${catalogue.evenements.length} Événement narratif et ${catalogue.conseils.length} Conseil compilés dans ${destination}`,
 );

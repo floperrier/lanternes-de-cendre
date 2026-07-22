@@ -1,15 +1,39 @@
 import type { ProjectionDuJournalCausal } from "../application/pilotage";
+import type { Langue } from "../content/types";
 
 interface JournalCausalProps {
   readonly entrees: readonly ProjectionDuJournalCausal[];
+  readonly langue: Langue;
 }
 
-export function JournalCausal({ entrees }: JournalCausalProps) {
+const LIBELLES = {
+  fr: {
+    journal: "Journal causal",
+    vide: "Aucune résolution inscrite.",
+    cause: "Cause",
+    acteurs: "Acteurs",
+    cible: "Cible",
+    materiel: "Matériel",
+    humain: "Humain",
+  },
+  en: {
+    journal: "Causal journal",
+    vide: "No resolution recorded.",
+    cause: "Cause",
+    acteurs: "Actors",
+    cible: "Target",
+    materiel: "Material",
+    humain: "Human",
+  },
+} as const;
+
+export function JournalCausal({ entrees, langue }: JournalCausalProps) {
+  const libelles = LIBELLES[langue];
   return (
-    <details className="journal-causal">
-      <summary>Journal causal ({entrees.length})</summary>
+    <details className="journal-causal" lang={langue}>
+      <summary>{libelles.journal} ({entrees.length})</summary>
       {entrees.length === 0 ? (
-        <p>Aucune résolution inscrite.</p>
+        <p>{libelles.vide}</p>
       ) : (
         <ol>
           {entrees.map((entree) => (
@@ -20,20 +44,20 @@ export function JournalCausal({ entrees }: JournalCausalProps) {
                   <time>{entree.moment}</time>
                 </header>
                 <p>
-                  <strong>Cause</strong> — {entree.cause}
+                  <strong>{libelles.cause}</strong> — {entree.cause}
                 </p>
                 <p>
-                  <strong>Acteurs</strong> — {entree.acteurs.join(", ")}
+                  <strong>{libelles.acteurs}</strong> — {entree.acteurs.join(", ")}
                 </p>
                 <p>
-                  <strong>Cible</strong> — {entree.cible}
+                  <strong>{libelles.cible}</strong> — {entree.cible}
                 </p>
                 <ul>
                   {entree.effetsMateriels.map((effet) => (
-                    <li key={effet}>Matériel — {effet}</li>
+                    <li key={effet}>{libelles.materiel} — {effet}</li>
                   ))}
                   {entree.effetsHumains.map((effet) => (
-                    <li key={effet}>Humain — {effet}</li>
+                    <li key={effet}>{libelles.humain} — {effet}</li>
                   ))}
                 </ul>
               </article>

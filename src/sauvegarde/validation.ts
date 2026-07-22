@@ -46,6 +46,13 @@ import {
   VERSION_SAUVEGARDE_COURANTE,
   VERSIONS_DU_SNAPSHOT_COURANT,
 } from "./version";
+import {
+  IDENTIFIANTS_DE_FAITS_DU_CONSEIL,
+  estCausaliteDuConseilValide,
+  estCommandeDuConseil,
+  estFaitDuConseil,
+  estIdentifiantDeFaitDuConseil,
+} from "./validation-conseil";
 
 const EMPREINTE = /^[0-9a-f]{8}$/;
 const IDENTIFIANTS_PLATEFORMES_LEGACY_V1 = [
@@ -71,6 +78,7 @@ const IDENTIFIANTS_DE_FAITS_DU_CATALOGUE = new Set(
 const IDENTIFIANTS_DE_FAITS_CONNUS = new Set([
   ...IDENTIFIANTS_DE_FAITS_DU_CATALOGUE,
   ...IDENTIFIANTS_DE_FAITS_D_INCIDENT,
+  ...IDENTIFIANTS_DE_FAITS_DU_CONSEIL,
 ]);
 const DEFINITIONS_DE_FAITS_DU_CATALOGUE = new Map(
   catalogueDEvenements.evenements.flatMap((evenement) =>
@@ -153,6 +161,9 @@ export function estCommandeV1(valeur: unknown): valeur is CommandeCampagne {
 
 export function estCommande(valeur: unknown): valeur is CommandeCampagne {
   if (estCommandeV1(valeur)) {
+    return true;
+  }
+  if (estCommandeDuConseil(valeur)) {
     return true;
   }
   if (!estObjet(valeur) || typeof valeur.type !== "string") {
@@ -339,6 +350,9 @@ function estFaitDeCampagneV2(valeur: unknown): boolean {
   const materiels = effets.materiels;
   const humains = effets.humains;
   const acteurs = valeur.acteurs as string[];
+  if (estIdentifiantDeFaitDuConseil(String(valeur.id))) {
+    return estFaitDuConseil(valeur);
+  }
   const definitionDuCatalogue = DEFINITIONS_DE_FAITS_DU_CATALOGUE.get(
     String(valeur.id),
   );
@@ -1171,7 +1185,8 @@ function estCausaliteDeNarrationValide(
   return (
     parties.citeCaravane.habitants === habitantsAttendus &&
     nombreDeFaitsDIncident === (pilotage.incidentActif === null ? 1 : 0) &&
-    resolutionDIncidentEstPossible
+    resolutionDIncidentEstPossible &&
+    estCausaliteDuConseilValide(faits)
   );
 }
 

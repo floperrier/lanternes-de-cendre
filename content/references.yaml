@@ -2,6 +2,12 @@ version: 1
 acteurs:
   - porte-lanterne
   - cohorte-de-refugies
+  - ilyana-voss
+quartiers:
+  - intendance
+  - foyers
+  - machines
+  - atelier-operations
 fenetres:
   - premiere-minute-atteinte
 destinations_echo:
@@ -9,3 +15,6 @@ destinations_echo:
 faits:
   - prologue.cohorte-accueillie
   - prologue.cohorte-orientee
+  - compagnon.ilyana-voss.affectee-intendance
+  - conseil.premiere-veille.circuit-securise
+  - conseil.premiere-veille.distribution-maintenue
