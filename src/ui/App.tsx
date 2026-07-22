@@ -4,10 +4,12 @@ import {
   creerApplicationCampagne,
   projeterCampagne,
 } from "../application/application";
+import { projeterPilotage } from "../application/pilotage";
 import type { Langue } from "../content/types";
 import { CommandesDuTemps } from "./CommandesDuTemps";
 import { CoupeHabitee } from "./CoupeHabitee";
 import { EtatTextuel } from "./EtatTextuel";
+import { PanneauDePilotage } from "./PanneauDePilotage";
 import { RubanNarratif } from "./RubanNarratif";
 import { SelecteurDeLangue } from "./SelecteurDeLangue";
 
@@ -25,6 +27,7 @@ export function App() {
     application.lireEtat,
   );
   const projection = projeterCampagne(etat, langue);
+  const projectionDuPilotage = projeterPilotage(etat, langue);
 
   useEffect(() => {
     const horloge = window.setInterval(() => {
@@ -53,7 +56,13 @@ export function App() {
 
       <div className="scene-layout">
         <CoupeHabitee />
-        <EtatTextuel projection={projection} />
+        <div className="colonne-de-pilotage">
+          <EtatTextuel projection={projection} />
+          <PanneauDePilotage
+            application={application}
+            projection={projectionDuPilotage}
+          />
+        </div>
       </div>
 
       {projection.evenementNarratif !== null ? (

@@ -180,8 +180,16 @@ Une situation écrite déclenchée à une fenêtre nommée de la campagne et sus
 _Avoid_: Notification, Tirage aléatoire sans cause
 
 **Fait de campagne**:
-La mémoire persistante et nommée d’une décision ou d’un résultat, avec sa cause, ses acteurs, sa cible et son moment, que les événements ultérieurs et l’épilogue peuvent rappeler.
+La mémoire persistante et nommée d’une décision ou d’un résultat, avec sa cause, ses acteurs, sa cible, son moment et ses effets matériels et humains, que les événements ultérieurs et l’épilogue peuvent rappeler.
 _Avoid_: Drapeau caché, Score moral global
+
+**Doctrine du convoi**:
+L’ensemble persistant des politiques qui orientent le fonctionnement courant de la cité-caravane ; chaque changement de position demande un délai annoncé et détermine comment les Incidents ordinaires seront arbitrés en l’absence d’ordre direct.
+_Avoid_: Microgestion individuelle, Décision instantanée sans transition
+
+**Journal causal**:
+La projection consultable et chronologique des Faits de campagne, qui expose pour chacun sa cause, ses acteurs, sa cible, son moment et ses effets sans constituer une seconde mémoire persistante.
+_Avoid_: Historique technique, Seconde mémoire causale
 
 **Incident**:
 Un événement issu de l’état du convoi qui laisse au Porte-Lanterne un délai d’intervention, puis se résout selon les affectations, compétences et doctrine s’il est ignoré.

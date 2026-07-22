@@ -22,6 +22,7 @@
 html,
 body,
 #root {
+  height: 100%;
   min-width: 320px;
   min-height: 100%;
   margin: 0;
@@ -29,6 +30,7 @@ body,
 
 body {
   min-height: 100vh;
+  overflow: hidden;
   background: var(--fond);
 }
 
@@ -42,6 +44,12 @@ textarea {
 button:focus-visible {
   outline: 3px solid var(--focus);
   outline-offset: 3px;
+}
+
+summary:focus-visible,
+.tableau-economique:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: -3px;
 }
 
 .sr-only {
@@ -120,7 +128,15 @@ button:focus-visible {
 .scene-layout {
   min-height: 0;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 18.5rem;
+  grid-template-columns: minmax(0, 1fr) minmax(22rem, 25rem);
+}
+
+.colonne-de-pilotage {
+  min-height: 0;
+  overflow-y: auto;
+  background: var(--surface);
+  border-left: 1px solid var(--cuivre);
+  scrollbar-color: var(--cuivre-clair) var(--surface);
 }
 
 .coupe-habitee {
@@ -141,7 +157,330 @@ button:focus-visible {
   grid-template-rows: repeat(2, minmax(0, 1fr));
   min-height: 0;
   background: var(--surface);
-  border-left: 1px solid var(--cuivre);
+  border-bottom: 1px solid var(--cuivre);
+}
+
+.colonne-de-pilotage .etat-textuel {
+  grid-template-rows: auto auto;
+}
+
+.colonne-de-pilotage .veille,
+.colonne-de-pilotage .etat-cite {
+  padding: 1rem 1.25rem;
+}
+
+.colonne-de-pilotage .veille {
+  gap: 0.3rem;
+  padding-top: 1rem;
+}
+
+.colonne-de-pilotage .veille time {
+  margin: 0.25rem 0;
+  font-size: 2.5rem;
+}
+
+.colonne-de-pilotage .etat-cite ul {
+  margin-top: 0.65rem;
+}
+
+.colonne-de-pilotage .etat-cite li {
+  padding: 0.55rem 0;
+  font-size: 0.98rem;
+}
+
+.panneau-de-pilotage {
+  display: grid;
+  color: var(--texte);
+}
+
+.economie-du-convoi,
+.incident-du-convoi,
+.doctrine-du-convoi,
+.journal-causal {
+  padding: 1.1rem 1.25rem;
+  border-bottom: 1px solid var(--cuivre);
+}
+
+.economie-du-convoi h2,
+.economie-du-convoi h3,
+.incident-du-convoi h2,
+.journal-causal h2,
+.panneau-de-pilotage p {
+  margin: 0;
+}
+
+.economie-du-convoi h2,
+.incident-du-convoi h2,
+.journal-causal h2 {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 1.55rem;
+  font-weight: 600;
+}
+
+.economie-du-convoi h3 {
+  margin-top: 1rem;
+  color: var(--texte-secondaire);
+  font-size: 0.82rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.indicateurs-economiques {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0.7rem 0 0;
+}
+
+.indicateurs-economiques--stocks {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.indicateurs-economiques--capacites {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.indicateurs-economiques > div {
+  min-width: 0;
+  display: grid;
+  gap: 0.1rem;
+  padding: 0.55rem 0.65rem;
+  background: #111a1d;
+  border-left: 2px solid var(--cuivre-clair);
+}
+
+.indicateurs-economiques dt {
+  overflow: hidden;
+  color: var(--texte-secondaire);
+  font-size: 0.78rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.indicateurs-economiques dd {
+  margin: 0;
+  color: #fff2d9;
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 1.35rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.details-economiques,
+.doctrine-du-convoi,
+.journal-causal {
+  padding-right: 0;
+  padding-left: 0;
+}
+
+.details-economiques {
+  margin-top: 0.9rem;
+  border-top: 1px solid var(--cuivre);
+}
+
+.details-economiques > summary,
+.doctrine-du-convoi > summary,
+.journal-causal > summary {
+  padding: 0.8rem 1.25rem;
+  color: var(--texte);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.details-economiques > summary {
+  padding-right: 0;
+  padding-left: 0;
+}
+
+.details-economiques > p:not(.incertitude-sourcee) {
+  margin: 0.35rem 0;
+  color: var(--texte-secondaire);
+  font-size: 0.88rem;
+}
+
+.tableau-economique {
+  margin-top: 0.7rem;
+  overflow-x: auto;
+}
+
+.tableau-economique table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.tableau-economique th,
+.tableau-economique td {
+  padding: 0.45rem 0.35rem;
+  text-align: right;
+  border-bottom: 1px solid #30291f;
+  white-space: nowrap;
+}
+
+.tableau-economique th:first-child {
+  text-align: left;
+}
+
+.tableau-economique thead {
+  color: var(--texte-secondaire);
+}
+
+.incertitude-sourcee {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.65rem 0.75rem;
+  margin-top: 0.75rem !important;
+  color: var(--texte-secondaire);
+  background: #0a1215;
+  border: 1px dashed var(--cuivre);
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+.incertitude-sourcee strong {
+  color: var(--texte);
+}
+
+.incident-du-convoi {
+  background: #17150f;
+  box-shadow: inset 3px 0 0 var(--ambre);
+}
+
+.type-d-incident {
+  margin-bottom: 0.2rem !important;
+  color: var(--ambre);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.incident-du-convoi dl {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0.8rem 0;
+  font-size: 0.84rem;
+}
+
+.incident-du-convoi dl > div {
+  display: grid;
+  grid-template-columns: 7rem minmax(0, 1fr);
+  gap: 0.5rem;
+}
+
+.incident-du-convoi dt {
+  color: var(--texte-secondaire);
+}
+
+.incident-du-convoi dd {
+  margin: 0;
+}
+
+.ordres-d-incident {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.6rem;
+  margin-top: 0.8rem;
+}
+
+.ordres-d-incident > div {
+  display: grid;
+  align-content: start;
+  gap: 0.35rem;
+}
+
+.ordres-d-incident button,
+.positions-de-doctrine button {
+  min-height: 2.7rem;
+  padding: 0.45rem 0.6rem;
+  color: var(--texte);
+  background: #111a1d;
+  border: 1px solid var(--cuivre-clair);
+  cursor: pointer;
+}
+
+.ordres-d-incident small {
+  color: var(--texte-secondaire);
+  line-height: 1.25;
+}
+
+.politiques-de-doctrine {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0 1.25rem 1rem;
+}
+
+.politiques-de-doctrine fieldset {
+  min-width: 0;
+  padding: 0.65rem;
+  border: 1px solid var(--cuivre);
+}
+
+.politiques-de-doctrine legend {
+  padding: 0 0.35rem;
+  font-weight: 600;
+}
+
+.politiques-de-doctrine fieldset > p {
+  color: var(--texte-secondaire);
+  font-size: 0.82rem;
+}
+
+.positions-de-doctrine {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.35rem;
+  margin-top: 0.55rem;
+}
+
+.positions-de-doctrine button {
+  min-width: 0;
+  min-height: 2.4rem;
+  padding: 0.35rem 0.25rem;
+  color: var(--texte-secondaire);
+  font-size: 0.76rem;
+}
+
+.positions-de-doctrine button[aria-pressed="true"] {
+  color: #fff2d9;
+  background: #241c11;
+  border-color: var(--ambre);
+}
+
+.transition-de-doctrine {
+  margin-top: 0.5rem !important;
+  color: var(--ambre) !important;
+}
+
+.journal-causal > p,
+.journal-causal > ol {
+  margin: 0 1.25rem 1rem;
+}
+
+.journal-causal > ol {
+  padding-left: 1.25rem;
+}
+
+.journal-causal article header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.journal-causal article h2 {
+  font-size: 1.15rem;
+}
+
+.journal-causal article p,
+.journal-causal article ul {
+  margin: 0.45rem 0;
+  font-size: 0.84rem;
+  line-height: 1.35;
+}
+
+.journal-causal article ul {
+  padding-left: 1rem;
 }
 
 .etat-textuel h2,
@@ -377,6 +716,10 @@ button:focus-visible {
 }
 
 @media (max-width: 900px) {
+  body {
+    overflow: auto;
+  }
+
   .app-shell {
     display: block;
     height: auto;
@@ -397,6 +740,12 @@ button:focus-visible {
 
   .scene-layout {
     display: block;
+  }
+
+  .colonne-de-pilotage {
+    overflow-y: visible;
+    border-top: 1px solid var(--cuivre);
+    border-left: 0;
   }
 
   .coupe-habitee {

@@ -4,6 +4,18 @@ import type {
   EffetDEvenement,
   EvenementDuCatalogue,
 } from "../content/types";
+import type { EffetsDeFait, FaitDeCampagne } from "./faits";
+import {
+  creerPilotageInitial,
+  engagerTransitionDeDoctrine,
+  ordonnerResolutionDIncident,
+  traiterEcheancesDePilotage,
+  type CommandeDeDoctrine,
+  type CommandeDIncident,
+  type EtatPilotage,
+  type EvenementDeDoctrine,
+  type EvenementDIncidentResolu,
+} from "./pilotage";
 
 export type GraineDeCampagne = string;
 export type IdentifiantPlateformeMobile =
@@ -16,16 +28,10 @@ export type IdentifiantPlateformeMobile =
   | "forge";
 export type VitesseDuConvoi = 0 | 1 | 2 | 4;
 
-export interface FaitDeCampagne {
-  readonly id: string;
-  readonly cause: string;
-  readonly acteurs: readonly string[];
-  readonly cible: string;
-  readonly moment: number;
-}
+export type { FaitDeCampagne } from "./faits";
 
 export interface EtatCampagne {
-  readonly version: 1;
+  readonly version: 2;
   readonly graine: GraineDeCampagne;
   readonly tempsDuConvoi: {
     readonly secondes: number;
@@ -44,6 +50,7 @@ export interface EtatCampagne {
     readonly evenementsJoues: readonly string[];
     readonly faitsDeCampagne: readonly FaitDeCampagne[];
   };
+  readonly pilotage: EtatPilotage;
 }
 
 export type CommandeCampagne =
@@ -59,7 +66,9 @@ export type CommandeCampagne =
       readonly type: "evenement-narratif.choisir";
       readonly evenementId: string;
       readonly choixId: string;
-    };
+    }
+  | CommandeDeDoctrine
+  | CommandeDIncident;
 
 export type EvenementDeDomaine =
   | {
@@ -87,7 +96,9 @@ export type EvenementDeDomaine =
       readonly choixId: string;
       readonly effets: readonly EffetDEvenement[];
       readonly faitsProduits: readonly string[];
-    };
+    }
+  | EvenementDeDoctrine
+  | EvenementDIncidentResolu;
 
 export interface TransitionDeCampagne {
   readonly etat: EtatCampagne;
@@ -98,7 +109,7 @@ export function creerCampagneInitiale(
   graine: GraineDeCampagne,
 ): EtatCampagne {
   return {
-    version: 1,
+    version: 2,
     graine,
     tempsDuConvoi: {
       secondes: 0,
@@ -125,6 +136,7 @@ export function creerCampagneInitiale(
       evenementsJoues: [],
       faitsDeCampagne: [],
     },
+    pilotage: creerPilotageInitial(),
   };
 }
 
@@ -217,6 +229,35 @@ function appliquerEffets(
   };
 }
 
+function decrireEffetsDeFait(
+  effets: readonly EffetDEvenement[],
+): EffetsDeFait {
+  return {
+    materiels: [],
+    humains: effets.map((effet) => ({
+      type: "habitants.modifies" as const,
+      variation: effet.valeur,
+    })),
+  };
+}
+
+function enregistrerFaitsDeCampagne(
+  etat: EtatCampagne,
+  faits: readonly FaitDeCampagne[],
+): EtatCampagne {
+  if (faits.length === 0) {
+    return etat;
+  }
+
+  return {
+    ...etat,
+    narration: {
+      ...etat.narration,
+      faitsDeCampagne: [...etat.narration.faitsDeCampagne, ...faits],
+    },
+  };
+}
+
 function choisirDansEvenement(
   etat: EtatCampagne,
   commande: Extract<
@@ -241,12 +282,14 @@ function choisirDansEvenement(
   }
 
   const etatApresEffets = appliquerEffets(etat, choix.effets);
+  const effetsDeFait = decrireEffetsDeFait(choix.effets);
   const faitsProduits = choix.faitsProduits.map((fait) => ({
     id: fait.id,
     cause: evenement.id,
     acteurs: evenement.acteurs,
     cible: fait.cible,
     moment: etat.tempsDuConvoi.secondes,
+    effets: effetsDeFait,
   }));
 
   return {
@@ -278,6 +321,15 @@ export function appliquerCommande(
   commande: CommandeCampagne,
 ): TransitionDeCampagne {
   if (commande.type === "temps-du-convoi.ecouler") {
+    if (
+      !Number.isInteger(commande.secondesReelles) ||
+      commande.secondesReelles < 0
+    ) {
+      throw new Error(
+        "Le Temps du convoi exige une durée entière positive ou nulle.",
+      );
+    }
+
     const nouvellesSecondes =
       etat.tempsDuConvoi.secondes +
       commande.secondesReelles * etat.tempsDuConvoi.vitesse;
@@ -291,13 +343,6 @@ export function appliquerCommande(
       });
     }
 
-    if (etat.tempsDuConvoi.secondes < 60 && nouvellesSecondes >= 60) {
-      evenements.push({
-        type: "temps-du-convoi.premiere-minute-atteinte",
-        secondeAtteinte: 60,
-      });
-    }
-
     let nouvelEtat: EtatCampagne = {
         ...etat,
         tempsDuConvoi: {
@@ -306,7 +351,27 @@ export function appliquerCommande(
         },
     };
 
-    if (etat.tempsDuConvoi.secondes < 60 && nouvellesSecondes >= 60) {
+    const premiereMinuteAtteinte =
+      etat.tempsDuConvoi.secondes < 60 && nouvellesSecondes >= 60;
+    const premiereLimiteDEcheance = premiereMinuteAtteinte
+      ? 60
+      : nouvellesSecondes;
+    const premieresEcheances = traiterEcheancesDePilotage(
+      nouvelEtat.pilotage,
+      etat.tempsDuConvoi.secondes,
+      premiereLimiteDEcheance,
+    );
+    nouvelEtat = enregistrerFaitsDeCampagne(
+      { ...nouvelEtat, pilotage: premieresEcheances.etat },
+      premieresEcheances.faitsProduits,
+    );
+    evenements.push(...premieresEcheances.evenements);
+
+    if (premiereMinuteAtteinte) {
+      evenements.push({
+        type: "temps-du-convoi.premiere-minute-atteinte",
+        secondeAtteinte: 60,
+      });
       const declenchement = declencherEvenement(
         nouvelEtat,
         "premiere-minute-atteinte",
@@ -317,11 +382,51 @@ export function appliquerCommande(
       }
     }
 
+    if (premiereLimiteDEcheance < nouvellesSecondes) {
+      const echeancesRestantes = traiterEcheancesDePilotage(
+        nouvelEtat.pilotage,
+        premiereLimiteDEcheance,
+        nouvellesSecondes,
+      );
+      nouvelEtat = enregistrerFaitsDeCampagne(
+        { ...nouvelEtat, pilotage: echeancesRestantes.etat },
+        echeancesRestantes.faitsProduits,
+      );
+      evenements.push(...echeancesRestantes.evenements);
+    }
+
     return { etat: nouvelEtat, evenements };
   }
 
   if (commande.type === "evenement-narratif.choisir") {
     return choisirDansEvenement(etat, commande);
+  }
+
+  if (commande.type === "doctrine.regler") {
+    const transition = engagerTransitionDeDoctrine(
+      etat.pilotage,
+      commande,
+      etat.tempsDuConvoi.secondes,
+    );
+    return {
+      etat: { ...etat, pilotage: transition.etat },
+      evenements: transition.evenements,
+    };
+  }
+
+  if (commande.type === "incident.ordonner") {
+    const transition = ordonnerResolutionDIncident(
+      etat.pilotage,
+      commande,
+      etat.tempsDuConvoi.secondes,
+    );
+    return {
+      etat: enregistrerFaitsDeCampagne(
+        { ...etat, pilotage: transition.etat },
+        transition.faitsProduits,
+      ),
+      evenements: transition.evenements,
+    };
   }
 
   return {

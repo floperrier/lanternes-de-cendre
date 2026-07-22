@@ -11,7 +11,7 @@ describe("Graine de campagne", () => {
     const etat = creerCampagneInitiale("CENDRE-01");
 
     expect(JSON.parse(JSON.stringify(etat))).toEqual({
-      version: 1,
+      version: 2,
       graine: "CENDRE-01",
       tempsDuConvoi: {
         secondes: 0,
@@ -37,6 +37,92 @@ describe("Graine de campagne", () => {
         evenementActif: null,
         evenementsJoues: [],
         faitsDeCampagne: [],
+      },
+      pilotage: {
+        economie: {
+          stocks: {
+            vivres: {
+              quantite: 920,
+              unite: "rations",
+              fluxParHeure: -46,
+              reliquatDeFlux: 0,
+            },
+            eau: {
+              quantite: 760,
+              unite: "litres",
+              fluxParHeure: -38,
+              reliquatDeFlux: 0,
+            },
+            combustible: {
+              quantite: 540,
+              unite: "litres",
+              fluxParHeure: -30,
+              reliquatDeFlux: 0,
+            },
+            materiaux: {
+              quantite: 84,
+              unite: "pieces",
+              fluxParHeure: -2,
+              reliquatDeFlux: 0,
+            },
+            remedes: {
+              quantite: 36,
+              unite: "doses",
+              fluxParHeure: -1,
+              reliquatDeFlux: 0,
+            },
+          },
+          capacites: {
+            chaleur: {
+              production: 78,
+              demande: 70,
+              unite: "kilowatts",
+            },
+            "main-d-oeuvre": {
+              production: 12,
+              demande: 9,
+              unite: "equipes",
+            },
+            charge: { production: 80, demande: 68, unite: "tonnes" },
+          },
+          entretien: {
+            equipesMobilisees: 2,
+            materiauxParHeure: 2,
+          },
+          prochainJalon: {
+            nom: "Halte du puits sec",
+            atteintA: 10_800,
+            incertitude: {
+              source: "Relevé de route du Phare",
+              releveeA: 0,
+              variationFluxPourcent: 10,
+              explication:
+                "Consommation variable de ±10 % selon la cendre",
+            },
+          },
+        },
+        doctrine: {
+          rationnement: { position: "mesure", transition: null },
+          allure: { position: "soutenue", transition: null },
+          entretien: { position: "equilibre", transition: null },
+          "delestage-thermique": {
+            position: "equilibre",
+            transition: null,
+          },
+        },
+        incidentActif: {
+          id: "purification.pompe-instable",
+          titre: "Pompe de purification instable",
+          cause: "Usure du joint de la pompe de purification",
+          priorite: "preserver-habitants",
+          annonceA: 0,
+          echeance: 120,
+          incertitude: {
+            source: "Inspection de l’Atelier",
+            releveeA: 0,
+            observation: "Rupture possible avant la Halte du puits sec",
+          },
+        },
       },
     });
   });
@@ -139,6 +225,12 @@ describe("Événement narratif de la première veille", () => {
             acteurs: ["porte-lanterne", "cohorte-de-refugies"],
             cible: "cohorte-de-refugies",
             moment: 60,
+            effets: {
+              materiels: [],
+              humains: [
+                { type: "habitants.modifies", variation: 6 },
+              ],
+            },
           },
         ],
       },
