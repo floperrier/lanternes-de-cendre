@@ -445,7 +445,8 @@ function formaterCout(
     return `${langue === "fr" ? "Matériaux" : "Materials"} : ${signe}${valeur} ${langue === "fr" ? "pièces" : "parts"}`;
   }
   if (stock === "remedes") {
-    return `${langue === "fr" ? "Remèdes" : "Remedies"} : ${signe}${valeur} ${langue === "fr" ? "doses" : "doses"}`;
+    const unite = Math.abs(variation) === 1 ? "dose" : "doses";
+    return `${langue === "fr" ? "Remèdes" : "Remedies"} : ${signe}${valeur} ${unite}`;
   }
   if (stock === "combustible") {
     return `${langue === "fr" ? "Combustible" : "Fuel"} : ${signe}${valeur} L`;

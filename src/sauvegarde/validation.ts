@@ -1073,11 +1073,16 @@ function calculerStockAttendu(
   routes: EtatDesRoutes,
   expeditions: EtatDesExpeditions,
   reinitialiserReliquatApresConsommationMateriaux = true,
-): { readonly quantite: number; readonly reliquatDeFlux: number } {
+): {
+  readonly quantite: number;
+  readonly reliquatDeFlux: number;
+  readonly coutsDeLancementDExpeditionApplicables: boolean;
+} {
   const initial = PILOTAGE_INITIAL.economie.stocks[id];
   let stock = { ...initial };
   let secondeCourante = 0;
   let fluxParHeure = initial.fluxParHeure;
+  let coutsDeLancementDExpeditionApplicables = true;
   const appliquerFlux = (secondes: number) => {
     const numerateur =
       stock.reliquatDeFlux + fluxParHeure * Math.max(0, secondes);
@@ -1156,6 +1161,8 @@ function calculerStockAttendu(
         moment: mouvement.moment,
         index,
         mouvement,
+        estCoutDeLancement:
+          "lanceeA" in operation && mouvement.moment === operation.lanceeA,
       })),
     ),
     ...routes.engagements.map((engagement, index) => ({
@@ -1199,6 +1206,13 @@ function calculerStockAttendu(
       fluxParHeure += occurrence.variationDeFlux;
     } else if (occurrence.type === "expedition") {
       if (occurrence.mouvement.stock === id) {
+        if (
+          occurrence.estCoutDeLancement &&
+          occurrence.mouvement.variation < 0 &&
+          stock.quantite < -occurrence.mouvement.variation
+        ) {
+          coutsDeLancementDExpeditionApplicables = false;
+        }
         stock = appliquerVariationAUnStock(
           stock,
           occurrence.mouvement.variation,
@@ -1232,6 +1246,7 @@ function calculerStockAttendu(
   return {
     quantite: stock.quantite,
     reliquatDeFlux: stock.reliquatDeFlux,
+    coutsDeLancementDExpeditionApplicables,
   };
 }
 
@@ -1283,6 +1298,7 @@ function estEtatPilotage(
       expeditions,
     );
     if (
+      !calcule.coutsDeLancementDExpeditionApplicables ||
       stock.quantite !== calcule.quantite ||
       stock.reliquatDeFlux !== calcule.reliquatDeFlux
     ) {
@@ -1952,7 +1968,8 @@ export function projeterEtatAvantRoutesHistorique(
           ...etat.pilotage.economie.stocks,
           materiaux: {
             ...etat.pilotage.economie.stocks.materiaux,
-            ...materiaux,
+            quantite: materiaux.quantite,
+            reliquatDeFlux: materiaux.reliquatDeFlux,
           },
         },
       },

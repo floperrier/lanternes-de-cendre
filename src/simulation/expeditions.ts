@@ -770,6 +770,7 @@ function traiterEcheancesDUneExpedition(
   );
   const rapports = [...operation.rapports];
   const evenements: EvenementDExpedition[] = [];
+  const mouvementsDeStocks: MouvementDeStockDExpedition[] = [];
   let ordreRequis: ExpeditionEnAttenteDOrdre["ordreRequis"] | null = null;
 
   for (const jalon of jalonsAtteints) {
@@ -786,6 +787,14 @@ function traiterEcheancesDUneExpedition(
         ? undefined
         : classerEcartDExpedition(jalon.ecart);
     if (jalon.ecartId !== undefined && classement === "autonome") {
+      const depenseRemedes = jalon.ecart?.depenseRemedes ?? 0;
+      if (depenseRemedes > 0) {
+        mouvementsDeStocks.push({
+          moment,
+          stock: "remedes",
+          variation: -depenseRemedes,
+        });
+      }
       evenements.push({
         type: "expedition.ecart-resolu-autonomement",
         expeditionId: operation.id,
@@ -811,11 +820,15 @@ function traiterEcheancesDUneExpedition(
     dureeActiveSecondes: dureeFinale,
     rapports,
     ordreRequis,
+    mouvementsDeStocks: [
+      ...operation.mouvementsDeStocks,
+      ...mouvementsDeStocks,
+    ],
   } as ExpeditionEnCours | ExpeditionEnAttenteDOrdre;
   return {
     etat: { operations: [operationMiseAJour] },
     evenements,
-    mouvementsDeStocks: [],
+    mouvementsDeStocks,
   };
 }
 

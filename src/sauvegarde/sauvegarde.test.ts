@@ -14,6 +14,11 @@ import {
   type EtatCampagne,
 } from "../simulation/campagne";
 import { tirerEntierNonSigne } from "../simulation/aleatoire";
+import { appliquerVariationAUnStock } from "../simulation/pilotage";
+import {
+  creerFaitPourRapportDExpedition,
+  lancerExpedition,
+} from "../simulation/expeditions";
 import sauvegardeV1 from "./fixtures/sauvegarde-v1.json";
 import {
   creerSauvegarde,
@@ -1919,6 +1924,55 @@ describe("sauvegarde portable", () => {
     expect(importerSauvegarde(JSON.stringify(archiveV3))).toMatchObject({
       statut: "invalide",
       explication: "La sauvegarde v3 est incomplète ou incohérente.",
+    });
+  });
+
+  it("refuse un lancement d’Expédition falsifié sans les stocks historiques requis", () => {
+    const avantLancement = appliquerCommande(
+      creerCampagneInitiale("CENDRE-01"),
+      { type: "temps-du-convoi.ecouler", secondesReelles: 57_600 },
+    ).etat;
+    const lancement = lancerExpedition(
+      avantLancement.expeditions,
+      { type: "expedition.lancer", expeditionId: "vannes-grises" },
+      avantLancement.tempsDuConvoi.secondes,
+    );
+    const stocks = { ...avantLancement.pilotage.economie.stocks };
+    for (const mouvement of lancement.mouvementsDeStocks) {
+      stocks[mouvement.stock] = appliquerVariationAUnStock(
+        stocks[mouvement.stock],
+        mouvement.variation,
+      );
+    }
+    const rapportDeDepart = lancement.etat.operations[0].rapports[0];
+    if (rapportDeDepart === undefined) {
+      throw new Error("Le lancement doit produire un rapport de départ.");
+    }
+    const falsifie: EtatCampagne = {
+      ...avantLancement,
+      pilotage: {
+        ...avantLancement.pilotage,
+        economie: { ...avantLancement.pilotage.economie, stocks },
+      },
+      expeditions: lancement.etat,
+      narration: {
+        ...avantLancement.narration,
+        faitsDeCampagne: [
+          ...avantLancement.narration.faitsDeCampagne,
+          creerFaitPourRapportDExpedition(
+            "vannes-grises",
+            rapportDeDepart,
+          ),
+        ],
+      },
+    };
+    const sauvegarde = creerSauvegarde(
+      falsifie,
+      creerReproductionInitiale(falsifie),
+    );
+
+    expect(importerSauvegarde(exporterSauvegarde(sauvegarde))).toMatchObject({
+      statut: "invalide",
     });
   });
 

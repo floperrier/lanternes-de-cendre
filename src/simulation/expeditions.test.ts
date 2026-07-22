@@ -106,6 +106,10 @@ describe("Expédition des Vannes Grises", () => {
   });
 
   it("laisse la responsable résoudre les écarts couverts puis attend un ordre sans suspendre le convoi", () => {
+    const temoinSansExpedition = appliquerCommande(
+      creerCampagneInitiale("CENDRE-01"),
+      { type: "temps-du-convoi.ecouler", secondesReelles: 9_420 },
+    ).etat;
     let etat = appliquerCommande(creerCampagneInitiale("CENDRE-01"), {
       type: "expedition.lancer",
       expeditionId: "vannes-grises",
@@ -149,6 +153,14 @@ describe("Expédition des Vannes Grises", () => {
       },
     });
     expect(etat.tempsDuConvoi).toEqual({ secondes: 9_420, vitesse: 1 });
+    expect(etat.pilotage.economie.stocks.remedes.quantite).toBe(
+      temoinSansExpedition.pilotage.economie.stocks.remedes.quantite - 1,
+    );
+    expect(etat.expeditions.operations[0].mouvementsDeStocks).toContainEqual({
+      moment: 9_420,
+      stock: "remedes",
+      variation: -1,
+    });
     expect(transition.evenements).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -305,6 +317,7 @@ describe("Expédition des Vannes Grises", () => {
           { stock: "vivres", variation: -331.2 },
           { stock: "eau", variation: -182.4 },
           { stock: "materiaux", variation: -2 },
+          { stock: "remedes", variation: -1 },
         ],
         gains: [{ stock: "eau", variation: 2_371.2 }],
         ordres: ["forcer-galerie"],

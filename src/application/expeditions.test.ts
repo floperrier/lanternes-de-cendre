@@ -201,6 +201,7 @@ describe("projection de l’Expédition dans l’Atlas", () => {
         "Vivres : −331,2 rations",
         "Eau : −182,4 L",
         "Matériaux : −2 pièces",
+        "Remèdes : −1 dose",
       ],
       ordres: ["Forcer la galerie"],
       blessures: ["Exposition à la cendre traitée"],
@@ -208,6 +209,9 @@ describe("projection de l’Expédition dans l’Atlas", () => {
       engagements: [],
       cicatrices: ["Liora — exposition prolongée"],
     });
+    expect(projeterExpedition(etat, "en").bilan?.couts).toContain(
+      "Remedies : −1 dose",
+    );
     expect(projeterPilotage(etat, "fr").journalCausal.at(-1)?.titre).toBe(
       "Expédition — équipe revenue à Atelier–Opérations",
     );
