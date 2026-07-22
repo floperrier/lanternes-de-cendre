@@ -1,0 +1,83 @@
+version: 1
+installations:
+  - id: cuisine-conserverie
+    nom: { cle: installation.cuisine.nom, variables: [] }
+    service: { cle: installation.cuisine.service, variables: [] }
+    transformations_de_stocks:
+      - { cle: installation.cuisine.transformation, variables: [] }
+    consequences:
+      operationnelle: { cle: installation.cuisine.operationnelle, variables: [] }
+      degradee: { cle: installation.cuisine.degradee, variables: [] }
+      hors-service: { cle: installation.cuisine.hors-service, variables: [] }
+  - id: station-filtration
+    nom: { cle: installation.filtration.nom, variables: [] }
+    service: { cle: installation.filtration.service, variables: [] }
+    transformations_de_stocks:
+      - { cle: installation.filtration.transformation, variables: [] }
+    consequences:
+      operationnelle: { cle: installation.filtration.operationnelle, variables: [] }
+      degradee: { cle: installation.filtration.degradee, variables: [] }
+      hors-service: { cle: installation.filtration.hors-service, variables: [] }
+  - id: dortoirs-etanches
+    nom: { cle: installation.dortoirs.nom, variables: [] }
+    service: { cle: installation.dortoirs.service, variables: [] }
+    transformations_de_stocks:
+      - { cle: installation.dortoirs.transformation, variables: [] }
+    consequences:
+      operationnelle: { cle: installation.dortoirs.operationnelle, variables: [] }
+      degradee: { cle: installation.dortoirs.degradee, variables: [] }
+      hors-service: { cle: installation.dortoirs.hors-service, variables: [] }
+  - id: infirmerie-filtree
+    nom: { cle: installation.infirmerie.nom, variables: [] }
+    service: { cle: installation.infirmerie.service, variables: [] }
+    transformations_de_stocks:
+      - { cle: installation.infirmerie.transformation, variables: [] }
+    consequences:
+      operationnelle: { cle: installation.infirmerie.operationnelle, variables: [] }
+      degradee: { cle: installation.infirmerie.degradee, variables: [] }
+      hors-service: { cle: installation.infirmerie.hors-service, variables: [] }
+  - id: chaudiere-commune
+    nom: { cle: installation.chaudiere.nom, variables: [] }
+    service: { cle: installation.chaudiere.service, variables: [] }
+    transformations_de_stocks:
+      - { cle: installation.chaudiere.transformation, variables: [] }
+    consequences:
+      operationnelle: { cle: installation.chaudiere.operationnelle, variables: [] }
+      degradee: { cle: installation.chaudiere.degradee, variables: [] }
+      hors-service: { cle: installation.chaudiere.hors-service, variables: [] }
+  - id: groupe-traction
+    nom: { cle: installation.traction.nom, variables: [] }
+    service: { cle: installation.traction.service, variables: [] }
+    transformations_de_stocks:
+      - { cle: installation.traction.transformation, variables: [] }
+    consequences:
+      operationnelle: { cle: installation.traction.operationnelle, variables: [] }
+      degradee: { cle: installation.traction.degradee, variables: [] }
+      hors-service: { cle: installation.traction.hors-service, variables: [] }
+  - id: atelier-bord
+    nom: { cle: installation.atelier.nom, variables: [] }
+    service: { cle: installation.atelier.service, variables: [] }
+    transformations_de_stocks:
+      - { cle: installation.atelier.transformation, variables: [] }
+    consequences:
+      operationnelle: { cle: installation.atelier.operationnelle, variables: [] }
+      degradee: { cle: installation.atelier.degradee, variables: [] }
+      hors-service: { cle: installation.atelier.hors-service, variables: [] }
+  - id: poste-operations
+    nom: { cle: installation.operations.nom, variables: [] }
+    service: { cle: installation.operations.service, variables: [] }
+    transformations_de_stocks:
+      - { cle: installation.operations.transformation, variables: [] }
+    consequences:
+      operationnelle: { cle: installation.operations.operationnelle, variables: [] }
+      degradee: { cle: installation.operations.degradee, variables: [] }
+      hors-service: { cle: installation.operations.hors-service, variables: [] }
+  - id: condenseur-thermique
+    nom: { cle: installation.condenseur.nom, variables: [] }
+    service: { cle: installation.condenseur.service, variables: [] }
+    transformations_de_stocks:
+      - { cle: installation.condenseur.transformation, variables: [] }
+    consequences:
+      operationnelle: { cle: installation.condenseur.operationnelle, variables: [] }
+      degradee: { cle: installation.condenseur.degradee, variables: [] }
+      hors-service: { cle: installation.condenseur.hors-service, variables: [] }

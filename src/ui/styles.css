@@ -770,6 +770,151 @@ summary:focus-visible,
     0 0 0 1px var(--ambre);
 }
 
+.infrastructure-du-convoi {
+  display: grid;
+  gap: 0.75rem;
+  padding: 1.1rem 1.25rem;
+  border-bottom: 1px solid var(--cuivre);
+}
+
+.infrastructure-du-convoi > header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.infrastructure-du-convoi h2,
+.infrastructure-du-convoi h3,
+.infrastructure-du-convoi p {
+  margin: 0;
+}
+
+.infrastructure-du-convoi h2 {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 1.55rem;
+}
+
+.type-d-infrastructure {
+  color: var(--ambre);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.infrastructure-du-convoi button,
+.infrastructure-du-convoi select {
+  min-height: 2.45rem;
+  padding: 0.4rem 0.55rem;
+  color: var(--texte);
+  background: #111a1d;
+  border: 1px solid var(--cuivre-clair);
+}
+
+.infrastructure-du-convoi button {
+  cursor: pointer;
+}
+
+.statut-deploiement,
+.infrastructure-du-convoi [role="alert"] {
+  color: var(--texte-secondaire);
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+.infrastructure-du-convoi [role="alert"] {
+  padding: 0.55rem;
+  color: #ffd8a0;
+  border-left: 2px solid var(--ambre);
+}
+
+.infrastructure-du-convoi details {
+  border-top: 1px solid var(--cuivre);
+}
+
+.infrastructure-du-convoi summary {
+  padding: 0.65rem 0;
+  cursor: pointer;
+}
+
+.liste-plateformes,
+.fiches-installations {
+  display: grid;
+  gap: 0.55rem;
+  padding: 0;
+  margin: 0 0 0.7rem;
+  list-style: none;
+}
+
+.liste-plateformes li,
+.fiches-installations article,
+.chantier-actif {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.65rem;
+  background: #111a1d;
+  border-left: 2px solid var(--cuivre-clair);
+}
+
+.liste-plateformes span,
+.fiches-installations p,
+.fiches-installations li,
+.fiches-installations dl {
+  color: var(--texte-secondaire);
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+.fiches-installations dl {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0;
+}
+
+.fiches-installations dl > div {
+  display: grid;
+  grid-template-columns: 4.2rem minmax(0, 1fr);
+  gap: 0.45rem;
+}
+
+.fiches-installations dd {
+  margin: 0;
+}
+
+.fiches-installations article > ul {
+  padding-left: 1rem;
+  margin: 0;
+}
+
+.ordre-de-chantier {
+  display: grid;
+  gap: 0.6rem;
+  padding-top: 0.2rem;
+}
+
+.ordre-de-chantier fieldset {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  padding: 0.55rem;
+  border: 1px solid var(--cuivre);
+}
+
+.ordre-de-chantier > label {
+  display: grid;
+  grid-template-columns: 6rem minmax(0, 1fr);
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--texte-secondaire);
+  font-size: 0.82rem;
+}
+
+.chantier-actif progress {
+  width: 100%;
+  accent-color: var(--ambre);
+}
+
 @media (max-width: 900px) {
   body {
     overflow: auto;

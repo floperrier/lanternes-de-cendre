@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import assets from "../../content/assets/manifest.yaml?raw";
 import evenements from "../../content/evenements/prologue.yaml?raw";
+import infrastructure from "../../content/infrastructure.yaml?raw";
 import traductionEn from "../../content/locales/en.yaml?raw";
 import traductionFr from "../../content/locales/fr.yaml?raw";
 import references from "../../content/references.yaml?raw";
@@ -15,6 +16,7 @@ import {
 
 const sourcesValides: SourcesDuCatalogue = {
   evenements,
+  infrastructure,
   references,
   traductions: {
     fr: traductionFr,
@@ -45,6 +47,7 @@ describe("compilateur du catalogue d’Événements narratifs", () => {
 
     expect(catalogue.version).toBe(1);
     expect(catalogue.evenements).toHaveLength(1);
+    expect(catalogue.installations).toHaveLength(9);
     expect(catalogue.evenements[0]).toMatchObject({
       id: "prologue.signaux-sous-la-cendre",
       famille: "conflits-regionaux",

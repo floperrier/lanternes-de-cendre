@@ -22,18 +22,21 @@ import {
   type EvenementDeDoctrine,
   type EvenementDIncidentResolu,
 } from "./pilotage";
+import {
+  creerInfrastructureInitiale,
+  engagerChantier,
+  faireProgresserChantier,
+  IDENTIFIANTS_DE_PLATEFORME_INITIALE,
+  secondesAvantFinDuChantier,
+  type CommandeDInfrastructure,
+  type EtatInfrastructure,
+  type EvenementDInfrastructure,
+} from "./infrastructure";
 import { VERSION_SIMULATION_COURANTE } from "./versions";
 
 export type { GraineDeCampagne } from "./graine";
-export const IDENTIFIANTS_PLATEFORMES_MOBILES = [
-  "phare",
-  "foyers",
-  "atelier",
-  "serres",
-  "reservoirs",
-  "vigie",
-  "forge",
-] as const;
+export const IDENTIFIANTS_PLATEFORMES_MOBILES =
+  IDENTIFIANTS_DE_PLATEFORME_INITIALE;
 export type IdentifiantPlateformeMobile =
   (typeof IDENTIFIANTS_PLATEFORMES_MOBILES)[number];
 export const VITESSES_DU_CONVOI = [0, 1, 2, 4] as const;
@@ -69,6 +72,7 @@ export interface EtatCampagne {
     readonly faitsDeCampagne: readonly FaitDeCampagne[];
   };
   readonly pilotage: EtatPilotage;
+  readonly infrastructure: EtatInfrastructure;
   readonly echeances: readonly EcheanceDeCampagne[];
   readonly fluxPseudoAleatoires: Readonly<{
     "evenements-narratifs": FluxPseudoAleatoire;
@@ -90,7 +94,8 @@ export type CommandeCampagne =
       readonly choixId: string;
     }
   | CommandeDeDoctrine
-  | CommandeDIncident;
+  | CommandeDIncident
+  | CommandeDInfrastructure;
 
 export type EvenementDeDomaine =
   | {
@@ -120,16 +125,15 @@ export type EvenementDeDomaine =
       readonly faitsProduits: readonly string[];
     }
   | EvenementDeDoctrine
-  | EvenementDIncidentResolu;
+  | EvenementDIncidentResolu
+  | EvenementDInfrastructure;
 
 export interface TransitionDeCampagne {
   readonly etat: EtatCampagne;
   readonly evenements: readonly EvenementDeDomaine[];
 }
 
-export function creerCampagneInitiale(
-  graine: GraineDeCampagne,
-): EtatCampagne {
+export function creerCampagneInitiale(graine: GraineDeCampagne): EtatCampagne {
   return {
     version: VERSION_SIMULATION_COURANTE,
     graine,
@@ -151,6 +155,7 @@ export function creerCampagneInitiale(
       faitsDeCampagne: [],
     },
     pilotage: creerPilotageInitial(),
+    infrastructure: creerInfrastructureInitiale(),
     echeances: [],
     fluxPseudoAleatoires: {
       "evenements-narratifs": creerFluxPseudoAleatoire(
@@ -250,9 +255,7 @@ function appliquerEffets(
   };
 }
 
-function decrireEffetsDeFait(
-  effets: readonly EffetDEvenement[],
-): EffetsDeFait {
+function decrireEffetsDeFait(effets: readonly EffetDEvenement[]): EffetsDeFait {
   return {
     materiels: [],
     humains: effets.map((effet) => ({
@@ -277,6 +280,52 @@ function enregistrerFaitsDeCampagne(
       faitsDeCampagne: [...etat.narration.faitsDeCampagne, ...faits],
     },
   };
+}
+
+function traiterPilotageEtChantier(
+  etat: EtatCampagne,
+  secondeInitiale: number,
+  secondeFinale: number,
+): TransitionDeCampagne {
+  let nouvelEtat = etat;
+  let curseur = secondeInitiale;
+  const evenements: EvenementDeDomaine[] = [];
+
+  while (curseur < secondeFinale) {
+    const secondesAvantFin = secondesAvantFinDuChantier(
+      nouvelEtat.infrastructure,
+    );
+    const prochaineLimite =
+      secondesAvantFin === undefined
+        ? secondeFinale
+        : Math.min(secondeFinale, curseur + secondesAvantFin);
+    const pilotage = traiterEcheancesDePilotage(
+      nouvelEtat.pilotage,
+      curseur,
+      prochaineLimite,
+    );
+    nouvelEtat = enregistrerFaitsDeCampagne(
+      { ...nouvelEtat, pilotage: pilotage.etat },
+      pilotage.faitsProduits,
+    );
+    evenements.push(...pilotage.evenements);
+
+    const infrastructure = faireProgresserChantier(
+      nouvelEtat.infrastructure,
+      nouvelEtat.pilotage,
+      prochaineLimite - curseur,
+      prochaineLimite,
+    );
+    nouvelEtat = {
+      ...nouvelEtat,
+      pilotage: infrastructure.pilotage,
+      infrastructure: infrastructure.infrastructure,
+    };
+    evenements.push(...infrastructure.evenements);
+    curseur = prochaineLimite;
+  }
+
+  return { etat: nouvelEtat, evenements };
 }
 
 function choisirDansEvenement(
@@ -319,10 +368,7 @@ function choisirDansEvenement(
       narration: {
         evenementActif: null,
         evenementsJoues: [...etat.narration.evenementsJoues, evenement.id],
-        faitsDeCampagne: [
-          ...etat.narration.faitsDeCampagne,
-          ...faitsProduits,
-        ],
+        faitsDeCampagne: [...etat.narration.faitsDeCampagne, ...faitsProduits],
       },
     },
     evenements: [
@@ -365,11 +411,11 @@ export function appliquerCommande(
     }
 
     let nouvelEtat: EtatCampagne = {
-        ...etat,
-        tempsDuConvoi: {
-          ...etat.tempsDuConvoi,
-          secondes: nouvellesSecondes,
-        },
+      ...etat,
+      tempsDuConvoi: {
+        ...etat.tempsDuConvoi,
+        secondes: nouvellesSecondes,
+      },
     };
 
     const premiereMinuteAtteinte =
@@ -377,15 +423,12 @@ export function appliquerCommande(
     const premiereLimiteDEcheance = premiereMinuteAtteinte
       ? 60
       : nouvellesSecondes;
-    const premieresEcheances = traiterEcheancesDePilotage(
-      nouvelEtat.pilotage,
+    const premieresEcheances = traiterPilotageEtChantier(
+      nouvelEtat,
       etat.tempsDuConvoi.secondes,
       premiereLimiteDEcheance,
     );
-    nouvelEtat = enregistrerFaitsDeCampagne(
-      { ...nouvelEtat, pilotage: premieresEcheances.etat },
-      premieresEcheances.faitsProduits,
-    );
+    nouvelEtat = premieresEcheances.etat;
     evenements.push(...premieresEcheances.evenements);
 
     if (premiereMinuteAtteinte) {
@@ -404,15 +447,12 @@ export function appliquerCommande(
     }
 
     if (premiereLimiteDEcheance < nouvellesSecondes) {
-      const echeancesRestantes = traiterEcheancesDePilotage(
-        nouvelEtat.pilotage,
+      const echeancesRestantes = traiterPilotageEtChantier(
+        nouvelEtat,
         premiereLimiteDEcheance,
         nouvellesSecondes,
       );
-      nouvelEtat = enregistrerFaitsDeCampagne(
-        { ...nouvelEtat, pilotage: echeancesRestantes.etat },
-        echeancesRestantes.faitsProduits,
-      );
+      nouvelEtat = echeancesRestantes.etat;
       evenements.push(...echeancesRestantes.evenements);
     }
 
@@ -421,6 +461,71 @@ export function appliquerCommande(
 
   if (commande.type === "evenement-narratif.choisir") {
     return choisirDansEvenement(etat, commande);
+  }
+
+  if (commande.type === "halte.deployer") {
+    if (etat.tempsDuConvoi.vitesse !== 0) {
+      throw new Error(
+        "Il faut suspendre le Temps du convoi avant de déployer la Halte.",
+      );
+    }
+    if (etat.infrastructure.deploiement === "halte") {
+      return { etat, evenements: [] };
+    }
+    return {
+      etat: {
+        ...etat,
+        infrastructure: { ...etat.infrastructure, deploiement: "halte" },
+      },
+      evenements: [
+        {
+          type: "halte.deployee",
+          moment: etat.tempsDuConvoi.secondes,
+        },
+      ],
+    };
+  }
+
+  if (commande.type === "halte.replier") {
+    if (etat.tempsDuConvoi.vitesse !== 0) {
+      throw new Error(
+        "Il faut suspendre le Temps du convoi avant de replier la Halte.",
+      );
+    }
+    if (etat.infrastructure.chantierActif !== null) {
+      throw new Error(
+        "Le Déploiement de halte reste requis par le Chantier actif.",
+      );
+    }
+    if (etat.infrastructure.deploiement === "voyage") {
+      return { etat, evenements: [] };
+    }
+    return {
+      etat: {
+        ...etat,
+        infrastructure: { ...etat.infrastructure, deploiement: "voyage" },
+      },
+      evenements: [
+        {
+          type: "halte.repliee",
+          moment: etat.tempsDuConvoi.secondes,
+        },
+      ],
+    };
+  }
+
+  if (commande.type === "chantier.engager") {
+    const engagement = engagerChantier(
+      etat.infrastructure,
+      etat.pilotage,
+      commande.ordre,
+      commande.priorite,
+      etat.tempsDuConvoi.secondes,
+    );
+    return {
+      etat: { ...etat, infrastructure: engagement.etat },
+      evenements: [engagement.evenement],
+    };
   }
 
   if (commande.type === "doctrine.regler") {

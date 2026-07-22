@@ -1,4 +1,4 @@
-import { migrerSauvegardeV1 } from "./migration";
+import { migrerSauvegardeV1, migrerSauvegardeV2 } from "./migration";
 import { lireSauvegardeV2, estObjet } from "./validation";
 import type {
   ResultatImportSauvegarde,
@@ -130,12 +130,16 @@ export function importerSauvegarde(
   }
 
   const sauvegarde = lireSauvegardeV2(valeur);
-  return sauvegarde === undefined
+  if (sauvegarde !== undefined) {
+    return { statut: "compatible", sauvegarde };
+  }
+  const migration = migrerSauvegardeV2(valeur);
+  return migration === undefined
     ? {
         statut: "invalide",
         archiveOriginale,
         explication:
           "La sauvegarde v2 est incomplète, altérée ou diverge lors du replay.",
       }
-    : { statut: "compatible", sauvegarde };
+    : { statut: "migree", sauvegarde: migration, archiveOriginale };
 }

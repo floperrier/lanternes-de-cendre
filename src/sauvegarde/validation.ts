@@ -22,11 +22,19 @@ import {
   POSITIONS_DE_DOCTRINE,
   type EtatPilotage,
 } from "../simulation/pilotage";
-import {
-  catalogueDEvenements,
-  trouverEvenement,
-} from "../content/catalogue";
+import { catalogueDEvenements, trouverEvenement } from "../content/catalogue";
 import { IDENTIFIANTS_DE_FAITS_D_INCIDENT } from "../simulation/faits";
+import {
+  calculerModificateursEconomiques,
+  CATALOGUE_D_INSTALLATIONS,
+  creerInfrastructureInitiale,
+  demandeDeChargePourCategorie,
+  IDENTIFIANTS_D_INSTALLATION,
+  installationEstVitale,
+  trouverRefusDeConstruction,
+  type EtatInfrastructure,
+  type OrdreDeChantier,
+} from "../simulation/infrastructure";
 import { rejouerReproduction } from "./replay";
 import type {
   CommandeDeReproduction,
@@ -40,9 +48,19 @@ import {
 } from "./version";
 
 const EMPREINTE = /^[0-9a-f]{8}$/;
+const IDENTIFIANTS_PLATEFORMES_LEGACY_V1 = [
+  "phare",
+  "foyers",
+  "atelier",
+  "serres",
+  "reservoirs",
+  "vigie",
+  "forge",
+] as const;
 const VITESSES = new Set<number>(VITESSES_DU_CONVOI);
 const PILOTAGE_INITIAL = creerPilotageInitial();
 const ORDRES_D_INCIDENT = new Set(["securiser-pompe", "maintenir-debit"]);
+const PRIORITES_DE_CHANTIER = new Set(["basse", "normale", "haute"]);
 const IDENTIFIANTS_DE_FAITS_DU_CATALOGUE = new Set(
   catalogueDEvenements.evenements.flatMap((evenement) =>
     evenement.choix.flatMap((choix) =>
@@ -57,15 +75,18 @@ const IDENTIFIANTS_DE_FAITS_CONNUS = new Set([
 const DEFINITIONS_DE_FAITS_DU_CATALOGUE = new Map(
   catalogueDEvenements.evenements.flatMap((evenement) =>
     evenement.choix.flatMap((choix) =>
-      choix.faitsProduits.map((fait) => [
-        fait.id,
-        {
-          cause: evenement.id,
-          acteurs: evenement.acteurs,
-          cible: fait.cible,
-          effets: choix.effets,
-        },
-      ] as const),
+      choix.faitsProduits.map(
+        (fait) =>
+          [
+            fait.id,
+            {
+              cause: evenement.id,
+              acteurs: evenement.acteurs,
+              cible: fait.cible,
+              effets: choix.effets,
+            },
+          ] as const,
+      ),
     ),
   ),
 );
@@ -81,7 +102,9 @@ export interface EtatCampagneV1 {
 }
 
 export function estObjet(valeur: unknown): valeur is ObjetInconnu {
-  return valeur !== null && typeof valeur === "object" && !Array.isArray(valeur);
+  return (
+    valeur !== null && typeof valeur === "object" && !Array.isArray(valeur)
+  );
 }
 
 function estNombreFini(valeur: unknown): valeur is number {
@@ -98,7 +121,9 @@ function estEntierNonSigne(valeur: unknown): valeur is number {
 }
 
 function estTableauDeChaines(valeur: unknown): valeur is string[] {
-  return Array.isArray(valeur) && valeur.every((item) => typeof item === "string");
+  return (
+    Array.isArray(valeur) && valeur.every((item) => typeof item === "string")
+  );
 }
 
 export function estCommandeV1(valeur: unknown): valeur is CommandeCampagne {
@@ -156,8 +181,39 @@ export function estCommande(valeur: unknown): valeur is CommandeCampagne {
       ORDRES_D_INCIDENT.has(valeur.ordre)
     );
   }
+  if (valeur.type === "halte.deployer" || valeur.type === "halte.replier") {
+    return true;
+  }
+  if (valeur.type === "chantier.engager") {
+    return (
+      PRIORITES_DE_CHANTIER.has(String(valeur.priorite)) &&
+      estOrdreDeChantier(valeur.ordre)
+    );
+  }
 
   return false;
+}
+
+function estOrdreDeChantier(valeur: unknown): valeur is OrdreDeChantier {
+  if (!estObjet(valeur) || typeof valeur.type !== "string") {
+    return false;
+  }
+  if (valeur.type === "construction") {
+    return (
+      typeof valeur.definitionId === "string" &&
+      IDENTIFIANTS_D_INSTALLATION.includes(valeur.definitionId as never) &&
+      typeof valeur.emplacementId === "string"
+    );
+  }
+  if (valeur.type === "demontage") {
+    return typeof valeur.emplacementId === "string";
+  }
+  return (
+    valeur.type === "deplacement" &&
+    typeof valeur.origineId === "string" &&
+    typeof valeur.destinationId === "string" &&
+    valeur.origineId !== valeur.destinationId
+  );
 }
 
 function estFaitDeCampagne(valeur: unknown): boolean {
@@ -205,9 +261,7 @@ function estEffetMaterielDeFait(valeur: unknown): boolean {
   if (valeur.type === "installation.etat-modifie") {
     return (
       valeur.installation === "pompe-purification" &&
-      ["securisee", "stabilisee", "degradee"].includes(
-        String(valeur.etat),
-      )
+      ["securisee", "stabilisee", "degradee"].includes(String(valeur.etat))
     );
   }
   return false;
@@ -223,10 +277,7 @@ function memesChaines(
   );
 }
 
-function estEffetStock(
-  valeur: unknown,
-  variation: number,
-): boolean {
+function estEffetStock(valeur: unknown, variation: number): boolean {
   return (
     estObjet(valeur) &&
     valeur.type === "stock.modifie" &&
@@ -235,10 +286,7 @@ function estEffetStock(
   );
 }
 
-function estEffetInstallation(
-  valeur: unknown,
-  etat: string,
-): boolean {
+function estEffetInstallation(valeur: unknown, etat: string): boolean {
   return (
     estObjet(valeur) &&
     valeur.type === "installation.etat-modifie" &&
@@ -253,11 +301,7 @@ function estEffetHumain(
   champ: "nombre" | "variation",
   nombre: number,
 ): boolean {
-  return (
-    estObjet(valeur) &&
-    valeur.type === type &&
-    valeur[champ] === nombre
-  );
+  return estObjet(valeur) && valeur.type === type && valeur[champ] === nombre;
 }
 
 function estEffetHumainDeFait(valeur: unknown): boolean {
@@ -328,9 +372,7 @@ function estFaitDeCampagneV2(valeur: unknown): boolean {
     return (
       materiels.length === 2 &&
       materiels.some((effet) => estEffetStock(effet, -3)) &&
-      materiels.some((effet) =>
-        estEffetInstallation(effet, "securisee"),
-      ) &&
+      materiels.some((effet) => estEffetInstallation(effet, "securisee")) &&
       estEffetHumain(humains[0], "habitants.exposes", "nombre", 0)
     );
   }
@@ -338,9 +380,7 @@ function estFaitDeCampagneV2(valeur: unknown): boolean {
     return (
       materiels.length === 2 &&
       materiels.some((effet) => estEffetStock(effet, -2)) &&
-      materiels.some((effet) =>
-        estEffetInstallation(effet, "stabilisee"),
-      ) &&
+      materiels.some((effet) => estEffetInstallation(effet, "stabilisee")) &&
       estEffetHumain(humains[0], "habitants.exposes", "nombre", 0)
     );
   }
@@ -348,44 +388,579 @@ function estFaitDeCampagneV2(valeur: unknown): boolean {
     valeur.id === IDENTIFIANTS_DE_FAITS_D_INCIDENT[2] &&
     materiels.length === 1 &&
     estEffetInstallation(materiels[0], "degradee") &&
-    estEffetHumain(
-      humains[0],
-      "habitants.sous-surveillance",
-      "nombre",
-      2,
-    )
+    estEffetHumain(humains[0], "habitants.sous-surveillance", "nombre", 2)
   );
+}
+
+function estInstallationDuConvoi(
+  valeur: unknown,
+  secondesCourantes: number,
+): boolean {
+  return (
+    estObjet(valeur) &&
+    typeof valeur.id === "string" &&
+    typeof valeur.definitionId === "string" &&
+    IDENTIFIANTS_D_INSTALLATION.includes(valeur.definitionId as never) &&
+    ["operationnelle", "degradee", "hors-service"].includes(
+      String(valeur.etatMateriel),
+    ) &&
+    estNombreFini(valeur.installeeA) &&
+    Number.isInteger(valeur.installeeA) &&
+    valeur.installeeA >= 0 &&
+    valeur.installeeA <= secondesCourantes
+  );
+}
+
+function dureeAttendueDUnChantier(
+  ordre: OrdreDeChantier,
+  priorite: string,
+): number {
+  const dureeNormale = ordre.type === "construction" ? 90 : 45;
+  if (priorite === "haute") {
+    return Math.round((dureeNormale * 2) / 3);
+  }
+  if (priorite === "basse") {
+    return Math.round((dureeNormale * 4) / 3);
+  }
+  return dureeNormale;
+}
+
+function estChantier(
+  valeur: unknown,
+  secondesCourantes: number,
+  termine: boolean,
+): boolean {
+  if (
+    !estObjet(valeur) ||
+    typeof valeur.id !== "string" ||
+    !estOrdreDeChantier(valeur.ordre) ||
+    !PRIORITES_DE_CHANTIER.has(String(valeur.priorite)) ||
+    !estNombreFini(valeur.commenceA) ||
+    !Number.isInteger(valeur.commenceA) ||
+    valeur.commenceA < 0 ||
+    valeur.commenceA > secondesCourantes ||
+    !estNombreFini(valeur.dureePrevue) ||
+    valeur.dureePrevue !==
+      dureeAttendueDUnChantier(valeur.ordre, String(valeur.priorite)) ||
+    !estNombreFini(valeur.progression) ||
+    !Number.isInteger(valeur.progression) ||
+    valeur.progression < 0 ||
+    valeur.progression > valeur.dureePrevue ||
+    !estNombreFini(valeur.coutMateriaux) ||
+    !Number.isInteger(valeur.coutMateriaux) ||
+    valeur.coutMateriaux < 0 ||
+    !estNombreFini(valeur.materiauxConsommes) ||
+    valeur.materiauxConsommes !==
+      Math.floor(
+        (valeur.coutMateriaux * valeur.progression) / valeur.dureePrevue,
+      )
+  ) {
+    return false;
+  }
+  const coutAttendu =
+    valeur.ordre.type === "construction"
+      ? CATALOGUE_D_INSTALLATIONS[valeur.ordre.definitionId].coutMateriaux
+      : valeur.ordre.type === "deplacement"
+        ? 2
+        : 0;
+  if (valeur.coutMateriaux !== coutAttendu) {
+    return false;
+  }
+  if (!termine) {
+    return valeur.progression < valeur.dureePrevue;
+  }
+  return (
+    valeur.progression === valeur.dureePrevue &&
+    estNombreFini(valeur.termineA) &&
+    Number.isInteger(valeur.termineA) &&
+    valeur.termineA >= valeur.commenceA + valeur.dureePrevue &&
+    valeur.termineA <= secondesCourantes
+  );
+}
+
+function estEtatInfrastructure(
+  valeur: unknown,
+  secondesCourantes: number,
+  faits: readonly ObjetInconnu[],
+): valeur is EtatInfrastructure {
+  if (
+    !estObjet(valeur) ||
+    !["voyage", "halte"].includes(String(valeur.deploiement)) ||
+    !Array.isArray(valeur.plateformes) ||
+    !Array.isArray(valeur.quartiers) ||
+    !Array.isArray(valeur.chantiersTermines)
+  ) {
+    return false;
+  }
+  const initiale = creerInfrastructureInitiale();
+  if (
+    valeur.plateformes.length !== initiale.plateformes.length ||
+    valeur.quartiers.length !== initiale.quartiers.length ||
+    !valeur.quartiers.every((quartier, index) => {
+      const quartierInitial = initiale.quartiers[index];
+      return (
+        estObjet(quartier) &&
+        quartier.id === quartierInitial?.id &&
+        quartier.nom === quartierInitial.nom &&
+        quartier.plateformeId === quartierInitial.plateformeId
+      );
+    })
+  ) {
+    return false;
+  }
+  const installations = new Set<string>();
+  for (const [index, plateformeInitiale] of initiale.plateformes.entries()) {
+    const plateforme = valeur.plateformes[index];
+    if (
+      !estObjet(plateforme) ||
+      plateforme.id !== plateformeInitiale.id ||
+      plateforme.nom !== plateformeInitiale.nom ||
+      plateforme.type !== plateformeInitiale.type ||
+      plateforme.quartierId !== plateformeInitiale.quartierId ||
+      !Array.isArray(plateforme.emplacements) ||
+      plateforme.emplacements.length !== plateformeInitiale.emplacements.length
+    ) {
+      return false;
+    }
+    for (const [
+      emplacementIndex,
+      emplacementInitial,
+    ] of plateformeInitiale.emplacements.entries()) {
+      const emplacement = plateforme.emplacements[emplacementIndex];
+      if (
+        !estObjet(emplacement) ||
+        emplacement.id !== emplacementInitial.id ||
+        emplacement.categorie !== emplacementInitial.categorie ||
+        !(
+          emplacement.installation === null ||
+          estInstallationDuConvoi(emplacement.installation, secondesCourantes)
+        )
+      ) {
+        return false;
+      }
+      if (estObjet(emplacement.installation)) {
+        if (installations.has(String(emplacement.installation.id))) {
+          return false;
+        }
+        installations.add(String(emplacement.installation.id));
+        const definition =
+          CATALOGUE_D_INSTALLATIONS[
+            emplacement.installation
+              .definitionId as keyof typeof CATALOGUE_D_INSTALLATIONS
+          ];
+        if (
+          emplacement.categorie !== "polyvalent" &&
+          !definition.categoriesCompatibles.includes(
+            emplacement.categorie as never,
+          )
+        ) {
+          return false;
+        }
+      }
+    }
+  }
+  if (
+    valeur.chantierActif !== null &&
+    !estChantier(valeur.chantierActif, secondesCourantes, false)
+  ) {
+    return false;
+  }
+  if (valeur.chantierActif !== null && valeur.deploiement !== "halte") {
+    return false;
+  }
+  let dernierTerme = 0;
+  const emplacementsInitiaux = initiale.plateformes.flatMap(
+    (plateforme) => plateforme.emplacements,
+  );
+  const installationsAttendues = new Map(
+    emplacementsInitiaux.map((emplacement) => [
+      emplacement.id,
+      emplacement.installation,
+    ] as const),
+  );
+  const categories = new Map(
+    emplacementsInitiaux.map((emplacement) => [
+      emplacement.id,
+      emplacement.categorie,
+    ] as const),
+  );
+  const compatible = (
+    definitionId: keyof typeof CATALOGUE_D_INSTALLATIONS,
+    emplacementId: string,
+  ) => {
+    const categorie = categories.get(emplacementId);
+    return (
+      categorie !== undefined &&
+      (categorie === "polyvalent" ||
+        CATALOGUE_D_INSTALLATIONS[definitionId].categoriesCompatibles.includes(
+          categorie as never,
+        ))
+    );
+  };
+  const estDerniereFonctionVitale = (emplacementId: string) => {
+    const installation = installationsAttendues.get(emplacementId);
+    if (installation === null || installation === undefined) {
+      return false;
+    }
+    return (
+      installationEstVitale(installation.definitionId) &&
+      [...installationsAttendues.values()].filter(
+        (candidate) =>
+          candidate?.definitionId === installation.definitionId,
+      ).length <= 1
+    );
+  };
+  const infrastructureAttendue = (): EtatInfrastructure => ({
+    ...initiale,
+    plateformes: initiale.plateformes.map((plateforme) => ({
+      ...plateforme,
+      emplacements: plateforme.emplacements.map((emplacement) => ({
+        ...emplacement,
+        installation: installationsAttendues.get(emplacement.id) ?? null,
+      })),
+    })),
+  });
+  let momentDesMateriaux = 0;
+  let quantiteDeMateriaux = PILOTAGE_INITIAL.economie.stocks.materiaux.quantite;
+  let reliquatDeMateriaux =
+    PILOTAGE_INITIAL.economie.stocks.materiaux.reliquatDeFlux;
+  let fluxDeMateriaux =
+    PILOTAGE_INITIAL.economie.stocks.materiaux.fluxParHeure;
+  let indexDuFaitMateriel = 0;
+  const faitsMateriels = faits.filter((fait) =>
+    (fait.effets as ObjetInconnu).materiels instanceof Array,
+  );
+  const appliquerFluxDeMateriaux = (secondes: number) => {
+    const numerateur =
+      reliquatDeMateriaux + fluxDeMateriaux * Math.max(0, secondes);
+    const variation = Math.trunc(numerateur / 3_600);
+    quantiteDeMateriaux = Math.max(0, quantiteDeMateriaux + variation);
+    reliquatDeMateriaux =
+      quantiteDeMateriaux === 0
+        ? 0
+        : numerateur - variation * 3_600;
+  };
+  const avancerMateriauxJusqua = (moment: number) => {
+    while (
+      indexDuFaitMateriel < faitsMateriels.length &&
+      (faitsMateriels[indexDuFaitMateriel]?.moment as number) <= moment
+    ) {
+      const fait = faitsMateriels[indexDuFaitMateriel]!;
+      const momentDuFait = fait.moment as number;
+      appliquerFluxDeMateriaux(momentDuFait - momentDesMateriaux);
+      momentDesMateriaux = momentDuFait;
+      const effets = (fait.effets as ObjetInconnu)
+        .materiels as ObjetInconnu[];
+      for (const effet of effets) {
+        if (
+          effet.type === "stock.modifie" &&
+          effet.stock === "materiaux"
+        ) {
+          quantiteDeMateriaux = Math.max(
+            0,
+            quantiteDeMateriaux + (effet.variation as number),
+          );
+        }
+      }
+      indexDuFaitMateriel += 1;
+    }
+    appliquerFluxDeMateriaux(moment - momentDesMateriaux);
+    momentDesMateriaux = moment;
+  };
+  const reserveDIncidentAuMoment = (moment: number) =>
+    faits.some(
+      (fait) =>
+        fait.cause === INCIDENT_INITIAL.id &&
+        (fait.moment as number) <= moment,
+    )
+      ? 0
+      : 3;
+  const actualiserFluxDeMateriaux = () => {
+    fluxDeMateriaux =
+      PILOTAGE_INITIAL.economie.stocks.materiaux.fluxParHeure +
+      (calculerModificateursEconomiques(infrastructureAttendue())
+        .fluxDeStocks.materiaux ?? 0);
+  };
+  const ressourcesDeConstruction = (moment: number) => {
+    const modificateurs = calculerModificateursEconomiques(
+      infrastructureAttendue(),
+    );
+    const capacites = PILOTAGE_INITIAL.economie.capacites;
+    return {
+      margeDeChaleur:
+        capacites.chaleur.production -
+        (capacites.chaleur.demande + modificateurs.demandeDeChaleur),
+      margeDeMainDOeuvre:
+        capacites["main-d-oeuvre"].production -
+        (capacites["main-d-oeuvre"].demande +
+          modificateurs.demandeDeMainDOeuvre),
+      margeDeCharge:
+        capacites.charge.production -
+        (capacites.charge.demande + modificateurs.demandeDeCharge),
+      materiauxDisponibles: quantiteDeMateriaux,
+      reserveDIncident: reserveDIncidentAuMoment(moment),
+    };
+  };
+  for (const [index, chantierInconnu] of valeur.chantiersTermines.entries()) {
+    const chantier =
+      chantierInconnu as EtatInfrastructure["chantiersTermines"][number];
+    if (
+      !estChantier(chantier, secondesCourantes, true) ||
+      !estObjet(chantier) ||
+      chantier.termineA < dernierTerme ||
+      chantier.commenceA < dernierTerme ||
+      chantier.termineA !== chantier.commenceA + chantier.dureePrevue ||
+      chantier.id !==
+        `chantier.${index}.${chantier.commenceA}.${chantier.ordre.type}`
+    ) {
+      return false;
+    }
+    avancerMateriauxJusqua(chantier.commenceA);
+    const ordre = chantier.ordre;
+    if (ordre.type === "construction") {
+      if (
+        installationsAttendues.get(ordre.emplacementId) !== null ||
+        !compatible(ordre.definitionId, ordre.emplacementId) ||
+        trouverRefusDeConstruction(
+          CATALOGUE_D_INSTALLATIONS[ordre.definitionId],
+          categories.get(ordre.emplacementId)!,
+          ressourcesDeConstruction(chantier.commenceA),
+        ) !== null
+      ) {
+        return false;
+      }
+      avancerMateriauxJusqua(chantier.termineA);
+      if (quantiteDeMateriaux < chantier.materiauxConsommes) {
+        return false;
+      }
+      quantiteDeMateriaux -= chantier.materiauxConsommes;
+      installationsAttendues.set(ordre.emplacementId, {
+        id: `${ordre.emplacementId}.${ordre.definitionId}`,
+        definitionId: ordre.definitionId,
+        etatMateriel: "operationnelle",
+        installeeA: chantier.termineA,
+      });
+    } else if (ordre.type === "demontage") {
+      if (
+        !installationsAttendues.has(ordre.emplacementId) ||
+        installationsAttendues.get(ordre.emplacementId) === null ||
+        estDerniereFonctionVitale(ordre.emplacementId)
+      ) {
+        return false;
+      }
+      avancerMateriauxJusqua(chantier.termineA);
+      installationsAttendues.set(ordre.emplacementId, null);
+    } else {
+      const installation = installationsAttendues.get(ordre.origineId);
+      if (
+        installation === undefined ||
+        installation === null ||
+        installationsAttendues.get(ordre.destinationId) !== null ||
+        !compatible(installation.definitionId, ordre.destinationId) ||
+        demandeDeChargePourCategorie(
+          CATALOGUE_D_INSTALLATIONS[installation.definitionId],
+          categories.get(ordre.destinationId)!,
+        ) -
+          demandeDeChargePourCategorie(
+            CATALOGUE_D_INSTALLATIONS[installation.definitionId],
+            categories.get(ordre.origineId)!,
+          ) >
+          ressourcesDeConstruction(chantier.commenceA).margeDeCharge ||
+        quantiteDeMateriaux <
+          2 + reserveDIncidentAuMoment(chantier.commenceA)
+      ) {
+        return false;
+      }
+      avancerMateriauxJusqua(chantier.termineA);
+      if (quantiteDeMateriaux < chantier.materiauxConsommes) {
+        return false;
+      }
+      quantiteDeMateriaux -= chantier.materiauxConsommes;
+      installationsAttendues.set(ordre.origineId, null);
+      installationsAttendues.set(ordre.destinationId, installation);
+    }
+    actualiserFluxDeMateriaux();
+    dernierTerme = chantier.termineA;
+  }
+  if (valeur.chantierActif !== null) {
+    const chantier = valeur.chantierActif as NonNullable<
+      EtatInfrastructure["chantierActif"]
+    >;
+    if (
+      chantier.id !==
+        `chantier.${valeur.chantiersTermines.length}.${chantier.commenceA}.${chantier.ordre.type}` ||
+      chantier.commenceA < dernierTerme ||
+      chantier.commenceA + chantier.progression !== secondesCourantes
+    ) {
+      return false;
+    }
+    avancerMateriauxJusqua(chantier.commenceA);
+    const ordre = chantier.ordre;
+    if (
+      (ordre.type === "construction" &&
+        (installationsAttendues.get(ordre.emplacementId) !== null ||
+          !compatible(ordre.definitionId, ordre.emplacementId) ||
+          trouverRefusDeConstruction(
+            CATALOGUE_D_INSTALLATIONS[ordre.definitionId],
+            categories.get(ordre.emplacementId)!,
+            ressourcesDeConstruction(chantier.commenceA),
+          ) !== null)) ||
+      (ordre.type === "demontage" &&
+        (installationsAttendues.get(ordre.emplacementId) == null ||
+          estDerniereFonctionVitale(ordre.emplacementId))) ||
+      (ordre.type === "deplacement" &&
+        (installationsAttendues.get(ordre.origineId) == null ||
+          installationsAttendues.get(ordre.destinationId) !== null ||
+          !compatible(
+            installationsAttendues.get(ordre.origineId)!.definitionId,
+            ordre.destinationId,
+          ) ||
+          demandeDeChargePourCategorie(
+            CATALOGUE_D_INSTALLATIONS[
+              installationsAttendues.get(ordre.origineId)!.definitionId
+            ],
+            categories.get(ordre.destinationId)!,
+          ) -
+            demandeDeChargePourCategorie(
+              CATALOGUE_D_INSTALLATIONS[
+                installationsAttendues.get(ordre.origineId)!.definitionId
+              ],
+              categories.get(ordre.origineId)!,
+            ) >
+            ressourcesDeConstruction(chantier.commenceA).margeDeCharge ||
+          quantiteDeMateriaux <
+            2 + reserveDIncidentAuMoment(chantier.commenceA)))
+    ) {
+      return false;
+    }
+    avancerMateriauxJusqua(secondesCourantes);
+    if (quantiteDeMateriaux < chantier.materiauxConsommes) {
+      return false;
+    }
+  }
+  for (const plateforme of valeur.plateformes) {
+    if (!estObjet(plateforme) || !Array.isArray(plateforme.emplacements)) {
+      return false;
+    }
+    for (const emplacement of plateforme.emplacements) {
+      const installationAttendue = installationsAttendues.get(
+        String(emplacement.id),
+      );
+      const installation = emplacement.installation;
+      if (
+        !estObjet(emplacement) ||
+        !(
+          (installation === null && installationAttendue === null) ||
+          (estObjet(installation) &&
+            installationAttendue !== null &&
+            installationAttendue !== undefined &&
+            installation.id === installationAttendue.id &&
+            installation.definitionId === installationAttendue.definitionId &&
+            installation.etatMateriel === installationAttendue.etatMateriel &&
+            installation.installeeA === installationAttendue.installeeA)
+        )
+      ) {
+        return false;
+      }
+    }
+  }
+  return true;
 }
 
 function calculerStockAttendu(
   id: (typeof IDENTIFIANTS_DE_STOCK)[number],
   secondesFinales: number,
   faits: readonly ObjetInconnu[],
+  infrastructure: EtatInfrastructure,
 ): { readonly quantite: number; readonly reliquatDeFlux: number } {
   const initial = PILOTAGE_INITIAL.economie.stocks[id];
   let quantite = initial.quantite;
   let reliquatDeFlux = initial.reliquatDeFlux;
   let secondeCourante = 0;
+  let fluxParHeure = initial.fluxParHeure;
   const appliquerFlux = (secondes: number) => {
-    const numerateur = reliquatDeFlux + initial.fluxParHeure * secondes;
+    const numerateur = reliquatDeFlux + fluxParHeure * secondes;
     const variation = Math.trunc(numerateur / 3_600);
     quantite = Math.max(0, quantite + variation);
-    reliquatDeFlux =
-      quantite === 0 ? 0 : numerateur - variation * 3_600;
+    reliquatDeFlux = quantite === 0 ? 0 : numerateur - variation * 3_600;
   };
 
-  for (const fait of faits) {
-    const moment = fait.moment as number;
+  const installationsParEmplacement = new Map(
+    creerInfrastructureInitiale().plateformes.flatMap((plateforme) =>
+      plateforme.emplacements.map(
+        (emplacement) =>
+          [
+            emplacement.id,
+            emplacement.installation?.definitionId ?? null,
+          ] as const,
+      ),
+    ),
+  );
+  const transitions = infrastructure.chantiersTermines.map((chantier) => {
+    let variationDeFlux = 0;
+    if (chantier.ordre.type === "construction") {
+      variationDeFlux =
+        CATALOGUE_D_INSTALLATIONS[chantier.ordre.definitionId].effetsEconomiques
+          .fluxDeStocks[id] ?? 0;
+      installationsParEmplacement.set(
+        chantier.ordre.emplacementId,
+        chantier.ordre.definitionId,
+      );
+    } else if (chantier.ordre.type === "demontage") {
+      const definitionId = installationsParEmplacement.get(
+        chantier.ordre.emplacementId,
+      );
+      if (definitionId !== null && definitionId !== undefined) {
+        variationDeFlux = -(
+          CATALOGUE_D_INSTALLATIONS[definitionId].effetsEconomiques
+            .fluxDeStocks[id] ?? 0
+        );
+      }
+      installationsParEmplacement.set(chantier.ordre.emplacementId, null);
+    } else {
+      const definitionId = installationsParEmplacement.get(
+        chantier.ordre.origineId,
+      );
+      installationsParEmplacement.set(chantier.ordre.origineId, null);
+      installationsParEmplacement.set(
+        chantier.ordre.destinationId,
+        definitionId ?? null,
+      );
+    }
+    return { moment: chantier.termineA, variationDeFlux };
+  });
+  const evenements = [
+    ...faits.map((fait) => ({ moment: fait.moment as number, fait })),
+    ...transitions.map((transition) => ({
+      moment: transition.moment,
+      transition,
+    })),
+  ].sort((gauche, droite) => gauche.moment - droite.moment);
+
+  for (const evenement of evenements) {
+    const moment = evenement.moment;
     appliquerFlux(moment - secondeCourante);
     secondeCourante = moment;
-    const effets = fait.effets as ObjetInconnu;
-    for (const effet of effets.materiels as ObjetInconnu[]) {
-      if (effet.type === "stock.modifie" && effet.stock === id) {
-        quantite = Math.max(0, quantite + (effet.variation as number));
+    if ("fait" in evenement) {
+      const effets = evenement.fait.effets as ObjetInconnu;
+      for (const effet of effets.materiels as ObjetInconnu[]) {
+        if (effet.type === "stock.modifie" && effet.stock === id) {
+          quantite = Math.max(0, quantite + (effet.variation as number));
+        }
       }
+    } else {
+      fluxParHeure += evenement.transition.variationDeFlux;
     }
   }
   appliquerFlux(secondesFinales - secondeCourante);
+  if (id === "materiaux") {
+    const consommes =
+      infrastructure.chantiersTermines.reduce(
+        (total, chantier) => total + chantier.materiauxConsommes,
+        0,
+      ) + (infrastructure.chantierActif?.materiauxConsommes ?? 0);
+    quantite = Math.max(0, quantite - consommes);
+  }
   return { quantite, reliquatDeFlux };
 }
 
@@ -393,6 +968,7 @@ function estEtatPilotage(
   valeur: unknown,
   secondesCourantes: number,
   faits: readonly ObjetInconnu[],
+  infrastructure: EtatInfrastructure,
 ): valeur is EtatPilotage {
   if (!estObjet(valeur)) {
     return false;
@@ -409,6 +985,7 @@ function estEtatPilotage(
   ) {
     return false;
   }
+  const modificateurs = calculerModificateursEconomiques(infrastructure);
 
   for (const id of IDENTIFIANTS_DE_STOCK) {
     const stock = economie.stocks[id];
@@ -418,12 +995,18 @@ function estEtatPilotage(
       !estNombreFini(stock.quantite) ||
       stock.quantite < 0 ||
       stock.unite !== attendu.unite ||
-      stock.fluxParHeure !== attendu.fluxParHeure ||
+      stock.fluxParHeure !==
+        attendu.fluxParHeure + (modificateurs.fluxDeStocks[id] ?? 0) ||
       !estNombreFini(stock.reliquatDeFlux)
     ) {
       return false;
     }
-    const calcule = calculerStockAttendu(id, secondesCourantes, faits);
+    const calcule = calculerStockAttendu(
+      id,
+      secondesCourantes,
+      faits,
+      infrastructure,
+    );
     if (
       stock.quantite !== calcule.quantite ||
       stock.reliquatDeFlux !== calcule.reliquatDeFlux
@@ -438,7 +1021,13 @@ function estEtatPilotage(
     if (
       !estObjet(capacite) ||
       capacite.production !== attendue.production ||
-      capacite.demande !== attendue.demande ||
+      capacite.demande !==
+        attendue.demande +
+          (id === "chaleur"
+            ? modificateurs.demandeDeChaleur
+            : id === "main-d-oeuvre"
+              ? modificateurs.demandeDeMainDOeuvre
+              : modificateurs.demandeDeCharge) ||
       capacite.unite !== attendue.unite
     ) {
       return false;
@@ -450,9 +1039,11 @@ function estEtatPilotage(
   const incertitudeDuJalon = jalon.incertitude;
   if (
     entretien.equipesMobilisees !==
-      PILOTAGE_INITIAL.economie.entretien.equipesMobilisees ||
+      PILOTAGE_INITIAL.economie.entretien.equipesMobilisees +
+        modificateurs.equipesDEntretien ||
     entretien.materiauxParHeure !==
-      PILOTAGE_INITIAL.economie.entretien.materiauxParHeure ||
+      PILOTAGE_INITIAL.economie.entretien.materiauxParHeure +
+        modificateurs.materiauxDEntretienParHeure ||
     jalon.nom !== PILOTAGE_INITIAL.economie.prochainJalon.nom ||
     jalon.atteintA !== PILOTAGE_INITIAL.economie.prochainJalon.atteintA ||
     !estObjet(incertitudeDuJalon) ||
@@ -513,8 +1104,7 @@ function estEtatPilotage(
     incident.echeance === INCIDENT_INITIAL.echeance &&
     secondesCourantes < incident.echeance &&
     incident.incertitude.source === INCIDENT_INITIAL.incertitude.source &&
-    incident.incertitude.releveeA ===
-      INCIDENT_INITIAL.incertitude.releveeA &&
+    incident.incertitude.releveeA === INCIDENT_INITIAL.incertitude.releveeA &&
     incident.incertitude.observation ===
       INCIDENT_INITIAL.incertitude.observation
   );
@@ -532,8 +1122,7 @@ function estCausaliteDeNarrationValide(
     (narration.evenementActif !== null &&
       (evenementsJoues.includes(narration.evenementActif) ||
         parties.tempsDuConvoi.secondes <
-          trouverEvenement(narration.evenementActif)!.periodeEligibilite
-            .debut))
+          trouverEvenement(narration.evenementActif)!.periodeEligibilite.debut))
   ) {
     return false;
   }
@@ -612,6 +1201,7 @@ function faitsSontChronologiques(
 function lirePartiesCommunesDEtat(
   valeur: ObjetInconnu,
   validerFait: (fait: unknown) => boolean,
+  plateformesAttendues: readonly string[],
 ): Omit<EtatCampagneV1, "version"> | undefined {
   const temps = valeur.tempsDuConvoi;
   const cite = valeur.citeCaravane;
@@ -632,10 +1222,7 @@ function lirePartiesCommunesDEtat(
     !estObjet(cite.formation) ||
     cite.formation.type !== "grappe" ||
     !estTableauDeChaines(cite.formation.plateformes) ||
-    !memesChaines(
-      cite.formation.plateformes,
-      IDENTIFIANTS_PLATEFORMES_MOBILES,
-    ) ||
+    !memesChaines(cite.formation.plateformes, plateformesAttendues) ||
     !estObjet(narration) ||
     !(
       narration.evenementActif === null ||
@@ -663,8 +1250,8 @@ function lirePartiesCommunesDEtat(
       phare: "actif",
       formation: {
         type: "grappe",
-        plateformes:
-          cite.formation.plateformes as IdentifiantPlateformeMobile[],
+        plateformes: cite.formation
+          .plateformes as IdentifiantPlateformeMobile[],
       },
     },
     narration: {
@@ -676,13 +1263,14 @@ function lirePartiesCommunesDEtat(
 }
 
 export function lireEtatV1(valeur: unknown): EtatCampagneV1 | undefined {
-  if (
-    !estObjet(valeur) ||
-    valeur.version !== VERSION_SIMULATION_INITIALE
-  ) {
+  if (!estObjet(valeur) || valeur.version !== VERSION_SIMULATION_INITIALE) {
     return undefined;
   }
-  const parties = lirePartiesCommunesDEtat(valeur, estFaitDeCampagne);
+  const parties = lirePartiesCommunesDEtat(
+    valeur,
+    estFaitDeCampagne,
+    IDENTIFIANTS_PLATEFORMES_LEGACY_V1,
+  );
   if (
     parties === undefined ||
     !parties.narration.faitsDeCampagne.every((fait) =>
@@ -699,16 +1287,18 @@ export function lireEtatV1(valeur: unknown): EtatCampagneV1 | undefined {
 }
 
 export function lireEtatV2(valeur: unknown): EtatCampagne | undefined {
-  if (
-    !estObjet(valeur) ||
-    valeur.version !== VERSION_SIMULATION_COURANTE
-  ) {
+  if (!estObjet(valeur) || valeur.version !== VERSION_SIMULATION_COURANTE) {
     return undefined;
   }
-  const parties = lirePartiesCommunesDEtat(valeur, estFaitDeCampagneV2);
+  const parties = lirePartiesCommunesDEtat(
+    valeur,
+    estFaitDeCampagneV2,
+    IDENTIFIANTS_PLATEFORMES_MOBILES,
+  );
   const flux = valeur.fluxPseudoAleatoires;
   const narration = valeur.narration;
   const pilotage = valeur.pilotage;
+  const infrastructure = valeur.infrastructure;
 
   if (
     parties === undefined ||
@@ -717,10 +1307,16 @@ export function lireEtatV2(valeur: unknown): EtatCampagne | undefined {
       narration.faitsDeCampagne,
       parties.tempsDuConvoi.secondes,
     ) ||
+    !estEtatInfrastructure(
+      infrastructure,
+      parties.tempsDuConvoi.secondes,
+      narration.faitsDeCampagne,
+    ) ||
     !estEtatPilotage(
       pilotage,
       parties.tempsDuConvoi.secondes,
       narration.faitsDeCampagne,
+      infrastructure,
     ) ||
     !estCausaliteDeNarrationValide(parties, pilotage) ||
     !Array.isArray(valeur.echeances) ||
@@ -736,8 +1332,7 @@ export function lireEtatV2(valeur: unknown): EtatCampagne | undefined {
     !estObjet(flux) ||
     !estObjet(flux["evenements-narratifs"]) ||
     flux["evenements-narratifs"].algorithme !== "xoshiro128**" ||
-    flux["evenements-narratifs"].version !==
-      VERSION_ALEATOIRE_COURANTE ||
+    flux["evenements-narratifs"].version !== VERSION_ALEATOIRE_COURANTE ||
     !Array.isArray(flux["evenements-narratifs"].etat) ||
     flux["evenements-narratifs"].etat.length !== 4 ||
     !flux["evenements-narratifs"].etat.every(estEntierNonSigne) ||
@@ -794,12 +1389,10 @@ export function lireSauvegardeV2(
     typeof valeur.id !== "string" ||
     valeur.version !== VERSION_SAUVEGARDE_COURANTE ||
     !estObjet(valeur.versions) ||
-    valeur.versions.simulation !==
-      VERSIONS_DU_SNAPSHOT_COURANT.simulation ||
+    valeur.versions.simulation !== VERSIONS_DU_SNAPSHOT_COURANT.simulation ||
     valeur.versions.contenu !== VERSIONS_DU_SNAPSHOT_COURANT.contenu ||
     valeur.versions.aleatoire !== VERSIONS_DU_SNAPSHOT_COURANT.aleatoire ||
-    valeur.versions.empreinte !==
-      VERSIONS_DU_SNAPSHOT_COURANT.empreinte ||
+    valeur.versions.empreinte !== VERSIONS_DU_SNAPSHOT_COURANT.empreinte ||
     typeof valeur.graine !== "string" ||
     !estObjet(valeur.horloge) ||
     !estNombreFini(valeur.horloge.secondes) ||
@@ -822,10 +1415,7 @@ export function lireSauvegardeV2(
   }
 
   const replay = rejouerReproduction(reproduction);
-  if (
-    replay.statut !== "termine" ||
-    replay.empreinte !== valeur.empreinte
-  ) {
+  if (replay.statut !== "termine" || replay.empreinte !== valeur.empreinte) {
     return undefined;
   }
 

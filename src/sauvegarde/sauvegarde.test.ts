@@ -7,6 +7,8 @@ import {
   type ApplicationCampagne,
 } from "../application/application";
 import {
+  appliquerCommande,
+  creerCampagneInitiale,
   empreinteEtat,
   type EtatCampagne,
 } from "../simulation/campagne";
@@ -20,10 +22,24 @@ import {
   rejouerReproduction,
   TAILLE_MAX_ARCHIVE_SAUVEGARDE,
 } from "./sauvegarde";
-import type {
-  CommandeDeReproduction,
-  ReproductionDeCampagne,
-} from "./types";
+import type { CommandeDeReproduction, ReproductionDeCampagne } from "./types";
+import { lireEtatV2 } from "./validation";
+
+interface EtatV2HistoriqueMutable {
+  version: number;
+  infrastructure?: unknown;
+  citeCaravane: { formation: { plateformes: string[] } };
+}
+
+interface ArchiveV2HistoriqueMutable {
+  etat: EtatV2HistoriqueMutable;
+  empreinte: string;
+  versions: { simulation: number };
+  reproduction: {
+    snapshot: EtatV2HistoriqueMutable;
+    empreinteSnapshot: string;
+  };
+}
 
 function suivreReproduction(
   application: ApplicationCampagne,
@@ -41,6 +57,261 @@ function suivreReproduction(
 }
 
 describe("sauvegarde portable", () => {
+  it("refuse une installation finale sans historique de Chantier causal", () => {
+    const falsifie = structuredClone(creerCampagneInitiale("CENDRE-01"));
+    const plateformes = falsifie.infrastructure.plateformes as unknown as Array<{
+      emplacements: Array<{
+        id: string;
+        installation: {
+          id: string;
+          definitionId: "condenseur-thermique";
+          etatMateriel: "operationnelle";
+          installeeA: number;
+        } | null;
+      }>;
+    }>;
+    const destination = plateformes
+      .flatMap((plateforme) => plateforme.emplacements)
+      .find((emplacement) => emplacement.id === "intendance.polyvalent");
+    if (destination === undefined) {
+      throw new Error("L’Emplacement initial attendu est absent.");
+    }
+    destination.installation = {
+      id: "intendance.polyvalent.condenseur-thermique",
+      definitionId: "condenseur-thermique",
+      etatMateriel: "operationnelle",
+      installeeA: 0,
+    };
+
+    expect(lireEtatV2(falsifie)).toBeUndefined();
+  });
+
+  it("refuse un Chantier actif dont la cible n’existe pas", () => {
+    let falsifie = creerCampagneInitiale("CENDRE-01");
+    falsifie = appliquerCommande(falsifie, {
+      type: "temps-du-convoi.regler-vitesse",
+      vitesse: 0,
+    }).etat;
+    falsifie = appliquerCommande(falsifie, { type: "halte.deployer" }).etat;
+    falsifie = appliquerCommande(falsifie, {
+      type: "chantier.engager",
+      ordre: {
+        type: "construction",
+        definitionId: "condenseur-thermique",
+        emplacementId: "intendance.polyvalent",
+      },
+      priorite: "normale",
+    }).etat;
+    const mutation = structuredClone(falsifie) as unknown as {
+      infrastructure: {
+        chantierActif: {
+          ordre: { emplacementId: string };
+        };
+      };
+    };
+    mutation.infrastructure.chantierActif.ordre.emplacementId =
+      "emplacement-inexistant";
+
+    expect(lireEtatV2(mutation)).toBeUndefined();
+  });
+
+  it("refuse un historique causalement impossible faute de capacité", () => {
+    let etat = creerCampagneInitiale("CENDRE-01");
+    etat = appliquerCommande(etat, {
+      type: "temps-du-convoi.regler-vitesse",
+      vitesse: 0,
+    }).etat;
+    etat = appliquerCommande(etat, { type: "halte.deployer" }).etat;
+    etat = appliquerCommande(etat, {
+      type: "chantier.engager",
+      ordre: {
+        type: "construction",
+        definitionId: "condenseur-thermique",
+        emplacementId: "intendance.polyvalent",
+      },
+      priorite: "haute",
+    }).etat;
+    etat = appliquerCommande(etat, {
+      type: "temps-du-convoi.regler-vitesse",
+      vitesse: 1,
+    }).etat;
+    etat = appliquerCommande(etat, {
+      type: "temps-du-convoi.ecouler",
+      secondesReelles: 60,
+    }).etat;
+
+    const avecChantierImpossible: EtatCampagne = {
+      ...etat,
+      infrastructure: {
+        ...etat.infrastructure,
+        chantierActif: {
+          id: "chantier.1.60.construction",
+          ordre: {
+            type: "construction",
+            definitionId: "condenseur-thermique",
+            emplacementId: "foyers.polyvalent",
+          },
+          priorite: "haute",
+          commenceA: 60,
+          dureePrevue: 60,
+          progression: 0,
+          coutMateriaux: 12,
+          materiauxConsommes: 0,
+        },
+      },
+    };
+    const termine = appliquerCommande(avecChantierImpossible, {
+      type: "temps-du-convoi.ecouler",
+      secondesReelles: 60,
+    }).etat;
+
+    expect(termine.pilotage.economie.capacites["main-d-oeuvre"]).toMatchObject(
+      { production: 12, demande: 13 },
+    );
+    expect(lireEtatV2(termine)).toBeUndefined();
+  });
+
+  it("migre une sauvegarde v2 antérieure aux Plateformes constructibles", () => {
+    const application = creerApplicationCampagne("CENDRE-01");
+    const archive = JSON.parse(
+      exporterSauvegarde(
+        creerSauvegarde(
+          application.lireEtat(),
+          creerReproductionInitiale(application.lireEtat()),
+        ),
+      ),
+    ) as ArchiveV2HistoriqueMutable;
+    const plateformesLegacy = [
+      "phare",
+      "foyers",
+      "atelier",
+      "serres",
+      "reservoirs",
+      "vigie",
+      "forge",
+    ];
+    for (const etat of [archive.etat, archive.reproduction.snapshot]) {
+      delete etat.infrastructure;
+      etat.version = 2;
+      etat.citeCaravane.formation.plateformes = plateformesLegacy;
+    }
+    archive.versions.simulation = 2;
+    archive.empreinte = "12345678";
+    archive.reproduction.empreinteSnapshot = "12345678";
+
+    const importation = importerSauvegarde(JSON.stringify(archive));
+
+    expect(importation.statut).toBe("migree");
+    if (importation.statut !== "migree") {
+      throw new Error("La sauvegarde v2 historique devrait être migrée.");
+    }
+    expect(importation.sauvegarde.etat.infrastructure).toEqual(
+      creerCampagneInitiale("CENDRE-01").infrastructure,
+    );
+    expect(importation.sauvegarde.etat.citeCaravane.formation.plateformes).toEqual([
+      "phare",
+      "intendance",
+      "foyers",
+      "machines",
+      "atelier-operations",
+    ]);
+  });
+
+  it("reprend un Chantier en cours avec sa priorité et ses ressources consommées", () => {
+    const application = creerApplicationCampagne("CENDRE-01");
+    const reproduction = suivreReproduction(application);
+    application.envoyerCommande({
+      type: "temps-du-convoi.regler-vitesse",
+      vitesse: 0,
+    });
+    application.envoyerCommande({ type: "halte.deployer" });
+    application.envoyerCommande({
+      type: "chantier.engager",
+      ordre: {
+        type: "construction",
+        definitionId: "condenseur-thermique",
+        emplacementId: "intendance.polyvalent",
+      },
+      priorite: "haute",
+    });
+    application.envoyerCommande({
+      type: "temps-du-convoi.regler-vitesse",
+      vitesse: 1,
+    });
+    application.envoyerCommande({
+      type: "temps-du-convoi.ecouler",
+      secondesReelles: 30,
+    });
+
+    const archive = exporterSauvegarde(
+      creerSauvegarde(application.lireEtat(), reproduction),
+    );
+    const importation = importerSauvegarde(archive);
+
+    expect(importation.statut).toBe("compatible");
+    if (importation.statut !== "compatible") {
+      throw new Error("Le Chantier en cours devrait être reprenable.");
+    }
+    expect(
+      importation.sauvegarde.etat.infrastructure.chantierActif,
+    ).toMatchObject({
+      priorite: "haute",
+      progression: 30,
+      materiauxConsommes: 6,
+      coutMateriaux: 12,
+    });
+  });
+
+  it("reprend l’économie transformée par un Chantier terminé", () => {
+    const application = creerApplicationCampagne("CENDRE-01");
+    const reproduction = suivreReproduction(application);
+    application.envoyerCommande({
+      type: "temps-du-convoi.regler-vitesse",
+      vitesse: 0,
+    });
+    application.envoyerCommande({ type: "halte.deployer" });
+    application.envoyerCommande({
+      type: "chantier.engager",
+      ordre: {
+        type: "construction",
+        definitionId: "condenseur-thermique",
+        emplacementId: "intendance.polyvalent",
+      },
+      priorite: "haute",
+    });
+    application.envoyerCommande({
+      type: "temps-du-convoi.regler-vitesse",
+      vitesse: 1,
+    });
+    application.envoyerCommande({
+      type: "temps-du-convoi.ecouler",
+      secondesReelles: 120,
+    });
+
+    const importation = importerSauvegarde(
+      exporterSauvegarde(
+        creerSauvegarde(application.lireEtat(), reproduction),
+      ),
+    );
+
+    expect(importation.statut).toBe("compatible");
+    if (importation.statut !== "compatible") {
+      throw new Error("L’économie transformée devrait être reprenable.");
+    }
+    expect(importation.sauvegarde.etat.pilotage.economie).toMatchObject({
+      stocks: {
+        eau: { fluxParHeure: -30 },
+        combustible: { fluxParHeure: -32 },
+      },
+      capacites: {
+        chaleur: { demande: 74 },
+        "main-d-oeuvre": { demande: 11 },
+        charge: { demande: 72 },
+      },
+      entretien: { equipesMobilisees: 3, materiauxParHeure: 3 },
+    });
+  });
+
   it("reprend exactement l'état, la projection et l'empreinte exportés", () => {
     const application = creerApplicationCampagne("CENDRE-01");
     const reproduction = suivreReproduction(application);
@@ -52,16 +323,13 @@ describe("sauvegarde portable", () => {
       type: "temps-du-convoi.ecouler",
       secondesReelles: 15,
     });
-    const sauvegarde = creerSauvegarde(
-      application.lireEtat(),
-      reproduction,
-    );
+    const sauvegarde = creerSauvegarde(application.lireEtat(), reproduction);
 
     expect(sauvegarde).toMatchObject({
       format: "lanternes-de-cendre.sauvegarde",
       version: 2,
       versions: {
-        simulation: 2,
+        simulation: 3,
         contenu: 1,
         aleatoire: 1,
         empreinte: 1,
@@ -69,7 +337,7 @@ describe("sauvegarde portable", () => {
       graine: "CENDRE-01",
       horloge: { secondes: 60 },
       etat: {
-        version: 2,
+        version: 3,
         echeances: [],
         fluxPseudoAleatoires: {
           "evenements-narratifs": {
@@ -114,9 +382,7 @@ describe("sauvegarde portable", () => {
       index === 1 ? { ...entree, empreinteApres: "00000000" } : entree,
     );
 
-    expect(
-      rejouerReproduction({ ...reproduction, commandes }),
-    ).toMatchObject({
+    expect(rejouerReproduction({ ...reproduction, commandes })).toMatchObject({
       statut: "divergence",
       indexCommande: 1,
       sequence: 1,
@@ -147,10 +413,7 @@ describe("sauvegarde portable", () => {
       incidentId: "purification.pompe-instable",
       ordre: "securiser-pompe",
     });
-    const sauvegarde = creerSauvegarde(
-      application.lireEtat(),
-      reproduction,
-    );
+    const sauvegarde = creerSauvegarde(application.lireEtat(), reproduction);
 
     const importation = importerSauvegarde(exporterSauvegarde(sauvegarde));
 
@@ -216,10 +479,7 @@ describe("sauvegarde portable", () => {
     };
 
     for (const etat of [etatAvecEvenementInconnu, etatAvecFaitInconnu]) {
-      const sauvegarde = creerSauvegarde(
-        etat,
-        creerReproductionInitiale(etat),
-      );
+      const sauvegarde = creerSauvegarde(etat, creerReproductionInitiale(etat));
       expect(importerSauvegarde(exporterSauvegarde(sauvegarde))).toMatchObject({
         statut: "invalide",
       });
@@ -252,9 +512,7 @@ describe("sauvegarde portable", () => {
                   variation: 9_999,
                 },
               ],
-              humains: [
-                { type: "habitants.modifies", variation: -9_999 },
-              ],
+              humains: [{ type: "habitants.modifies", variation: -9_999 }],
             },
           },
         ],
@@ -311,10 +569,7 @@ describe("sauvegarde portable", () => {
       etatAvecHabitantsFalsifies,
       etatAvecEvenementActifEtJoue,
     ]) {
-      const sauvegarde = creerSauvegarde(
-        etat,
-        creerReproductionInitiale(etat),
-      );
+      const sauvegarde = creerSauvegarde(etat, creerReproductionInitiale(etat));
       expect(importerSauvegarde(exporterSauvegarde(sauvegarde))).toMatchObject({
         statut: "invalide",
       });
@@ -386,14 +641,8 @@ describe("sauvegarde portable", () => {
       ],
     };
 
-    for (const etat of [
-      etatAvecFluxAbsorbant,
-      etatAvecEcheanceInapplicable,
-    ]) {
-      const sauvegarde = creerSauvegarde(
-        etat,
-        creerReproductionInitiale(etat),
-      );
+    for (const etat of [etatAvecFluxAbsorbant, etatAvecEcheanceInapplicable]) {
+      const sauvegarde = creerSauvegarde(etat, creerReproductionInitiale(etat));
       expect(importerSauvegarde(exporterSauvegarde(sauvegarde))).toMatchObject({
         statut: "invalide",
       });
@@ -413,7 +662,7 @@ describe("sauvegarde portable", () => {
     expect(importation.sauvegarde).toMatchObject({
       version: 2,
       etat: {
-        version: 2,
+        version: 3,
         tempsDuConvoi: { vitesse: 4 },
         echeances: [],
         fluxPseudoAleatoires: {
@@ -432,7 +681,7 @@ describe("sauvegarde portable", () => {
         },
       },
       reproduction: {
-        snapshot: { version: 2 },
+        snapshot: { version: 3 },
         commandes: [
           {
             sequence: 0,
@@ -685,9 +934,7 @@ describe("sauvegarde portable", () => {
   ])("rejette la commande v2 $type dans un journal v1", (commande) => {
     const archiveV1 = structuredClone(sauvegardeV1);
     archiveV1.etat = structuredClone(archiveV1.reproduction.snapshot);
-    archiveV1.reproduction.commandes = [
-      { sequence: 0, commande },
-    ] as never[];
+    archiveV1.reproduction.commandes = [{ sequence: 0, commande }] as never[];
 
     expect(importerSauvegarde(JSON.stringify(archiveV1))).toMatchObject({
       statut: "invalide",
@@ -756,7 +1003,7 @@ describe("sauvegarde portable", () => {
   });
 
   it.each([
-    ["simulation", 3],
+    ["simulation", 4],
     ["contenu", 2],
     ["aleatoire", 2],
     ["empreinte", 2],

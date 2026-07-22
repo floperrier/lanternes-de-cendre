@@ -50,11 +50,11 @@ test("IndexedDB applique le même contrat tournant et protège les archives inco
         format: "lanternes-de-cendre.sauvegarde",
         id: "meme-id",
         version: 2,
-        versions: { simulation: 3 },
+        versions: { simulation: 4 },
         padding,
       });
-    const archiveA = creerArchiveCollision("477a6853-i1h");
-    const archiveB = creerArchiveCollision("d05e9187-uxa");
+    const archiveA = creerArchiveCollision("4wzx");
+    const archiveB = creerArchiveCollision("b6cd");
     const importsConcurrents = await Promise.all([
       moduleSession.importerCampagne(port, archiveA),
       moduleSession.importerCampagne(port, archiveB),
@@ -92,7 +92,7 @@ test("IndexedDB applique le même contrat tournant et protège les archives inco
     "incompatible",
     "incompatible",
   ]);
-  expect(resultat.empreintes).toEqual(["86a14698", "86a14698"]);
+  expect(resultat.empreintes).toEqual(["e18e3194", "e18e3194"]);
   const archivesAttendues = [
     {
       id: "troisieme",
@@ -111,8 +111,8 @@ test("IndexedDB applique le même contrat tournant et protège les archives inco
         format: "lanternes-de-cendre.sauvegarde",
         id: "meme-id",
         version: 2,
-        versions: { simulation: 3 },
-        padding: "d05e9187-uxa",
+        versions: { simulation: 4 },
+        padding: "b6cd",
       }),
       protegeeDeLaRotation: true,
     },
@@ -123,8 +123,8 @@ test("IndexedDB applique le même contrat tournant et protège les archives inco
         format: "lanternes-de-cendre.sauvegarde",
         id: "meme-id",
         version: 2,
-        versions: { simulation: 3 },
-        padding: "477a6853-i1h",
+        versions: { simulation: 4 },
+        padding: "4wzx",
       }),
       protegeeDeLaRotation: true,
     },

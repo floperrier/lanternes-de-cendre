@@ -124,9 +124,24 @@ export interface EvenementDuCatalogue {
   readonly textes: Readonly<Record<Langue, TextesDUnEvenement>>;
 }
 
+export interface TextesDInstallation {
+  readonly nom: TexteCompile;
+  readonly service: TexteCompile;
+  readonly transformationsDeStocks: readonly TexteCompile[];
+  readonly consequences: Readonly<
+    Record<"operationnelle" | "degradee" | "hors-service", TexteCompile>
+  >;
+}
+
+export interface InstallationDuCatalogue {
+  readonly id: string;
+  readonly textes: Readonly<Record<Langue, TextesDInstallation>>;
+}
+
 export interface CatalogueDEvenements {
   readonly version: typeof VERSION_CONTENU_COURANTE;
   readonly evenements: readonly EvenementDuCatalogue[];
+  readonly installations: readonly InstallationDuCatalogue[];
 }
 
 export function figerProfondement<T>(valeur: T): T {

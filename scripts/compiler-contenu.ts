@@ -9,6 +9,7 @@ const racine = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const lire = (chemin: string) => readFileSync(resolve(racine, chemin), "utf8");
 const catalogue = compilerCatalogue({
   evenements: lire("content/evenements/prologue.yaml"),
+  infrastructure: lire("content/infrastructure.yaml"),
   references: lire("content/references.yaml"),
   traductions: {
     fr: lire("content/locales/fr.yaml"),

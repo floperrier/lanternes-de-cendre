@@ -19,7 +19,7 @@ describe("application de Campagne", () => {
       habitants: 184,
       phare: "actif",
       formation: "grappe",
-      nombreDePlateformes: 7,
+      nombreDePlateformes: 5,
       evenementNarratif: null,
     });
   });

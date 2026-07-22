@@ -25,7 +25,7 @@ test("la Coupe habitée expose son état indispensable dans le DOM", async ({
   const etatTextuel = page.getByRole("region", { name: "Cité-caravane" });
   await expect(etatTextuel).toContainText("Phare — actif");
   await expect(etatTextuel).toContainText(
-    "Formation en grappe — 7 plateformes",
+    "Formation en grappe — 5 plateformes",
   );
   await expect(etatTextuel).toContainText("Habitants — 184");
 });
@@ -99,7 +99,7 @@ test("les mêmes commandes donnent le même état sous Node et Chromium", async 
     etat: etatNode,
     empreinte: empreinteEtat(etatNode),
   });
-  expect(resultatNavigateur.empreinte).toBe("f593cdcc");
+  expect(resultatNavigateur.empreinte).toBe("cf0b2a78");
 });
 
 test("un Événement bilingue expose ses coûts et accepte une intention au clavier", async ({

@@ -5,13 +5,14 @@ import {
   creerCampagneInitiale,
   empreinteEtat,
 } from "./campagne";
+import { creerInfrastructureInitiale } from "./infrastructure";
 
 describe("Graine de campagne", () => {
   it("crée le même état initial sérialisable pour CENDRE-01", () => {
     const etat = creerCampagneInitiale("CENDRE-01");
 
     expect(JSON.parse(JSON.stringify(etat))).toEqual({
-      version: 2,
+      version: 3,
       graine: "CENDRE-01",
       tempsDuConvoi: {
         secondes: 0,
@@ -24,12 +25,10 @@ describe("Graine de campagne", () => {
           type: "grappe",
           plateformes: [
             "phare",
+            "intendance",
             "foyers",
-            "atelier",
-            "serres",
-            "reservoirs",
-            "vigie",
-            "forge",
+            "machines",
+            "atelier-operations",
           ],
         },
       },
@@ -96,8 +95,7 @@ describe("Graine de campagne", () => {
               source: "Relevé de route du Phare",
               releveeA: 0,
               variationFluxPourcent: 10,
-              explication:
-                "Consommation variable de ±10 % selon la cendre",
+              explication: "Consommation variable de ±10 % selon la cendre",
             },
           },
         },
@@ -124,6 +122,7 @@ describe("Graine de campagne", () => {
           },
         },
       },
+      infrastructure: creerInfrastructureInitiale(),
       echeances: [],
       fluxPseudoAleatoires: {
         "evenements-narratifs": {
@@ -166,13 +165,10 @@ describe("commandes du Temps du convoi", () => {
   });
 
   it("atteint la première minute selon la vitesse choisie", () => {
-    const etatAccelere = appliquerCommande(
-      creerCampagneInitiale("CENDRE-01"),
-      {
-        type: "temps-du-convoi.regler-vitesse",
-        vitesse: 4,
-      },
-    ).etat;
+    const etatAccelere = appliquerCommande(creerCampagneInitiale("CENDRE-01"), {
+      type: "temps-du-convoi.regler-vitesse",
+      vitesse: 4,
+    }).etat;
 
     const transition = appliquerCommande(etatAccelere, {
       type: "temps-du-convoi.ecouler",
@@ -240,9 +236,7 @@ describe("Événement narratif de la première veille", () => {
             moment: 60,
             effets: {
               materiels: [],
-              humains: [
-                { type: "habitants.modifies", variation: 6 },
-              ],
+              humains: [{ type: "habitants.modifies", variation: 6 }],
             },
           },
         ],

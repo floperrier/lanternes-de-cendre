@@ -36,6 +36,14 @@ _Avoid_: Quartier, Wagon
 Une zone d’une plateforme mobile capable d’accueillir une installation parmi plusieurs catégories compatibles, choisie par le Porte-Lanterne sans placement libre au pixel près.
 _Avoid_: Case de grille, Placement libre
 
+**Installation**:
+Un équipement fonctionnel fixé à un emplacement constructible, défini par son service, ses transformations de stocks, ses postes, sa chaleur, sa charge, son entretien et les conséquences précises de ses états matériels.
+_Avoid_: Bonus abstrait, Décoration sans état
+
+**Chantier**:
+Un ordre structurel persistant de construction, démontage ou déplacement d’une installation, exécuté pendant un déploiement de halte selon une priorité, une durée et des ressources annoncées.
+_Avoid_: Transformation instantanée, Construction en voyage
+
 **Formation en grappe**:
 La disposition compacte de plusieurs plateformes sur des files parallèles irrégulières autour du phare lorsque la cité-caravane voyage.
 _Avoid_: File unique, Train

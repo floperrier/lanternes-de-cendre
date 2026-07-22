@@ -13,6 +13,7 @@ import {
   type EffetDEvenement,
   type EvenementDuCatalogue,
   type Langue,
+  type InstallationDuCatalogue,
   type StatutApprobationAsset,
   type TexteCompile,
   type TextesDUnEvenement,
@@ -40,6 +41,7 @@ export class ErreurDeContenu extends Error {
 
 export interface SourcesDuCatalogue {
   readonly evenements: string;
+  readonly infrastructure: string;
   readonly references: string;
   readonly traductions: Readonly<Record<Langue, string>>;
   readonly assets: string;
@@ -803,6 +805,82 @@ function compilerEvenement(
   };
 }
 
+function compilerInstallations(
+  source: string,
+  traductions: Readonly<Record<Langue, TraductionCompilee>>,
+): readonly InstallationDuCatalogue[] {
+  const nom = "infrastructure.yaml";
+  const racine = objet(parserYaml(source, nom), nom);
+  verifierVersion(racine, nom);
+  const identifiants = new Set<string>();
+
+  return tableau(racine.installations, `${nom}/installations`).map(
+    (valeur, index) => {
+      const chemin = `${nom}/installations/${index}`;
+      const installation = objet(valeur, chemin);
+      const id = chaine(installation.id, `${chemin}/id`);
+      if (identifiants.has(id)) {
+        echouer("schema", `${chemin}/id`, `identifiant dupliqué « ${id} »`);
+      }
+      identifiants.add(id);
+      const consequences = objet(
+        installation.consequences,
+        `${chemin}/consequences`,
+      );
+      const compilerTextes = (langue: Langue) => ({
+        nom: compilerTexte(
+          installation.nom,
+          `${chemin}/nom`,
+          traductions,
+          langue,
+        ),
+        service: compilerTexte(
+          installation.service,
+          `${chemin}/service`,
+          traductions,
+          langue,
+        ),
+        transformationsDeStocks: tableau(
+          installation.transformations_de_stocks,
+          `${chemin}/transformations_de_stocks`,
+        ).map((texte, texteIndex) =>
+          compilerTexte(
+            texte,
+            `${chemin}/transformations_de_stocks/${texteIndex}`,
+            traductions,
+            langue,
+          ),
+        ),
+        consequences: {
+          operationnelle: compilerTexte(
+            consequences.operationnelle,
+            `${chemin}/consequences/operationnelle`,
+            traductions,
+            langue,
+          ),
+          degradee: compilerTexte(
+            consequences.degradee,
+            `${chemin}/consequences/degradee`,
+            traductions,
+            langue,
+          ),
+          "hors-service": compilerTexte(
+            consequences["hors-service"],
+            `${chemin}/consequences/hors-service`,
+            traductions,
+            langue,
+          ),
+        },
+      });
+
+      return {
+        id,
+        textes: { fr: compilerTextes("fr"), en: compilerTextes("en") },
+      };
+    },
+  );
+}
+
 export function compilerCatalogue(
   sources: SourcesDuCatalogue,
 ): CatalogueDEvenements {
@@ -818,6 +896,10 @@ export function compilerCatalogue(
     sources.provenances,
     sources.assetExiste,
     sources.empreinteAsset,
+  );
+  const installations = compilerInstallations(
+    sources.infrastructure,
+    traductions,
   );
   const racine = objet(
     parserYaml(sources.evenements, "evenements.yaml"),
@@ -854,5 +936,6 @@ export function compilerCatalogue(
   return figerProfondement({
     version: VERSION_CONTENU_COURANTE,
     evenements,
+    installations,
   });
 }

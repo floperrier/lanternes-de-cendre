@@ -1,6 +1,10 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
 
 import { projeterCampagne } from "../application/application";
+import {
+  projeterImplantationPixi,
+  projeterInfrastructure,
+} from "../application/infrastructure";
 import { projeterPilotage } from "../application/pilotage";
 import type { Langue } from "../content/types";
 import {
@@ -10,6 +14,7 @@ import {
 import { CommandesDuTemps } from "./CommandesDuTemps";
 import { CoupeHabitee } from "./CoupeHabitee";
 import { EtatTextuel } from "./EtatTextuel";
+import { InfrastructureDuConvoi } from "./InfrastructureDuConvoi";
 import { PanneauDePilotage } from "./PanneauDePilotage";
 import { PanneauSauvegarde } from "./PanneauSauvegarde";
 import { RubanNarratif } from "./RubanNarratif";
@@ -23,10 +28,7 @@ interface PropsCampagne {
   readonly controleur: ControleurDeSessionCampagne;
 }
 
-function CampagnePersistante({
-  etatDuControleur,
-  controleur,
-}: PropsCampagne) {
+function CampagnePersistante({ etatDuControleur, controleur }: PropsCampagne) {
   const [langue, choisirLangue] = useState<Langue>("fr");
   const application = etatDuControleur.ouverture.application;
   const etat = useSyncExternalStore(
@@ -36,6 +38,7 @@ function CampagnePersistante({
   );
   const projection = projeterCampagne(etat, langue);
   const projectionDuPilotage = projeterPilotage(etat, langue);
+  const projectionDInfrastructure = projeterInfrastructure(etat, langue);
 
   useEffect(() => {
     const horloge = window.setInterval(() => {
@@ -74,9 +77,17 @@ function CampagnePersistante({
       </header>
 
       <div className="scene-layout">
-        <CoupeHabitee />
+        <CoupeHabitee
+          implantation={projeterImplantationPixi(projectionDInfrastructure)}
+          chantierActif={projectionDInfrastructure.chantierActif !== null}
+        />
         <div className="colonne-de-pilotage">
           <EtatTextuel projection={projection} />
+          <InfrastructureDuConvoi
+            application={application}
+            langue={langue}
+            projection={projectionDInfrastructure}
+          />
           <PanneauDePilotage
             application={application}
             projection={projectionDuPilotage}

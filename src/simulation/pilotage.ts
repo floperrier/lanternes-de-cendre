@@ -77,11 +77,12 @@ type DefinitionDeDoctrine = (typeof DEFINITIONS_DE_DOCTRINE)[number];
 export type IdentifiantDeStock = keyof typeof STOCKS_INITIAUX;
 export type IdentifiantDeCapacite = keyof typeof CAPACITES_INITIALES;
 export type IdentifiantDePolitique = DefinitionDeDoctrine["id"];
-export type PositionPourPolitique<
-  Politique extends IdentifiantDePolitique,
-> = Extract<DefinitionDeDoctrine, { readonly id: Politique }>["positions"][number];
-export type PositionDeDoctrine =
-  PositionPourPolitique<IdentifiantDePolitique>;
+export type PositionPourPolitique<Politique extends IdentifiantDePolitique> =
+  Extract<
+    DefinitionDeDoctrine,
+    { readonly id: Politique }
+  >["positions"][number];
+export type PositionDeDoctrine = PositionPourPolitique<IdentifiantDePolitique>;
 
 export const IDENTIFIANTS_DE_STOCK = Object.keys(
   STOCKS_INITIAUX,
@@ -98,7 +99,9 @@ export const POSITIONS_DE_DOCTRINE = Object.fromEntries(
     definition.positions,
   ]),
 ) as unknown as {
-  readonly [Politique in IdentifiantDePolitique]: readonly PositionPourPolitique<Politique>[];
+  readonly [
+    Politique in IdentifiantDePolitique
+  ]: readonly PositionPourPolitique<Politique>[];
 };
 
 type CommandePourDefinition<Definition extends DefinitionDeDoctrine> =
@@ -110,8 +113,7 @@ type CommandePourDefinition<Definition extends DefinitionDeDoctrine> =
       }
     : never;
 
-export type CommandeDeDoctrine =
-  CommandePourDefinition<DefinitionDeDoctrine>;
+export type CommandeDeDoctrine = CommandePourDefinition<DefinitionDeDoctrine>;
 
 export type EvenementDeDoctrine =
   | {
@@ -140,9 +142,7 @@ export function creerCommandeDeDoctrine(
   return { type: "doctrine.regler", politique, position } as CommandeDeDoctrine;
 }
 
-function positionsDePolitiqueRuntime(
-  politique: string,
-): readonly string[] {
+function positionsDePolitiqueRuntime(politique: string): readonly string[] {
   const positions = (
     POSITIONS_DE_DOCTRINE as Readonly<
       Partial<Record<string, readonly string[]>>
@@ -156,9 +156,7 @@ function positionsDePolitiqueRuntime(
 
 export type ModeDeResolutionDIncident = "ordre-explicite" | "doctrine";
 export type DecisionDIncident =
-  | "securiser-pompe"
-  | "isoler-circuit"
-  | "maintenir-debit";
+  "securiser-pompe" | "isoler-circuit" | "maintenir-debit";
 export type OrdreDIncident = "securiser-pompe" | "maintenir-debit";
 
 export interface CommandeDIncident {
@@ -224,8 +222,7 @@ type PolitiquePourDefinition<Definition extends DefinitionDeDoctrine> =
       }
     : never;
 
-export type PolitiqueDeDoctrine =
-  PolitiquePourDefinition<DefinitionDeDoctrine>;
+export type PolitiqueDeDoctrine = PolitiquePourDefinition<DefinitionDeDoctrine>;
 
 export type DoctrineDuConvoi = {
   readonly [Politique in IdentifiantDePolitique]: Omit<
@@ -238,6 +235,11 @@ const ENTRETIEN_INITIAL = {
   equipesMobilisees: 2,
   materiauxParHeure: 2,
 } as const;
+
+export interface EntretienDuConvoi {
+  readonly equipesMobilisees: number;
+  readonly materiauxParHeure: number;
+}
 
 const PROCHAIN_JALON_INITIAL = {
   nom: "Halte du puits sec",
@@ -256,7 +258,7 @@ export interface EtatPilotage {
     readonly capacites: Readonly<
       Record<IdentifiantDeCapacite, CapaciteDuConvoi>
     >;
-    readonly entretien: typeof ENTRETIEN_INITIAL;
+    readonly entretien: EntretienDuConvoi;
     readonly prochainJalon: typeof PROCHAIN_JALON_INITIAL;
   };
   readonly doctrine: DoctrineDuConvoi;
@@ -295,9 +297,9 @@ export function engagerTransitionDeDoctrine(
   commande: CommandeDeDoctrine,
   secondeCourante: number,
 ): { readonly etat: EtatPilotage; readonly evenements: EvenementDeDoctrine[] } {
-  if (!positionsDePolitiqueRuntime(commande.politique).includes(
-    commande.position,
-  )) {
+  if (
+    !positionsDePolitiqueRuntime(commande.politique).includes(commande.position)
+  ) {
     throw new Error(
       `La position « ${commande.position} » ne convient pas à la politique « ${commande.politique} ».`,
     );
@@ -355,9 +357,7 @@ function securiserPompe(): ResolutionDIncident {
   };
 }
 
-function choisirResolutionAutomatique(
-  etat: EtatPilotage,
-): ResolutionDIncident {
+function choisirResolutionAutomatique(etat: EtatPilotage): ResolutionDIncident {
   const materiaux = etat.economie.stocks.materiaux.quantite;
   const entretien = etat.doctrine.entretien.position;
 
@@ -425,8 +425,7 @@ function appliquerResolutionDIncident(
     throw new Error("Aucun Incident annoncé ne peut être résolu.");
   }
 
-  const materiauxDisponibles =
-    etat.economie.stocks.materiaux.quantite;
+  const materiauxDisponibles = etat.economie.stocks.materiaux.quantite;
   const effetsMateriels: EffetMaterielDeFait[] = [];
   if (resolution.coutMateriaux > 0) {
     effetsMateriels.push({
@@ -509,8 +508,7 @@ export function traiterEcheancesDePilotage(
 ): {
   readonly etat: EtatPilotage;
   readonly evenements: readonly (
-    | EvenementDeDoctrine
-    | EvenementDIncidentResolu
+    EvenementDeDoctrine | EvenementDIncidentResolu
   )[];
   readonly faitsProduits: readonly FaitDeCampagne[];
 } {
@@ -606,10 +604,7 @@ export function traiterEcheancesDePilotage(
     faitsProduits.push(resolution.fait);
   }
 
-  nouvelEtat = appliquerFluxEconomiques(
-    nouvelEtat,
-    secondeFinale - curseur,
-  );
+  nouvelEtat = appliquerFluxEconomiques(nouvelEtat, secondeFinale - curseur);
 
   return { etat: nouvelEtat, evenements, faitsProduits };
 }
@@ -633,9 +628,7 @@ function appliquerFluxEconomiques(
       ...stock,
       quantite,
       reliquatDeFlux:
-        quantite === 0
-          ? 0
-          : numerateur - variation * SECONDES_PAR_HEURE,
+        quantite === 0 ? 0 : numerateur - variation * SECONDES_PAR_HEURE,
     };
   }
 
@@ -658,9 +651,7 @@ export function ordonnerResolutionDIncident(
   readonly faitsProduits: readonly FaitDeCampagne[];
 } {
   if (etat.incidentActif?.id !== commande.incidentId) {
-    throw new Error(
-      `L’Incident « ${commande.incidentId} » n’est pas annoncé.`,
-    );
+    throw new Error(`L’Incident « ${commande.incidentId} » n’est pas annoncé.`);
   }
 
   const resolution = appliquerResolutionDIncident(
