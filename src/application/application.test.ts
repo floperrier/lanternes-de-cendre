@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { creerApplicationCampagne, projeterCampagne } from "./application";
+import {
+  creerApplicationCampagne,
+  projeterCampagne,
+  reprendreApplicationCampagne,
+} from "./application";
 
 describe("application de Campagne", () => {
   it("expose une projection de lecture de la Cité-caravane", () => {
@@ -89,5 +93,52 @@ describe("application de Campagne", () => {
         },
       ],
     });
+  });
+
+  it("notifie les commandes sémantiques sans posséder leur journal de sauvegarde", () => {
+    const application = creerApplicationCampagne("CENDRE-01");
+    const commandesObservees: unknown[] = [];
+    const seDesabonner = application.sabonnerAuxCommandes(
+      (commande, etat) => commandesObservees.push({ commande, etat }),
+    );
+
+    application.envoyerCommande({
+      type: "temps-du-convoi.regler-vitesse",
+      vitesse: 4,
+    });
+    application.envoyerCommande({
+      type: "temps-du-convoi.ecouler",
+      secondesReelles: 15,
+    });
+    seDesabonner();
+
+    expect(commandesObservees).toEqual([
+      {
+        commande: {
+          type: "temps-du-convoi.regler-vitesse",
+          vitesse: 4,
+        },
+        etat: expect.objectContaining({
+          tempsDuConvoi: { secondes: 0, vitesse: 4 },
+        }),
+      },
+      {
+        commande: {
+          type: "temps-du-convoi.ecouler",
+          secondesReelles: 15,
+        },
+        etat: expect.objectContaining({
+          tempsDuConvoi: { secondes: 60, vitesse: 4 },
+        }),
+      },
+    ]);
+
+    const applicationReprise = reprendreApplicationCampagne(
+      application.lireEtat(),
+    );
+    expect(applicationReprise.lireEtat()).toEqual(application.lireEtat());
+    expect(projeterCampagne(applicationReprise.lireEtat())).toEqual(
+      projeterCampagne(application.lireEtat()),
+    );
   });
 });

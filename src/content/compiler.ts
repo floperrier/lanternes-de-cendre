@@ -4,6 +4,7 @@ import {
   FAMILLES_D_EVENEMENTS,
   LANGUES,
   STATUTS_APPROBATION_ASSET,
+  VERSION_CONTENU_COURANTE,
   figerProfondement,
   type AssetCompile,
   type CatalogueDEvenements,
@@ -153,8 +154,12 @@ function chaines(valeur: unknown, chemin: string): readonly string[] {
 }
 
 function verifierVersion(racine: ObjetSource, chemin: string): void {
-  if (racine.version !== 1) {
-    echouer("schema", `${chemin}/version`, "la version 1 est requise");
+  if (racine.version !== VERSION_CONTENU_COURANTE) {
+    echouer(
+      "schema",
+      `${chemin}/version`,
+      `la version ${VERSION_CONTENU_COURANTE} est requise`,
+    );
   }
 }
 
@@ -846,5 +851,8 @@ export function compilerCatalogue(
     echouer("schema", "evenements.yaml/evenements", "catalogue vide");
   }
 
-  return figerProfondement({ version: 1, evenements });
+  return figerProfondement({
+    version: VERSION_CONTENU_COURANTE,
+    evenements,
+  });
 }

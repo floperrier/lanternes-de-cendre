@@ -6,6 +6,12 @@ import type {
 } from "../content/types";
 import type { EffetsDeFait, FaitDeCampagne } from "./faits";
 import {
+  creerFluxPseudoAleatoire,
+  type FluxPseudoAleatoire,
+} from "./aleatoire";
+import type { GraineDeCampagne } from "./graine";
+import { formaterEmpreinteFnv1a32V1 } from "./empreinte";
+import {
   creerPilotageInitial,
   engagerTransitionDeDoctrine,
   ordonnerResolutionDIncident,
@@ -16,22 +22,34 @@ import {
   type EvenementDeDoctrine,
   type EvenementDIncidentResolu,
 } from "./pilotage";
+import { VERSION_SIMULATION_COURANTE } from "./versions";
 
-export type GraineDeCampagne = string;
+export type { GraineDeCampagne } from "./graine";
+export const IDENTIFIANTS_PLATEFORMES_MOBILES = [
+  "phare",
+  "foyers",
+  "atelier",
+  "serres",
+  "reservoirs",
+  "vigie",
+  "forge",
+] as const;
 export type IdentifiantPlateformeMobile =
-  | "phare"
-  | "foyers"
-  | "atelier"
-  | "serres"
-  | "reservoirs"
-  | "vigie"
-  | "forge";
-export type VitesseDuConvoi = 0 | 1 | 2 | 4;
+  (typeof IDENTIFIANTS_PLATEFORMES_MOBILES)[number];
+export const VITESSES_DU_CONVOI = [0, 1, 2, 4] as const;
+export type VitesseDuConvoi = (typeof VITESSES_DU_CONVOI)[number];
 
 export type { FaitDeCampagne } from "./faits";
 
+export interface EcheanceDeCampagne {
+  readonly id: string;
+  readonly secondeDEcheance: number;
+  readonly cause: string;
+  readonly commande: CommandeCampagne;
+}
+
 export interface EtatCampagne {
-  readonly version: 2;
+  readonly version: typeof VERSION_SIMULATION_COURANTE;
   readonly graine: GraineDeCampagne;
   readonly tempsDuConvoi: {
     readonly secondes: number;
@@ -51,6 +69,10 @@ export interface EtatCampagne {
     readonly faitsDeCampagne: readonly FaitDeCampagne[];
   };
   readonly pilotage: EtatPilotage;
+  readonly echeances: readonly EcheanceDeCampagne[];
+  readonly fluxPseudoAleatoires: Readonly<{
+    "evenements-narratifs": FluxPseudoAleatoire;
+  }>;
 }
 
 export type CommandeCampagne =
@@ -109,7 +131,7 @@ export function creerCampagneInitiale(
   graine: GraineDeCampagne,
 ): EtatCampagne {
   return {
-    version: 2,
+    version: VERSION_SIMULATION_COURANTE,
     graine,
     tempsDuConvoi: {
       secondes: 0,
@@ -120,15 +142,7 @@ export function creerCampagneInitiale(
       phare: "actif",
       formation: {
         type: "grappe",
-        plateformes: [
-          "phare",
-          "foyers",
-          "atelier",
-          "serres",
-          "reservoirs",
-          "vigie",
-          "forge",
-        ],
+        plateformes: IDENTIFIANTS_PLATEFORMES_MOBILES,
       },
     },
     narration: {
@@ -137,6 +151,13 @@ export function creerCampagneInitiale(
       faitsDeCampagne: [],
     },
     pilotage: creerPilotageInitial(),
+    echeances: [],
+    fluxPseudoAleatoires: {
+      "evenements-narratifs": creerFluxPseudoAleatoire(
+        graine,
+        "evenements-narratifs",
+      ),
+    },
   };
 }
 
@@ -468,13 +489,5 @@ function serialiserCanonicalement(valeur: unknown): string {
 }
 
 export function empreinteEtat(etat: EtatCampagne): string {
-  const octets = new TextEncoder().encode(serialiserCanonicalement(etat));
-  let empreinte = 0x811c9dc5;
-
-  for (const octet of octets) {
-    empreinte ^= octet;
-    empreinte = Math.imul(empreinte, 0x01000193);
-  }
-
-  return (empreinte >>> 0).toString(16).padStart(8, "0");
+  return formaterEmpreinteFnv1a32V1(serialiserCanonicalement(etat));
 }

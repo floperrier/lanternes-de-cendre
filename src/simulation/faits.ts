@@ -1,5 +1,11 @@
 import type { IdentifiantDeStock } from "./pilotage";
 
+export const IDENTIFIANTS_DE_FAITS_D_INCIDENT = [
+  "incident.purification.pompe-instable.securisee",
+  "incident.purification.pompe-instable.circuit-isole",
+  "incident.purification.pompe-instable.debit-maintenu",
+] as const;
+
 export type EffetMaterielDeFait =
   | {
       readonly type: "stock.modifie";

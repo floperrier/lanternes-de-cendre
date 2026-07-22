@@ -1,0 +1,81 @@
+{
+  "format": "lanternes-de-cendre.sauvegarde",
+  "id": "CENDRE-01-fixture-v1",
+  "version": 1,
+  "versions": {
+    "simulation": 1,
+    "contenu": 1
+  },
+  "horloge": {
+    "secondes": 0
+  },
+  "etat": {
+    "version": 1,
+    "graine": "CENDRE-01",
+    "tempsDuConvoi": {
+      "secondes": 0,
+      "vitesse": 4
+    },
+    "citeCaravane": {
+      "habitants": 184,
+      "phare": "actif",
+      "formation": {
+        "type": "grappe",
+        "plateformes": [
+          "phare",
+          "foyers",
+          "atelier",
+          "serres",
+          "reservoirs",
+          "vigie",
+          "forge"
+        ]
+      }
+    },
+    "narration": {
+      "evenementActif": null,
+      "evenementsJoues": [],
+      "faitsDeCampagne": []
+    }
+  },
+  "reproduction": {
+    "snapshot": {
+      "version": 1,
+      "graine": "CENDRE-01",
+      "tempsDuConvoi": {
+        "secondes": 0,
+        "vitesse": 1
+      },
+      "citeCaravane": {
+        "habitants": 184,
+        "phare": "actif",
+        "formation": {
+          "type": "grappe",
+          "plateformes": [
+            "phare",
+            "foyers",
+            "atelier",
+            "serres",
+            "reservoirs",
+            "vigie",
+            "forge"
+          ]
+        }
+      },
+      "narration": {
+        "evenementActif": null,
+        "evenementsJoues": [],
+        "faitsDeCampagne": []
+      }
+    },
+    "commandes": [
+      {
+        "sequence": 0,
+        "commande": {
+          "type": "temps-du-convoi.regler-vitesse",
+          "vitesse": 4
+        }
+      }
+    ]
+  }
+}

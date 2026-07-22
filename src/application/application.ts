@@ -49,6 +49,9 @@ export interface ApplicationCampagne {
     commande: CommandeCampagne,
   ) => readonly EvenementDeDomaine[];
   readonly sabonner: (ecouteur: () => void) => () => void;
+  readonly sabonnerAuxCommandes: (
+    ecouteur: (commande: CommandeCampagne, etat: EtatCampagne) => void,
+  ) => () => void;
 }
 
 interface TempsDecompose {
@@ -178,17 +181,21 @@ export function projeterCampagne(
   };
 }
 
-export function creerApplicationCampagne(
-  graine: GraineDeCampagne,
+function creerApplication(
+  etatInitial: EtatCampagne,
 ): ApplicationCampagne {
-  let etat = creerCampagneInitiale(graine);
+  let etat = etatInitial;
   const ecouteurs = new Set<() => void>();
+  const ecouteursDeCommandes = new Set<
+    (commande: CommandeCampagne, etat: EtatCampagne) => void
+  >();
 
   return {
     lireEtat: () => etat,
     envoyerCommande: (commande) => {
       const transition = appliquerCommande(etat, commande);
       etat = transition.etat;
+      ecouteursDeCommandes.forEach((ecouteur) => ecouteur(commande, etat));
       ecouteurs.forEach((ecouteur) => ecouteur());
       return transition.evenements;
     },
@@ -196,5 +203,23 @@ export function creerApplicationCampagne(
       ecouteurs.add(ecouteur);
       return () => ecouteurs.delete(ecouteur);
     },
+    sabonnerAuxCommandes: (ecouteur) => {
+      ecouteursDeCommandes.add(ecouteur);
+      return () => ecouteursDeCommandes.delete(ecouteur);
+    },
   };
+}
+
+export function creerApplicationCampagne(
+  graine: GraineDeCampagne,
+): ApplicationCampagne {
+  const etatInitial = creerCampagneInitiale(graine);
+
+  return creerApplication(etatInitial);
+}
+
+export function reprendreApplicationCampagne(
+  etat: EtatCampagne,
+): ApplicationCampagne {
+  return creerApplication(etat);
 }

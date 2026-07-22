@@ -1,7 +1,8 @@
-import type {
-  EffetHumainDeFait,
-  EffetMaterielDeFait,
-  FaitDeCampagne,
+import {
+  IDENTIFIANTS_DE_FAITS_D_INCIDENT,
+  type EffetHumainDeFait,
+  type EffetMaterielDeFait,
+  type FaitDeCampagne,
 } from "./faits";
 
 export const SECONDES_PAR_HEURE = 3_600;
@@ -348,7 +349,7 @@ function securiserPompe(): ResolutionDIncident {
   return {
     decision: "securiser-pompe",
     coutMateriaux: 3,
-    idDuFait: "incident.purification.pompe-instable.securisee",
+    idDuFait: IDENTIFIANTS_DE_FAITS_D_INCIDENT[0],
     etatDeLaPompe: "securisee",
     effetHumain: { type: "habitants.exposes", nombre: 0 },
   };
@@ -371,7 +372,7 @@ function choisirResolutionAutomatique(
     return {
       decision: "isoler-circuit",
       coutMateriaux: 2,
-      idDuFait: "incident.purification.pompe-instable.circuit-isole",
+      idDuFait: IDENTIFIANTS_DE_FAITS_D_INCIDENT[1],
       etatDeLaPompe: "stabilisee",
       effetHumain: { type: "habitants.exposes", nombre: 0 },
     };
@@ -380,7 +381,7 @@ function choisirResolutionAutomatique(
   return {
     decision: "maintenir-debit",
     coutMateriaux: 0,
-    idDuFait: "incident.purification.pompe-instable.debit-maintenu",
+    idDuFait: IDENTIFIANTS_DE_FAITS_D_INCIDENT[2],
     etatDeLaPompe: "degradee",
     effetHumain: { type: "habitants.sous-surveillance", nombre: 2 },
   };
@@ -403,7 +404,7 @@ function choisirResolutionExplicite(
   return {
     decision: "maintenir-debit",
     coutMateriaux: 0,
-    idDuFait: "incident.purification.pompe-instable.debit-maintenu",
+    idDuFait: IDENTIFIANTS_DE_FAITS_D_INCIDENT[2],
     etatDeLaPompe: "degradee",
     effetHumain: { type: "habitants.sous-surveillance", nombre: 2 },
   };

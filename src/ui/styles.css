@@ -52,6 +52,20 @@ summary:focus-visible,
   outline-offset: -3px;
 }
 
+.chargement-campagne {
+  min-height: 100vh;
+  display: grid;
+  place-content: center;
+  gap: 1rem;
+  padding: 2rem;
+  text-align: center;
+}
+
+.chargement-campagne h1,
+.chargement-campagne p {
+  margin: 0;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;
@@ -100,6 +114,47 @@ summary:focus-visible,
   font-size: 1.05rem;
   font-weight: 600;
   letter-spacing: 0.11em;
+}
+
+.app-header__outils {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1.25rem;
+}
+
+.panneau-sauvegarde {
+  display: grid;
+  justify-items: end;
+  gap: 0.25rem;
+}
+
+.panneau-sauvegarde__commandes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.35rem;
+}
+
+.panneau-sauvegarde button {
+  min-height: 2.75rem;
+  padding: 0.45rem 0.75rem;
+  color: var(--texte-secondaire);
+  background: transparent;
+  border: 1px solid var(--cuivre);
+  cursor: pointer;
+}
+
+.panneau-sauvegarde button:hover {
+  color: var(--texte);
+  border-color: var(--ambre);
+}
+
+.panneau-sauvegarde p {
+  max-width: 34rem;
+  margin: 0;
+  color: var(--texte-secondaire);
+  font-size: 0.82rem;
+  line-height: 1.25;
 }
 
 .selecteur-de-langue {
@@ -736,6 +791,21 @@ summary:focus-visible,
 
   .app-header > div {
     width: 100%;
+  }
+
+  .app-header__outils {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .panneau-sauvegarde {
+    justify-items: start;
+  }
+
+  .panneau-sauvegarde__commandes {
+    justify-content: flex-start;
+    flex-wrap: wrap;
   }
 
   .scene-layout {

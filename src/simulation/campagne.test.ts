@@ -124,6 +124,19 @@ describe("Graine de campagne", () => {
           },
         },
       },
+      echeances: [],
+      fluxPseudoAleatoires: {
+        "evenements-narratifs": {
+          algorithme: "xoshiro128**",
+          version: 1,
+          etat: expect.arrayContaining([
+            expect.any(Number),
+            expect.any(Number),
+            expect.any(Number),
+            expect.any(Number),
+          ]),
+        },
+      },
     });
   });
 });

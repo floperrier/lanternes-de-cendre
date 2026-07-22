@@ -4,6 +4,7 @@ import "@fontsource/source-sans-3/600.css";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
+import { creerControleurDeSessionNavigateur } from "./sauvegarde/controleur";
 import { App } from "./ui/App";
 import "./ui/styles.css";
 
@@ -13,8 +14,10 @@ if (racine === null) {
   throw new Error("La racine de l'application est introuvable.");
 }
 
+const controleur = creerControleurDeSessionNavigateur("CENDRE-01");
+
 createRoot(racine).render(
   <StrictMode>
-    <App />
+    <App controleur={controleur} />
   </StrictMode>,
 );

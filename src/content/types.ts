@@ -1,3 +1,5 @@
+export const VERSION_CONTENU_COURANTE = 1 as const;
+
 export const LANGUES = ["fr", "en"] as const;
 export type Langue = (typeof LANGUES)[number];
 
@@ -123,7 +125,7 @@ export interface EvenementDuCatalogue {
 }
 
 export interface CatalogueDEvenements {
-  readonly version: 1;
+  readonly version: typeof VERSION_CONTENU_COURANTE;
   readonly evenements: readonly EvenementDuCatalogue[];
 }
 

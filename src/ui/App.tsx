@@ -1,26 +1,34 @@
-import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 
-import {
-  creerApplicationCampagne,
-  projeterCampagne,
-} from "../application/application";
+import { projeterCampagne } from "../application/application";
 import { projeterPilotage } from "../application/pilotage";
 import type { Langue } from "../content/types";
+import {
+  type ControleurDeSessionCampagne,
+  type EtatDuControleurDeSession,
+} from "../sauvegarde/controleur";
 import { CommandesDuTemps } from "./CommandesDuTemps";
 import { CoupeHabitee } from "./CoupeHabitee";
 import { EtatTextuel } from "./EtatTextuel";
 import { PanneauDePilotage } from "./PanneauDePilotage";
+import { PanneauSauvegarde } from "./PanneauSauvegarde";
 import { RubanNarratif } from "./RubanNarratif";
 import { SelecteurDeLangue } from "./SelecteurDeLangue";
 
-const GRAINE_DE_DEMONSTRATION = "CENDRE-01";
+interface PropsCampagne {
+  readonly etatDuControleur: Extract<
+    EtatDuControleurDeSession,
+    { readonly statut: "ouverte" }
+  >;
+  readonly controleur: ControleurDeSessionCampagne;
+}
 
-export function App() {
+function CampagnePersistante({
+  etatDuControleur,
+  controleur,
+}: PropsCampagne) {
   const [langue, choisirLangue] = useState<Langue>("fr");
-  const application = useMemo(
-    () => creerApplicationCampagne(GRAINE_DE_DEMONSTRATION),
-    [],
-  );
+  const application = etatDuControleur.ouverture.application;
   const etat = useSyncExternalStore(
     application.sabonner,
     application.lireEtat,
@@ -51,7 +59,18 @@ export function App() {
             {projection.graine}
           </p>
         </div>
-        <SelecteurDeLangue langue={langue} choisirLangue={choisirLangue} />
+        <div className="app-header__outils">
+          <SelecteurDeLangue langue={langue} choisirLangue={choisirLangue} />
+          <PanneauSauvegarde
+            controleur={controleur}
+            statutAutomatique={etatDuControleur.statutSauvegarde}
+            erreurAsynchrone={etatDuControleur.erreurSauvegarde}
+            explicationInitiale={etatDuControleur.ouverture.explication}
+            archiveIncompatibleInitiale={
+              etatDuControleur.ouverture.archiveIncompatible
+            }
+          />
+        </div>
       </header>
 
       <div className="scene-layout">
@@ -75,5 +94,42 @@ export function App() {
 
       <CommandesDuTemps application={application} projection={projection} />
     </main>
+  );
+}
+
+interface PropsApp {
+  readonly controleur: ControleurDeSessionCampagne;
+}
+
+export function App({ controleur }: PropsApp) {
+  const etatDuControleur = useSyncExternalStore(
+    controleur.sabonner,
+    controleur.lireEtat,
+    controleur.lireEtat,
+  );
+
+  if (etatDuControleur.statut === "erreur") {
+    return (
+      <main className="chargement-campagne">
+        <h1>Les Lanternes de Cendre</h1>
+        <p role="alert">{etatDuControleur.explication}</p>
+      </main>
+    );
+  }
+
+  if (etatDuControleur.statut === "chargement") {
+    return (
+      <main className="chargement-campagne">
+        <h1>Les Lanternes de Cendre</h1>
+        <p role="status">Reprise de la Campagne…</p>
+      </main>
+    );
+  }
+
+  return (
+    <CampagnePersistante
+      etatDuControleur={etatDuControleur}
+      controleur={controleur}
+    />
   );
 }
