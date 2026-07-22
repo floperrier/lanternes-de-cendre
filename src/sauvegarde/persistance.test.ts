@@ -9,7 +9,7 @@ import {
   type ArchivePersistante,
 } from "./persistance";
 
-function creerArchive(id: string, version = 2): ArchivePersistante {
+function creerArchive(id: string, version = 3): ArchivePersistante {
   return {
     id,
     version,
@@ -52,7 +52,7 @@ describe("port de persistance en mémoire", () => {
     const port = creerPortDePersistanceMemoire({ nombreDeSnapshots: 1 });
     const protegee: ArchivePersistante = {
       id: "identite-partagee",
-      version: 2,
+      version: 3,
       contenu: "sous-version-future",
       protegeeDeLaRotation: true,
     };
@@ -60,14 +60,14 @@ describe("port de persistance en mémoire", () => {
     await port.enregistrer(protegee);
     await port.enregistrer({
       id: "identite-partagee",
-      version: 2,
+      version: 3,
       contenu: "snapshot-courant",
     });
 
     await expect(port.lister()).resolves.toEqual([
       {
         id: "identite-partagee",
-        version: 2,
+        version: 3,
         contenu: "snapshot-courant",
       },
       protegee,
@@ -105,7 +105,7 @@ describe("port de persistance en mémoire", () => {
     await expect(
       port.enregistrer({
         id: "trop-volumineuse",
-        version: 2,
+        version: 3,
         contenu: "x".repeat(500),
       }),
     ).rejects.toBeInstanceOf(ErreurQuotaSauvegarde);
@@ -124,7 +124,7 @@ describe("port de persistance en mémoire", () => {
     expect(JSON.parse(archive.contenu)).toEqual(sauvegarde);
     expect(archive).toMatchObject({
       id: sauvegarde.id,
-      version: 2,
+      version: 3,
     });
   });
 });

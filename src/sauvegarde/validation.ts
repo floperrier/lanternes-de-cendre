@@ -10,10 +10,12 @@ import {
 } from "../simulation/campagne";
 import {
   VERSION_ALEATOIRE_COURANTE,
+  VERSION_SIMULATION_AVANT_ROUTES,
   VERSION_SIMULATION_COURANTE,
   VERSION_SIMULATION_INITIALE,
 } from "../simulation/versions";
 import {
+  appliquerVariationAUnStock,
   creerPilotageInitial,
   IDENTIFIANTS_DE_CAPACITE,
   IDENTIFIANTS_DE_POLITIQUE,
@@ -35,7 +37,15 @@ import {
   type EtatInfrastructure,
   type OrdreDeChantier,
 } from "../simulation/infrastructure";
+import {
+  TRONCONS_DE_ROUTE,
+  appliquerConsommationDeRouteAUnStock,
+  creerEtatDesRoutesInitial,
+  trouverTronconDeRoute,
+  type EtatDesRoutes,
+} from "../simulation/routes";
 import { rejouerReproduction } from "./replay";
+import { estEtatDesRoutes } from "./validationRoutes";
 import type {
   CommandeDeReproduction,
   ReproductionDeCampagne,
@@ -109,6 +119,20 @@ export interface EtatCampagneV1 {
   readonly narration: EtatCampagne["narration"];
 }
 
+export interface EtatCampagneV2
+  extends Omit<
+    EtatCampagne,
+    "version" | "routes" | "infrastructure" | "citeCaravane"
+  > {
+  readonly version: typeof VERSION_SIMULATION_AVANT_ROUTES;
+  readonly citeCaravane: Omit<EtatCampagne["citeCaravane"], "formation"> & {
+    readonly formation: {
+      readonly type: "grappe";
+      readonly plateformes: readonly string[];
+    };
+  };
+}
+
 export function estObjet(valeur: unknown): valeur is ObjetInconnu {
   return (
     valeur !== null && typeof valeur === "object" && !Array.isArray(valeur)
@@ -159,7 +183,7 @@ export function estCommandeV1(valeur: unknown): valeur is CommandeCampagne {
   return false;
 }
 
-export function estCommande(valeur: unknown): valeur is CommandeCampagne {
+export function estCommandeV2(valeur: unknown): valeur is CommandeCampagne {
   if (estCommandeV1(valeur)) {
     return true;
   }
@@ -190,6 +214,21 @@ export function estCommande(valeur: unknown): valeur is CommandeCampagne {
       valeur.incidentId === INCIDENT_INITIAL.id &&
       typeof valeur.ordre === "string" &&
       ORDRES_D_INCIDENT.has(valeur.ordre)
+    );
+  }
+  return false;
+}
+
+export function estCommande(valeur: unknown): valeur is CommandeCampagne {
+  if (estCommandeV2(valeur)) {
+    return true;
+  }
+  if (!estObjet(valeur) || typeof valeur.type !== "string") {
+    return false;
+  }
+  if (valeur.type === "engagement-de-route.confirmer") {
+    return TRONCONS_DE_ROUTE.some(
+      (troncon) => troncon.id === valeur.tronconId,
     );
   }
   if (valeur.type === "halte.deployer" || valeur.type === "halte.replier") {
@@ -886,17 +925,23 @@ function calculerStockAttendu(
   secondesFinales: number,
   faits: readonly ObjetInconnu[],
   infrastructure: EtatInfrastructure,
+  routes: EtatDesRoutes,
 ): { readonly quantite: number; readonly reliquatDeFlux: number } {
   const initial = PILOTAGE_INITIAL.economie.stocks[id];
-  let quantite = initial.quantite;
-  let reliquatDeFlux = initial.reliquatDeFlux;
+  let stock = { ...initial };
   let secondeCourante = 0;
   let fluxParHeure = initial.fluxParHeure;
   const appliquerFlux = (secondes: number) => {
-    const numerateur = reliquatDeFlux + fluxParHeure * secondes;
+    const numerateur =
+      stock.reliquatDeFlux + fluxParHeure * Math.max(0, secondes);
     const variation = Math.trunc(numerateur / 3_600);
-    quantite = Math.max(0, quantite + variation);
-    reliquatDeFlux = quantite === 0 ? 0 : numerateur - variation * 3_600;
+    const quantite = Math.max(0, stock.quantite + variation);
+    stock = {
+      ...stock,
+      quantite,
+      reliquatDeFlux:
+        quantite === 0 ? 0 : numerateur - variation * 3_600,
+    };
   };
 
   const installationsParEmplacement = new Map(
@@ -910,62 +955,95 @@ function calculerStockAttendu(
       ),
     ),
   );
-  const transitions = infrastructure.chantiersTermines.map((chantier) => {
-    let variationDeFlux = 0;
-    if (chantier.ordre.type === "construction") {
-      variationDeFlux =
-        CATALOGUE_D_INSTALLATIONS[chantier.ordre.definitionId].effetsEconomiques
-          .fluxDeStocks[id] ?? 0;
-      installationsParEmplacement.set(
-        chantier.ordre.emplacementId,
-        chantier.ordre.definitionId,
-      );
-    } else if (chantier.ordre.type === "demontage") {
-      const definitionId = installationsParEmplacement.get(
-        chantier.ordre.emplacementId,
-      );
-      if (definitionId !== null && definitionId !== undefined) {
-        variationDeFlux = -(
-          CATALOGUE_D_INSTALLATIONS[definitionId].effetsEconomiques
-            .fluxDeStocks[id] ?? 0
+  const transitions = infrastructure.chantiersTermines.map(
+    (chantier, index) => {
+      let variationDeFlux = 0;
+      if (chantier.ordre.type === "construction") {
+        variationDeFlux =
+          CATALOGUE_D_INSTALLATIONS[chantier.ordre.definitionId]
+            .effetsEconomiques.fluxDeStocks[id] ?? 0;
+        installationsParEmplacement.set(
+          chantier.ordre.emplacementId,
+          chantier.ordre.definitionId,
+        );
+      } else if (chantier.ordre.type === "demontage") {
+        const definitionId = installationsParEmplacement.get(
+          chantier.ordre.emplacementId,
+        );
+        if (definitionId !== null && definitionId !== undefined) {
+          variationDeFlux = -(
+            CATALOGUE_D_INSTALLATIONS[definitionId].effetsEconomiques
+              .fluxDeStocks[id] ?? 0
+          );
+        }
+        installationsParEmplacement.set(chantier.ordre.emplacementId, null);
+      } else {
+        const definitionId = installationsParEmplacement.get(
+          chantier.ordre.origineId,
+        );
+        installationsParEmplacement.set(chantier.ordre.origineId, null);
+        installationsParEmplacement.set(
+          chantier.ordre.destinationId,
+          definitionId ?? null,
         );
       }
-      installationsParEmplacement.set(chantier.ordre.emplacementId, null);
-    } else {
-      const definitionId = installationsParEmplacement.get(
-        chantier.ordre.origineId,
-      );
-      installationsParEmplacement.set(chantier.ordre.origineId, null);
-      installationsParEmplacement.set(
-        chantier.ordre.destinationId,
-        definitionId ?? null,
-      );
-    }
-    return { moment: chantier.termineA, variationDeFlux };
-  });
-  const evenements = [
-    ...faits.map((fait) => ({ moment: fait.moment as number, fait })),
-    ...transitions.map((transition) => ({
-      moment: transition.moment,
-      transition,
+      return {
+        type: "infrastructure" as const,
+        moment: chantier.termineA,
+        index,
+        variationDeFlux,
+      };
+    },
+  );
+  const occurrences = [
+    ...faits.map((fait, index) => ({
+      type: "fait" as const,
+      moment: fait.moment as number,
+      index,
+      fait,
     })),
-  ].sort((gauche, droite) => gauche.moment - droite.moment);
+    ...transitions,
+    ...routes.engagements.map((engagement, index) => ({
+      type: "engagement" as const,
+      moment: engagement.engageA,
+      index,
+      engagement,
+    })),
+  ].sort((gauche, droite) => {
+    if (gauche.moment !== droite.moment) {
+      return gauche.moment - droite.moment;
+    }
+    const priorite = { fait: 0, infrastructure: 1, engagement: 2 } as const;
+    return (
+      priorite[gauche.type] - priorite[droite.type] ||
+      gauche.index - droite.index
+    );
+  });
 
-  for (const evenement of evenements) {
-    const moment = evenement.moment;
-    appliquerFlux(moment - secondeCourante);
-    secondeCourante = moment;
-    if ("fait" in evenement) {
-      const effets = evenement.fait.effets as ObjetInconnu;
+  for (const occurrence of occurrences) {
+    appliquerFlux(occurrence.moment - secondeCourante);
+    secondeCourante = occurrence.moment;
+    if (occurrence.type === "fait") {
+      const effets = occurrence.fait.effets as ObjetInconnu;
       for (const effet of effets.materiels as ObjetInconnu[]) {
         if (effet.type === "stock.modifie" && effet.stock === id) {
-          quantite = Math.max(0, quantite + (effet.variation as number));
+          stock = appliquerVariationAUnStock(
+            stock,
+            effet.variation as number,
+          );
         }
       }
+    } else if (occurrence.type === "infrastructure") {
+      fluxParHeure += occurrence.variationDeFlux;
     } else {
-      fluxParHeure += evenement.transition.variationDeFlux;
+      stock = appliquerConsommationDeRouteAUnStock(
+        id,
+        stock,
+        trouverTronconDeRoute(occurrence.engagement.tronconId),
+      );
     }
   }
+
   appliquerFlux(secondesFinales - secondeCourante);
   if (id === "materiaux") {
     const consommes =
@@ -973,9 +1051,12 @@ function calculerStockAttendu(
         (total, chantier) => total + chantier.materiauxConsommes,
         0,
       ) + (infrastructure.chantierActif?.materiauxConsommes ?? 0);
-    quantite = Math.max(0, quantite - consommes);
+    stock = appliquerVariationAUnStock(stock, -consommes);
   }
-  return { quantite, reliquatDeFlux };
+  return {
+    quantite: stock.quantite,
+    reliquatDeFlux: stock.reliquatDeFlux,
+  };
 }
 
 function estEtatPilotage(
@@ -983,6 +1064,7 @@ function estEtatPilotage(
   secondesCourantes: number,
   faits: readonly ObjetInconnu[],
   infrastructure: EtatInfrastructure,
+  routes: EtatDesRoutes,
 ): valeur is EtatPilotage {
   if (!estObjet(valeur)) {
     return false;
@@ -1020,6 +1102,7 @@ function estEtatPilotage(
       secondesCourantes,
       faits,
       infrastructure,
+      routes,
     );
     if (
       stock.quantite !== calcule.quantite ||
@@ -1301,8 +1384,11 @@ export function lireEtatV1(valeur: unknown): EtatCampagneV1 | undefined {
   return { version: VERSION_SIMULATION_INITIALE, ...parties };
 }
 
-export function lireEtatV2(valeur: unknown): EtatCampagne | undefined {
-  if (!estObjet(valeur) || valeur.version !== VERSION_SIMULATION_COURANTE) {
+export function lireEtatCourant(valeur: unknown): EtatCampagne | undefined {
+  if (
+    !estObjet(valeur) ||
+    valeur.version !== VERSION_SIMULATION_COURANTE
+  ) {
     return undefined;
   }
   const parties = lirePartiesCommunesDEtat(
@@ -1314,6 +1400,7 @@ export function lireEtatV2(valeur: unknown): EtatCampagne | undefined {
   const narration = valeur.narration;
   const pilotage = valeur.pilotage;
   const infrastructure = valeur.infrastructure;
+  const routes = valeur.routes;
 
   if (
     parties === undefined ||
@@ -1327,11 +1414,13 @@ export function lireEtatV2(valeur: unknown): EtatCampagne | undefined {
       parties.tempsDuConvoi.secondes,
       narration.faitsDeCampagne,
     ) ||
+    !estEtatDesRoutes(routes, parties.tempsDuConvoi.secondes) ||
     !estEtatPilotage(
       pilotage,
       parties.tempsDuConvoi.secondes,
       narration.faitsDeCampagne,
       infrastructure,
+      routes,
     ) ||
     !estCausaliteDeNarrationValide(parties, pilotage) ||
     !Array.isArray(valeur.echeances) ||
@@ -1359,7 +1448,39 @@ export function lireEtatV2(valeur: unknown): EtatCampagne | undefined {
   return valeur as unknown as EtatCampagne;
 }
 
-function lireReproductionV2(
+export function lireEtatV2(valeur: unknown): EtatCampagneV2 | undefined {
+  if (
+    !estObjet(valeur) ||
+    valeur.version !== VERSION_SIMULATION_AVANT_ROUTES ||
+    "routes" in valeur ||
+    "infrastructure" in valeur
+  ) {
+    return undefined;
+  }
+  const infrastructure = creerInfrastructureInitiale();
+  const etatCourant = lireEtatCourant({
+    ...valeur,
+    version: VERSION_SIMULATION_COURANTE,
+    citeCaravane: estObjet(valeur.citeCaravane)
+      ? {
+          ...valeur.citeCaravane,
+          formation: {
+            type: "grappe",
+            plateformes: infrastructure.plateformes.map(
+              (plateforme) => plateforme.id,
+            ),
+          },
+        }
+      : valeur.citeCaravane,
+    infrastructure,
+    routes: creerEtatDesRoutesInitial(),
+  });
+  return etatCourant === undefined
+    ? undefined
+    : (valeur as unknown as EtatCampagneV2);
+}
+
+function lireReproductionCourante(
   valeur: unknown,
 ): ReproductionDeCampagne | undefined {
   if (
@@ -1369,7 +1490,7 @@ function lireReproductionV2(
   ) {
     return undefined;
   }
-  const snapshot = lireEtatV2(valeur.snapshot);
+  const snapshot = lireEtatCourant(valeur.snapshot);
   if (snapshot === undefined) {
     return undefined;
   }
@@ -1395,7 +1516,7 @@ function lireReproductionV2(
   };
 }
 
-export function lireSauvegardeV2(
+export function lireSauvegardeCourante(
   valeur: unknown,
 ): SauvegardeCampagne | undefined {
   if (
@@ -1417,8 +1538,8 @@ export function lireSauvegardeV2(
     return undefined;
   }
 
-  const etat = lireEtatV2(valeur.etat);
-  const reproduction = lireReproductionV2(valeur.reproduction);
+  const etat = lireEtatCourant(valeur.etat);
+  const reproduction = lireReproductionCourante(valeur.reproduction);
   if (
     etat === undefined ||
     reproduction === undefined ||

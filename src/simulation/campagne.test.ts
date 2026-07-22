@@ -123,6 +123,16 @@ describe("Graine de campagne", () => {
         },
       },
       infrastructure: creerInfrastructureInitiale(),
+      routes: expect.objectContaining({
+        position: "halte-du-puits-sec",
+        etatsReels: {
+          "digue-des-puits": "praticable",
+          "chaussee-de-veille-basse": "degrade",
+          "chenal-des-vannes": "praticable",
+        },
+        engagements: [],
+        jalons: [],
+      }),
       echeances: [],
       fluxPseudoAleatoires: {
         "evenements-narratifs": {
@@ -199,6 +209,93 @@ describe("commandes du Temps du convoi", () => {
       "prologue.signaux-sous-la-cendre",
     );
     expect(empreinteEtat(transition.etat)).toMatch(/^[0-9a-f]{8}$/);
+  });
+});
+
+describe("Engagement de route et Jalon du monde", () => {
+  it("annule le reliquat quand la consommation de route épuise exactement un stock", () => {
+    const avantEngagement = appliquerCommande(
+      creerCampagneInitiale("CENDRE-01"),
+      {
+        type: "temps-du-convoi.ecouler",
+        secondesReelles: 71_622,
+      },
+    ).etat;
+
+    expect(avantEngagement.pilotage.economie.stocks.eau).toMatchObject({
+      quantite: 4,
+      reliquatDeFlux: -36,
+    });
+
+    const engagement = appliquerCommande(avantEngagement, {
+      type: "engagement-de-route.confirmer",
+      tronconId: "digue-des-puits",
+    }).etat;
+
+    expect(engagement.pilotage.economie.stocks.eau).toMatchObject({
+      quantite: 0,
+      reliquatDeFlux: 0,
+    });
+  });
+
+  it("suspend le convoi à la confirmation puis condamne le retour au Jalon", () => {
+    const etatInitial = creerCampagneInitiale("CENDRE-01");
+
+    const engagement = appliquerCommande(etatInitial, {
+      type: "engagement-de-route.confirmer",
+      tronconId: "digue-des-puits",
+    });
+
+    expect(engagement.etat.tempsDuConvoi.vitesse).toBe(0);
+    expect(engagement.etat.pilotage.economie.stocks.combustible.quantite).toBe(
+      537,
+    );
+    expect(engagement.etat.pilotage.economie.stocks.eau.quantite).toBe(756);
+    expect(engagement.etat.routes.engagements[0]).toMatchObject({
+      tronconId: "digue-des-puits",
+      arriveeA: 360,
+      statut: "en-cours",
+    });
+    expect(engagement.evenements).toEqual([
+      {
+        type: "engagement-de-route.confirme",
+        engagementId: "engagement-1",
+        tronconId: "digue-des-puits",
+        origine: "halte-du-puits-sec",
+        destination: "haut-puits",
+        arriveeA: 360,
+        consommationsAppliquees: { combustible: 3, eau: 4 },
+      },
+      {
+        type: "temps-du-convoi.vitesse-modifiee",
+        vitessePrecedente: 1,
+        vitesse: 0,
+      },
+    ]);
+
+    const reparti = appliquerCommande(engagement.etat, {
+      type: "temps-du-convoi.regler-vitesse",
+      vitesse: 4,
+    }).etat;
+    const arrivee = appliquerCommande(reparti, {
+      type: "temps-du-convoi.ecouler",
+      secondesReelles: 90,
+    });
+
+    expect(arrivee.etat.routes.position).toBe("haut-puits");
+    expect(arrivee.etat.routes.etatsReels["digue-des-puits"]).toBe("coupe");
+    expect(arrivee.evenements).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: "jalon-du-monde.atteint",
+          moment: 360,
+        }),
+        expect.objectContaining({
+          type: "etat-de-route.modifie",
+          cause: "front-de-cendre.condamnation-arriere",
+        }),
+      ]),
+    );
   });
 });
 

@@ -23,15 +23,17 @@ import {
   TAILLE_MAX_ARCHIVE_SAUVEGARDE,
 } from "./sauvegarde";
 import type { CommandeDeReproduction, ReproductionDeCampagne } from "./types";
-import { lireEtatV2 } from "./validation";
+import { lireEtatCourant } from "./validation";
 
 interface EtatV2HistoriqueMutable {
   version: number;
   infrastructure?: unknown;
+  routes?: unknown;
   citeCaravane: { formation: { plateformes: string[] } };
 }
 
 interface ArchiveV2HistoriqueMutable {
+  version: number;
   etat: EtatV2HistoriqueMutable;
   empreinte: string;
   versions: { simulation: number };
@@ -54,6 +56,42 @@ function suivreReproduction(
     });
   });
   return { ...initiale, commandes };
+}
+
+function retirerRoutes(etat: EtatCampagne): Record<string, unknown> {
+  const sansRoutes = { ...etat } as Record<string, unknown>;
+  delete sansRoutes.routes;
+  delete sansRoutes.infrastructure;
+  sansRoutes.citeCaravane = {
+    ...etat.citeCaravane,
+    formation: {
+      type: "grappe",
+      plateformes: [
+        "phare",
+        "foyers",
+        "atelier",
+        "serres",
+        "reservoirs",
+        "vigie",
+        "forge",
+      ],
+    },
+  };
+  return sansRoutes;
+}
+
+function reordonnerProprietes(valeur: unknown): unknown {
+  if (Array.isArray(valeur)) {
+    return valeur.map(reordonnerProprietes);
+  }
+  if (valeur !== null && typeof valeur === "object") {
+    return Object.fromEntries(
+      Object.entries(valeur)
+        .reverse()
+        .map(([cle, membre]) => [cle, reordonnerProprietes(membre)]),
+    );
+  }
+  return valeur;
 }
 
 describe("sauvegarde portable", () => {
@@ -83,7 +121,7 @@ describe("sauvegarde portable", () => {
       installeeA: 0,
     };
 
-    expect(lireEtatV2(falsifie)).toBeUndefined();
+    expect(lireEtatCourant(falsifie)).toBeUndefined();
   });
 
   it("refuse un Chantier actif dont la cible n’existe pas", () => {
@@ -112,7 +150,7 @@ describe("sauvegarde portable", () => {
     mutation.infrastructure.chantierActif.ordre.emplacementId =
       "emplacement-inexistant";
 
-    expect(lireEtatV2(mutation)).toBeUndefined();
+    expect(lireEtatCourant(mutation)).toBeUndefined();
   });
 
   it("refuse un historique causalement impossible faute de capacité", () => {
@@ -168,7 +206,7 @@ describe("sauvegarde portable", () => {
     expect(termine.pilotage.economie.capacites["main-d-oeuvre"]).toMatchObject(
       { production: 12, demande: 13 },
     );
-    expect(lireEtatV2(termine)).toBeUndefined();
+    expect(lireEtatCourant(termine)).toBeUndefined();
   });
 
   it("migre une sauvegarde v2 antérieure aux Plateformes constructibles", () => {
@@ -192,12 +230,18 @@ describe("sauvegarde portable", () => {
     ];
     for (const etat of [archive.etat, archive.reproduction.snapshot]) {
       delete etat.infrastructure;
+      delete etat.routes;
       etat.version = 2;
       etat.citeCaravane.formation.plateformes = plateformesLegacy;
     }
+    archive.version = 2;
     archive.versions.simulation = 2;
-    archive.empreinte = "12345678";
-    archive.reproduction.empreinteSnapshot = "12345678";
+    archive.empreinte = empreinteEtat(
+      archive.etat as unknown as EtatCampagne,
+    );
+    archive.reproduction.empreinteSnapshot = empreinteEtat(
+      archive.reproduction.snapshot as unknown as EtatCampagne,
+    );
 
     const importation = importerSauvegarde(JSON.stringify(archive));
 
@@ -312,6 +356,94 @@ describe("sauvegarde portable", () => {
     });
   });
 
+  it("migre une sauvegarde v2 antérieure à l’Atlas vers la v3 rejouable", () => {
+    const etatInitialV3 = creerApplicationCampagne("CENDRE-01").lireEtat();
+    const etatInitialSansRoutes = retirerRoutes(etatInitialV3);
+    const snapshotV2 = { ...etatInitialSansRoutes, version: 2 };
+    const apresVitesseV3 = reprendreApplicationCampagne(etatInitialV3);
+    apresVitesseV3.envoyerCommande({
+      type: "temps-du-convoi.regler-vitesse",
+      vitesse: 4,
+    });
+    const apresVitesseSansRoutes = retirerRoutes(apresVitesseV3.lireEtat());
+    const apresVitesseV2 = { ...apresVitesseSansRoutes, version: 2 };
+    apresVitesseV3.envoyerCommande({
+      type: "temps-du-convoi.ecouler",
+      secondesReelles: 15,
+    });
+    const etatFinalSansRoutes = retirerRoutes(apresVitesseV3.lireEtat());
+    const etatFinalV2 = { ...etatFinalSansRoutes, version: 2 };
+    const empreinteSnapshotV2 = empreinteEtat(
+      snapshotV2 as unknown as EtatCampagne,
+    );
+    const empreinteApresVitesseV2 = empreinteEtat(
+      apresVitesseV2 as unknown as EtatCampagne,
+    );
+    const empreinteFinaleV2 = empreinteEtat(
+      etatFinalV2 as unknown as EtatCampagne,
+    );
+    const archiveV2 = JSON.stringify({
+      format: "lanternes-de-cendre.sauvegarde",
+      id: "archive-v2-sans-atlas",
+      version: 2,
+      versions: { simulation: 2, contenu: 1, aleatoire: 1, empreinte: 1 },
+      graine: "CENDRE-01",
+      horloge: { secondes: 60 },
+      etat: reordonnerProprietes(etatFinalV2),
+      reproduction: {
+        snapshot: snapshotV2,
+        empreinteSnapshot: empreinteSnapshotV2,
+        commandes: [
+          {
+            sequence: 0,
+            commande: {
+              type: "temps-du-convoi.regler-vitesse",
+              vitesse: 4,
+            },
+            empreinteApres: empreinteApresVitesseV2,
+          },
+          {
+            sequence: 1,
+            commande: {
+              type: "temps-du-convoi.ecouler",
+              secondesReelles: 15,
+            },
+            empreinteApres: empreinteFinaleV2,
+          },
+        ],
+      },
+      empreinte: empreinteFinaleV2,
+    });
+
+    const importation = importerSauvegarde(archiveV2);
+    expect(importation.statut).toBe("migree");
+    if (importation.statut !== "migree") {
+      throw new Error("La sauvegarde v2 devrait migrer vers l’Atlas v3.");
+    }
+    expect(importation.sauvegarde).toMatchObject({
+      version: 3,
+      versions: { simulation: 3 },
+      etat: {
+        version: 3,
+        routes: {
+          position: "halte-du-puits-sec",
+          engagements: [],
+          jalons: [],
+        },
+      },
+      reproduction: {
+        snapshot: { version: 3, routes: { position: "halte-du-puits-sec" } },
+        commandes: [
+          { sequence: 0, commande: { type: "temps-du-convoi.regler-vitesse" } },
+          { sequence: 1, commande: { type: "temps-du-convoi.ecouler" } },
+        ],
+      },
+    });
+    expect(
+      importerSauvegarde(exporterSauvegarde(importation.sauvegarde)).statut,
+    ).toBe("compatible");
+  });
+
   it("reprend exactement l'état, la projection et l'empreinte exportés", () => {
     const application = creerApplicationCampagne("CENDRE-01");
     const reproduction = suivreReproduction(application);
@@ -327,7 +459,7 @@ describe("sauvegarde portable", () => {
 
     expect(sauvegarde).toMatchObject({
       format: "lanternes-de-cendre.sauvegarde",
-      version: 2,
+      version: 3,
       versions: {
         simulation: 3,
         contenu: 1,
@@ -423,6 +555,79 @@ describe("sauvegarde portable", () => {
       etat: application.lireEtat(),
       empreinte: sauvegarde.empreinte,
     });
+  });
+
+  it("persiste et rejoue l’Engagement de route jusqu’au Jalon", () => {
+    const application = creerApplicationCampagne("CENDRE-01");
+    const reproduction = suivreReproduction(application);
+    application.envoyerCommande({
+      type: "engagement-de-route.confirmer",
+      tronconId: "digue-des-puits",
+    });
+    application.envoyerCommande({
+      type: "temps-du-convoi.regler-vitesse",
+      vitesse: 4,
+    });
+    application.envoyerCommande({
+      type: "temps-du-convoi.ecouler",
+      secondesReelles: 90,
+    });
+    const sauvegarde = creerSauvegarde(
+      application.lireEtat(),
+      reproduction,
+    );
+
+    const importation = importerSauvegarde(exporterSauvegarde(sauvegarde));
+    expect(importation.statut).toBe("compatible");
+    if (importation.statut !== "compatible") {
+      throw new Error("L’Engagement sauvegardé devrait être compatible.");
+    }
+    expect(importation.sauvegarde.etat.routes).toMatchObject({
+      position: "haut-puits",
+      etatsReels: { "digue-des-puits": "coupe" },
+      engagements: [
+        expect.objectContaining({
+          tronconId: "digue-des-puits",
+          statut: "termine",
+        }),
+      ],
+      jalons: [
+        expect.objectContaining({
+          type: "fin-de-troncon",
+          cause: "front-de-cendre.condamnation-arriere",
+        }),
+      ],
+    });
+    expect(rejouerReproduction(reproduction)).toMatchObject({
+      statut: "termine",
+      etat: importation.sauvegarde.etat,
+      empreinte: sauvegarde.empreinte,
+    });
+  });
+
+  it("valide chronologiquement un Engagement qui épuise exactement l’Eau", () => {
+    const application = creerApplicationCampagne("CENDRE-01");
+    const reproduction = suivreReproduction(application);
+    application.envoyerCommande({
+      type: "temps-du-convoi.ecouler",
+      secondesReelles: 71_622,
+    });
+    application.envoyerCommande({
+      type: "engagement-de-route.confirmer",
+      tronconId: "digue-des-puits",
+    });
+    const sauvegarde = creerSauvegarde(
+      application.lireEtat(),
+      reproduction,
+    );
+
+    expect(sauvegarde.etat.pilotage.economie.stocks.eau).toMatchObject({
+      quantite: 0,
+      reliquatDeFlux: 0,
+    });
+    expect(importerSauvegarde(exporterSauvegarde(sauvegarde)).statut).toBe(
+      "compatible",
+    );
   });
 
   it("rejette un pilotage v2 structurellement invalide", () => {
@@ -660,7 +865,7 @@ describe("sauvegarde portable", () => {
       throw new Error("La fixture v1 devrait être migrée.");
     }
     expect(importation.sauvegarde).toMatchObject({
-      version: 2,
+      version: 3,
       etat: {
         version: 3,
         tempsDuConvoi: { vitesse: 4 },
@@ -998,7 +1203,7 @@ describe("sauvegarde portable", () => {
       version: 99,
       archiveOriginale,
       explication:
-        "Cette sauvegarde utilise la version 99, plus récente que la version 2 prise en charge. L’original est conservé et peut être réexporté.",
+        "Cette sauvegarde utilise la version 99, plus récente que la version 3 prise en charge. L’original est conservé et peut être réexporté.",
     });
   });
 

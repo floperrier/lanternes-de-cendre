@@ -186,6 +186,13 @@ summary:focus-visible,
   grid-template-columns: minmax(0, 1fr) minmax(22rem, 25rem);
 }
 
+.surface-du-monde {
+  min-width: 0;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: minmax(12rem, 1fr) minmax(17rem, 0.9fr);
+}
+
 .colonne-de-pilotage {
   min-height: 0;
   overflow-y: auto;
@@ -199,6 +206,269 @@ summary:focus-visible,
   min-height: 0;
   overflow: hidden;
   background: var(--surface-froide);
+}
+
+.atlas {
+  position: relative;
+  min-height: 0;
+  padding: 1rem 1.2rem;
+  overflow: auto;
+  background:
+    linear-gradient(rgba(18, 31, 38, 0.94), rgba(9, 18, 22, 0.98)),
+    repeating-linear-gradient(
+      135deg,
+      transparent 0,
+      transparent 28px,
+      rgba(168, 120, 67, 0.08) 29px,
+      rgba(168, 120, 67, 0.08) 30px
+    );
+  border-top: 1px solid var(--cuivre);
+  scrollbar-color: var(--cuivre-clair) var(--surface);
+}
+
+.atlas__entete {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.85rem;
+}
+
+.atlas__entete h2,
+.atlas__entete p {
+  margin: 0;
+}
+
+.atlas__entete h2 {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 1.85rem;
+  font-weight: 600;
+}
+
+.atlas__entete div p:first-child {
+  color: var(--texte-secondaire);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.atlas__entete div p:last-child {
+  color: #fff2d9;
+  font-weight: 600;
+}
+
+.atlas__engagement,
+.atlas__jalon {
+  padding: 0.6rem 0.75rem;
+  margin: 0 0 0.75rem;
+  color: #fff2d9;
+  background: #241c11;
+  border-left: 3px solid var(--ambre);
+  font-size: 0.85rem;
+}
+
+.atlas__reseau {
+  min-height: 19rem;
+  overflow: hidden;
+  border: 1px solid var(--cuivre);
+}
+
+.atlas-pixi {
+  width: 100%;
+  height: 19rem;
+}
+
+.atlas-pixi canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.atlas__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 0.75rem;
+}
+
+.atlas__actions button {
+  min-height: 2.7rem;
+  padding: 0.5rem 0.7rem;
+  color: var(--texte);
+  background: #111a1d;
+  border: 1px solid var(--cuivre-clair);
+  cursor: pointer;
+}
+
+.atlas__troncon {
+  min-width: 0;
+  padding: 0.85rem;
+  background: rgba(7, 16, 20, 0.88);
+  border: 1px solid var(--cuivre);
+  box-shadow: inset 0 2px 0 rgba(224, 154, 53, 0.2);
+}
+
+.atlas__troncon > header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 0.65rem;
+}
+
+.atlas__troncon h3,
+.atlas__troncon h4,
+.atlas__troncon h5,
+.atlas__troncon p,
+.atlas__troncon ul,
+.atlas__troncon ol {
+  margin: 0;
+}
+
+.atlas__troncon h3 {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 1.35rem;
+}
+
+.atlas__troncon header p,
+.atlas__troncon > p {
+  color: var(--texte-secondaire);
+  font-size: 0.78rem;
+}
+
+.atlas__troncon > p {
+  margin-top: 0.35rem;
+}
+
+.atlas__troncon h4 {
+  margin-top: 0.65rem;
+  color: var(--ambre);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.atlas__renseignements {
+  display: grid;
+  gap: 0.4rem;
+  padding: 0;
+  margin-top: 0.35rem !important;
+  list-style: none;
+}
+
+.atlas__renseignements > li {
+  padding: 0.5rem;
+  background: #0a1215;
+  border-left: 2px solid var(--cuivre-clair);
+}
+
+.atlas__renseignements p,
+.atlas__renseignements ul,
+.atlas__bilan li {
+  color: var(--texte-secondaire);
+  font-size: 0.74rem;
+  line-height: 1.3;
+}
+
+.atlas__renseignements strong {
+  color: var(--texte);
+}
+
+.atlas__renseignements ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 0.7rem;
+  padding: 0;
+  margin-top: 0.25rem;
+  list-style: none;
+}
+
+.atlas__bilan {
+  padding-top: 0.15rem;
+}
+
+.atlas__bilan h5 {
+  margin-top: 0.4rem;
+  font-size: 0.74rem;
+}
+
+.atlas__bilan ul {
+  padding-left: 1rem;
+}
+
+.atlas__bilan small {
+  display: block;
+  color: var(--texte-secondaire);
+}
+
+.atlas__troncon > button,
+.atlas__confirmation button {
+  min-height: 2.7rem;
+  padding: 0.5rem 0.7rem;
+  color: var(--texte);
+  background: #111a1d;
+  border: 1px solid var(--cuivre-clair);
+  cursor: pointer;
+}
+
+.atlas__troncon > button {
+  width: 100%;
+  margin-top: 0.75rem;
+}
+
+.atlas__alternative {
+  margin-top: 0.85rem;
+  border-top: 1px solid var(--cuivre);
+}
+
+.atlas__alternative > summary {
+  padding: 0.75rem 0;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.atlas__liste-dom {
+  display: grid;
+  gap: 0.75rem;
+  padding: 0;
+  list-style: none;
+}
+
+.atlas__confirmation {
+  position: fixed;
+  z-index: 12;
+  inset: 50% auto auto 50%;
+  width: min(36rem, calc(100vw - 2rem));
+  max-height: calc(100vh - 2rem);
+  padding: 1rem;
+  margin: 0;
+  overflow: auto;
+  color: var(--texte);
+  background: rgba(8, 15, 18, 0.99);
+  border: 1px solid var(--ambre);
+  box-shadow: 0 0.8rem 2.5rem rgba(0, 0, 0, 0.55);
+  transform: translate(-50%, -50%);
+}
+
+.atlas__confirmation::backdrop {
+  background: rgba(2, 7, 9, 0.76);
+  backdrop-filter: blur(2px);
+}
+
+.atlas__confirmation h2,
+.atlas__confirmation p,
+.atlas__confirmation ul {
+  margin-top: 0;
+}
+
+.atlas__confirmation h2 {
+  font-family: "Cormorant Garamond", Georgia, serif;
+}
+
+.atlas__confirmation div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
 }
 
 .coupe-habitee canvas {
@@ -1087,6 +1357,10 @@ summary:focus-visible,
     display: block;
   }
 
+  .surface-du-monde {
+    display: block;
+  }
+
   .colonne-de-pilotage {
     overflow-y: visible;
     border-top: 1px solid var(--cuivre);
@@ -1095,6 +1369,11 @@ summary:focus-visible,
 
   .coupe-habitee {
     min-height: clamp(20rem, 58vw, 30rem);
+  }
+
+  .atlas {
+    max-height: none;
+    overflow: visible;
   }
 
   .etat-textuel {
@@ -1168,6 +1447,16 @@ summary:focus-visible,
 
   .commandes-du-temps button {
     min-height: 4.5rem;
+  }
+}
+
+@media (max-width: 680px) {
+  .atlas__reseau {
+    min-height: 45rem;
+  }
+
+  .atlas-pixi {
+    height: 45rem;
   }
 }
 

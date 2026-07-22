@@ -25,7 +25,7 @@ test("IndexedDB applique le même contrat tournant et protège les archives inco
       nomDeBase,
       nombreDeSnapshots: 2,
     });
-    const creerArchive = (id: string, version = 2) => ({
+    const creerArchive = (id: string, version = 3) => ({
       id,
       version,
       contenu: JSON.stringify({ id, version }),
@@ -96,13 +96,13 @@ test("IndexedDB applique le même contrat tournant et protège les archives inco
   const archivesAttendues = [
     {
       id: "troisieme",
-      version: 2,
-      contenu: JSON.stringify({ id: "troisieme", version: 2 }),
+      version: 3,
+      contenu: JSON.stringify({ id: "troisieme", version: 3 }),
     },
     {
       id: "deuxieme",
-      version: 2,
-      contenu: JSON.stringify({ id: "deuxieme", version: 2 }),
+      version: 3,
+      contenu: JSON.stringify({ id: "deuxieme", version: 3 }),
     },
     {
       id: "meme-id",

@@ -1,5 +1,5 @@
 import { migrerSauvegardeV1, migrerSauvegardeV2 } from "./migration";
-import { lireSauvegardeV2, estObjet } from "./validation";
+import { lireSauvegardeCourante, estObjet } from "./validation";
 import type {
   ResultatImportSauvegarde,
   SauvegardeCampagne,
@@ -8,6 +8,7 @@ import {
   FORMAT_SAUVEGARDE,
   NOMS_DES_SOUS_VERSIONS,
   VERSION_SAUVEGARDE_COURANTE,
+  VERSION_SAUVEGARDE_AVANT_ROUTES,
   VERSION_SAUVEGARDE_INITIALE,
   VERSIONS_DU_SNAPSHOT_COURANT,
   type NomDeSousVersion,
@@ -41,6 +42,15 @@ function trouverSousVersionFuture(
   | undefined {
   if (!estObjet(valeur.versions)) {
     return undefined;
+  }
+
+  if (
+    valeur.version === VERSION_SAUVEGARDE_AVANT_ROUTES &&
+    typeof valeur.versions.simulation === "number" &&
+    Number.isInteger(valeur.versions.simulation) &&
+    valeur.versions.simulation > VERSION_SAUVEGARDE_AVANT_ROUTES
+  ) {
+    return { nom: "simulation", version: valeur.versions.simulation };
   }
 
   for (const nom of NOMS_DES_SOUS_VERSIONS) {
@@ -129,17 +139,28 @@ export function importerSauvegarde(
         };
   }
 
-  const sauvegarde = lireSauvegardeV2(valeur);
-  if (sauvegarde !== undefined) {
-    return { statut: "compatible", sauvegarde };
+  if (version === VERSION_SAUVEGARDE_AVANT_ROUTES) {
+    const sauvegarde = migrerSauvegardeV2(valeur);
+    return sauvegarde === undefined
+      ? {
+          statut: "invalide",
+          archiveOriginale,
+          explication: "La sauvegarde v2 est incomplète ou incohérente.",
+        }
+      : {
+          statut: "migree",
+          sauvegarde,
+          archiveOriginale,
+        };
   }
-  const migration = migrerSauvegardeV2(valeur);
-  return migration === undefined
+
+  const sauvegarde = lireSauvegardeCourante(valeur);
+  return sauvegarde === undefined
     ? {
         statut: "invalide",
         archiveOriginale,
         explication:
-          "La sauvegarde v2 est incomplète, altérée ou diverge lors du replay.",
+          "La sauvegarde v3 est incomplète, altérée ou diverge lors du replay.",
       }
-    : { statut: "migree", sauvegarde: migration, archiveOriginale };
+    : { statut: "compatible", sauvegarde };
 }

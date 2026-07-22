@@ -7,7 +7,8 @@ import { VERSION_CONTENU_COURANTE } from "../content/types";
 
 export const FORMAT_SAUVEGARDE = "lanternes-de-cendre.sauvegarde" as const;
 export const VERSION_SAUVEGARDE_INITIALE = 1 as const;
-export const VERSION_SAUVEGARDE_COURANTE = 2 as const;
+export const VERSION_SAUVEGARDE_AVANT_ROUTES = 2 as const;
+export const VERSION_SAUVEGARDE_COURANTE = 3 as const;
 export { VERSION_CONTENU_COURANTE } from "../content/types";
 
 export const VERSIONS_DU_SNAPSHOT_COURANT = Object.freeze({

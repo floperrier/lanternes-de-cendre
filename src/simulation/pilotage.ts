@@ -204,6 +204,18 @@ export interface StockDuConvoi {
   readonly reliquatDeFlux: number;
 }
 
+export function appliquerVariationAUnStock(
+  stock: StockDuConvoi,
+  variation: number,
+): StockDuConvoi {
+  const quantite = Math.max(0, stock.quantite + variation);
+  return {
+    ...stock,
+    quantite,
+    reliquatDeFlux: quantite === 0 ? 0 : stock.reliquatDeFlux,
+  };
+}
+
 export interface CapaciteDuConvoi {
   readonly production: number;
   readonly demande: number;

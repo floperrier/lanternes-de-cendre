@@ -32,6 +32,16 @@ import {
   type EtatInfrastructure,
   type EvenementDInfrastructure,
 } from "./infrastructure";
+import {
+  appliquerConsommationDeRouteAUnStock,
+  confirmerEngagementDeRoute,
+  creerEtatDesRoutesInitial,
+  traiterJalonsDeRoute,
+  trouverTronconDeRoute,
+  type EtatDesRoutes,
+  type EvenementDeRoute,
+  type IdentifiantDeTroncon,
+} from "./routes";
 import { VERSION_SIMULATION_COURANTE } from "./versions";
 import {
   affecterCompagnon,
@@ -81,6 +91,7 @@ export interface EtatCampagne {
   };
   readonly pilotage: EtatPilotage;
   readonly infrastructure: EtatInfrastructure;
+  readonly routes: EtatDesRoutes;
   readonly echeances: readonly EcheanceDeCampagne[];
   readonly fluxPseudoAleatoires: Readonly<{
     "evenements-narratifs": FluxPseudoAleatoire;
@@ -103,6 +114,10 @@ export type CommandeCampagne =
     }
   | CommandeDAffectationDeCompagnon
   | CommandeDeDecisionDuConseil
+  | {
+      readonly type: "engagement-de-route.confirmer";
+      readonly tronconId: IdentifiantDeTroncon;
+    }
   | CommandeDeDoctrine
   | CommandeDIncident
   | CommandeDInfrastructure;
@@ -138,7 +153,8 @@ export type EvenementDeDomaine =
   | EvenementDeDecisionDuConseil
   | EvenementDeDoctrine
   | EvenementDIncidentResolu
-  | EvenementDInfrastructure;
+  | EvenementDInfrastructure
+  | EvenementDeRoute;
 
 export interface TransitionDeCampagne {
   readonly etat: EtatCampagne;
@@ -168,6 +184,7 @@ export function creerCampagneInitiale(graine: GraineDeCampagne): EtatCampagne {
     },
     pilotage: creerPilotageInitial(),
     infrastructure: creerInfrastructureInitiale(),
+    routes: creerEtatDesRoutesInitial(),
     echeances: [],
     fluxPseudoAleatoires: {
       "evenements-narratifs": creerFluxPseudoAleatoire(
@@ -468,6 +485,14 @@ export function appliquerCommande(
       evenements.push(...echeancesRestantes.evenements);
     }
 
+    const jalonsDeRoute = traiterJalonsDeRoute(
+      nouvelEtat.routes,
+      etat.tempsDuConvoi.secondes,
+      nouvellesSecondes,
+    );
+    nouvelEtat = { ...nouvelEtat, routes: jalonsDeRoute.etat };
+    evenements.push(...jalonsDeRoute.evenements);
+
     return { etat: nouvelEtat, evenements };
   }
 
@@ -588,6 +613,57 @@ export function appliquerCommande(
     return {
       etat: enregistrerFaitsDeCampagne(etat, [transition.faitProduit]),
       evenements: [transition.evenement],
+    };
+  }
+
+  if (commande.type === "engagement-de-route.confirmer") {
+    const transition = confirmerEngagementDeRoute(
+      etat.routes,
+      commande.tronconId,
+      etat.tempsDuConvoi.secondes,
+    );
+    const troncon = trouverTronconDeRoute(commande.tronconId);
+    const stocks = etat.pilotage.economie.stocks;
+    return {
+      etat: {
+        ...etat,
+        routes: transition.etat,
+        pilotage: {
+          ...etat.pilotage,
+          economie: {
+            ...etat.pilotage.economie,
+            stocks: {
+              ...stocks,
+              combustible: appliquerConsommationDeRouteAUnStock(
+                "combustible",
+                stocks.combustible,
+                troncon,
+              ),
+              eau: appliquerConsommationDeRouteAUnStock(
+                "eau",
+                stocks.eau,
+                troncon,
+              ),
+            },
+          },
+        },
+        tempsDuConvoi: {
+          ...etat.tempsDuConvoi,
+          vitesse: 0,
+        },
+      },
+      evenements: [
+        ...transition.evenements,
+        ...(etat.tempsDuConvoi.vitesse === 0
+          ? []
+          : [
+              {
+                type: "temps-du-convoi.vitesse-modifiee" as const,
+                vitessePrecedente: etat.tempsDuConvoi.vitesse,
+                vitesse: 0 as const,
+              },
+            ]),
+      ],
     };
   }
 

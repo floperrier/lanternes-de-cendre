@@ -7,6 +7,7 @@ import {
 } from "../application/infrastructure";
 import { projeterPilotage } from "../application/pilotage";
 import { projeterCompagnonEtConseil } from "../application/conseil";
+import { projeterAtlas } from "../application/routes";
 import type { Langue } from "../content/types";
 import {
   type ControleurDeSessionCampagne,
@@ -14,6 +15,7 @@ import {
 } from "../sauvegarde/controleur";
 import { CommandesDuTemps } from "./CommandesDuTemps";
 import { ConseilDuConvoi } from "./ConseilDuConvoi";
+import { Atlas } from "./Atlas";
 import { CoupeHabitee } from "./CoupeHabitee";
 import { EtatTextuel } from "./EtatTextuel";
 import { InfrastructureDuConvoi } from "./InfrastructureDuConvoi";
@@ -42,6 +44,7 @@ function CampagnePersistante({ etatDuControleur, controleur }: PropsCampagne) {
   const projectionDuPilotage = projeterPilotage(etat, langue);
   const projectionDInfrastructure = projeterInfrastructure(etat, langue);
   const projectionDuConseil = projeterCompagnonEtConseil(etat, langue);
+  const projectionDeLAtlas = projeterAtlas(etat, langue);
 
   useEffect(() => {
     const horloge = window.setInterval(() => {
@@ -80,10 +83,17 @@ function CampagnePersistante({ etatDuControleur, controleur }: PropsCampagne) {
       </header>
 
       <div className="scene-layout">
-        <CoupeHabitee
-          implantation={projeterImplantationPixi(projectionDInfrastructure)}
-          chantierActif={projectionDInfrastructure.chantierActif !== null}
-        />
+        <div className="surface-du-monde">
+          <CoupeHabitee
+            implantation={projeterImplantationPixi(projectionDInfrastructure)}
+            chantierActif={projectionDInfrastructure.chantierActif !== null}
+          />
+          <Atlas
+            application={application}
+            projection={projectionDeLAtlas}
+            langue={langue}
+          />
+        </div>
         <div className="colonne-de-pilotage">
           <EtatTextuel projection={projection} />
           <InfrastructureDuConvoi

@@ -9,9 +9,10 @@ import {
   creerPilotageInitial,
   traiterEcheancesDePilotage,
 } from "../simulation/pilotage";
-import { creerInfrastructureInitiale } from "../simulation/infrastructure";
 import { catalogueDEvenements } from "../content/catalogue";
 import type { EffetsDeFait } from "../simulation/faits";
+import { creerInfrastructureInitiale } from "../simulation/infrastructure";
+import { creerEtatDesRoutesInitial } from "../simulation/routes";
 import { creerSauvegarde } from "./snapshot";
 import type {
   CommandeDeReproduction,
@@ -25,35 +26,75 @@ import {
 import {
   FORMAT_SAUVEGARDE,
   VERSION_CONTENU_COURANTE,
-  VERSION_SAUVEGARDE_COURANTE,
+  VERSION_SAUVEGARDE_AVANT_ROUTES,
   VERSION_SAUVEGARDE_INITIALE,
+  VERSIONS_DU_SNAPSHOT_COURANT,
 } from "./version";
 import {
-  estCommande,
+  estCommandeV2,
   estCommandeV1,
   estObjet,
+  lireEtatCourant,
   lireEtatV1,
   lireEtatV2,
   type EtatCampagneV1,
+  type EtatCampagneV2,
   type ObjetInconnu,
 } from "./validation";
+
+const EMPREINTE = /^[0-9a-f]{8}$/;
+const PLATEFORMES_DE_LA_SIMULATION_V2 = [
+  "phare",
+  "foyers",
+  "atelier",
+  "serres",
+  "reservoirs",
+  "vigie",
+  "forge",
+] as const;
+
+function sontStructurellementEgaux(gauche: unknown, droite: unknown): boolean {
+  if (Object.is(gauche, droite)) {
+    return true;
+  }
+  if (Array.isArray(gauche) || Array.isArray(droite)) {
+    return (
+      Array.isArray(gauche) &&
+      Array.isArray(droite) &&
+      gauche.length === droite.length &&
+      gauche.every((membre, index) =>
+        sontStructurellementEgaux(membre, droite[index]),
+      )
+    );
+  }
+  if (!estObjet(gauche) || !estObjet(droite)) {
+    return false;
+  }
+  const clesGauche = Object.keys(gauche).sort();
+  const clesDroite = Object.keys(droite).sort();
+  return (
+    clesGauche.length === clesDroite.length &&
+    clesGauche.every(
+      (cle, index) =>
+        cle === clesDroite[index] &&
+        sontStructurellementEgaux(gauche[cle], droite[cle]),
+    )
+  );
+}
 
 const EFFETS_DES_FAITS_LEGACY = new Map(
   catalogueDEvenements.evenements.flatMap((evenement) =>
     evenement.choix.flatMap((choix) =>
-      choix.faitsProduits.map(
-        (fait) =>
-          [
-            fait.id,
-            {
-              materiels: [],
-              humains: choix.effets.map((effet) => ({
-                type: "habitants.modifies" as const,
-                variation: effet.valeur,
-              })),
-            } satisfies EffetsDeFait,
-          ] as const,
-      ),
+      choix.faitsProduits.map((fait) => [
+        fait.id,
+        {
+          materiels: [],
+          humains: choix.effets.map((effet) => ({
+            type: "habitants.modifies" as const,
+            variation: effet.valeur,
+          })),
+        } satisfies EffetsDeFait,
+      ] as const),
     ),
   ),
 );
@@ -72,6 +113,7 @@ function migrerEtatV1(etat: EtatCampagneV1): EtatCampagne {
     0,
     etat.tempsDuConvoi.secondes,
   );
+  const infrastructure = creerInfrastructureInitiale();
   return {
     ...etat,
     version: VERSION_SIMULATION_COURANTE,
@@ -79,23 +121,26 @@ function migrerEtatV1(etat: EtatCampagneV1): EtatCampagne {
       ...etat.narration,
       faitsDeCampagne: [
         ...pilotage.faitsProduits,
-        ...etat.narration.faitsDeCampagne.map((fait): FaitDeCampagne => ({
-          id: fait.id,
-          cause: fait.cause,
-          acteurs: fait.acteurs,
-          cible: fait.cible,
-          moment: fait.moment,
-          effets: reconstruireEffetsLegacy(fait.id),
-        })),
+        ...etat.narration.faitsDeCampagne.map(
+          (fait): FaitDeCampagne => ({
+            id: fait.id,
+            cause: fait.cause,
+            acteurs: fait.acteurs,
+            cible: fait.cible,
+            moment: fait.moment,
+            effets: reconstruireEffetsLegacy(fait.id),
+          }),
+        ),
       ].sort((gauche, droite) => gauche.moment - droite.moment),
     },
     pilotage: pilotage.etat,
-    infrastructure: creerInfrastructureInitiale(),
+    infrastructure,
+    routes: creerEtatDesRoutesInitial(),
     citeCaravane: {
       ...etat.citeCaravane,
       formation: {
         type: "grappe",
-        plateformes: creerInfrastructureInitiale().plateformes.map(
+        plateformes: infrastructure.plateformes.map(
           (plateforme) => plateforme.id,
         ),
       },
@@ -110,7 +155,47 @@ function migrerEtatV1(etat: EtatCampagneV1): EtatCampagne {
   };
 }
 
-function normaliserEtatLegacy(etat: EtatCampagneV1 | EtatCampagne): unknown {
+function migrerEtatV2(etat: EtatCampagneV2): EtatCampagne {
+  const infrastructure = creerInfrastructureInitiale();
+  return {
+    ...etat,
+    version: VERSION_SIMULATION_COURANTE,
+    citeCaravane: {
+      ...etat.citeCaravane,
+      formation: {
+        type: "grappe",
+        plateformes: infrastructure.plateformes.map(
+          (plateforme) => plateforme.id,
+        ),
+      },
+    },
+    infrastructure,
+    routes: creerEtatDesRoutesInitial(),
+  };
+}
+
+function normaliserEtatV2(etat: EtatCampagne): EtatCampagneV2 {
+  return {
+    version: 2,
+    graine: etat.graine,
+    tempsDuConvoi: etat.tempsDuConvoi,
+    citeCaravane: {
+      ...etat.citeCaravane,
+      formation: {
+        type: "grappe",
+        plateformes: PLATEFORMES_DE_LA_SIMULATION_V2,
+      },
+    },
+    narration: etat.narration,
+    pilotage: etat.pilotage,
+    echeances: etat.echeances,
+    fluxPseudoAleatoires: etat.fluxPseudoAleatoires,
+  };
+}
+
+function normaliserEtatLegacy(
+  etat: EtatCampagneV1 | EtatCampagne,
+): unknown {
   return {
     graine: etat.graine,
     tempsDuConvoi: etat.tempsDuConvoi,
@@ -198,11 +283,14 @@ export function migrerSauvegardeV1(
 
   const etatLegacyDeclare = normaliserEtatLegacy(etatV1);
   const etatLegacyRejoue = normaliserEtatLegacy(etat);
-  if (JSON.stringify(etatLegacyRejoue) !== JSON.stringify(etatLegacyDeclare)) {
+  if (!sontStructurellementEgaux(etatLegacyRejoue, etatLegacyDeclare)) {
     return undefined;
   }
 
-  if (lireEtatV2(snapshot) === undefined || lireEtatV2(etat) === undefined) {
+  if (
+    lireEtatCourant(snapshot) === undefined ||
+    lireEtatCourant(etat) === undefined
+  ) {
     return undefined;
   }
 
@@ -214,47 +302,7 @@ export function migrerSauvegardeV1(
   const sauvegarde = creerSauvegarde(etat, reproduction);
   return {
     ...sauvegarde,
-    id: `${valeur.id}-v2-${sauvegarde.empreinte}`,
-  };
-}
-
-const PLATEFORMES_DE_LA_SIMULATION_V2 = [
-  "phare",
-  "foyers",
-  "atelier",
-  "serres",
-  "reservoirs",
-  "vigie",
-  "forge",
-] as const;
-
-function normaliserEtatV2Historique(valeur: unknown): unknown {
-  if (
-    !estObjet(valeur) ||
-    valeur.version !== 2 ||
-    !estObjet(valeur.citeCaravane) ||
-    !estObjet(valeur.citeCaravane.formation) ||
-    !Array.isArray(valeur.citeCaravane.formation.plateformes) ||
-    JSON.stringify(valeur.citeCaravane.formation.plateformes) !==
-      JSON.stringify(PLATEFORMES_DE_LA_SIMULATION_V2) ||
-    "infrastructure" in valeur
-  ) {
-    return undefined;
-  }
-  const infrastructure = creerInfrastructureInitiale();
-  return {
-    ...valeur,
-    version: VERSION_SIMULATION_COURANTE,
-    citeCaravane: {
-      ...valeur.citeCaravane,
-      formation: {
-        type: "grappe",
-        plateformes: infrastructure.plateformes.map(
-          (plateforme) => plateforme.id,
-        ),
-      },
-    },
-    infrastructure,
+    id: `${valeur.id}-v3-${sauvegarde.empreinte}`,
   };
 }
 
@@ -264,30 +312,41 @@ export function migrerSauvegardeV2(
   if (
     valeur.format !== FORMAT_SAUVEGARDE ||
     typeof valeur.id !== "string" ||
-    valeur.version !== VERSION_SAUVEGARDE_COURANTE ||
+    valeur.version !== VERSION_SAUVEGARDE_AVANT_ROUTES ||
     !estObjet(valeur.versions) ||
     valeur.versions.simulation !== 2 ||
-    valeur.versions.contenu !== VERSION_CONTENU_COURANTE ||
+    valeur.versions.contenu !== VERSIONS_DU_SNAPSHOT_COURANT.contenu ||
+    valeur.versions.aleatoire !== VERSIONS_DU_SNAPSHOT_COURANT.aleatoire ||
+    valeur.versions.empreinte !== VERSIONS_DU_SNAPSHOT_COURANT.empreinte ||
+    typeof valeur.graine !== "string" ||
     !estObjet(valeur.horloge) ||
     typeof valeur.horloge.secondes !== "number" ||
     !Number.isFinite(valeur.horloge.secondes) ||
     !estObjet(valeur.reproduction) ||
-    !Array.isArray(valeur.reproduction.commandes)
-  ) {
-    return undefined;
-  }
-  const snapshot = lireEtatV2(
-    normaliserEtatV2Historique(valeur.reproduction.snapshot),
-  );
-  const etatDeclare = lireEtatV2(normaliserEtatV2Historique(valeur.etat));
-  if (
-    snapshot === undefined ||
-    etatDeclare === undefined ||
-    valeur.horloge.secondes !== etatDeclare.tempsDuConvoi.secondes
+    !Array.isArray(valeur.reproduction.commandes) ||
+    typeof valeur.reproduction.empreinteSnapshot !== "string" ||
+    !EMPREINTE.test(valeur.reproduction.empreinteSnapshot) ||
+    typeof valeur.empreinte !== "string" ||
+    !EMPREINTE.test(valeur.empreinte)
   ) {
     return undefined;
   }
 
+  const snapshotV2 = lireEtatV2(valeur.reproduction.snapshot);
+  const etatDeclareV2 = lireEtatV2(valeur.etat);
+  if (
+    snapshotV2 === undefined ||
+    etatDeclareV2 === undefined ||
+    valeur.graine !== etatDeclareV2.graine ||
+    valeur.horloge.secondes !== etatDeclareV2.tempsDuConvoi.secondes ||
+    empreinteEtat(snapshotV2 as unknown as EtatCampagne) !==
+      valeur.reproduction.empreinteSnapshot ||
+    empreinteEtat(etatDeclareV2 as unknown as EtatCampagne) !== valeur.empreinte
+  ) {
+    return undefined;
+  }
+
+  const snapshot = migrerEtatV2(snapshotV2);
   let etat = snapshot;
   const commandes: CommandeDeReproduction[] = [];
   try {
@@ -295,11 +354,19 @@ export function migrerSauvegardeV2(
       if (
         !estObjet(entree) ||
         entree.sequence !== index ||
-        !estCommande(entree.commande)
+        !estCommandeV2(entree.commande) ||
+        typeof entree.empreinteApres !== "string" ||
+        !EMPREINTE.test(entree.empreinteApres)
       ) {
         return undefined;
       }
       etat = appliquerCommande(etat, entree.commande).etat;
+      const empreinteLegacy = empreinteEtat(
+        normaliserEtatV2(etat) as unknown as EtatCampagne,
+      );
+      if (empreinteLegacy !== entree.empreinteApres) {
+        return undefined;
+      }
       commandes.push({
         sequence: index,
         commande: entree.commande,
@@ -309,7 +376,12 @@ export function migrerSauvegardeV2(
   } catch {
     return undefined;
   }
-  if (JSON.stringify(etat) !== JSON.stringify(etatDeclare)) {
+
+  if (
+    !sontStructurellementEgaux(normaliserEtatV2(etat), etatDeclareV2) ||
+    lireEtatCourant(snapshot) === undefined ||
+    lireEtatCourant(etat) === undefined
+  ) {
     return undefined;
   }
 
@@ -321,6 +393,6 @@ export function migrerSauvegardeV2(
   const sauvegarde = creerSauvegarde(etat, reproduction);
   return {
     ...sauvegarde,
-    id: `${valeur.id}-infrastructure-${sauvegarde.empreinte}`,
+    id: `${valeur.id}-v3-${sauvegarde.empreinte}`,
   };
 }
