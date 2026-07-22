@@ -1,16 +1,20 @@
-import { useEffect, useMemo, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 
 import {
   creerApplicationCampagne,
   projeterCampagne,
 } from "../application/application";
+import type { Langue } from "../content/types";
 import { CommandesDuTemps } from "./CommandesDuTemps";
 import { CoupeHabitee } from "./CoupeHabitee";
 import { EtatTextuel } from "./EtatTextuel";
+import { RubanNarratif } from "./RubanNarratif";
+import { SelecteurDeLangue } from "./SelecteurDeLangue";
 
 const GRAINE_DE_DEMONSTRATION = "CENDRE-01";
 
 export function App() {
+  const [langue, choisirLangue] = useState<Langue>("fr");
   const application = useMemo(
     () => creerApplicationCampagne(GRAINE_DE_DEMONSTRATION),
     [],
@@ -20,7 +24,7 @@ export function App() {
     application.lireEtat,
     application.lireEtat,
   );
-  const projection = projeterCampagne(etat);
+  const projection = projeterCampagne(etat, langue);
 
   useEffect(() => {
     const horloge = window.setInterval(() => {
@@ -38,16 +42,27 @@ export function App() {
   return (
     <main className="app-shell">
       <header className="app-header">
-        <h1>Les Lanternes de Cendre</h1>
-        <p aria-label={`Graine de campagne ${projection.graine}`}>
-          {projection.graine}
-        </p>
+        <div>
+          <h1>Les Lanternes de Cendre</h1>
+          <p aria-label={`Graine de campagne ${projection.graine}`}>
+            {projection.graine}
+          </p>
+        </div>
+        <SelecteurDeLangue langue={langue} choisirLangue={choisirLangue} />
       </header>
 
       <div className="scene-layout">
         <CoupeHabitee />
         <EtatTextuel projection={projection} />
       </div>
+
+      {projection.evenementNarratif !== null ? (
+        <RubanNarratif
+          application={application}
+          evenement={projection.evenementNarratif}
+          langue={langue}
+        />
+      ) : null}
 
       <CommandesDuTemps application={application} projection={projection} />
     </main>

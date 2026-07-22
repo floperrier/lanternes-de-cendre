@@ -1,3 +1,6 @@
+import { trouverEvenement } from "../content/catalogue";
+import { remplacerVariables } from "../content/texte";
+import type { Langue, TexteCompile } from "../content/types";
 import {
   appliquerCommande,
   creerCampagneInitiale,
@@ -7,6 +10,25 @@ import {
   type GraineDeCampagne,
   type VitesseDuConvoi,
 } from "../simulation/campagne";
+
+export interface ProjectionEvenementNarratif {
+  readonly id: string;
+  readonly origine: string;
+  readonly libelleIntentions: string;
+  readonly titre: string;
+  readonly presentation: string;
+  readonly variante: string;
+  readonly informations: readonly string[];
+  readonly asset: {
+    readonly fichier: string;
+    readonly alternative: string;
+  } | null;
+  readonly choix: readonly {
+    readonly id: string;
+    readonly intention: string;
+    readonly coutsConnus: readonly string[];
+  }[];
+}
 
 export interface ProjectionDeCampagne {
   readonly graine: GraineDeCampagne;
@@ -18,6 +40,7 @@ export interface ProjectionDeCampagne {
   readonly phare: "actif";
   readonly formation: "grappe";
   readonly nombreDePlateformes: number;
+  readonly evenementNarratif: ProjectionEvenementNarratif | null;
 }
 
 export interface ApplicationCampagne {
@@ -56,7 +79,88 @@ function formaterDureeIso({
   return `PT${minutes}M${secondesRestantes}S`;
 }
 
-export function projeterCampagne(etat: EtatCampagne): ProjectionDeCampagne {
+function rendreTexte(
+  texte: TexteCompile,
+  valeursDuContexte: Readonly<Record<string, string | number>>,
+): string {
+  const valeurs = { ...valeursDuContexte, ...texte.valeurs };
+
+  return remplacerVariables(texte.modele, (variable) => {
+    const valeur = valeurs[variable];
+    if (valeur === undefined) {
+      throw new Error(
+        `La variable « ${variable} » manque pour le texte « ${texte.cle} ».`,
+      );
+    }
+    return String(valeur);
+  });
+}
+
+function projeterEvenementNarratif(
+  etat: EtatCampagne,
+  langue: Langue,
+): ProjectionEvenementNarratif | null {
+  const id = etat.narration.evenementActif;
+  if (id === null) {
+    return null;
+  }
+
+  const evenement = trouverEvenement(id);
+  if (evenement === undefined) {
+    throw new Error(`L’Événement narratif actif « ${id} » est introuvable.`);
+  }
+
+  const textes = evenement.textes[langue];
+  const contexte = { habitants: etat.citeCaravane.habitants };
+  const idVariante = evenement.variantes[0]?.id;
+  const texteVariante =
+    idVariante === undefined ? undefined : textes.variantes[idVariante];
+  if (texteVariante === undefined) {
+    throw new Error(
+      `La variante de présentation de « ${evenement.id} » est introuvable.`,
+    );
+  }
+
+  return {
+    id: evenement.id,
+    origine: rendreTexte(textes.origine, contexte),
+    libelleIntentions: rendreTexte(textes.libelleIntentions, contexte),
+    titre: rendreTexte(textes.titre, contexte),
+    presentation: rendreTexte(textes.presentation, contexte),
+    variante: rendreTexte(texteVariante, contexte),
+    informations: textes.informations.map((information) =>
+      rendreTexte(information, contexte),
+    ),
+    asset:
+      evenement.asset === null
+        ? null
+        : {
+            fichier: evenement.asset.fichier,
+            alternative: evenement.asset.alternatives[langue],
+          },
+    choix: evenement.choix.map((choix) => {
+      const textesDuChoix = textes.choix[choix.id];
+      if (textesDuChoix === undefined) {
+        throw new Error(
+          `Les textes du choix « ${choix.id} » de « ${evenement.id} » sont introuvables.`,
+        );
+      }
+
+      return {
+        id: choix.id,
+        intention: rendreTexte(textesDuChoix.intention, contexte),
+        coutsConnus: textesDuChoix.coutsConnus.map((cout) =>
+          rendreTexte(cout, contexte),
+        ),
+      };
+    }),
+  };
+}
+
+export function projeterCampagne(
+  etat: EtatCampagne,
+  langue: Langue = "fr",
+): ProjectionDeCampagne {
   const temps = decomposerTemps(etat.tempsDuConvoi.secondes);
 
   return {
@@ -70,6 +174,7 @@ export function projeterCampagne(etat: EtatCampagne): ProjectionDeCampagne {
     phare: etat.citeCaravane.phare,
     formation: etat.citeCaravane.formation.type,
     nombreDePlateformes: etat.citeCaravane.formation.plateformes.length,
+    evenementNarratif: projeterEvenementNarratif(etat, langue),
   };
 }
 

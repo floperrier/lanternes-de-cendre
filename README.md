@@ -1,7 +1,8 @@
 # Les Lanternes de Cendre
 
-Première tranche jouable de la Campagne : une Cité-caravane déterministe,
-sa Coupe habitée accessible et les commandes du Temps du convoi.
+Premières tranches jouables de la Campagne : une Cité-caravane déterministe,
+sa Coupe habitée accessible, les commandes du Temps du convoi et un premier
+Événement narratif bilingue à la fin de la première minute.
 
 ## Démarrer
 
@@ -26,6 +27,8 @@ push et sur chaque pull request.
 ## Frontières
 
 - `src/simulation` contient le noyau pur et sérialisable ;
+- `content` contient les sources YAML et traductions, et référence les fiches de provenance versionnées sous `docs/assets` ;
+- `src/content` contient le compilateur public et le catalogue immuable généré ;
 - `src/application` orchestre les commandes et construit les projections ;
 - `src/ui` rend la projection dans le DOM et dans PixiJS ;
 - le ticker PixiJS anime uniquement la présentation.

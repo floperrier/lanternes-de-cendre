@@ -1,0 +1,14 @@
+version: 1
+locale: en
+textes:
+  evenement.prologue.signaux.origine: "Lighthouse"
+  evenement.ruban.intentions: "Intentions"
+  evenement.prologue.signaux.titre: "Signals beneath the ash"
+  evenement.prologue.signaux.presentation: "A report from the lighthouse indicates a cohort on foot behind the formation. Your {habitants} inhabitants can make room for them, but the convoy will have to share its sealed quarters."
+  evenement.prologue.signaux.information: "The report confirms six figures and no vehicle nearby."
+  evenement.prologue.signaux.choix.accueillir: "Open the living quarters"
+  evenement.prologue.signaux.choix.accueillir.cout: "Known cost: {places} places occupied in the living quarters."
+  evenement.prologue.signaux.choix.orienter: "Transmit the route to Veille-Basse"
+  evenement.prologue.signaux.choix.orienter.cout: "Known cost: the cohort continues alone, outside the watch halo."
+  evenement.prologue.signaux.variante.standard: "Their lamps answer the lighthouse signal one by one."
+  evenement.prologue.signaux.asset.alt: "Cutaway view of the caravan-city, with the lighthouse surrounded by its clustered mobile platforms."

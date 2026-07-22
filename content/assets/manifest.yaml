@@ -1,0 +1,7 @@
+version: 1
+assets:
+  - id: prologue.signaux-sous-la-cendre
+    fichier: /assets/cite-caravane.png
+    alternative: evenement.prologue.signaux.asset.alt
+    contient_texte: false
+    provenance: docs/assets/cite-caravane.provenance.json

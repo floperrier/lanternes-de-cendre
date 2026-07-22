@@ -33,6 +33,11 @@ describe("Graine de campagne", () => {
           ],
         },
       },
+      narration: {
+        evenementActif: null,
+        evenementsJoues: [],
+        faitsDeCampagne: [],
+      },
     });
   });
 });
@@ -89,7 +94,63 @@ describe("commandes du Temps du convoi", () => {
         type: "temps-du-convoi.premiere-minute-atteinte",
         secondeAtteinte: 60,
       },
+      {
+        type: "evenement-narratif.declenche",
+        evenementId: "prologue.signaux-sous-la-cendre",
+        fenetre: "premiere-minute-atteinte",
+      },
     ]);
-    expect(empreinteEtat(transition.etat)).toBe("40022b43");
+    expect(transition.etat.narration.evenementActif).toBe(
+      "prologue.signaux-sous-la-cendre",
+    );
+    expect(empreinteEtat(transition.etat)).toMatch(/^[0-9a-f]{8}$/);
+  });
+});
+
+describe("Événement narratif de la première veille", () => {
+  it("applique le même choix et le même Fait de campagne à état et Graine identiques", () => {
+    const etatInitial = creerCampagneInitiale("CENDRE-01");
+    const etatAvecEvenement = appliquerCommande(etatInitial, {
+      type: "temps-du-convoi.ecouler",
+      secondesReelles: 60,
+    }).etat;
+    const commande = {
+      type: "evenement-narratif.choisir",
+      evenementId: "prologue.signaux-sous-la-cendre",
+      choixId: "accueillir",
+    } as const;
+
+    const premiereTransition = appliquerCommande(etatAvecEvenement, commande);
+    const secondeTransition = appliquerCommande(etatAvecEvenement, commande);
+
+    expect(secondeTransition).toEqual(premiereTransition);
+    expect(etatAvecEvenement.citeCaravane.habitants).toBe(184);
+    expect(premiereTransition.etat).toMatchObject({
+      citeCaravane: {
+        habitants: 190,
+      },
+      narration: {
+        evenementActif: null,
+        evenementsJoues: ["prologue.signaux-sous-la-cendre"],
+        faitsDeCampagne: [
+          {
+            id: "prologue.cohorte-accueillie",
+            cause: "prologue.signaux-sous-la-cendre",
+            acteurs: ["porte-lanterne", "cohorte-de-refugies"],
+            cible: "cohorte-de-refugies",
+            moment: 60,
+          },
+        ],
+      },
+    });
+    expect(premiereTransition.evenements).toEqual([
+      {
+        type: "evenement-narratif.choix-resolu",
+        evenementId: "prologue.signaux-sous-la-cendre",
+        choixId: "accueillir",
+        effets: [{ type: "habitants.modifier", valeur: 6 }],
+        faitsProduits: ["prologue.cohorte-accueillie"],
+      },
+    ]);
   });
 });

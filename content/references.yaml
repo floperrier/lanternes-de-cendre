@@ -1,0 +1,11 @@
+version: 1
+acteurs:
+  - porte-lanterne
+  - cohorte-de-refugies
+fenetres:
+  - premiere-minute-atteinte
+destinations_echo:
+  - journal-de-campagne
+faits:
+  - prologue.cohorte-accueillie
+  - prologue.cohorte-orientee

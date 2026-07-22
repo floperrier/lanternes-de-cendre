@@ -99,5 +99,48 @@ test("les mêmes commandes donnent le même état sous Node et Chromium", async 
     etat: etatNode,
     empreinte: empreinteEtat(etatNode),
   });
-  expect(resultatNavigateur.empreinte).toBe("40022b43");
+  expect(resultatNavigateur.empreinte).toBe("9da232ba");
+});
+
+test("un Événement bilingue expose ses coûts et accepte une intention au clavier", async ({
+  page,
+}) => {
+  await page.clock.install();
+  await page.goto("/");
+  await page.getByRole("button", { name: "Vitesse 4×" }).click();
+  await page.clock.runFor(15_000);
+
+  const evenement = page.getByRole("region", {
+    name: "Des signaux sous la cendre",
+  });
+  await expect(evenement).toBeVisible();
+  await expect(evenement).toContainText(
+    "Coût connu : 6 places occupées dans les Foyers.",
+  );
+  await expect(
+    evenement.getByRole("img", {
+      name: /Coupe habitée de la Cité-caravane/,
+    }),
+  ).toBeVisible();
+
+  await page.getByRole("button", { name: "English" }).click();
+  const evenementAnglais = page.getByRole("region", {
+    name: "Signals beneath the ash",
+  });
+  await expect(evenementAnglais).toHaveAttribute("lang", "en");
+  await expect(evenementAnglais).toContainText(
+    "Known cost: 6 places occupied in the living quarters.",
+  );
+  await expect(evenementAnglais).toContainText("Lighthouse");
+
+  const accueillir = evenementAnglais.getByRole("button", {
+    name: "Open the living quarters",
+  });
+  await accueillir.focus();
+  await page.keyboard.press("Enter");
+
+  await expect(evenementAnglais).toBeHidden();
+  await expect(
+    page.getByRole("region", { name: "Cité-caravane" }),
+  ).toContainText("Habitants — 190");
 });

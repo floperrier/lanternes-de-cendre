@@ -1,0 +1,14 @@
+version: 1
+locale: fr
+textes:
+  evenement.prologue.signaux.origine: "Phare"
+  evenement.ruban.intentions: "Intentions"
+  evenement.prologue.signaux.titre: "Des signaux sous la cendre"
+  evenement.prologue.signaux.presentation: "Depuis le Phare, un signalement indique une cohorte à pied derrière la formation. Vos {habitants} Habitants peuvent lui faire une place, mais le convoi devra partager ses volumes étanches."
+  evenement.prologue.signaux.information: "Le rapport confirme six silhouettes et aucun véhicule à proximité."
+  evenement.prologue.signaux.choix.accueillir: "Ouvrir les Foyers"
+  evenement.prologue.signaux.choix.accueillir.cout: "Coût connu : {places} places occupées dans les Foyers."
+  evenement.prologue.signaux.choix.orienter: "Transmettre la route de Veille-Basse"
+  evenement.prologue.signaux.choix.orienter.cout: "Coût connu : la cohorte poursuit seule, hors du Halo de veille."
+  evenement.prologue.signaux.variante.standard: "Leurs lampes répondent une à une au signal du Phare."
+  evenement.prologue.signaux.asset.alt: "Coupe habitée de la Cité-caravane, le Phare entouré de ses Plateformes en formation en grappe."
