@@ -1,0 +1,23 @@
+{
+  "asset": "public/assets/sprites/cite.fumee-01.png",
+  "sha256": "7eba50955efc3e2ba7c6cc612f9b1017d35498f637716ba46d53b1276e8235fe",
+  "atlasJsonSha256": "956d4cbd73c83238137e9936e3f811d209bd138ba3010b1742279f0892f374ad",
+  "createdAt": "2026-07-23",
+  "tool": "OpenAI Image API + scripts/sprites",
+  "model": "gpt-image-1.5",
+  "useCase": "sprite-animation",
+  "input": "art/sprites/seeds/fumee-01.png",
+  "prompt": "Asset de production pour un jeu de gestion 2D pictural.\n\nAnimer une petite cheminée industrielle rejetant une fumée de cendre\nirrégulière. La boucle doit rester lente, lisible et discrète. Conserver la\npalette ardoise froide, le métal brun rouillé et les faibles reflets ambre de\nla cité-caravane.",
+  "production": {
+    "frames": 6,
+    "frameSize": 256,
+    "anchor": "bottom-center",
+    "fps": 6,
+    "loop": true
+  },
+  "rights": "OpenAI Terms of Use — output assigned to the user",
+  "approval": {
+    "status": "approved",
+    "reviewer": "Codex visual QA — interface immersive"
+  }
+}

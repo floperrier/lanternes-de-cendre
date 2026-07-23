@@ -43,6 +43,12 @@ Cette commande exécute le typage, le lint, les tests Node et Chromium, puis le
 build de production. Le même contrôle est lancé par GitHub Actions à chaque
 push et sur chaque pull request.
 
+## Produire des sprites
+
+Le catalogue déclaratif, les commandes de génération et la procédure
+d’approbation sont décrits dans
+[`docs/assets/sprites/README.md`](docs/assets/sprites/README.md).
+
 ## Frontières
 
 - `src/simulation` contient le noyau pur et sérialisable ;

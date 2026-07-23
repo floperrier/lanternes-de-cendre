@@ -1,16 +1,8 @@
-import {
-  useEffect,
-  useRef,
-  useState,
-  type KeyboardEvent,
-} from "react";
+import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 
 import type { ApplicationCampagne } from "../application/application";
 import type { ProjectionDExpedition } from "../application/expeditions";
-import type {
-  ProjectionDeLAtlas,
-  TronconProjete,
-} from "../application/routes";
+import type { ProjectionDeLAtlas, TronconProjete } from "../application/routes";
 import { AtlasPixi } from "./AtlasPixi";
 import { ExpeditionDansAtlas } from "./ExpeditionDansAtlas";
 
@@ -97,12 +89,16 @@ function TronconDansAtlas({
           ))}
         </ul>
       </section>
-
     </article>
   );
 }
 
-export function Atlas({ application, projection, expedition, langue }: AtlasProps) {
+export function Atlas({
+  application,
+  projection,
+  expedition,
+  langue,
+}: AtlasProps) {
   const [tronconAConfirmer, choisirTroncon] = useState<TronconProjete | null>(
     null,
   );
@@ -112,20 +108,13 @@ export function Atlas({ application, projection, expedition, langue }: AtlasProp
 
   useEffect(() => {
     const dialogue = dialogueDeConfirmation.current;
-    if (
-      tronconAConfirmer !== null &&
-      dialogue !== null &&
-      !dialogue.open
-    ) {
+    if (tronconAConfirmer !== null && dialogue !== null && !dialogue.open) {
       dialogue.showModal();
       boutonDeConfirmation.current?.focus();
     }
   }, [tronconAConfirmer]);
 
-  const etudier = (
-    troncon: TronconProjete,
-    declencheur: HTMLButtonElement,
-  ) => {
+  const etudier = (troncon: TronconProjete, declencheur: HTMLButtonElement) => {
     declencheurDuDialogue.current = declencheur;
     choisirTroncon(troncon);
   };
@@ -180,11 +169,7 @@ export function Atlas({ application, projection, expedition, langue }: AtlasProp
   };
 
   return (
-    <section
-      className="atlas"
-      aria-labelledby="titre-atlas"
-      lang={langue}
-    >
+    <section className="atlas" aria-labelledby="titre-atlas" lang={langue}>
       <header className="atlas__entete">
         <div>
           <p>{projection.libellePosition}</p>
@@ -193,16 +178,10 @@ export function Atlas({ application, projection, expedition, langue }: AtlasProp
         <h2 id="titre-atlas">{projection.titre}</h2>
       </header>
 
-      <ExpeditionDansAtlas
-        application={application}
-        projection={expedition}
-        langue={langue}
-      />
-
       {projection.engagement === null ? null : (
         <p className="atlas__engagement" role="status">
-          {projection.engagement.destination} · {projection.engagement.arrivee} ·{" "}
-          {projection.engagement.retour}
+          {projection.engagement.destination} · {projection.engagement.arrivee}{" "}
+          · {projection.engagement.retour}
         </p>
       )}
       {projection.dernierJalon === null ? null : (
@@ -223,15 +202,26 @@ export function Atlas({ application, projection, expedition, langue }: AtlasProp
             <button
               key={troncon.id}
               type="button"
-              onClick={(evenement) =>
-                etudier(troncon, evenement.currentTarget)
-              }
+              onClick={(evenement) => etudier(troncon, evenement.currentTarget)}
               aria-label={`${projection.actionEtudier} ${troncon.libelle}`}
             >
               {projection.actionEtudier} {troncon.libelle}
             </button>
           ))}
       </div>
+
+      <details className="atlas__expedition" open>
+        <summary>
+          {langue === "fr"
+            ? "Dossier d’expédition active"
+            : "Active expedition brief"}
+        </summary>
+        <ExpeditionDansAtlas
+          application={application}
+          projection={expedition}
+          langue={langue}
+        />
+      </details>
 
       <details className="atlas__alternative">
         <summary>{projection.libelleVueListe}</summary>

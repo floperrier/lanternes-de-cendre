@@ -1,4 +1,15 @@
-import { Application, Container, Graphics, Text } from "pixi.js";
+import {
+  AnimatedSprite,
+  Application,
+  Assets,
+  Container,
+  Graphics,
+  Sprite,
+  Text,
+  type Spritesheet,
+  type Texture,
+  type Ticker,
+} from "pixi.js";
 import { useEffect, useRef } from "react";
 
 import type { ProjectionDeLAtlas, TronconProjete } from "../application/routes";
@@ -6,6 +17,9 @@ import type { ProjectionDeLAtlas, TronconProjete } from "../application/routes";
 interface AtlasPixiProps {
   readonly projection: ProjectionDeLAtlas;
 }
+
+const SOURCE_CARTE = "/assets/ui/atlas-bassins-fendus.webp";
+const SOURCE_FUMEE = "/assets/sprites/cite.fumee-01.json";
 
 const COULEURS = {
   fond: 0x0b151a,
@@ -55,77 +69,32 @@ function dessinerTroncon(
   hauteur: number,
 ) {
   const carte = new Graphics()
-    .roundRect(x, y, largeur, hauteur, 6)
-    .fill({ color: COULEURS.surface, alpha: 0.96 })
-    .stroke({ color: COULEURS.cuivre, width: 1 });
+    .roundRect(x, y, largeur, hauteur, 8)
+    .fill({ color: COULEURS.surface, alpha: 0.82 })
+    .stroke({ color: COULEURS.cuivre, width: 1.2, alpha: 0.9 });
   conteneur.addChild(carte);
 
-  ajouterTexte(conteneur, troncon.libelle, x + 12, y + 9, {
-    taille: 17,
+  ajouterTexte(conteneur, troncon.libelle, x + 11, y + 8, {
+    taille: largeur < 170 ? 13 : 16,
     graisse: "700",
-    largeur: largeur - 70,
+    largeur: largeur - 62,
   });
-  ajouterTexte(conteneur, troncon.duree, x + largeur - 52, y + 11, {
+  ajouterTexte(conteneur, troncon.duree, x + largeur - 48, y + 10, {
+    taille: 12,
     couleur: COULEURS.ambre,
     graisse: "600",
   });
-  ajouterTexte(conteneur, troncon.connexion, x + 12, y + 34, {
+  ajouterTexte(conteneur, troncon.connexion, x + 11, y + 33, {
+    taille: 11,
     couleur: COULEURS.secondaire,
-    largeur: largeur - 24,
+    largeur: largeur - 22,
   });
-  ajouterTexte(conteneur, troncon.consommation, x + 12, y + 54, {
+  ajouterTexte(conteneur, troncon.consommation, x + 11, y + hauteur - 22, {
+    taille: 11,
     couleur: COULEURS.texte,
     graisse: "600",
+    largeur: largeur - 22,
   });
-
-  let ligne = y + 78;
-  for (const renseignement of troncon.renseignements) {
-    const source = ajouterTexte(
-      conteneur,
-      `${renseignement.source} · ${renseignement.age} · ${renseignement.fiabilite}`,
-      x + 12,
-      ligne,
-      { couleur: COULEURS.ambre, graisse: "600", largeur: largeur - 24 },
-    );
-    const ligneEtat = ligne + source.height + 3;
-    const etat = ajouterTexte(
-      conteneur,
-      `${renseignement.etat} · ${renseignement.meteo} · ${renseignement.panache}`,
-      x + 12,
-      ligneEtat,
-      { couleur: COULEURS.secondaire, largeur: largeur - 24 },
-    );
-    const ligneDanger = ligneEtat + etat.height + 3;
-    const danger = ajouterTexte(
-      conteneur,
-      `${renseignement.danger} · ${renseignement.controlePolitique}`,
-      x + 12,
-      ligneDanger,
-      { couleur: COULEURS.secondaire, largeur: largeur - 24 },
-    );
-    ligne = ligneDanger + danger.height + 8;
-  }
-
-  const bilanY = Math.max(ligne + 2, y + hauteur - 55);
-  const consequences = ajouterTexte(
-    conteneur,
-    troncon.bilan.consequencesConnues.join(" · "),
-    x + 12,
-    bilanY,
-    { couleur: COULEURS.texte, largeur: largeur - 24 },
-  );
-  ajouterTexte(
-    conteneur,
-    troncon.bilan.incertitudes
-      .map(
-        (incertitude) =>
-          `${incertitude.valeur} — ${incertitude.source} · ${incertitude.age}`,
-      )
-      .join(" · "),
-    x + 12,
-    bilanY + consequences.height + 4,
-    { couleur: COULEURS.ambre, largeur: largeur - 24 },
-  );
 }
 
 export function AtlasPixi({ projection }: AtlasPixiProps) {
@@ -152,8 +121,15 @@ export function AtlasPixi({ projection }: AtlasPixiProps) {
     let initialisee = false;
     let detruite = false;
     let scene: Container | null = null;
+    let textureCarte: Texture | null = null;
+    let plancheFumee: Spritesheet | null = null;
+    let balisesAnimees: Graphics[] = [];
+    let fumeeAnimee: AnimatedSprite | null = null;
     let observateur: ResizeObserver | null = null;
     let redimensionnementProgramme: number | null = null;
+    const mouvementReduit = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
 
     const detruireApplication = () => {
       if (initialisee && !detruite) {
@@ -174,6 +150,8 @@ export function AtlasPixi({ projection }: AtlasPixiProps) {
         scene.destroy({ children: true });
       }
       scene = new Container();
+      balisesAnimees = [];
+      fumeeAnimee = null;
       application.stage.addChild(scene);
 
       const donnees = projectionRef.current;
@@ -182,6 +160,49 @@ export function AtlasPixi({ projection }: AtlasPixiProps) {
       scene.addChild(
         new Graphics().rect(0, 0, largeur, hauteur).fill(COULEURS.fond),
       );
+      if (textureCarte !== null) {
+        const carteDuMonde = new Sprite(textureCarte);
+        carteDuMonde.anchor.set(0.5);
+        carteDuMonde.position.set(largeur / 2, hauteur / 2);
+        carteDuMonde.scale.set(
+          Math.max(largeur / textureCarte.width, hauteur / textureCarte.height),
+        );
+        carteDuMonde.alpha = 0.88;
+        scene.addChild(carteDuMonde);
+        scene.addChild(
+          new Graphics()
+            .rect(0, 0, largeur, hauteur)
+            .fill({ color: COULEURS.fond, alpha: 0.22 }),
+        );
+      }
+
+      const pointCentralX = largeur * 0.5;
+      const pointCentralY = hauteur * 0.39;
+      const baliseCentrale = new Graphics()
+        .circle(0, 0, 18)
+        .stroke({ color: COULEURS.ambre, width: 1.3, alpha: 0.68 })
+        .circle(0, 0, 7)
+        .fill({ color: COULEURS.ambre, alpha: 0.88 })
+        .circle(0, 0, 2.5)
+        .fill(COULEURS.texte);
+      baliseCentrale.position.set(pointCentralX, pointCentralY);
+      balisesAnimees.push(baliseCentrale);
+      scene.addChild(baliseCentrale);
+
+      const texturesFumee = plancheFumee?.animations["cite.fumee-01"];
+      if (texturesFumee !== undefined && texturesFumee.length > 0) {
+        fumeeAnimee = new AnimatedSprite(texturesFumee);
+        fumeeAnimee.anchor.set(0.5, 1);
+        fumeeAnimee.position.set(largeur * 0.78, hauteur * 0.43);
+        fumeeAnimee.scale.set(Math.max(0.22, Math.min(0.38, largeur / 1_800)));
+        fumeeAnimee.alpha = 0.86;
+        fumeeAnimee.animationSpeed = 0.1;
+        if (!mouvementReduit) {
+          fumeeAnimee.play();
+        }
+        scene.addChild(fumeeAnimee);
+      }
+
       ajouterTexte(
         scene,
         `${donnees.libellePosition} · ${donnees.position}`,
@@ -191,48 +212,37 @@ export function AtlasPixi({ projection }: AtlasPixiProps) {
       );
 
       if (donnees.troncons.length === 0) {
+        application.renderer.render(application.stage);
         return;
       }
-      const marge = 16;
-      const espace = 12;
-      const dispositionVerticale = largeur < 680;
-      const largeurCarte = dispositionVerticale
-        ? largeur - marge * 2
-        : (largeur - marge * 2 - espace * (donnees.troncons.length - 1)) /
-          donnees.troncons.length;
-      const y = 42;
-      const hauteurCarte = dispositionVerticale
-        ? (hauteur - y - 12 - espace * (donnees.troncons.length - 1)) /
-          donnees.troncons.length
-        : Math.max(200, hauteur - y - 12);
+      const marge = 14;
+      const largeurCarte = Math.min(
+        270,
+        Math.max(126, (largeur - marge * 3) / 2),
+      );
+      const hauteurCarte = Math.min(94, Math.max(82, hauteur * 0.25));
+      const y = hauteur - hauteurCarte - 14;
       for (const index of donnees.troncons.keys()) {
-        const x = dispositionVerticale
-          ? marge
-          : marge + index * (largeurCarte + espace);
-        const yCarte = dispositionVerticale
-          ? y + index * (hauteurCarte + espace)
-          : y;
+        const destinationX = index % 2 === 0 ? largeur * 0.25 : largeur * 0.78;
+        const destinationY = hauteur * (index % 2 === 0 ? 0.27 : 0.43);
         const liaison = new Graphics()
-          .moveTo(largeur / 2, 33)
-          .lineTo(x + largeurCarte / 2, yCarte)
-          .stroke({ color: COULEURS.ambre, width: 2, alpha: 0.7 });
+          .moveTo(pointCentralX, pointCentralY)
+          .lineTo(destinationX, destinationY)
+          .stroke({ color: COULEURS.ambre, width: 1.7, alpha: 0.64 });
         scene!.addChild(liaison);
+        const destination = new Graphics()
+          .circle(0, 0, 10)
+          .stroke({ color: COULEURS.ambre, width: 1.2, alpha: 0.74 })
+          .circle(0, 0, 3.5)
+          .fill({ color: COULEURS.texte, alpha: 0.92 });
+        destination.position.set(destinationX, destinationY);
+        balisesAnimees.push(destination);
+        scene!.addChild(destination);
       }
       donnees.troncons.forEach((troncon, index) => {
-        const x = dispositionVerticale
-          ? marge
-          : marge + index * (largeurCarte + espace);
-        const yCarte = dispositionVerticale
-          ? y + index * (hauteurCarte + espace)
-          : y;
-        dessinerTroncon(
-          scene!,
-          troncon,
-          x,
-          yCarte,
-          largeurCarte,
-          hauteurCarte,
-        );
+        const x = index % 2 === 0 ? marge : largeur - largeurCarte - marge;
+        const yCarte = y - Math.floor(index / 2) * (hauteurCarte + 8);
+        dessinerTroncon(scene!, troncon, x, yCarte, largeurCarte, hauteurCarte);
       });
       application.renderer.render(application.stage);
     };
@@ -244,7 +254,7 @@ export function AtlasPixi({ projection }: AtlasPixiProps) {
       }
       await application.init({
         autoDensity: true,
-        autoStart: false,
+        autoStart: !mouvementReduit,
         background: "#0b151a",
         resolution: Math.min(window.devicePixelRatio, 2),
         width: Math.max(1, conteneur.clientWidth),
@@ -259,8 +269,33 @@ export function AtlasPixi({ projection }: AtlasPixiProps) {
       application.canvas.style.width = "100%";
       application.canvas.style.height = "100%";
       conteneur.append(application.canvas);
+      [textureCarte, plancheFumee] = await Promise.all([
+        Assets.load<Texture>(SOURCE_CARTE),
+        Assets.load<Spritesheet>(SOURCE_FUMEE),
+      ]);
+      if (annule) {
+        detruireApplication();
+        return;
+      }
       dessiner();
       conteneur.dataset.ready = "true";
+
+      const animerAtlas = (ticker: Ticker) => {
+        const pulsation = Math.sin(ticker.lastTime / 750);
+        balisesAnimees.forEach((balise, index) => {
+          const amplitude = 1 + pulsation * (index === 0 ? 0.08 : 0.045);
+          balise.scale.set(amplitude);
+          balise.alpha = 0.78 + pulsation * 0.14;
+        });
+        if (fumeeAnimee !== null) {
+          fumeeAnimee.rotation = Math.sin(ticker.lastTime / 2_400) * 0.008;
+        }
+      };
+      if (mouvementReduit) {
+        application.ticker.stop();
+      } else {
+        application.ticker.add(animerAtlas);
+      }
 
       observateur = new ResizeObserver(() => {
         if (redimensionnementProgramme === null) {

@@ -147,11 +147,14 @@ function CampagnePersistante({
             : undefined
         }
       >
-        <div>
-          <h1>Les Lanternes de Cendre</h1>
-          <p aria-label={`Graine de campagne ${projection.graine}`}>
-            {projection.graine}
-          </p>
+        <div className="app-header__marque">
+          <span className="app-header__lanterne" aria-hidden="true" />
+          <div>
+            <h1>Les Lanternes de Cendre</h1>
+            <p aria-label={`Graine de campagne ${projection.graine}`}>
+              {projection.graine}
+            </p>
+          </div>
         </div>
         {jalonDeDemonstrationAffiche ? null : (
           <div className="app-header__outils">
@@ -176,17 +179,23 @@ function CampagnePersistante({
 
       <div
         className="scene-layout"
-        inert={
-          criseBloquante || jalonDeDemonstrationAffiche
-            ? true
-            : undefined
-        }
+        inert={criseBloquante || jalonDeDemonstrationAffiche ? true : undefined}
       >
         <div className="surface-du-monde">
-          <CoupeHabitee
-            implantation={projeterImplantationPixi(projectionDInfrastructure)}
-            chantierActif={projectionDInfrastructure.chantierActif !== null}
-          />
+          <section
+            className="theatre-du-convoi"
+            aria-label={
+              langue === "fr" ? "Vue panoramique du convoi" : "Caravan panorama"
+            }
+          >
+            <CoupeHabitee
+              implantation={projeterImplantationPixi(projectionDInfrastructure)}
+              chantierActif={projectionDInfrastructure.chantierActif !== null}
+              vitesse={projection.vitesse}
+            />
+            <div className="theatre-du-convoi__voile" aria-hidden="true" />
+            <EtatTextuel projection={projection} />
+          </section>
           <Atlas
             application={application}
             projection={projectionDeLAtlas}
@@ -195,22 +204,21 @@ function CampagnePersistante({
           />
         </div>
         <div className="colonne-de-pilotage">
-          <EtatTextuel projection={projection} />
-          <HautPuits
-            application={application}
-            projection={projectionDeHautPuits}
-          />
-          <InfrastructureDuConvoi
-            application={application}
-            langue={langue}
-            projection={projectionDInfrastructure}
-          />
           <PanneauDePilotage
             application={application}
             projection={projectionDuPilotage}
             compagnon={projectionDuConseil.compagnon}
             langue={langue}
             crises={projectionDesCrises}
+          />
+          <InfrastructureDuConvoi
+            application={application}
+            langue={langue}
+            projection={projectionDInfrastructure}
+          />
+          <HautPuits
+            application={application}
+            projection={projectionDeHautPuits}
           />
           {projectionDeVeilleBasse.visible ? (
             <VeilleBasseEtCohorte
@@ -227,7 +235,8 @@ function CampagnePersistante({
           crise={projectionDesCrises.active}
           langue={langue}
         />
-      ) : surfacePrioritaire === "checkpoint-crise" ? null : surfacePrioritaire ===
+      ) : surfacePrioritaire ===
+        "checkpoint-crise" ? null : surfacePrioritaire ===
         "jalon-demonstration" ? (
         <JalonFinalDeLaDemonstration
           projection={projectionDeDemonstration}
@@ -285,10 +294,7 @@ interface PropsApp {
   readonly controleurAccesPremium: ControleurAccesPremium;
 }
 
-export function App({
-  controleur,
-  controleurAccesPremium,
-}: PropsApp) {
+export function App({ controleur, controleurAccesPremium }: PropsApp) {
   const etatDuControleur = useSyncExternalStore(
     controleur.sabonner,
     controleur.lireEtat,

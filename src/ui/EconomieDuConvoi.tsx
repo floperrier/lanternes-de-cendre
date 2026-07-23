@@ -10,7 +10,7 @@ export function EconomieDuConvoi({ projection }: EconomieDuConvoiProps) {
       <h2 id="titre-autonomies">Autonomies</h2>
       <dl className="indicateurs-economiques indicateurs-economiques--stocks">
         {projection.autonomies.map((autonomie) => (
-          <div key={autonomie.id}>
+          <div key={autonomie.id} data-ressource={autonomie.id}>
             <dt>{autonomie.nom}</dt>
             <dd>{autonomie.valeur}</dd>
           </div>
@@ -20,7 +20,7 @@ export function EconomieDuConvoi({ projection }: EconomieDuConvoiProps) {
       <h3>Marges</h3>
       <dl className="indicateurs-economiques indicateurs-economiques--capacites">
         {projection.marges.map((marge) => (
-          <div key={marge.id}>
+          <div key={marge.id} data-ressource={marge.id}>
             <dt>{marge.nom}</dt>
             <dd>{marge.valeur}</dd>
           </div>
@@ -62,7 +62,8 @@ export function EconomieDuConvoi({ projection }: EconomieDuConvoiProps) {
           <strong>Incertitude sourcée</strong>
           <span>{projection.details.incertitude.explication}</span>
           <span>
-            {projection.details.incertitude.source} · {projection.details.incertitude.age}
+            {projection.details.incertitude.source} ·{" "}
+            {projection.details.incertitude.age}
           </span>
         </p>
       </details>

@@ -1,0 +1,15 @@
+{
+  "asset": "art/sprites/seeds/fumee-01.png",
+  "sha256": "fb073d7563ad0663649eb4a129834b4c0fefb17466732b6879460a09126b9f83",
+  "createdAt": "2026-07-23",
+  "tool": "Codex built-in image_gen + local chroma-key removal",
+  "model": "built-in model (identifier not exposed)",
+  "useCase": "sprite-seed",
+  "input": "public/assets/cite-caravane.png used as the project art-direction reference.",
+  "prompt": "Create one horizontal six-frame production animation strip of the same small rusted industrial chimney emitting a slow irregular plume of ash smoke. Preserve identical scale, silhouette, facing direction and bottom-center anchor. Match the project painterly cold-slate, charcoal, rust-brown and amber palette. Use a flat solid green chroma-key background. No scenery, dividers, characters, labels, UI, text, logo, watermark or shadows.",
+  "rights": "OpenAI Terms of Use — output assigned to the user",
+  "approval": {
+    "status": "pending-pull-request-review",
+    "reviewer": null
+  }
+}

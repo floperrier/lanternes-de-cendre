@@ -9,3 +9,6 @@ test-results/
 .env.*.local
 .scratch/*.sqlite
 .scratch/*.sqlite-*
+art/sprites/work/
+.playwright-cli/
+output/playwright/

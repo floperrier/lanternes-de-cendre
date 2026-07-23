@@ -22,8 +22,17 @@ export function PanneauCompagnon({
       aria-labelledby={titreId}
       lang={langue}
     >
-      <p className="panneau-compagnon__type">{libelles.type}</p>
-      <h2 id={titreId}>{libelles.type} — {compagnon.nom}</h2>
+      <header className="panneau-compagnon__identite">
+        <figure aria-hidden="true">
+          <img src="/assets/ui/ilyana-voss.webp" alt="" />
+        </figure>
+        <div>
+          <p className="panneau-compagnon__type">{libelles.type}</p>
+          <h2 id={titreId}>
+            {libelles.type} — {compagnon.nom}
+          </h2>
+        </div>
+      </header>
       <dl className="profil-compagnon">
         <div>
           <dt>{libelles.majeure}</dt>
@@ -53,7 +62,9 @@ export function PanneauCompagnon({
           <dd>
             <strong>{compagnon.etatPersonnel.nom}</strong>
             <span>{compagnon.etatPersonnel.contrainte}</span>
-            <span>{libelles.soin} — {compagnon.etatPersonnel.voieDeSoin}</span>
+            <span>
+              {libelles.soin} — {compagnon.etatPersonnel.voieDeSoin}
+            </span>
           </dd>
         </div>
       </dl>
@@ -73,9 +84,11 @@ export function PanneauCompagnon({
         </button>
       ) : (
         <div className="affectation-compagnon" role="status">
-          <p>{libelles.affectee} — {compagnon.affectation.quartier}</p>
           <p>
-            <strong>{libelles.information}</strong> — {" "}
+            {libelles.affectee} — {compagnon.affectation.quartier}
+          </p>
+          <p>
+            <strong>{libelles.information}</strong> —{" "}
             {compagnon.affectation.informationOuverte}
           </p>
         </div>

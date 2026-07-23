@@ -1,0 +1,32 @@
+{
+  "createdAt": "2026-07-23",
+  "tool": "OpenAI built-in imagegen",
+  "mode": "project-bound built-in generation",
+  "rights": "OpenAI Terms of Use — output assigned to the user",
+  "assets": [
+    {
+      "asset": "public/assets/ui/metal-cendre.webp",
+      "sha256": "0d6b060042e9daf2790c8844d9591816b2e4d6e4dc45c667238715901af2f34f",
+      "useCase": "seamless-interface-texture",
+      "references": [],
+      "prompt": "Square seamless ash-black hammered steel and oxidized bronze texture, subtle soot and restrained scratches, flat orthographic material study, dark enough beneath warm cream interface text, no interface, no lettering, no symbols, no scene."
+    },
+    {
+      "asset": "public/assets/ui/atlas-bassins-fendus.webp",
+      "sha256": "c1e6a8660c52d4f5a715e595990abab9b2ecd8f4d9e7a417361b9fdfdeec0e16",
+      "useCase": "pixi-atlas-background",
+      "references": [
+        "public/assets/bassins-haut-puits.webp",
+        "public/assets/cite-caravane.png"
+      ],
+      "prompt": "Wide 16:9 oblique dark topographic map of the Bassins Fendus in the same ash-and-amber painted world as the references. A central caravan-city position and two branching routes through cracked basins, waterworks and soot haze; strong quiet negative space for route overlays; no text, no icons, no UI chrome."
+    },
+    {
+      "asset": "public/assets/ui/ilyana-voss.webp",
+      "sha256": "ad21ded6038a13d189884f7155674abe19b2c947f2355703233e75b6fcb8c924",
+      "useCase": "companion-portrait",
+      "references": ["public/assets/prologue-ilyana-au-clapet.webp"],
+      "prompt": "Close square portrait preserving Ilyana Voss's identity from the reference: soot-marked face, tied dark hair, worn worker coat and scarf, resilient alert expression, cold slate shadows cut by a restrained amber lantern rim light, painterly industrial survival-game art, no text, no UI frame."
+    }
+  ]
+}

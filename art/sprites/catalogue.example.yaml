@@ -1,0 +1,24 @@
+version: 1
+sprites:
+  - id: cite.fumee-01
+    seed: art/sprites/seeds/fumee-01.png
+    prompt: art/sprites/prompts/fumee-01.md
+    generation:
+      model: gpt-image-1.5
+      quality: medium
+      size: 1536x1024
+      frames: 6
+      slot_size: 256
+    production:
+      frame_size: 128
+      anchor: bottom-center
+      fps: 6
+      loop: true
+      alpha_threshold: 8
+      padding: 4
+      kernel: lanczos3
+      lock_frame_1: true
+      max_dimension_drift: 0.6
+    publication:
+      status: draft
+      reviewer: null

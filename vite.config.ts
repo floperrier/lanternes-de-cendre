@@ -57,6 +57,7 @@ export default defineConfig(({ mode }) => {
       setupFiles: ["./tests/support/initialiser.ts"],
       include: [
         "src/**/*.test.ts",
+        "scripts/**/*.test.ts",
         "serveur-commercial/**/*.test.ts",
       ],
     },
