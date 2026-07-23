@@ -20,6 +20,16 @@ acteurs:
   - chassis-regional-des-bassins
   - passage-vers-la-trame
   - habitants-des-bassins
+  - republique-du-rail
+  - douaniers-du-rail
+  - aiguilleurs
+  - ateliers-grand-aiguillage
+  - habitants-grand-aiguillage
+  - piece-de-regulation
+  - train-outil-ligne-zero
+  - attelages-puits-libres
+  - barriere-neuve
+  - grand-aiguillage
 quartiers:
   - intendance
   - foyers
@@ -32,6 +42,8 @@ fenetres:
   - halte-haut-puits
   - relais-des-nacelles
   - deversoir-noir
+  - barriere-neuve
+  - grand-aiguillage
 lieux:
   - halte-du-puits-sec
   - haut-puits
@@ -40,6 +52,8 @@ lieux:
   - relais-des-vannes
   - deversoir-noir
   - lisiere-trame-de-fer
+  - barriere-neuve
+  - grand-aiguillage
 destinations_echo:
   - journal-de-campagne
 faits:
@@ -95,3 +109,13 @@ faits:
   - compagnon.ilyana-voss.affectee-intendance
   - conseil.premiere-veille.circuit-securise
   - conseil.premiere-veille.distribution-maintenue
+  - trame.barriere-neuve.permis-republicain
+  - trame.barriere-neuve.droit-local-conteste
+  - trame.barriere-neuve.taxe-des-lanternes
+  - trame.barriere-neuve.priorite-aux-requisitions
+  - trame.grand-aiguillage.train-outil-annonce
+  - trame.grand-aiguillage.reparation-locale-ouverte
+  - trame.grand-aiguillage.refroidissement-securise
+  - trame.grand-aiguillage.refroidissement-rationne
+  - trame.grand-aiguillage.attelage-federe-annonce
+  - trame.grand-aiguillage.train-outil-reserve

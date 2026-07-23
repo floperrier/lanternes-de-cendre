@@ -14,6 +14,11 @@ export const NOMS_D_ASSETS_PREMIUM = [
   "deversoir-conseil.webp",
   "deversoir-chassis.webp",
   "deversoir-passage.webp",
+  "trame-barriere-permis.webp",
+  "trame-barriere-taxe.webp",
+  "trame-piece-regulation.webp",
+  "trame-eau-machines.webp",
+  "trame-attelage-federe.webp",
 ] as const;
 
 export const LIEUX_PREMIUM = [
@@ -36,6 +41,14 @@ export const LIEUX_PREMIUM = [
   {
     id: "lisiere-trame-de-fer",
     nom: { fr: "Lisière de la Trame de Fer", en: "Iron Weave Verge" },
+  },
+  {
+    id: "barriere-neuve",
+    nom: { fr: "Barrière-Neuve", en: "New Barrier" },
+  },
+  {
+    id: "grand-aiguillage",
+    nom: { fr: "Grand-Aiguillage", en: "Grand Junction" },
   },
 ] as const;
 
@@ -457,6 +470,106 @@ export const TRONCONS_PREMIUM = [
             source: "Spillway technicians’ surface survey",
             danger: "Unstable embankments beneath the ash storm",
             controlePolitique: "Passage outside the Sluice Council",
+          },
+        },
+      },
+    ],
+  },
+  {
+    id: "rampe-de-barriere-neuve",
+    nom: {
+      fr: "Rampe de Barrière-Neuve",
+      en: "New Barrier Ramp",
+    },
+    extremites: ["lisiere-trame-de-fer", "barriere-neuve"],
+    originesAutorisees: ["lisiere-trame-de-fer"],
+    dureeSecondes: 420,
+    etatInitial: "praticable",
+    consommationConnue: {
+      stock: "combustible",
+      quantite: 4,
+      unite: "litres",
+    },
+    consommationIncertaine: {
+      stock: "eau",
+      minimum: 4,
+      maximum: 6,
+      quantiteReelle: 5,
+      unite: "litres",
+      renseignementId: "barriere-neuve-controle",
+    },
+    renseignements: [
+      {
+        id: "barriere-neuve-controle",
+        tronconId: "rampe-de-barriere-neuve",
+        source: "douaniers-du-rail",
+        releveA: 0,
+        fiabilite: "confirme",
+        etatAnnonce: "praticable",
+        meteo: "cendre-basse",
+        panache: "absent",
+        danger: "controle-des-essieux",
+        controlePolitique: "republique-du-rail",
+        libelles: {
+          fr: {
+            source: "Avis officiel de Barrière-Neuve",
+            danger: "Contrôle des essieux et des charges",
+            controlePolitique: "Voie principale tenue par la République du Rail",
+          },
+          en: {
+            source: "New Barrier official notice",
+            danger: "Axle and load inspection",
+            controlePolitique: "Main route held by the Rail Republic",
+          },
+        },
+      },
+    ],
+  },
+  {
+    id: "voie-des-ponts-lourds",
+    nom: {
+      fr: "Voie des Ponts lourds",
+      en: "Heavy Bridges Route",
+    },
+    extremites: ["barriere-neuve", "grand-aiguillage"],
+    originesAutorisees: ["barriere-neuve"],
+    dureeSecondes: 600,
+    etatInitial: "degrade",
+    consommationConnue: {
+      stock: "combustible",
+      quantite: 6,
+      unite: "litres",
+    },
+    consommationIncertaine: {
+      stock: "eau",
+      minimum: 6,
+      maximum: 9,
+      quantiteReelle: 8,
+      unite: "litres",
+      renseignementId: "ponts-lourds-aiguilleurs",
+    },
+    renseignements: [
+      {
+        id: "ponts-lourds-aiguilleurs",
+        tronconId: "voie-des-ponts-lourds",
+        source: "aiguilleurs",
+        releveA: 0,
+        fiabilite: "rapporte",
+        etatAnnonce: "degrade",
+        meteo: "rafales-de-cendre",
+        panache: "incertain",
+        danger: "ponts-fatigues",
+        controlePolitique: "republique-du-rail",
+        libelles: {
+          fr: {
+            source: "Aiguilleurs de Grand-Aiguillage",
+            danger: "Ponts lourds fatigués mais entretenus",
+            controlePolitique: "Services et réquisitions de la République du Rail",
+          },
+          en: {
+            source: "Grand Junction switch crews",
+            danger: "Worn but maintained heavy bridges",
+            controlePolitique: "Rail Republic services and requisitions",
           },
         },
       },

@@ -1,0 +1,15 @@
+{
+  "asset": "serveur-commercial/assets/trame-barriere-permis.webp",
+  "sha256": "0f75eaf191fec9cf8e94663f83e3896f64fd420597988fcac0dacc6abc8e2a14",
+  "createdAt": "2026-07-23",
+  "tool": "Codex built-in image_gen",
+  "model": "built-in model (identifier not exposed)",
+  "useCase": "stylized-concept",
+  "input": "No input image; generated from the project’s established oblique industrial art direction.",
+  "prompt": "Barrière-Neuve axle checkpoint in an ash-covered industrial rail corridor, where customs crews inspect the caravan-city's many mobile platforms under a massive iron gantry. Painterly cinematic game concept art, grounded industrial realism, wide 16:9 establishing view from an oblique elevated angle, cold ash daylight cut by warm amber lanterns. No text, letters, numbers, logos, watermark, foregrounded weapons or modern vehicles.",
+  "rights": "OpenAI Terms of Use — output assigned to the user",
+  "approval": {
+    "status": "pending-pull-request-review",
+    "reviewer": null
+  }
+}

@@ -48,6 +48,7 @@ const CHEMINS_D_EVENEMENTS_PREMIUM = [
   "content/evenements/haut-puits.yaml",
   "content/evenements/nacelles.yaml",
   "content/evenements/deversoir.yaml",
+  "content/evenements/trame-fer.yaml",
 ] as const;
 const provenances = {
   "docs/assets/cite-caravane.provenance.json": lire(
@@ -109,6 +110,21 @@ const provenances = {
   ),
   "docs/assets/deversoir-passage.provenance.json": lire(
     "docs/assets/deversoir-passage.provenance.json",
+  ),
+  "docs/assets/trame-barriere-permis.provenance.json": lire(
+    "docs/assets/trame-barriere-permis.provenance.json",
+  ),
+  "docs/assets/trame-barriere-taxe.provenance.json": lire(
+    "docs/assets/trame-barriere-taxe.provenance.json",
+  ),
+  "docs/assets/trame-piece-regulation.provenance.json": lire(
+    "docs/assets/trame-piece-regulation.provenance.json",
+  ),
+  "docs/assets/trame-eau-machines.provenance.json": lire(
+    "docs/assets/trame-eau-machines.provenance.json",
+  ),
+  "docs/assets/trame-attelage-federe.provenance.json": lire(
+    "docs/assets/trame-attelage-federe.provenance.json",
   ),
 };
 

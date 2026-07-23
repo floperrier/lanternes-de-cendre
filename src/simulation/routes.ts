@@ -12,7 +12,9 @@ export type IdentifiantDeLieu =
   | "les-vanniers"
   | "relais-des-vannes"
   | "deversoir-noir"
-  | "lisiere-trame-de-fer";
+  | "lisiere-trame-de-fer"
+  | "barriere-neuve"
+  | "grand-aiguillage";
 
 export type IdentifiantDeTroncon =
   | "digue-des-puits"
@@ -24,7 +26,9 @@ export type IdentifiantDeTroncon =
   | "chenal-de-l-hospice"
   | "conduite-du-deversoir"
   | "passage-de-la-ligne-zero"
-  | "piste-des-levees";
+  | "piste-des-levees"
+  | "rampe-de-barriere-neuve"
+  | "voie-des-ponts-lourds";
 
 export interface DefinitionDeLieu {
   readonly id: IdentifiantDeLieu;
@@ -145,7 +149,9 @@ export interface RenseignementDeRoute {
     | "relais-des-pelerins"
     | "eclaireurs-de-haut-puits"
     | "nacelliers-des-vannes"
-    | "techniciens-du-deversoir";
+    | "techniciens-du-deversoir"
+    | "douaniers-du-rail"
+    | "aiguilleurs";
   readonly releveA: number;
   readonly fiabilite: "confirme" | "ancien" | "rapporte";
   readonly etatAnnonce: Exclude<EtatReelDeRoute, "coupe">;
@@ -156,14 +162,17 @@ export interface RenseignementDeRoute {
     | "orniere"
     | "visibilite"
     | "cables-fatigues"
-    | "conduit-effondrable";
+    | "conduit-effondrable"
+    | "controle-des-essieux"
+    | "ponts-fatigues";
   readonly controlePolitique:
     | "puits-libres"
     | "pelerins-de-cendre"
     | "sans-controle-etabli"
     | "accord-des-bassins"
     | "passage-conteste"
-    | "conseil-des-vannes";
+    | "conseil-des-vannes"
+    | "republique-du-rail";
   readonly libelles?: Readonly<
     Record<
       "fr" | "en",
@@ -292,6 +301,8 @@ const IDENTIFIANTS_DE_LIEUX = new Set<IdentifiantDeLieu>([
   "relais-des-vannes",
   "deversoir-noir",
   "lisiere-trame-de-fer",
+  "barriere-neuve",
+  "grand-aiguillage",
 ]);
 const IDENTIFIANTS_DE_TRONCONS = new Set<IdentifiantDeTroncon>([
   "digue-des-puits",
@@ -304,6 +315,8 @@ const IDENTIFIANTS_DE_TRONCONS = new Set<IdentifiantDeTroncon>([
   "conduite-du-deversoir",
   "passage-de-la-ligne-zero",
   "piste-des-levees",
+  "rampe-de-barriere-neuve",
+  "voie-des-ponts-lourds",
 ]);
 
 export function installerContenuPremiumDesRoutes(

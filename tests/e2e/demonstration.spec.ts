@@ -496,8 +496,129 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
     page,
     page.getByRole("button", { name: "Vitesse 4×" }),
   );
-  await page.clock.fastForward(120_000);
+  await page.clock.fastForward(121_000);
   await expect(atlas).toContainText("Lisière de la Trame de Fer");
+
+  await activerAuClavier(
+    page,
+    atlas.getByRole("button", {
+      name: "Étudier l’Engagement vers Rampe de Barrière-Neuve",
+    }),
+  );
+  await activerAuClavier(
+    page,
+    page
+      .getByRole("dialog", { name: "Engagement vers Barrière-Neuve" })
+      .getByRole("button", {
+        name: "Confirmer l’Engagement sans retour vers Barrière-Neuve",
+      }),
+  );
+  await activerAuClavier(
+    page,
+    page.getByRole("button", { name: "Vitesse 4×" }),
+  );
+  await page.clock.fastForward(105_000);
+
+  const controleDeBarriere = page.getByRole("region", {
+    name: "Le permis des essieux",
+  });
+  await expect(controleDeBarriere.getByRole("img")).toBeVisible();
+  await expect(controleDeBarriere).toContainText(
+    "Contrôle des essieux de Barrière-Neuve",
+  );
+  await page.screenshot({
+    path: testInfo.outputPath("trame-barriere-neuve.png"),
+    fullPage: true,
+  });
+  await activerAuClavier(
+    page,
+    controleDeBarriere.getByRole("button", {
+      name: "Prendre le permis républicain",
+    }),
+  );
+  await page.clock.fastForward(1_000);
+  const taxeDesLanternes = page.getByRole("region", {
+    name: "La taxe des lanternes",
+  });
+  await activerAuClavier(
+    page,
+    taxeDesLanternes.getByRole("button", {
+      name: "Acquitter la taxe en combustible",
+    }),
+  );
+  await page.clock.fastForward(1_000);
+
+  await activerAuClavier(
+    page,
+    atlas.getByRole("button", {
+      name: "Étudier l’Engagement vers Voie des Ponts lourds",
+    }),
+  );
+  await activerAuClavier(
+    page,
+    page
+      .getByRole("dialog", { name: "Engagement vers Grand-Aiguillage" })
+      .getByRole("button", {
+        name: "Confirmer l’Engagement sans retour vers Grand-Aiguillage",
+      }),
+  );
+  await activerAuClavier(
+    page,
+    page.getByRole("button", { name: "Vitesse 4×" }),
+  );
+  await page.clock.fastForward(150_000);
+
+  const choixDeGrandAiguillage = [
+    ["La pièce sans série", "Ouvrir la réparation aux ateliers locaux"],
+    [
+      "L’eau des machines",
+      "Rationner les tours et encadrer les réquisitions",
+    ],
+    ["Ilyana et l’attelage", "Former l’Attelage fédéré"],
+  ] as const;
+  for (const [titre, choix] of choixDeGrandAiguillage) {
+    const evenement = page.getByRole("region", { name: titre });
+    await expect(evenement.getByRole("img")).toBeVisible();
+    await activerAuClavier(
+      page,
+      evenement.getByRole("button", { name: choix }),
+    );
+    await page.clock.fastForward(1_000);
+  }
+
+  const grandAiguillage = page.getByRole("region", {
+    name: "Grand-Aiguillage",
+  });
+  await expect(grandAiguillage).toContainText("Transactionnelle");
+  await expect(grandAiguillage).toContainText(
+    "Eau de refroidissement rationnée",
+  );
+  await expect(grandAiguillage).toContainText(
+    "Permis républicain de circulation",
+  );
+  await expect(grandAiguillage).toContainText("Attelage fédéré — 8 Matériaux");
+  await grandAiguillage.screenshot({
+    path: testInfo.outputPath("trame-grand-aiguillage-mobile.png"),
+  });
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await grandAiguillage.scrollIntoViewIfNeeded();
+  await page.screenshot({
+    path: testInfo.outputPath("trame-grand-aiguillage-desktop.png"),
+  });
+  await activerAuClavier(
+    page,
+    page.getByRole("button", { name: "English" }),
+  );
+  await expect(
+    page.getByRole("region", { name: "Grand Junction" }),
+  ).toContainText("Iron Weave commitments");
+  await expect(
+    page.getByRole("region", { name: "Grand Junction" }),
+  ).toContainText("Federated Hauler — 8 Materials");
+  await activerAuClavier(
+    page,
+    page.getByRole("button", { name: "Français" }),
+  );
 
   await expect(expedition).toContainText("Bilan de retour");
   const exportApresAchat = page.waitForEvent("download");

@@ -28,6 +28,7 @@ import {
 import { creerEtatDesExpeditionsInitial } from "../simulation/expeditions";
 import { creerEtatInitialDeVeilleBasse } from "../simulation/veilleBasse";
 import { creerEtatDeHautPuitsInitial } from "../simulation/hautPuits";
+import { creerEtatInitialDeLaTrameDeFer } from "../simulation/trameFer";
 import { EVENEMENTS_HISTORIQUES_V5 } from "./catalogueHistoriqueV5";
 import {
   EVENEMENTS_HISTORIQUES_V6,
@@ -45,6 +46,7 @@ import {
   VERSION_SIMULATION_AVANT_DEVERSOIR,
   VERSION_SIMULATION_AVANT_HAUT_PUITS,
   VERSION_SIMULATION_AVANT_NACELLES,
+  VERSION_SIMULATION_AVANT_TRAME_DE_FER,
   VERSION_SIMULATION_AVANT_VEILLE_BASSE,
   VERSION_SIMULATION_COURANTE,
   VERSION_SIMULATION_INITIALE,
@@ -57,6 +59,7 @@ import {
   VERSION_SAUVEGARDE_AVANT_DEVERSOIR,
   VERSION_SAUVEGARDE_AVANT_HAUT_PUITS,
   VERSION_SAUVEGARDE_AVANT_NACELLES,
+  VERSION_SAUVEGARDE_AVANT_TRAME_DE_FER,
   VERSION_SAUVEGARDE_AVANT_VEILLE_BASSE,
   VERSION_SAUVEGARDE_COURANTE,
   VERSION_SAUVEGARDE_INITIALE,
@@ -69,6 +72,7 @@ import {
   estCommandeV5,
   estCommandeV6,
   estCommandeV7,
+  estCommandeV8,
   estCommandeV2,
   estCommandeV1,
   estObjet,
@@ -82,10 +86,12 @@ import {
   lireEtatV5,
   lireEtatV6,
   lireEtatV7,
+  lireEtatV8,
   lireSnapshotV4,
   lireSnapshotV5,
   lireSnapshotV6,
   lireSnapshotV7,
+  lireSnapshotV8,
   marquerCausaliteHistoriqueDeNarrationSiNecessaire,
   projeterEtatAvantRoutesHistorique,
   type EtatCampagneAvantCrises,
@@ -96,6 +102,7 @@ import {
   type EtatCampagneV5,
   type EtatCampagneV6,
   type EtatCampagneV7,
+  type EtatCampagneV8,
   type ObjetInconnu,
 } from "./validation";
 
@@ -230,6 +237,7 @@ function migrerEtatV1(etat: EtatCampagneV1): EtatCampagne {
     expeditions: creerEtatDesExpeditionsInitial(),
     veilleBasse: creerEtatInitialDeVeilleBasse(),
     hautPuits: creerEtatDeHautPuitsInitial(),
+    trameDeFer: creerEtatInitialDeLaTrameDeFer(),
     devenirsDesSites: null,
     citeCaravane: {
       ...etat.citeCaravane,
@@ -276,6 +284,7 @@ function migrerEtatV2(
     expeditions: creerEtatDesExpeditionsInitial(),
     veilleBasse: creerEtatInitialDeVeilleBasse(),
     hautPuits: creerEtatDeHautPuitsInitial(),
+    trameDeFer: creerEtatInitialDeLaTrameDeFer(),
     devenirsDesSites: null,
   };
 }
@@ -327,6 +336,7 @@ function migrerEtatAvantRoutes(
     expeditions: creerEtatDesExpeditionsInitial(),
     veilleBasse: creerEtatInitialDeVeilleBasse(),
     hautPuits: creerEtatDeHautPuitsInitial(),
+    trameDeFer: creerEtatInitialDeLaTrameDeFer(),
     devenirsDesSites: null,
   };
 }
@@ -345,6 +355,7 @@ function migrerEtatAvantCrises(
     expeditions: creerEtatDesExpeditionsInitial(),
     veilleBasse: creerEtatInitialDeVeilleBasse(),
     hautPuits: creerEtatDeHautPuitsInitial(),
+    trameDeFer: creerEtatInitialDeLaTrameDeFer(),
     devenirsDesSites: null,
   };
 }
@@ -490,6 +501,7 @@ export function promouvoirEtatV4VersCourant(
     version: VERSION_SIMULATION_COURANTE,
     veilleBasse: creerEtatInitialDeVeilleBasse(),
     hautPuits: creerEtatDeHautPuitsInitial(),
+    trameDeFer: creerEtatInitialDeLaTrameDeFer(),
     devenirsDesSites: null,
   });
 }
@@ -503,6 +515,7 @@ export function promouvoirEtatV6VersCourant(
   return marquerCausaliteHistoriqueDeNarrationSiNecessaire({
     ...etat,
     version: VERSION_SIMULATION_COURANTE,
+    trameDeFer: creerEtatInitialDeLaTrameDeFer(),
     devenirsDesSites: null,
     routes: aDejaEmprunteLesNacelles
       ? etat.routes
@@ -522,6 +535,7 @@ function promouvoirEtatV6PourReplay(
   return marquerCausaliteHistoriqueDeNarrationSiNecessaire({
     ...etat,
     version: VERSION_SIMULATION_COURANTE,
+    trameDeFer: creerEtatInitialDeLaTrameDeFer(),
     devenirsDesSites: null,
   });
 }
@@ -529,7 +543,9 @@ function promouvoirEtatV6PourReplay(
 function normaliserEtatCourantEnV6(
   etat: EtatCampagne,
 ): EtatCampagneV6 {
-  const { causaliteHistorique, ...narrationV6 } = etat.narration;
+  const { trameDeFer, ...sansTrame } = etat;
+  void trameDeFer;
+  const { causaliteHistorique, ...narrationV6 } = sansTrame.narration;
   void causaliteHistorique;
   const {
     "nacelles-de-veille-basse": routeAjoutee,
@@ -538,20 +554,24 @@ function normaliserEtatCourantEnV6(
     "conduite-du-deversoir": routeDuDeversoir,
     "passage-de-la-ligne-zero": passageRegional,
     "piste-des-levees": pisteDesLevees,
+    "rampe-de-barriere-neuve": rampeDeBarriereNeuve,
+    "voie-des-ponts-lourds": voieDesPontsLourds,
     ...etatsReelsV6
-  } = etat.routes.etatsReels;
+  } = sansTrame.routes.etatsReels;
   void routeAjoutee;
   void cheminDeLHospice;
   void chenalDeLHospice;
   void routeDuDeversoir;
   void passageRegional;
   void pisteDesLevees;
+  void rampeDeBarriereNeuve;
+  void voieDesPontsLourds;
   return {
-    ...etat,
+    ...sansTrame,
     version: VERSION_SIMULATION_AVANT_NACELLES,
     narration: narrationV6,
     routes: {
-      ...etat.routes,
+      ...sansTrame.routes,
       etatsReels: etatsReelsV6,
     },
   };
@@ -711,6 +731,7 @@ function promouvoirEtatV7PourReplay(
         ? { topologieHistorique: "nacelles-v7" as const }
         : {}),
     },
+    trameDeFer: creerEtatInitialDeLaTrameDeFer(),
     devenirsDesSites: null,
   });
 }
@@ -735,8 +756,9 @@ export function promouvoirEtatV7VersCourant(
 function normaliserEtatCourantEnV7(
   etat: EtatCampagne,
 ): EtatCampagneV7 {
-  const { devenirsDesSites, ...sansDevenirs } = etat;
+  const { devenirsDesSites, trameDeFer, ...sansDevenirs } = etat;
   void devenirsDesSites;
+  void trameDeFer;
   const { causaliteHistorique, ...narrationV7 } = sansDevenirs.narration;
   void causaliteHistorique;
   const { projetRegional, ...hautPuitsV7 } = sansDevenirs.hautPuits;
@@ -752,6 +774,8 @@ function normaliserEtatCourantEnV7(
     "conduite-du-deversoir": conduiteDuDeversoir,
     "passage-de-la-ligne-zero": passageDeLaLigneZero,
     "piste-des-levees": pisteDesLevees,
+    "rampe-de-barriere-neuve": rampeDeBarriereNeuve,
+    "voie-des-ponts-lourds": voieDesPontsLourds,
     ...etatsReelsV7
   } = sansDevenirs.routes.etatsReels;
   void cheminDeLHospice;
@@ -759,6 +783,8 @@ function normaliserEtatCourantEnV7(
   void conduiteDuDeversoir;
   void passageDeLaLigneZero;
   void pisteDesLevees;
+  void rampeDeBarriereNeuve;
+  void voieDesPontsLourds;
   const { topologieHistorique, ...routesV7 } = sansDevenirs.routes;
   void topologieHistorique;
   return {
@@ -901,12 +927,146 @@ export function migrerSauvegardeV7(
   );
 }
 
+export function promouvoirEtatV8VersCourant(
+  etat: EtatCampagneV8,
+): EtatCampagne {
+  const routesInitiales = creerEtatDesRoutesInitial();
+  return {
+    ...etat,
+    version: VERSION_SIMULATION_COURANTE,
+    routes: {
+      ...etat.routes,
+      etatsReels: {
+        ...routesInitiales.etatsReels,
+        ...etat.routes.etatsReels,
+      },
+    },
+    trameDeFer: creerEtatInitialDeLaTrameDeFer(),
+  };
+}
+
+function normaliserEtatCourantEnV8(
+  etat: EtatCampagne,
+): EtatCampagneV8 {
+  const { trameDeFer, ...sansTrame } = etat;
+  void trameDeFer;
+  const {
+    "rampe-de-barriere-neuve": rampeDeBarriereNeuve,
+    "voie-des-ponts-lourds": voieDesPontsLourds,
+    ...etatsReelsV8
+  } = sansTrame.routes.etatsReels;
+  void rampeDeBarriereNeuve;
+  void voieDesPontsLourds;
+  return {
+    ...sansTrame,
+    version: VERSION_SIMULATION_AVANT_TRAME_DE_FER,
+    routes: {
+      ...sansTrame.routes,
+      etatsReels: etatsReelsV8,
+    },
+  };
+}
+
+export function migrerSauvegardeV8(
+  valeur: ObjetInconnu,
+): SauvegardeCampagne | undefined {
+  if (
+    valeur.format !== FORMAT_SAUVEGARDE ||
+    typeof valeur.id !== "string" ||
+    valeur.version !== VERSION_SAUVEGARDE_AVANT_TRAME_DE_FER ||
+    !estObjet(valeur.versions) ||
+    valeur.versions.simulation !== VERSION_SIMULATION_AVANT_TRAME_DE_FER ||
+    valeur.versions.contenu !== VERSIONS_DU_SNAPSHOT_COURANT.contenu ||
+    valeur.versions.aleatoire !== VERSIONS_DU_SNAPSHOT_COURANT.aleatoire ||
+    valeur.versions.empreinte !== VERSIONS_DU_SNAPSHOT_COURANT.empreinte ||
+    typeof valeur.graine !== "string" ||
+    !estObjet(valeur.horloge) ||
+    typeof valeur.horloge.secondes !== "number" ||
+    !Number.isFinite(valeur.horloge.secondes) ||
+    !estObjet(valeur.reproduction) ||
+    !Array.isArray(valeur.reproduction.commandes) ||
+    typeof valeur.reproduction.empreinteSnapshot !== "string" ||
+    !EMPREINTE.test(valeur.reproduction.empreinteSnapshot) ||
+    typeof valeur.empreinte !== "string" ||
+    !EMPREINTE.test(valeur.empreinte)
+  ) {
+    return undefined;
+  }
+
+  const snapshotV8 = lireSnapshotV8(valeur.reproduction.snapshot);
+  const etatDeclareV8 = lireEtatV8(valeur.etat);
+  if (
+    snapshotV8 === undefined ||
+    etatDeclareV8 === undefined ||
+    valeur.graine !== etatDeclareV8.graine ||
+    valeur.horloge.secondes !== etatDeclareV8.tempsDuConvoi.secondes ||
+    empreinteEtat(snapshotV8 as unknown as EtatCampagne) !==
+      valeur.reproduction.empreinteSnapshot ||
+    empreinteEtat(etatDeclareV8 as unknown as EtatCampagne) !== valeur.empreinte
+  ) {
+    return undefined;
+  }
+
+  let etat = promouvoirEtatV8VersCourant(snapshotV8);
+  try {
+    for (const [index, entree] of valeur.reproduction.commandes.entries()) {
+      if (
+        !estObjet(entree) ||
+        entree.sequence !== index ||
+        !estCommandeV8(entree.commande) ||
+        typeof entree.empreinteApres !== "string" ||
+        !EMPREINTE.test(entree.empreinteApres)
+      ) {
+        return undefined;
+      }
+      etat = appliquerCommande(etat, entree.commande).etat;
+      if (
+        empreinteEtat(
+          normaliserEtatCourantEnV8(etat) as unknown as EtatCampagne,
+        ) !== entree.empreinteApres
+      ) {
+        return undefined;
+      }
+    }
+  } catch {
+    return undefined;
+  }
+
+  if (
+    !sontStructurellementEgaux(
+      normaliserEtatCourantEnV8(etat),
+      etatDeclareV8,
+    )
+  ) {
+    return undefined;
+  }
+
+  const etatCourant = promouvoirEtatV8VersCourant(etatDeclareV8);
+  if (
+    lireSnapshotCourant(etatCourant) === undefined ||
+    lireEtatCourant(etatCourant) === undefined
+  ) {
+    return undefined;
+  }
+  const reproduction: ReproductionDeCampagne = {
+    snapshot: etatCourant,
+    empreinteSnapshot: empreinteEtat(etatCourant),
+    commandes: [],
+  };
+  const sauvegarde = creerSauvegarde(etatCourant, reproduction);
+  return {
+    ...sauvegarde,
+    id: `${valeur.id}-v${VERSION_SAUVEGARDE_COURANTE}-${sauvegarde.empreinte}`,
+  };
+}
+
 function normaliserEtatCourantEnV4(
   etat: EtatCampagne,
 ): EtatCampagneV4 {
-  const { veilleBasse, hautPuits, ...etatV4 } = etat;
+  const { veilleBasse, hautPuits, trameDeFer, ...etatV4 } = etat;
   void veilleBasse;
   void hautPuits;
+  void trameDeFer;
   const { causaliteHistorique, ...narrationV4 } = etatV4.narration;
   void causaliteHistorique;
   return {
@@ -923,6 +1083,7 @@ export function promouvoirEtatV5VersCourant(
     ...etat,
     version: VERSION_SIMULATION_COURANTE,
     hautPuits: creerEtatDeHautPuitsInitial(),
+    trameDeFer: creerEtatInitialDeLaTrameDeFer(),
     devenirsDesSites: null,
   });
 }
@@ -930,8 +1091,9 @@ export function promouvoirEtatV5VersCourant(
 function normaliserEtatCourantEnV5(
   etat: EtatCampagne,
 ): EtatCampagneV5 {
-  const { hautPuits, ...etatV5 } = etat;
+  const { hautPuits, trameDeFer, ...etatV5 } = etat;
   void hautPuits;
+  void trameDeFer;
   const { causaliteHistorique, ...narrationV5 } = etatV5.narration;
   void causaliteHistorique;
   return {

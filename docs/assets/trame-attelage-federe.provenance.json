@@ -1,0 +1,15 @@
+{
+  "asset": "serveur-commercial/assets/trame-attelage-federe.webp",
+  "sha256": "9ac372ba941e1645495dbf01d8c818e6d04b8ccf3af02af116c15a85a72b70cb",
+  "createdAt": "2026-07-23",
+  "tool": "Codex built-in image_gen",
+  "model": "built-in model (identifier not exposed)",
+  "useCase": "stylized-concept",
+  "input": "No input image; generated from the project’s established oblique industrial art direction.",
+  "prompt": "Ilyana organizing a federated hauler at Grand-Aiguillage so a massive regulation ring can be distributed across several Free Wells trailers instead of one republican locomotive. Painterly cinematic game concept art, grounded industrial realism, wide 16:9 oblique elevated view, hopeful amber lantern light through industrial haze. No text, letters, numbers, logos, watermark, heroic weapon pose or modern truck.",
+  "rights": "OpenAI Terms of Use — output assigned to the user",
+  "approval": {
+    "status": "pending-pull-request-review",
+    "reviewer": null
+  }
+}

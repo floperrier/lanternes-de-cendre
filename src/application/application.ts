@@ -4,6 +4,7 @@ import type { Langue, TexteCompile } from "../content/types";
 import { lirePresentationsPremium } from "../content/presentationsPremium";
 import {
   appliquerCommande,
+  choixNarratifEstDisponible,
   creerCampagneInitiale,
   type CommandeCampagne,
   type EtatCampagne,
@@ -29,6 +30,8 @@ export interface ProjectionEvenementNarratif {
     readonly id: string;
     readonly intention: string;
     readonly coutsConnus: readonly string[];
+    readonly disponible?: boolean;
+    readonly indisponibilite?: string;
   }[];
 }
 
@@ -353,12 +356,30 @@ function projeterEvenementNarratif(
           );
         }
 
+        const disponible = choixNarratifEstDisponible(
+          etat,
+          evenement.id,
+          choix,
+        );
         return {
           id: choix.id,
           intention: rendreTexte(textesDuChoix.intention, contexte),
           coutsConnus: textesDuChoix.coutsConnus.map((cout) =>
             rendreTexte(cout, contexte),
           ),
+          ...(evenement.id.startsWith("trame.")
+            ? {
+                disponible,
+                ...(!disponible
+                  ? {
+                      indisponibilite:
+                        langue === "fr"
+                          ? "Stock insuffisant pour ce coût."
+                          : "Insufficient stock for this cost.",
+                    }
+                  : {}),
+              }
+            : {}),
         };
       }),
   };

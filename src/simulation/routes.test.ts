@@ -284,7 +284,19 @@ describe("Engagement de route", () => {
       1_840,
     ).etat;
     expect(aLaTrame.position).toBe("lisiere-trame-de-fer");
-    expect(listerTronconsEngageables(aLaTrame)).toEqual([]);
+    expect(
+      listerTronconsEngageables(aLaTrame).map(
+        ({ troncon, destination }) => ({
+          tronconId: troncon.id,
+          destination,
+        }),
+      ),
+    ).toEqual([
+      {
+        tronconId: "rampe-de-barriere-neuve",
+        destination: "barriere-neuve",
+      },
+    ]);
   });
 
   it.each([
@@ -296,8 +308,10 @@ describe("Engagement de route", () => {
         "chenal-des-vannes",
         "conduite-du-deversoir",
         "passage-de-la-ligne-zero",
+        "rampe-de-barriere-neuve",
+        "voie-des-ponts-lourds",
       ],
-      5,
+      7,
     ],
     [
       "branche naturelle de Veille-Basse",
@@ -307,8 +321,10 @@ describe("Engagement de route", () => {
         "chenal-de-l-hospice",
         "conduite-du-deversoir",
         "piste-des-levees",
+        "rampe-de-barriere-neuve",
+        "voie-des-ponts-lourds",
       ],
-      5,
+      7,
     ],
     [
       "liaison coûteuse depuis Haut-Puits",
@@ -319,8 +335,10 @@ describe("Engagement de route", () => {
         "chenal-de-l-hospice",
         "conduite-du-deversoir",
         "passage-de-la-ligne-zero",
+        "rampe-de-barriere-neuve",
+        "voie-des-ponts-lourds",
       ],
-      6,
+      8,
     ],
     [
       "liaison coûteuse depuis Veille-Basse",
@@ -331,15 +349,17 @@ describe("Engagement de route", () => {
         "chenal-des-vannes",
         "conduite-du-deversoir",
         "piste-des-levees",
+        "rampe-de-barriere-neuve",
+        "voie-des-ponts-lourds",
       ],
-      6,
+      8,
     ],
   ] as const)(
     "maintient %s dans un budget exact de %i Tronçons",
     (_nom, troncons, nombreAttendu) => {
       const routes = parcourir(troncons);
 
-      expect(routes.position).toBe("lisiere-trame-de-fer");
+      expect(routes.position).toBe("grand-aiguillage");
       expect(routes.engagements).toHaveLength(nombreAttendu);
       expect(routes.jalons).toHaveLength(nombreAttendu);
       expect(listerTronconsEngageables(routes)).toEqual([]);

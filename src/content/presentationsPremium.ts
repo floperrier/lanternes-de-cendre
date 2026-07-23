@@ -85,9 +85,34 @@ export interface TextesDeVeilleBasse {
   readonly libelleRevelation: string;
 }
 
+export interface TextesDeTrameDeFer {
+  readonly titre: string;
+  readonly statuts: DictionnaireDeTextes;
+  readonly relations: DictionnaireDeTextes;
+  readonly eau: DictionnaireDeTextes;
+  readonly requisitions: DictionnaireDeTextes;
+  readonly engagements: DictionnaireDeTextes;
+  readonly voies: DictionnaireDeTextes;
+  readonly servicesLourdsRestants: string;
+  readonly reserveDeRefroidissementRestante: string;
+  readonly occasionTrainOutil: string;
+  readonly occasionAttelageFedere: string;
+  readonly libelles: {
+    readonly eyebrow: string;
+    readonly republique: string;
+    readonly pressions: string;
+    readonly marche: string;
+    readonly engagements: string;
+    readonly aucunEngagement: string;
+    readonly piece: string;
+    readonly voieAOuvrir: string;
+  };
+}
+
 export interface PresentationsPremium {
   readonly hautPuits: Readonly<Record<Langue, TextesDeHautPuits>>;
   readonly veilleBasse: Readonly<Record<Langue, TextesDeVeilleBasse>>;
+  readonly trame?: Readonly<Record<Langue, TextesDeTrameDeFer>>;
   readonly deversoir?: Readonly<
     Record<
       Langue,
@@ -152,10 +177,19 @@ export function installerPresentationsPremium(valeur: unknown): void {
         typeof evenement.id === "string" &&
         evenement.id.startsWith("bassins.deversoir."),
     );
+  const inclutLaTrame =
+    Array.isArray(evenements) &&
+    evenements.some(
+      (evenement) =>
+        estObjet(evenement) &&
+        typeof evenement.id === "string" &&
+        evenement.id.startsWith("trame."),
+    );
   const surfacesAttendues = [
     "hautPuits",
     "veilleBasse",
     ...(inclutLeDeversoir ? ["deversoir"] : []),
+    ...(inclutLaTrame ? ["trame"] : []),
   ];
   if (
     !estObjet(presentations) ||

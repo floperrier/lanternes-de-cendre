@@ -8,6 +8,7 @@ import {
   type EtatCampagne,
 } from "../simulation/campagne";
 import { VERSION_SIMULATION_AVANT_NACELLES } from "../simulation/versions";
+import { creerEtatInitialDeLaTrameDeFer } from "../simulation/trameFer";
 import { importerSauvegarde } from "./portable";
 import { lireEtatCourant } from "./validation";
 import {
@@ -18,6 +19,8 @@ import {
 } from "./version";
 
 function sansRouteBasse(etat: EtatCampagne) {
+  const { trameDeFer, ...sansTrame } = etat;
+  void trameDeFer;
   const {
     "nacelles-de-veille-basse": routeBasse,
     "chemin-de-l-hospice": cheminDeLHospice,
@@ -25,18 +28,22 @@ function sansRouteBasse(etat: EtatCampagne) {
     "conduite-du-deversoir": routeDuDeversoir,
     "passage-de-la-ligne-zero": passageRegional,
     "piste-des-levees": pisteDesLevees,
+    "rampe-de-barriere-neuve": rampeDeBarriereNeuve,
+    "voie-des-ponts-lourds": voieDesPontsLourds,
     ...etatsReelsV6
-  } = etat.routes.etatsReels;
+  } = sansTrame.routes.etatsReels;
   void routeBasse;
   void cheminDeLHospice;
   void chenalDeLHospice;
   void routeDuDeversoir;
   void passageRegional;
   void pisteDesLevees;
+  void rampeDeBarriereNeuve;
+  void voieDesPontsLourds;
   return {
-    ...etat,
+    ...sansTrame,
     version: VERSION_SIMULATION_AVANT_NACELLES,
-    routes: { ...etat.routes, etatsReels: etatsReelsV6 },
+    routes: { ...sansTrame.routes, etatsReels: etatsReelsV6 },
   };
 }
 
@@ -53,6 +60,7 @@ function creerArchiveV6() {
       {
         ...snapshot,
         version: VERSIONS_DU_SNAPSHOT_COURANT.simulation,
+        trameDeFer: creerEtatInitialDeLaTrameDeFer(),
       },
       commande,
     ).etat,

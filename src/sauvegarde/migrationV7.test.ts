@@ -31,6 +31,7 @@ function normaliserEnV7(etat: EtatCampagne): Record<string, unknown> {
   const historique = structuredClone(etat) as unknown as {
     version: number;
     devenirsDesSites?: unknown;
+    trameDeFer?: unknown;
     narration: { causaliteHistorique?: unknown };
     hautPuits: { projetRegional?: unknown };
     veilleBasse: {
@@ -43,6 +44,7 @@ function normaliserEnV7(etat: EtatCampagne): Record<string, unknown> {
   };
   historique.version = VERSION_SIMULATION_AVANT_DEVERSOIR;
   delete historique.devenirsDesSites;
+  delete historique.trameDeFer;
   delete historique.narration.causaliteHistorique;
   delete historique.hautPuits.projetRegional;
   delete historique.veilleBasse.cohorte.orientationRegionale;
@@ -53,6 +55,8 @@ function normaliserEnV7(etat: EtatCampagne): Record<string, unknown> {
     "conduite-du-deversoir",
     "passage-de-la-ligne-zero",
     "piste-des-levees",
+    "rampe-de-barriere-neuve",
+    "voie-des-ponts-lourds",
   ]) {
     delete historique.routes.etatsReels[routeId];
   }
@@ -349,7 +353,7 @@ function creerArchiveV7() {
 }
 
 describe("migration v7 avant le Déversoir Noir", () => {
-  it("valide le replay historique puis promeut explicitement l’état en v8", () => {
+  it("valide le replay historique puis promeut explicitement l’état courant", () => {
     const importation = importerSauvegarde(
       JSON.stringify(creerArchiveV7()),
     );
@@ -360,9 +364,9 @@ describe("migration v7 avant le Déversoir Noir", () => {
     }
     expect(importation.sauvegarde).toMatchObject({
       version: VERSION_SAUVEGARDE_COURANTE,
-      versions: { simulation: 8 },
+      versions: { simulation: 9 },
       etat: {
-        version: 8,
+        version: 9,
         devenirsDesSites: null,
         hautPuits: { projetRegional: null },
         routes: {
@@ -375,7 +379,7 @@ describe("migration v7 avant le Déversoir Noir", () => {
       },
       reproduction: {
         commandes: [],
-        snapshot: { version: 8 },
+        snapshot: { version: 9 },
       },
     });
   });

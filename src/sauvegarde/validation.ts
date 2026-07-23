@@ -15,6 +15,7 @@ import {
   VERSION_SIMULATION_AVANT_HAUT_PUITS,
   VERSION_SIMULATION_AVANT_NACELLES,
   VERSION_SIMULATION_AVANT_ROUTES,
+  VERSION_SIMULATION_AVANT_TRAME_DE_FER,
   VERSION_SIMULATION_AVANT_VEILLE_BASSE,
   VERSION_SIMULATION_COURANTE,
   VERSION_SIMULATION_INITIALE,
@@ -113,6 +114,10 @@ import {
   estEtatDeHautPuits,
 } from "./validationHautPuits";
 import { calculerOffreDesNacelles } from "../simulation/nacelles";
+import {
+  creerEtatInitialDeLaTrameDeFer,
+  reconstruireEtatDeLaTrameDeFer,
+} from "../simulation/trameFer";
 
 const EMPREINTE = /^[0-9a-f]{8}$/;
 const IDENTIFIANTS_PLATEFORMES_LEGACY_V1 = [
@@ -180,6 +185,7 @@ export interface EtatCampagneV2
     | "hautPuits"
     | "citeCaravane"
     | "devenirsDesSites"
+    | "trameDeFer"
   > {
   readonly version: typeof VERSION_SIMULATION_AVANT_ROUTES;
   readonly citeCaravane: Omit<EtatCampagne["citeCaravane"], "formation"> & {
@@ -200,6 +206,7 @@ export interface EtatCampagneAvantRoutes
     | "veilleBasse"
     | "hautPuits"
     | "devenirsDesSites"
+    | "trameDeFer"
   > {
   readonly version: typeof VERSION_SIMULATION_AVANT_CRISES;
 }
@@ -213,6 +220,7 @@ export interface EtatCampagneAvantCrises
     | "veilleBasse"
     | "hautPuits"
     | "devenirsDesSites"
+    | "trameDeFer"
   > {
   readonly version: typeof VERSION_SIMULATION_AVANT_CRISES;
 }
@@ -222,24 +230,32 @@ export type EtatCampagneV3 = EtatCampagneAvantCrises;
 export interface EtatCampagneV4
   extends Omit<
     EtatCampagne,
-    "version" | "veilleBasse" | "hautPuits" | "devenirsDesSites"
+    "version" | "veilleBasse" | "hautPuits" | "devenirsDesSites" | "trameDeFer"
   > {
   readonly version: typeof VERSION_SIMULATION_AVANT_VEILLE_BASSE;
 }
 
 export interface EtatCampagneV5
-  extends Omit<EtatCampagne, "version" | "hautPuits" | "devenirsDesSites"> {
+  extends Omit<
+    EtatCampagne,
+    "version" | "hautPuits" | "devenirsDesSites" | "trameDeFer"
+  > {
   readonly version: typeof VERSION_SIMULATION_AVANT_HAUT_PUITS;
 }
 
 export interface EtatCampagneV6
-  extends Omit<EtatCampagne, "version" | "devenirsDesSites"> {
+  extends Omit<EtatCampagne, "version" | "devenirsDesSites" | "trameDeFer"> {
   readonly version: typeof VERSION_SIMULATION_AVANT_NACELLES;
 }
 
 export interface EtatCampagneV7
-  extends Omit<EtatCampagne, "version" | "devenirsDesSites"> {
+  extends Omit<EtatCampagne, "version" | "devenirsDesSites" | "trameDeFer"> {
   readonly version: typeof VERSION_SIMULATION_AVANT_DEVERSOIR;
+}
+
+export interface EtatCampagneV8
+  extends Omit<EtatCampagne, "version" | "trameDeFer"> {
+  readonly version: typeof VERSION_SIMULATION_AVANT_TRAME_DE_FER;
 }
 
 export function estObjet(valeur: unknown): valeur is ObjetInconnu {
@@ -452,6 +468,24 @@ export function estCommandeV7(valeur: unknown): valeur is CommandeCampagne {
     return false;
   }
   return true;
+}
+
+export function estCommandeV8(valeur: unknown): valeur is CommandeCampagne {
+  if (!estCommande(valeur)) {
+    return false;
+  }
+  if (
+    valeur.type === "engagement-de-route.confirmer" &&
+    ["rampe-de-barriere-neuve", "voie-des-ponts-lourds"].includes(
+      String(valeur.tronconId),
+    )
+  ) {
+    return false;
+  }
+  return !(
+    valeur.type === "evenement-narratif.choisir" &&
+    valeur.evenementId.startsWith("trame.")
+  );
 }
 
 function estOrdreDeChantier(valeur: unknown): valeur is OrdreDeChantier {
@@ -2569,6 +2603,7 @@ function lireEtatAvecSchemaCourant(
   const expeditions = valeur.expeditions;
   const veilleBasse = valeur.veilleBasse;
   const hautPuits = valeur.hautPuits;
+  const trameDeFer = valeur.trameDeFer;
   const devenirsDesSites = valeur.devenirsDesSites;
   const faitDePassageRegional =
     estObjet(narration) &&
@@ -2647,6 +2682,15 @@ function lireEtatAvecSchemaCourant(
         )
       : devenirsDesSites !== null) ||
     !estEtatDeHautPuits(hautPuits, parties.tempsDuConvoi.secondes) ||
+    !sontStructurellementEgaux(
+      trameDeFer,
+      reconstruireEtatDeLaTrameDeFer(
+        narration.faitsDeCampagne as unknown as readonly {
+          readonly id: string;
+          readonly moment: number;
+        }[],
+      ),
+    ) ||
     !activitesDeHautPuitsSontCausales(
       hautPuits,
       routes,
@@ -2733,6 +2777,73 @@ export function lireSnapshotCourant(
   return lireEtatAvecSchemaCourant(valeur, true, true);
 }
 
+function lireEtatAvecSchemaV8(
+  valeur: unknown,
+  autoriserMarqueurHistoriqueSansFait = false,
+): EtatCampagneV8 | undefined {
+  if (
+    !estObjet(valeur) ||
+    valeur.version !== VERSION_SIMULATION_AVANT_TRAME_DE_FER ||
+    "trameDeFer" in valeur ||
+    !estObjet(valeur.routes) ||
+    !estObjet(valeur.routes.etatsReels) ||
+    ["rampe-de-barriere-neuve", "voie-des-ponts-lourds"].some((id) =>
+      Object.prototype.hasOwnProperty.call(
+        (valeur.routes as ObjetInconnu).etatsReels,
+        id,
+      ),
+    ) ||
+    !estObjet(valeur.narration) ||
+    !Array.isArray(valeur.narration.evenementsJoues) ||
+    valeur.narration.evenementsJoues.some(
+      (id) => typeof id === "string" && id.startsWith("trame."),
+    ) ||
+    (typeof valeur.narration.evenementActif === "string" &&
+      valeur.narration.evenementActif.startsWith("trame.")) ||
+    !Array.isArray(valeur.narration.faitsDeCampagne) ||
+    valeur.narration.faitsDeCampagne.some(
+      (fait) =>
+        estObjet(fait) &&
+        typeof fait.id === "string" &&
+        fait.id.startsWith("trame."),
+    )
+  ) {
+    return undefined;
+  }
+  const routesInitiales = creerEtatDesRoutesInitial();
+  const etatCourant = lireEtatAvecSchemaCourant(
+    {
+      ...valeur,
+      version: VERSION_SIMULATION_COURANTE,
+      routes: {
+        ...valeur.routes,
+        etatsReels: {
+          ...routesInitiales.etatsReels,
+          ...valeur.routes.etatsReels,
+        },
+      },
+      trameDeFer: creerEtatInitialDeLaTrameDeFer(),
+    },
+    true,
+    autoriserMarqueurHistoriqueSansFait,
+  );
+  return etatCourant === undefined
+    ? undefined
+    : (valeur as unknown as EtatCampagneV8);
+}
+
+export function lireEtatV8(
+  valeur: unknown,
+): EtatCampagneV8 | undefined {
+  return lireEtatAvecSchemaV8(valeur);
+}
+
+export function lireSnapshotV8(
+  valeur: unknown,
+): EtatCampagneV8 | undefined {
+  return lireEtatAvecSchemaV8(valeur, true);
+}
+
 function lireEtatAvecSchemaV7(
   valeur: unknown,
   autoriserMarqueurHistoriqueSansFait = false,
@@ -2787,6 +2898,7 @@ function lireEtatAvecSchemaV7(
         projetRegional: null,
       },
       devenirsDesSites: null,
+      trameDeFer: creerEtatInitialDeLaTrameDeFer(),
     },
     true,
     autoriserMarqueurHistoriqueSansFait,
@@ -2857,6 +2969,7 @@ function lireEtatAvecSchemaV6(
       ...valeur,
       version: VERSION_SIMULATION_COURANTE,
       devenirsDesSites: null,
+      trameDeFer: creerEtatInitialDeLaTrameDeFer(),
     },
     true,
     autoriserMarqueurHistoriqueSansFait,
@@ -2897,6 +3010,7 @@ function lireEtatAvecSchemaV5(
       version: VERSION_SIMULATION_COURANTE,
       hautPuits: creerEtatDeHautPuitsInitial(),
       devenirsDesSites: null,
+      trameDeFer: creerEtatInitialDeLaTrameDeFer(),
     },
     true,
     autoriserMarqueurHistoriqueSansFait,
@@ -2939,6 +3053,7 @@ function lireEtatAvecSchemaV4(
       veilleBasse: creerEtatInitialDeVeilleBasse(),
       hautPuits: creerEtatDeHautPuitsInitial(),
       devenirsDesSites: null,
+      trameDeFer: creerEtatInitialDeLaTrameDeFer(),
     },
     true,
     autoriserMarqueurHistoriqueSansFait,
@@ -3009,6 +3124,7 @@ export function lireEtatAvantRoutes(
     veilleBasse: creerEtatInitialDeVeilleBasse(),
     hautPuits: creerEtatDeHautPuitsInitial(),
     devenirsDesSites: null,
+    trameDeFer: creerEtatInitialDeLaTrameDeFer(),
   }, false);
   if (etatNormalise === undefined) {
     return undefined;
@@ -3091,6 +3207,7 @@ export function lireEtatV3(valeur: unknown): EtatCampagneV3 | undefined {
     veilleBasse: creerEtatInitialDeVeilleBasse(),
     hautPuits: creerEtatDeHautPuitsInitial(),
     devenirsDesSites: null,
+    trameDeFer: creerEtatInitialDeLaTrameDeFer(),
   }, false);
   return etatCourant === undefined
     ? undefined
@@ -3130,6 +3247,7 @@ export function lireEtatV2(valeur: unknown): EtatCampagneV2 | undefined {
     veilleBasse: creerEtatInitialDeVeilleBasse(),
     hautPuits: creerEtatDeHautPuitsInitial(),
     devenirsDesSites: null,
+    trameDeFer: creerEtatInitialDeLaTrameDeFer(),
   }, false);
   return etatCourant === undefined
     ? undefined

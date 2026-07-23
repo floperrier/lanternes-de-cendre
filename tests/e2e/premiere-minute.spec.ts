@@ -119,7 +119,7 @@ test("les mêmes commandes donnent le même état sous Node et Chromium", async 
     etat: etatNode,
     empreinte: empreinteEtat(etatNode),
   });
-  expect(resultatNavigateur.empreinte).toBe("86bbca38");
+  expect(resultatNavigateur.empreinte).toBe("00c1e11c");
 });
 
 test("un Événement bilingue expose ses coûts et accepte une intention au clavier", async ({

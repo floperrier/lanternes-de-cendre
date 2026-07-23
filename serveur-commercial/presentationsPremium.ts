@@ -141,6 +141,109 @@ export const PRESENTATIONS_PREMIUM = {
         "Water-sharing pledge — to be echoed at the Sluice Council ({moment})",
     },
   },
+  trame: {
+    fr: {
+      titre: "Grand-Aiguillage",
+      statuts: {
+        "sous-controle-republicain": "Atelier sous contrôle républicain",
+        "atelier-negocie": "Atelier négocié",
+      },
+      relations: {
+        fermee: "Fermée",
+        transactionnelle: "Transactionnelle",
+        cooperative: "Coopérative",
+      },
+      eau: {
+        critique: "Eau de refroidissement critique",
+        rationnee: "Eau de refroidissement rationnée",
+        stabilisee: "Eau de refroidissement stabilisée",
+      },
+      requisitions: {
+        actives: "Réquisitions actives",
+        prioritaires: "Réquisitions prioritaires",
+        encadrees: "Réquisitions encadrées",
+      },
+      engagements: {
+        "permis-de-circulation-republicain":
+          "Permis républicain de circulation",
+        "droit-local-de-passage": "Droit local de passage contesté",
+        "taxe-des-lanternes": "Taxe des lanternes",
+        "priorite-aux-requisitions": "Priorité aux réquisitions",
+        "service-lourd-du-train-outil": "Service lourd du Train-outil",
+      },
+      voies: {
+        "train-outil": "Usinage par le Train-outil",
+        "reparation-locale": "Réparation par les ateliers locaux",
+        "attelage-federe": "Transport par l’Attelage fédéré",
+      },
+      servicesLourdsRestants: "{nombre} services lourds restants",
+      reserveDeRefroidissementRestante:
+        "{nombre} réserve de refroidissement restante",
+      occasionTrainOutil:
+        "Train-outil — {nombre} services lourds et un Engagement",
+      occasionAttelageFedere: "Attelage fédéré — {nombre} Matériaux",
+      libelles: {
+        eyebrow: "Colonie · Trame de Fer",
+        republique: "République du Rail",
+        pressions: "Pressions",
+        marche: "Marché",
+        engagements: "Engagements de la Trame",
+        aucunEngagement: "Aucun",
+        piece: "Pièce de régulation",
+        voieAOuvrir: "Voie à ouvrir",
+      },
+    },
+    en: {
+      titre: "Grand Junction",
+      statuts: {
+        "sous-controle-republicain": "Workshop under republican control",
+        "atelier-negocie": "Negotiated workshop",
+      },
+      relations: {
+        fermee: "Closed",
+        transactionnelle: "Transactional",
+        cooperative: "Cooperative",
+      },
+      eau: {
+        critique: "Cooling water critical",
+        rationnee: "Cooling water rationed",
+        stabilisee: "Cooling water stabilized",
+      },
+      requisitions: {
+        actives: "Requisitions active",
+        prioritaires: "Requisitions prioritized",
+        encadrees: "Requisitions constrained",
+      },
+      engagements: {
+        "permis-de-circulation-republicain": "Republican circulation permit",
+        "droit-local-de-passage": "Contested local right of passage",
+        "taxe-des-lanternes": "Lantern tax",
+        "priorite-aux-requisitions": "Requisition priority",
+        "service-lourd-du-train-outil": "Tool Train heavy service",
+      },
+      voies: {
+        "train-outil": "Machining by the Tool Train",
+        "reparation-locale": "Repair by local workshops",
+        "attelage-federe": "Transport by the Federated Hauler",
+      },
+      servicesLourdsRestants: "{nombre} heavy services remaining",
+      reserveDeRefroidissementRestante:
+        "{nombre} cooling reserve remaining",
+      occasionTrainOutil:
+        "Tool Train — {nombre} heavy services and a Commitment",
+      occasionAttelageFedere: "Federated Hauler — {nombre} Materials",
+      libelles: {
+        eyebrow: "Colony · Iron Weave",
+        republique: "Rail Republic",
+        pressions: "Pressures",
+        marche: "Market",
+        engagements: "Iron Weave commitments",
+        aucunEngagement: "None",
+        piece: "Regulation part",
+        voieAOuvrir: "Route to be opened",
+      },
+    },
+  },
   veilleBasse: {
     fr: {
       titre: "Veille-Basse et l’Hospice du Sillon",

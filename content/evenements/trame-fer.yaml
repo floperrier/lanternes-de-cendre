@@ -1,0 +1,290 @@
+version: 1
+evenements:
+  - id: trame.barriere-neuve.le-permis-des-essieux
+    famille: conflits-regionaux
+    themes: [permis, circulation, republique-du-rail]
+    fonction: nommer-le-droit-de-circuler
+    fenetre: barriere-neuve
+    conditions:
+      requises:
+        - type: lieu-present
+          lieu: barriere-neuve
+      interdites: []
+    periode_eligibilite: { debut: 1200, fin: 2147483647 }
+    priorite: 150
+    epuisement: unique
+    acteurs: [porte-lanterne, douaniers-du-rail, republique-du-rail]
+    origine: { cle: evenement.trame.permis.origine, variables: [] }
+    libelle_intentions: { cle: evenement.ruban.intentions, variables: [] }
+    titre: { cle: evenement.trame.permis.titre, variables: [] }
+    presentation: { cle: evenement.trame.permis.presentation, variables: [] }
+    informations:
+      - source: douaniers-du-rail
+        texte: { cle: evenement.trame.permis.information, variables: [] }
+    faits_lus: [bassins.deversoir.ligne-zero-relevee]
+    choix:
+      - id: prendre-permis
+        intention: { cle: evenement.trame.permis.choix.permis, variables: [] }
+        couts_connus:
+          - { cle: evenement.trame.permis.choix.permis.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - id: trame.barriere-neuve.permis-republicain
+            cible: barriere-neuve
+      - id: demander-droit-local
+        intention: { cle: evenement.trame.permis.choix.local, variables: [] }
+        couts_connus:
+          - { cle: evenement.trame.permis.choix.local.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - id: trame.barriere-neuve.droit-local-conteste
+            cible: barriere-neuve
+    consequence_differee: { type: controle-des-voies, cible: barriere-neuve }
+    recuperation: { type: permis-ou-contournement }
+    variantes:
+      - id: ligne-zero
+        condition: fait-present:bassins.deversoir.ligne-zero-relevee
+        presentation: { cle: evenement.trame.permis.variante.ligne-zero, variables: [] }
+      - id: standard
+        condition: toujours
+        presentation: { cle: evenement.trame.permis.variante.standard, variables: [] }
+    destination_echo: journal-de-campagne
+    asset: trame.barriere-neuve.le-permis-des-essieux
+
+  - id: trame.barriere-neuve.la-taxe-des-lanternes
+    famille: conflits-regionaux
+    themes: [taxes, requisitions, services-lourds]
+    fonction: transformer-la-taxe-en-engagement
+    fenetre: barriere-neuve
+    conditions:
+      requises:
+        - type: lieu-present
+          lieu: barriere-neuve
+        - type: un-des-faits-present
+          faits:
+            - trame.barriere-neuve.permis-republicain
+            - trame.barriere-neuve.droit-local-conteste
+      interdites: []
+    periode_eligibilite: { debut: 1200, fin: 2147483647 }
+    priorite: 140
+    epuisement: unique
+    acteurs: [porte-lanterne, douaniers-du-rail, republique-du-rail]
+    origine: { cle: evenement.trame.taxe.origine, variables: [] }
+    libelle_intentions: { cle: evenement.ruban.intentions, variables: [] }
+    titre: { cle: evenement.trame.taxe.titre, variables: [] }
+    presentation: { cle: evenement.trame.taxe.presentation, variables: [] }
+    informations:
+      - source: douaniers-du-rail
+        texte: { cle: evenement.trame.taxe.information, variables: [] }
+    faits_lus:
+      - trame.barriere-neuve.permis-republicain
+      - trame.barriere-neuve.droit-local-conteste
+    choix:
+      - id: payer-taxe
+        intention: { cle: evenement.trame.taxe.choix.payer, variables: [] }
+        couts_connus:
+          - { cle: evenement.trame.taxe.choix.payer.cout, variables: [] }
+        effets:
+          - { type: stock.modifier, stock: combustible, valeur: -3 }
+        faits_produits:
+          - id: trame.barriere-neuve.taxe-des-lanternes
+            cible: republique-du-rail
+      - id: accepter-requisition
+        intention: { cle: evenement.trame.taxe.choix.requisition, variables: [] }
+        couts_connus:
+          - { cle: evenement.trame.taxe.choix.requisition.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - id: trame.barriere-neuve.priorite-aux-requisitions
+            cible: republique-du-rail
+    consequence_differee: { type: engagement-republicain, cible: grand-aiguillage }
+    recuperation: { type: dette-nommee }
+    variantes:
+      - id: permis
+        condition: fait-present:trame.barriere-neuve.permis-republicain
+        presentation: { cle: evenement.trame.taxe.variante.permis, variables: [] }
+      - id: standard
+        condition: toujours
+        presentation: { cle: evenement.trame.taxe.variante.standard, variables: [] }
+    destination_echo: journal-de-campagne
+    asset: trame.barriere-neuve.la-taxe-des-lanternes
+
+  - id: trame.grand-aiguillage.la-piece-sans-serie
+    famille: mystere-des-phares
+    themes: [ligne-zero, piece-de-regulation, maintenance]
+    fonction: reveler-la-piece-de-regulation
+    fenetre: grand-aiguillage
+    conditions:
+      requises:
+        - type: lieu-present
+          lieu: grand-aiguillage
+        - type: un-des-faits-present
+          faits:
+            - trame.barriere-neuve.taxe-des-lanternes
+            - trame.barriere-neuve.priorite-aux-requisitions
+      interdites: []
+    periode_eligibilite: { debut: 1200, fin: 2147483647 }
+    priorite: 130
+    epuisement: unique
+    acteurs: [porte-lanterne, aiguilleurs, ateliers-grand-aiguillage]
+    origine: { cle: evenement.trame.piece.origine, variables: [] }
+    libelle_intentions: { cle: evenement.ruban.intentions, variables: [] }
+    titre: { cle: evenement.trame.piece.titre, variables: [] }
+    presentation: { cle: evenement.trame.piece.presentation, variables: [] }
+    informations:
+      - source: aiguilleurs
+        texte: { cle: evenement.trame.piece.information, variables: [] }
+    faits_lus:
+      - trame.barriere-neuve.taxe-des-lanternes
+      - trame.barriere-neuve.priorite-aux-requisitions
+    choix:
+      - id: appeler-train-outil
+        intention: { cle: evenement.trame.piece.choix.train, variables: [] }
+        couts_connus:
+          - { cle: evenement.trame.piece.choix.train.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - id: trame.grand-aiguillage.train-outil-annonce
+            cible: piece-de-regulation
+      - id: ouvrir-reparation-locale
+        intention: { cle: evenement.trame.piece.choix.locale, variables: [] }
+        couts_connus:
+          - { cle: evenement.trame.piece.choix.locale.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - id: trame.grand-aiguillage.reparation-locale-ouverte
+            cible: piece-de-regulation
+    consequence_differee: { type: acces-piece-regulation, cible: piece-de-regulation }
+    recuperation: { type: voies-alternatives }
+    variantes:
+      - id: requisition
+        condition: fait-present:trame.barriere-neuve.priorite-aux-requisitions
+        presentation: { cle: evenement.trame.piece.variante.requisition, variables: [] }
+      - id: standard
+        condition: toujours
+        presentation: { cle: evenement.trame.piece.variante.standard, variables: [] }
+    destination_echo: journal-de-campagne
+    asset: trame.grand-aiguillage.la-piece-sans-serie
+
+  - id: trame.grand-aiguillage.l-eau-des-machines
+    famille: consequences-systemiques
+    themes: [eau-de-refroidissement, marche, services-lourds]
+    fonction: rendre-la-dependance-materielle
+    fenetre: grand-aiguillage
+    conditions:
+      requises:
+        - type: lieu-present
+          lieu: grand-aiguillage
+        - type: un-des-faits-present
+          faits:
+            - trame.grand-aiguillage.train-outil-annonce
+            - trame.grand-aiguillage.reparation-locale-ouverte
+      interdites: []
+    periode_eligibilite: { debut: 1200, fin: 2147483647 }
+    priorite: 120
+    epuisement: unique
+    acteurs: [porte-lanterne, ateliers-grand-aiguillage, habitants-grand-aiguillage]
+    origine: { cle: evenement.trame.eau.origine, variables: [] }
+    libelle_intentions: { cle: evenement.ruban.intentions, variables: [] }
+    titre: { cle: evenement.trame.eau.titre, variables: [] }
+    presentation: { cle: evenement.trame.eau.presentation, variables: [] }
+    informations:
+      - source: ateliers-grand-aiguillage
+        texte: { cle: evenement.trame.eau.information, variables: [] }
+    faits_lus:
+      - trame.grand-aiguillage.train-outil-annonce
+      - trame.grand-aiguillage.reparation-locale-ouverte
+    choix:
+      - id: acheter-refroidissement
+        intention: { cle: evenement.trame.eau.choix.acheter, variables: [] }
+        couts_connus:
+          - { cle: evenement.trame.eau.choix.acheter.cout, variables: [] }
+        effets:
+          - { type: stock.modifier, stock: eau, valeur: -8 }
+        faits_produits:
+          - id: trame.grand-aiguillage.refroidissement-securise
+            cible: grand-aiguillage
+      - id: rationner-refroidissement
+        intention: { cle: evenement.trame.eau.choix.rationner, variables: [] }
+        couts_connus:
+          - { cle: evenement.trame.eau.choix.rationner.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - id: trame.grand-aiguillage.refroidissement-rationne
+            cible: grand-aiguillage
+    consequence_differee: { type: usure-des-ateliers, cible: grand-aiguillage }
+    recuperation: { type: service-lourd-reduit }
+    variantes:
+      - id: locale
+        condition: fait-present:trame.grand-aiguillage.reparation-locale-ouverte
+        presentation: { cle: evenement.trame.eau.variante.locale, variables: [] }
+      - id: standard
+        condition: toujours
+        presentation: { cle: evenement.trame.eau.variante.standard, variables: [] }
+    destination_echo: journal-de-campagne
+    asset: trame.grand-aiguillage.l-eau-des-machines
+
+  - id: trame.grand-aiguillage.ilyana-et-l-attelage
+    famille: histoires-de-compagnons
+    themes: [ilyana-voss, attelage-federe, autonomie]
+    fonction: ouvrir-un-transport-non-monopolistique
+    fenetre: grand-aiguillage
+    conditions:
+      requises:
+        - type: lieu-present
+          lieu: grand-aiguillage
+        - type: un-des-faits-present
+          faits:
+            - trame.grand-aiguillage.refroidissement-securise
+            - trame.grand-aiguillage.refroidissement-rationne
+        - type: un-des-faits-present
+          faits:
+            - trame.grand-aiguillage.train-outil-annonce
+            - trame.grand-aiguillage.reparation-locale-ouverte
+      interdites: []
+    periode_eligibilite: { debut: 1200, fin: 2147483647 }
+    priorite: 110
+    epuisement: unique
+    acteurs: [porte-lanterne, ilyana-voss, attelages-puits-libres]
+    origine: { cle: evenement.trame.attelage.origine, variables: [] }
+    libelle_intentions: { cle: evenement.ruban.intentions, variables: [] }
+    titre: { cle: evenement.trame.attelage.titre, variables: [] }
+    presentation: { cle: evenement.trame.attelage.presentation, variables: [] }
+    informations:
+      - source: ilyana-voss
+        texte: { cle: evenement.trame.attelage.information, variables: [] }
+    faits_lus:
+      - trame.grand-aiguillage.train-outil-annonce
+      - trame.grand-aiguillage.reparation-locale-ouverte
+      - trame.grand-aiguillage.refroidissement-securise
+      - trame.grand-aiguillage.refroidissement-rationne
+      - compagnon.ilyana-voss.affectee-intendance
+    choix:
+      - id: former-attelage
+        intention: { cle: evenement.trame.attelage.choix.former, variables: [] }
+        couts_connus:
+          - { cle: evenement.trame.attelage.choix.former.cout, variables: [] }
+        effets:
+          - { type: stock.modifier, stock: materiaux, valeur: -8 }
+        faits_produits:
+          - id: trame.grand-aiguillage.attelage-federe-annonce
+            cible: piece-de-regulation
+      - id: reserver-train-outil
+        intention: { cle: evenement.trame.attelage.choix.train, variables: [] }
+        couts_connus:
+          - { cle: evenement.trame.attelage.choix.train.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - id: trame.grand-aiguillage.train-outil-reserve
+            cible: train-outil-ligne-zero
+    consequence_differee: { type: transport-piece-regulation, cible: piece-de-regulation }
+    recuperation: { type: attelage-ou-train-outil }
+    variantes:
+      - id: ilyana
+        condition: fait-present:compagnon.ilyana-voss.affectee-intendance
+        presentation: { cle: evenement.trame.attelage.variante.ilyana, variables: [] }
+      - id: standard
+        condition: toujours
+        presentation: { cle: evenement.trame.attelage.variante.standard, variables: [] }
+    destination_echo: journal-de-campagne
+    asset: trame.grand-aiguillage.ilyana-et-l-attelage

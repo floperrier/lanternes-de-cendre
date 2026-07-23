@@ -1,0 +1,15 @@
+{
+  "asset": "serveur-commercial/assets/trame-piece-regulation.webp",
+  "sha256": "55183d51ad02a7b0b08fe2cd1c82f911b36b7d4a96bf240a4a3f279b5e6f6ab8",
+  "createdAt": "2026-07-23",
+  "tool": "Codex built-in image_gen",
+  "model": "built-in model (identifier not exposed)",
+  "useCase": "stylized-concept",
+  "input": "No input image; generated from the project’s established oblique industrial art direction.",
+  "prompt": "An unnumbered ancient regulation ring compatible with a mobile lighthouse core revealed inside Grand-Aiguillage's vast heavy workshop. Painterly cinematic game concept art, grounded industrial realism, mysterious pre-apocalypse technology, wide 16:9 oblique elevated view, cool diffuse workshop light and amber inspection lamps. No text, letters, numbers, logos, watermark, glowing runes or weapons.",
+  "rights": "OpenAI Terms of Use — output assigned to the user",
+  "approval": {
+    "status": "pending-pull-request-review",
+    "reviewer": null
+  }
+}

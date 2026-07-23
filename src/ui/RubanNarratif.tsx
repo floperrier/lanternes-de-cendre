@@ -52,6 +52,7 @@ export function RubanNarratif({
             <button
               key={choix.id}
               type="button"
+              disabled={choix.disponible === false}
               onClick={() =>
                 application.envoyerCommande({
                   type: "evenement-narratif.choisir",
@@ -64,6 +65,9 @@ export function RubanNarratif({
               {choix.coutsConnus.map((cout) => (
                 <small key={cout}>{cout}</small>
               ))}
+              {choix.indisponibilite === undefined ? null : (
+                <small>{choix.indisponibilite}</small>
+              )}
             </button>
           ))}
         </div>

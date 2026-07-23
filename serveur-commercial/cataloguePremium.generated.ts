@@ -4552,6 +4552,1421 @@ export default {
           }
         }
       }
+    },
+    {
+      "id": "trame.barriere-neuve.le-permis-des-essieux",
+      "famille": "conflits-regionaux",
+      "themes": [
+        "permis",
+        "circulation",
+        "republique-du-rail"
+      ],
+      "fonction": "nommer-le-droit-de-circuler",
+      "fenetre": "barriere-neuve",
+      "conditions": {
+        "requises": [
+          {
+            "type": "lieu-present",
+            "lieu": "barriere-neuve"
+          }
+        ],
+        "interdites": []
+      },
+      "periodeEligibilite": {
+        "debut": 1200,
+        "fin": 2147483647
+      },
+      "priorite": 150,
+      "epuisement": "unique",
+      "acteurs": [
+        "porte-lanterne",
+        "douaniers-du-rail",
+        "republique-du-rail"
+      ],
+      "sourcesInformations": [
+        "douaniers-du-rail"
+      ],
+      "faitsLus": [
+        "bassins.deversoir.ligne-zero-relevee"
+      ],
+      "choix": [
+        {
+          "id": "prendre-permis",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "trame.barriere-neuve.permis-republicain",
+              "cible": "barriere-neuve"
+            }
+          ]
+        },
+        {
+          "id": "demander-droit-local",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "trame.barriere-neuve.droit-local-conteste",
+              "cible": "barriere-neuve"
+            }
+          ]
+        }
+      ],
+      "consequenceDifferee": {
+        "type": "controle-des-voies",
+        "cible": "barriere-neuve"
+      },
+      "recuperation": {
+        "type": "permis-ou-contournement"
+      },
+      "variantes": [
+        {
+          "id": "ligne-zero",
+          "condition": {
+            "type": "fait-present",
+            "fait": "bassins.deversoir.ligne-zero-relevee"
+          }
+        },
+        {
+          "id": "standard",
+          "condition": {
+            "type": "toujours"
+          }
+        }
+      ],
+      "destinationEcho": "journal-de-campagne",
+      "asset": {
+        "id": "trame.barriere-neuve.le-permis-des-essieux",
+        "fichier": "/api/commercial/assets/trame-barriere-permis.webp",
+        "octetsTransferes": 133270,
+        "contientTexte": false,
+        "alternatives": {
+          "fr": "La Cité-caravane attend sous le portique de Barrière-Neuve tandis que des contrôleurs inspectent ses essieux.",
+          "en": "The caravan-city waits beneath New Barrier’s gantry while inspectors examine its axles."
+        },
+        "provenance": {
+          "fiche": "docs/assets/trame-barriere-permis.provenance.json",
+          "creeLe": "2026-07-23",
+          "outil": "Codex built-in image_gen",
+          "modele": "built-in model (identifier not exposed)",
+          "usage": "stylized-concept",
+          "entree": "No input image; generated from the project’s established oblique industrial art direction.",
+          "prompt": "Barrière-Neuve axle checkpoint in an ash-covered industrial rail corridor, where customs crews inspect the caravan-city's many mobile platforms under a massive iron gantry. Painterly cinematic game concept art, grounded industrial realism, wide 16:9 establishing view from an oblique elevated angle, cold ash daylight cut by warm amber lanterns. No text, letters, numbers, logos, watermark, foregrounded weapons or modern vehicles.",
+          "droits": "OpenAI Terms of Use — output assigned to the user",
+          "empreinteSha256": "0f75eaf191fec9cf8e94663f83e3896f64fd420597988fcac0dacc6abc8e2a14",
+          "statutApprobation": "pending-pull-request-review",
+          "reviseur": null
+        }
+      },
+      "textes": {
+        "fr": {
+          "origine": {
+            "cle": "evenement.trame.permis.origine",
+            "modele": "Contrôle des essieux de Barrière-Neuve",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.trame.permis.titre",
+            "modele": "Le permis des essieux",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.trame.permis.presentation",
+            "modele": "La République du Rail ouvre la voie lourde à condition d’inscrire chaque Plateforme, chaque charge et chaque passage dans son registre.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.trame.permis.information",
+              "modele": "Le permis n’est pas une réputation : il nomme un droit de circulation révocable et les obligations qui lui sont attachées.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "ligne-zero": {
+              "cle": "evenement.trame.permis.variante.ligne-zero",
+              "modele": "Le relevé de la Ligne Zéro prouve que ce corridor précédait la République, sans abolir son contrôle actuel.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.trame.permis.variante.standard",
+              "modele": "Les portiques pèsent le convoi avant d’ouvrir une seule voie.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "prendre-permis": {
+              "intention": {
+                "cle": "evenement.trame.permis.choix.permis",
+                "modele": "Prendre le permis républicain",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.trame.permis.choix.permis.cout",
+                  "modele": "Coût connu : un Engagement de circulation donnera aux contrôleurs le droit d’inspecter le convoi.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "demander-droit-local": {
+              "intention": {
+                "cle": "evenement.trame.permis.choix.local",
+                "modele": "Faire reconnaître le droit local des ateliers",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.trame.permis.choix.local.cout",
+                  "modele": "Coût connu : le passage restera contesté jusqu’à Grand-Aiguillage.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        },
+        "en": {
+          "origine": {
+            "cle": "evenement.trame.permis.origine",
+            "modele": "New Barrier axle control",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.trame.permis.titre",
+            "modele": "The axle permit",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.trame.permis.presentation",
+            "modele": "The Rail Republic opens the heavy route only if every Platform, load and passage is entered in its register.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.trame.permis.information",
+              "modele": "The permit is not reputation: it names a revocable circulation right and its attached obligations.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "ligne-zero": {
+              "cle": "evenement.trame.permis.variante.ligne-zero",
+              "modele": "The Zero Line survey proves this corridor predates the Republic without abolishing its current control.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.trame.permis.variante.standard",
+              "modele": "The gantries weigh the convoy before opening a single route.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "prendre-permis": {
+              "intention": {
+                "cle": "evenement.trame.permis.choix.permis",
+                "modele": "Take the republican permit",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.trame.permis.choix.permis.cout",
+                  "modele": "Known cost: a circulation Commitment grants inspectors the right to inspect the convoy.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "demander-droit-local": {
+              "intention": {
+                "cle": "evenement.trame.permis.choix.local",
+                "modele": "Demand recognition of the workshops’ local right",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.trame.permis.choix.local.cout",
+                  "modele": "Known cost: passage remains contested until Grand Junction.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "trame.barriere-neuve.la-taxe-des-lanternes",
+      "famille": "conflits-regionaux",
+      "themes": [
+        "taxes",
+        "requisitions",
+        "services-lourds"
+      ],
+      "fonction": "transformer-la-taxe-en-engagement",
+      "fenetre": "barriere-neuve",
+      "conditions": {
+        "requises": [
+          {
+            "type": "lieu-present",
+            "lieu": "barriere-neuve"
+          },
+          {
+            "type": "un-des-faits-present",
+            "faits": [
+              "trame.barriere-neuve.permis-republicain",
+              "trame.barriere-neuve.droit-local-conteste"
+            ]
+          }
+        ],
+        "interdites": []
+      },
+      "periodeEligibilite": {
+        "debut": 1200,
+        "fin": 2147483647
+      },
+      "priorite": 140,
+      "epuisement": "unique",
+      "acteurs": [
+        "porte-lanterne",
+        "douaniers-du-rail",
+        "republique-du-rail"
+      ],
+      "sourcesInformations": [
+        "douaniers-du-rail"
+      ],
+      "faitsLus": [
+        "trame.barriere-neuve.permis-republicain",
+        "trame.barriere-neuve.droit-local-conteste"
+      ],
+      "choix": [
+        {
+          "id": "payer-taxe",
+          "effets": [
+            {
+              "type": "stock.modifier",
+              "stock": "combustible",
+              "valeur": -3
+            }
+          ],
+          "faitsProduits": [
+            {
+              "id": "trame.barriere-neuve.taxe-des-lanternes",
+              "cible": "republique-du-rail"
+            }
+          ]
+        },
+        {
+          "id": "accepter-requisition",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "trame.barriere-neuve.priorite-aux-requisitions",
+              "cible": "republique-du-rail"
+            }
+          ]
+        }
+      ],
+      "consequenceDifferee": {
+        "type": "engagement-republicain",
+        "cible": "grand-aiguillage"
+      },
+      "recuperation": {
+        "type": "dette-nommee"
+      },
+      "variantes": [
+        {
+          "id": "permis",
+          "condition": {
+            "type": "fait-present",
+            "fait": "trame.barriere-neuve.permis-republicain"
+          }
+        },
+        {
+          "id": "standard",
+          "condition": {
+            "type": "toujours"
+          }
+        }
+      ],
+      "destinationEcho": "journal-de-campagne",
+      "asset": {
+        "id": "trame.barriere-neuve.la-taxe-des-lanternes",
+        "fichier": "/api/commercial/assets/trame-barriere-taxe.webp",
+        "octetsTransferes": 136682,
+        "contientTexte": false,
+        "alternatives": {
+          "fr": "Des fûts de combustible et des caisses de matériaux sont pesés à la guérite des taxes devant le convoi.",
+          "en": "Fuel drums and material crates are weighed at the tax booth before the convoy."
+        },
+        "provenance": {
+          "fiche": "docs/assets/trame-barriere-taxe.provenance.json",
+          "creeLe": "2026-07-23",
+          "outil": "Codex built-in image_gen",
+          "modele": "built-in model (identifier not exposed)",
+          "usage": "stylized-concept",
+          "entree": "No input image; generated from the project’s established oblique industrial art direction.",
+          "prompt": "The lantern tax booth at Barrière-Neuve, with fuel canisters and structural materials weighed beside a registry mechanism while the caravan-city waits. Painterly cinematic game concept art, grounded industrial realism, wide 16:9 oblique elevated view, warm booth lanterns against dim metallic haze. No text, letters, numbers, logos, watermark or foregrounded weapons.",
+          "droits": "OpenAI Terms of Use — output assigned to the user",
+          "empreinteSha256": "bf36f074c30b6b0068a2c0164de024dd5ab66052cb9205bf79c1b36ac5c6a30b",
+          "statutApprobation": "pending-pull-request-review",
+          "reviseur": null
+        }
+      },
+      "textes": {
+        "fr": {
+          "origine": {
+            "cle": "evenement.trame.taxe.origine",
+            "modele": "Guérite des taxes de Barrière-Neuve",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.trame.taxe.titre",
+            "modele": "La taxe des lanternes",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.trame.taxe.presentation",
+            "modele": "Le tarif peut être payé en combustible ou converti en priorité de réquisition pour les ateliers républicains.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.trame.taxe.information",
+              "modele": "Chaque option produit un Engagement nommé, consultable et contestable ; aucune jauge de réputation ne le remplace.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "permis": {
+              "cle": "evenement.trame.taxe.variante.permis",
+              "modele": "Le permis déjà signé transforme la taxe en clause publique du passage.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.trame.taxe.variante.standard",
+              "modele": "Sans registre commun, chaque essieu peut être immobilisé séparément.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "payer-taxe": {
+              "intention": {
+                "cle": "evenement.trame.taxe.choix.payer",
+                "modele": "Acquitter la taxe en combustible",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.trame.taxe.choix.payer.cout",
+                  "modele": "Coût connu : 3 Combustible ; la circulation reste transactionnelle.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "accepter-requisition": {
+              "intention": {
+                "cle": "evenement.trame.taxe.choix.requisition",
+                "modele": "Accorder une priorité de réquisition",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.trame.taxe.choix.requisition.cout",
+                  "modele": "Coût connu : un Engagement donne priorité aux ateliers républicains lors du prochain service lourd.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        },
+        "en": {
+          "origine": {
+            "cle": "evenement.trame.taxe.origine",
+            "modele": "New Barrier tax booth",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.trame.taxe.titre",
+            "modele": "The lantern tax",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.trame.taxe.presentation",
+            "modele": "The tariff can be paid in fuel or converted into requisition priority for republican workshops.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.trame.taxe.information",
+              "modele": "Each option creates a named, consultable and challengeable Commitment; no reputation gauge replaces it.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "permis": {
+              "cle": "evenement.trame.taxe.variante.permis",
+              "modele": "The signed permit makes the tax a public clause of passage.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.trame.taxe.variante.standard",
+              "modele": "Without a shared register, each axle can be detained separately.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "payer-taxe": {
+              "intention": {
+                "cle": "evenement.trame.taxe.choix.payer",
+                "modele": "Pay the tax in fuel",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.trame.taxe.choix.payer.cout",
+                  "modele": "Known cost: 3 Fuel; circulation remains transactional.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "accepter-requisition": {
+              "intention": {
+                "cle": "evenement.trame.taxe.choix.requisition",
+                "modele": "Grant requisition priority",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.trame.taxe.choix.requisition.cout",
+                  "modele": "Known cost: a Commitment gives republican workshops priority during the next heavy service.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "trame.grand-aiguillage.la-piece-sans-serie",
+      "famille": "mystere-des-phares",
+      "themes": [
+        "ligne-zero",
+        "piece-de-regulation",
+        "maintenance"
+      ],
+      "fonction": "reveler-la-piece-de-regulation",
+      "fenetre": "grand-aiguillage",
+      "conditions": {
+        "requises": [
+          {
+            "type": "lieu-present",
+            "lieu": "grand-aiguillage"
+          },
+          {
+            "type": "un-des-faits-present",
+            "faits": [
+              "trame.barriere-neuve.taxe-des-lanternes",
+              "trame.barriere-neuve.priorite-aux-requisitions"
+            ]
+          }
+        ],
+        "interdites": []
+      },
+      "periodeEligibilite": {
+        "debut": 1200,
+        "fin": 2147483647
+      },
+      "priorite": 130,
+      "epuisement": "unique",
+      "acteurs": [
+        "porte-lanterne",
+        "aiguilleurs",
+        "ateliers-grand-aiguillage"
+      ],
+      "sourcesInformations": [
+        "aiguilleurs"
+      ],
+      "faitsLus": [
+        "trame.barriere-neuve.taxe-des-lanternes",
+        "trame.barriere-neuve.priorite-aux-requisitions"
+      ],
+      "choix": [
+        {
+          "id": "appeler-train-outil",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "trame.grand-aiguillage.train-outil-annonce",
+              "cible": "piece-de-regulation"
+            }
+          ]
+        },
+        {
+          "id": "ouvrir-reparation-locale",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "trame.grand-aiguillage.reparation-locale-ouverte",
+              "cible": "piece-de-regulation"
+            }
+          ]
+        }
+      ],
+      "consequenceDifferee": {
+        "type": "acces-piece-regulation",
+        "cible": "piece-de-regulation"
+      },
+      "recuperation": {
+        "type": "voies-alternatives"
+      },
+      "variantes": [
+        {
+          "id": "requisition",
+          "condition": {
+            "type": "fait-present",
+            "fait": "trame.barriere-neuve.priorite-aux-requisitions"
+          }
+        },
+        {
+          "id": "standard",
+          "condition": {
+            "type": "toujours"
+          }
+        }
+      ],
+      "destinationEcho": "journal-de-campagne",
+      "asset": {
+        "id": "trame.grand-aiguillage.la-piece-sans-serie",
+        "fichier": "/api/commercial/assets/trame-piece-regulation.webp",
+        "octetsTransferes": 180788,
+        "contientTexte": false,
+        "alternatives": {
+          "fr": "Une vaste bague de régulation ancienne se dresse dans les ateliers ferroviaires de Grand-Aiguillage.",
+          "en": "A vast ancient regulation ring stands inside Grand Junction’s railway workshops."
+        },
+        "provenance": {
+          "fiche": "docs/assets/trame-piece-regulation.provenance.json",
+          "creeLe": "2026-07-23",
+          "outil": "Codex built-in image_gen",
+          "modele": "built-in model (identifier not exposed)",
+          "usage": "stylized-concept",
+          "entree": "No input image; generated from the project’s established oblique industrial art direction.",
+          "prompt": "An unnumbered ancient regulation ring compatible with a mobile lighthouse core revealed inside Grand-Aiguillage's vast heavy workshop. Painterly cinematic game concept art, grounded industrial realism, mysterious pre-apocalypse technology, wide 16:9 oblique elevated view, cool diffuse workshop light and amber inspection lamps. No text, letters, numbers, logos, watermark, glowing runes or weapons.",
+          "droits": "OpenAI Terms of Use — output assigned to the user",
+          "empreinteSha256": "55183d51ad02a7b0b08fe2cd1c82f911b36b7d4a96bf240a4a3f279b5e6f6ab8",
+          "statutApprobation": "pending-pull-request-review",
+          "reviseur": null
+        }
+      },
+      "textes": {
+        "fr": {
+          "origine": {
+            "cle": "evenement.trame.piece.origine",
+            "modele": "Hall des régulateurs de Grand-Aiguillage",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.trame.piece.titre",
+            "modele": "La pièce sans série",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.trame.piece.presentation",
+            "modele": "Une bague de régulation compatible avec le cœur mobile dort dans un bâti ancien, mais ni la République ni les ateliers locaux ne peuvent seuls la remettre en service.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.trame.piece.information",
+              "modele": "Le Train-outil peut l’usiner sous contrôle républicain ; les ateliers peuvent ouvrir une réparation locale plus lente sans imposer ce monopole.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "requisition": {
+              "cle": "evenement.trame.piece.variante.requisition",
+              "modele": "La priorité déjà consentie place le Train-outil en tête de la file, mais rend sa dette immédiatement exigible.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.trame.piece.variante.standard",
+              "modele": "Les traces d’usure prouvent que plusieurs ateliers ont déjà tenté la réparation.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "appeler-train-outil": {
+              "intention": {
+                "cle": "evenement.trame.piece.choix.train",
+                "modele": "Appeler le Train-outil de la Ligne Zéro",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.trame.piece.choix.train.cout",
+                  "modele": "Coût connu : un Engagement de service lourd et 2 créneaux d’atelier seront dus à la République.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "ouvrir-reparation-locale": {
+              "intention": {
+                "cle": "evenement.trame.piece.choix.locale",
+                "modele": "Ouvrir la réparation aux ateliers locaux",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.trame.piece.choix.locale.cout",
+                  "modele": "Coût connu : 2 services lourds resteront mobilisés et l’eau de refroidissement devra être assurée.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        },
+        "en": {
+          "origine": {
+            "cle": "evenement.trame.piece.origine",
+            "modele": "Grand Junction regulator hall",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.trame.piece.titre",
+            "modele": "The unnumbered part",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.trame.piece.presentation",
+            "modele": "A regulation ring compatible with the mobile core lies in an ancient cradle, but neither the Republic nor local workshops can restore it alone.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.trame.piece.information",
+              "modele": "The Tool Train can machine it under republican control; the workshops can open a slower local repair without imposing that monopoly.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "requisition": {
+              "cle": "evenement.trame.piece.variante.requisition",
+              "modele": "Existing priority places the Tool Train first in line but makes its debt immediately due.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.trame.piece.variante.standard",
+              "modele": "Wear marks prove several workshops have already attempted the repair.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "appeler-train-outil": {
+              "intention": {
+                "cle": "evenement.trame.piece.choix.train",
+                "modele": "Call the Zero Line Tool Train",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.trame.piece.choix.train.cout",
+                  "modele": "Known cost: a heavy-service Commitment and 2 workshop slots will be owed to the Republic.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "ouvrir-reparation-locale": {
+              "intention": {
+                "cle": "evenement.trame.piece.choix.locale",
+                "modele": "Open the repair to local workshops",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.trame.piece.choix.locale.cout",
+                  "modele": "Known cost: 2 heavy services remain committed and cooling water must be secured.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "trame.grand-aiguillage.l-eau-des-machines",
+      "famille": "consequences-systemiques",
+      "themes": [
+        "eau-de-refroidissement",
+        "marche",
+        "services-lourds"
+      ],
+      "fonction": "rendre-la-dependance-materielle",
+      "fenetre": "grand-aiguillage",
+      "conditions": {
+        "requises": [
+          {
+            "type": "lieu-present",
+            "lieu": "grand-aiguillage"
+          },
+          {
+            "type": "un-des-faits-present",
+            "faits": [
+              "trame.grand-aiguillage.train-outil-annonce",
+              "trame.grand-aiguillage.reparation-locale-ouverte"
+            ]
+          }
+        ],
+        "interdites": []
+      },
+      "periodeEligibilite": {
+        "debut": 1200,
+        "fin": 2147483647
+      },
+      "priorite": 120,
+      "epuisement": "unique",
+      "acteurs": [
+        "porte-lanterne",
+        "ateliers-grand-aiguillage",
+        "habitants-grand-aiguillage"
+      ],
+      "sourcesInformations": [
+        "ateliers-grand-aiguillage"
+      ],
+      "faitsLus": [
+        "trame.grand-aiguillage.train-outil-annonce",
+        "trame.grand-aiguillage.reparation-locale-ouverte"
+      ],
+      "choix": [
+        {
+          "id": "acheter-refroidissement",
+          "effets": [
+            {
+              "type": "stock.modifier",
+              "stock": "eau",
+              "valeur": -8
+            }
+          ],
+          "faitsProduits": [
+            {
+              "id": "trame.grand-aiguillage.refroidissement-securise",
+              "cible": "grand-aiguillage"
+            }
+          ]
+        },
+        {
+          "id": "rationner-refroidissement",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "trame.grand-aiguillage.refroidissement-rationne",
+              "cible": "grand-aiguillage"
+            }
+          ]
+        }
+      ],
+      "consequenceDifferee": {
+        "type": "usure-des-ateliers",
+        "cible": "grand-aiguillage"
+      },
+      "recuperation": {
+        "type": "service-lourd-reduit"
+      },
+      "variantes": [
+        {
+          "id": "locale",
+          "condition": {
+            "type": "fait-present",
+            "fait": "trame.grand-aiguillage.reparation-locale-ouverte"
+          }
+        },
+        {
+          "id": "standard",
+          "condition": {
+            "type": "toujours"
+          }
+        }
+      ],
+      "destinationEcho": "journal-de-campagne",
+      "asset": {
+        "id": "trame.grand-aiguillage.l-eau-des-machines",
+        "fichier": "/api/commercial/assets/trame-eau-machines.webp",
+        "octetsTransferes": 137210,
+        "contientTexte": false,
+        "alternatives": {
+          "fr": "Des réservoirs presque vides alimentent les tours lourds fumants de Grand-Aiguillage.",
+          "en": "Nearly empty tanks feed Grand Junction’s steaming heavy lathes."
+        },
+        "provenance": {
+          "fiche": "docs/assets/trame-eau-machines.provenance.json",
+          "creeLe": "2026-07-23",
+          "outil": "Codex built-in image_gen",
+          "modele": "built-in model (identifier not exposed)",
+          "usage": "stylized-concept",
+          "entree": "No input image; generated from the project’s established oblique industrial art direction.",
+          "prompt": "Grand-Aiguillage's heavy workshop cooling system at the edge of failure, with low cisterns feeding steaming lathes while residents and machinists ration water. Painterly cinematic game concept art, grounded industrial realism, wide 16:9 oblique elevated view showing the relationship between scarce water and heavy services, furnace glow softened by gray ash daylight. No text, letters, numbers, logos, watermark, explosion or foregrounded weapons.",
+          "droits": "OpenAI Terms of Use — output assigned to the user",
+          "empreinteSha256": "5f9e8cac790b8aed4b537ab24dc60f8ed97cf4ce12bef69263c1663e97725085",
+          "statutApprobation": "pending-pull-request-review",
+          "reviseur": null
+        }
+      },
+      "textes": {
+        "fr": {
+          "origine": {
+            "cle": "evenement.trame.eau.origine",
+            "modele": "Circuit de refroidissement de Grand-Aiguillage",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.trame.eau.titre",
+            "modele": "L’eau des machines",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.trame.eau.presentation",
+            "modele": "Les tours lourds chauffent plus vite que les réservoirs ne se remplissent. Le Marché ne dispose que de deux services et d’une seule réserve de refroidissement.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.trame.eau.information",
+              "modele": "Acheter l’eau sécurise les machines ; rationner préserve le convoi mais encadre les réquisitions et ralentit l’atelier.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "locale": {
+              "cle": "evenement.trame.eau.variante.locale",
+              "modele": "La réparation locale accepte ce rythme réduit pour conserver son autonomie.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.trame.eau.variante.standard",
+              "modele": "Les contremaîtres attendent une règle avant de relancer les tours.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "acheter-refroidissement": {
+              "intention": {
+                "cle": "evenement.trame.eau.choix.acheter",
+                "modele": "Fournir 8 Eau aux circuits",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.trame.eau.choix.acheter.cout",
+                  "modele": "Coût connu : 8 Eau ; la réserve de refroidissement est consommée.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "rationner-refroidissement": {
+              "intention": {
+                "cle": "evenement.trame.eau.choix.rationner",
+                "modele": "Rationner les tours et encadrer les réquisitions",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.trame.eau.choix.rationner.cout",
+                  "modele": "Coût connu : aucun stock immédiat, mais un seul service lourd pourra fonctionner à la fois.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        },
+        "en": {
+          "origine": {
+            "cle": "evenement.trame.eau.origine",
+            "modele": "Grand Junction cooling circuit",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.trame.eau.titre",
+            "modele": "Water for the machines",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.trame.eau.presentation",
+            "modele": "Heavy lathes heat faster than the reservoirs refill. The Market holds only two services and one cooling reserve.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.trame.eau.information",
+              "modele": "Buying water secures the machines; rationing preserves the convoy but limits requisitions and slows the workshop.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "locale": {
+              "cle": "evenement.trame.eau.variante.locale",
+              "modele": "The local repair accepts this reduced pace to preserve its autonomy.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.trame.eau.variante.standard",
+              "modele": "The foremen await a rule before restarting the lathes.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "acheter-refroidissement": {
+              "intention": {
+                "cle": "evenement.trame.eau.choix.acheter",
+                "modele": "Supply 8 Water to the circuits",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.trame.eau.choix.acheter.cout",
+                  "modele": "Known cost: 8 Water; the cooling reserve is consumed.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "rationner-refroidissement": {
+              "intention": {
+                "cle": "evenement.trame.eau.choix.rationner",
+                "modele": "Ration the lathes and limit requisitions",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.trame.eau.choix.rationner.cout",
+                  "modele": "Known cost: no immediate stock, but only one heavy service can run at a time.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "trame.grand-aiguillage.ilyana-et-l-attelage",
+      "famille": "histoires-de-compagnons",
+      "themes": [
+        "ilyana-voss",
+        "attelage-federe",
+        "autonomie"
+      ],
+      "fonction": "ouvrir-un-transport-non-monopolistique",
+      "fenetre": "grand-aiguillage",
+      "conditions": {
+        "requises": [
+          {
+            "type": "lieu-present",
+            "lieu": "grand-aiguillage"
+          },
+          {
+            "type": "un-des-faits-present",
+            "faits": [
+              "trame.grand-aiguillage.refroidissement-securise",
+              "trame.grand-aiguillage.refroidissement-rationne"
+            ]
+          },
+          {
+            "type": "un-des-faits-present",
+            "faits": [
+              "trame.grand-aiguillage.train-outil-annonce",
+              "trame.grand-aiguillage.reparation-locale-ouverte"
+            ]
+          }
+        ],
+        "interdites": []
+      },
+      "periodeEligibilite": {
+        "debut": 1200,
+        "fin": 2147483647
+      },
+      "priorite": 110,
+      "epuisement": "unique",
+      "acteurs": [
+        "porte-lanterne",
+        "ilyana-voss",
+        "attelages-puits-libres"
+      ],
+      "sourcesInformations": [
+        "ilyana-voss"
+      ],
+      "faitsLus": [
+        "trame.grand-aiguillage.train-outil-annonce",
+        "trame.grand-aiguillage.reparation-locale-ouverte",
+        "trame.grand-aiguillage.refroidissement-securise",
+        "trame.grand-aiguillage.refroidissement-rationne",
+        "compagnon.ilyana-voss.affectee-intendance"
+      ],
+      "choix": [
+        {
+          "id": "former-attelage",
+          "effets": [
+            {
+              "type": "stock.modifier",
+              "stock": "materiaux",
+              "valeur": -8
+            }
+          ],
+          "faitsProduits": [
+            {
+              "id": "trame.grand-aiguillage.attelage-federe-annonce",
+              "cible": "piece-de-regulation"
+            }
+          ]
+        },
+        {
+          "id": "reserver-train-outil",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "trame.grand-aiguillage.train-outil-reserve",
+              "cible": "train-outil-ligne-zero"
+            }
+          ]
+        }
+      ],
+      "consequenceDifferee": {
+        "type": "transport-piece-regulation",
+        "cible": "piece-de-regulation"
+      },
+      "recuperation": {
+        "type": "attelage-ou-train-outil"
+      },
+      "variantes": [
+        {
+          "id": "ilyana",
+          "condition": {
+            "type": "fait-present",
+            "fait": "compagnon.ilyana-voss.affectee-intendance"
+          }
+        },
+        {
+          "id": "standard",
+          "condition": {
+            "type": "toujours"
+          }
+        }
+      ],
+      "destinationEcho": "journal-de-campagne",
+      "asset": {
+        "id": "trame.grand-aiguillage.ilyana-et-l-attelage",
+        "fichier": "/api/commercial/assets/trame-attelage-federe.webp",
+        "octetsTransferes": 159398,
+        "contientTexte": false,
+        "alternatives": {
+          "fr": "Ilyana organise plusieurs remorques reliées pour transporter ensemble la grande bague de régulation.",
+          "en": "Ilyana organizes several linked trailers to carry the great regulation ring together."
+        },
+        "provenance": {
+          "fiche": "docs/assets/trame-attelage-federe.provenance.json",
+          "creeLe": "2026-07-23",
+          "outil": "Codex built-in image_gen",
+          "modele": "built-in model (identifier not exposed)",
+          "usage": "stylized-concept",
+          "entree": "No input image; generated from the project’s established oblique industrial art direction.",
+          "prompt": "Ilyana organizing a federated hauler at Grand-Aiguillage so a massive regulation ring can be distributed across several Free Wells trailers instead of one republican locomotive. Painterly cinematic game concept art, grounded industrial realism, wide 16:9 oblique elevated view, hopeful amber lantern light through industrial haze. No text, letters, numbers, logos, watermark, heroic weapon pose or modern truck.",
+          "droits": "OpenAI Terms of Use — output assigned to the user",
+          "empreinteSha256": "9ac372ba941e1645495dbf01d8c818e6d04b8ccf3af02af116c15a85a72b70cb",
+          "statutApprobation": "pending-pull-request-review",
+          "reviseur": null
+        }
+      },
+      "textes": {
+        "fr": {
+          "origine": {
+            "cle": "evenement.trame.attelage.origine",
+            "modele": "Quai des attelages de Grand-Aiguillage",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.trame.attelage.titre",
+            "modele": "Ilyana et l’attelage",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.trame.attelage.presentation",
+            "modele": "Ilyana propose de répartir la pièce entre plusieurs remorques des Puits Libres afin qu’aucune locomotive ne puisse confisquer son transport.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.trame.attelage.information",
+              "modele": "L’Attelage fédéré coûte des Matériaux et du temps ; le Train-outil reste plus direct mais conserve le contrôle républicain.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "ilyana": {
+              "cle": "evenement.trame.attelage.variante.ilyana",
+              "modele": "Depuis l’Intendance, Ilyana peut garantir la répartition écrite des charges entre les attelages.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.trame.attelage.variante.standard",
+              "modele": "Les meneurs locaux exigent que chaque remorque garde un manifeste public.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "former-attelage": {
+              "intention": {
+                "cle": "evenement.trame.attelage.choix.former",
+                "modele": "Former l’Attelage fédéré",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.trame.attelage.choix.former.cout",
+                  "modele": "Coût connu : 8 Matériaux ; le transport restera possible sans monopole républicain.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "reserver-train-outil": {
+              "intention": {
+                "cle": "evenement.trame.attelage.choix.train",
+                "modele": "Réserver le Train-outil",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.trame.attelage.choix.train.cout",
+                  "modele": "Coût connu : l’Engagement de service lourd réserve la pièce à la voie principale.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        },
+        "en": {
+          "origine": {
+            "cle": "evenement.trame.attelage.origine",
+            "modele": "Grand Junction haulers’ platform",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.trame.attelage.titre",
+            "modele": "Ilyana and the hauler",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.trame.attelage.presentation",
+            "modele": "Ilyana proposes splitting the part across several Free Wells trailers so no locomotive can confiscate its transport.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.trame.attelage.information",
+              "modele": "The Federated Hauler costs Materials and time; the Tool Train is more direct but preserves republican control.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "ilyana": {
+              "cle": "evenement.trame.attelage.variante.ilyana",
+              "modele": "From Stewardship, Ilyana can guarantee the written distribution of loads among haulers.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.trame.attelage.variante.standard",
+              "modele": "Local drivers demand a public manifest for every trailer.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "former-attelage": {
+              "intention": {
+                "cle": "evenement.trame.attelage.choix.former",
+                "modele": "Form the Federated Hauler",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.trame.attelage.choix.former.cout",
+                  "modele": "Known cost: 8 Materials; transport remains possible without a republican monopoly.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "reserver-train-outil": {
+              "intention": {
+                "cle": "evenement.trame.attelage.choix.train",
+                "modele": "Reserve the Tool Train",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.trame.attelage.choix.train.cout",
+                  "modele": "Known cost: the heavy-service Commitment reserves the part for the main route.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        }
+      }
     }
   ],
   "conseils": [
@@ -5526,7 +6941,17 @@ export default {
           "bassins.deversoir.transformation-scellee": "La transformation régionale a été scellée",
           "bassins.deversoir.gabarits-conserves": "Les gabarits régionaux ont été conservés",
           "bassins.deversoir.passage-prepare": "Les abandons ont été consignés avant le passage",
-          "bassins.deversoir.passage-transmis": "Les registres des Bassins ont été transmis"
+          "bassins.deversoir.passage-transmis": "Les registres des Bassins ont été transmis",
+          "trame.barriere-neuve.permis-republicain": "Permis républicain de circulation",
+          "trame.barriere-neuve.droit-local-conteste": "Droit local de passage contesté",
+          "trame.barriere-neuve.taxe-des-lanternes": "Taxe des lanternes acquittée",
+          "trame.barriere-neuve.priorite-aux-requisitions": "Priorité consentie aux réquisitions",
+          "trame.grand-aiguillage.train-outil-annonce": "Train-outil annoncé pour la pièce de régulation",
+          "trame.grand-aiguillage.reparation-locale-ouverte": "Réparation locale ouverte hors monopole",
+          "trame.grand-aiguillage.refroidissement-securise": "Refroidissement des ateliers sécurisé",
+          "trame.grand-aiguillage.refroidissement-rationne": "Refroidissement des ateliers rationné",
+          "trame.grand-aiguillage.attelage-federe-annonce": "Attelage fédéré annoncé",
+          "trame.grand-aiguillage.train-outil-reserve": "Train-outil réservé"
         },
         "causes": {
           "bassins.haut-puits.pacte-des-citernes": "Le pacte des citernes",
@@ -5544,7 +6969,12 @@ export default {
           "bassins.deversoir.la-conduite-zero": "Décision prise devant la conduite révélée du Déversoir Noir.",
           "bassins.deversoir.la-tempete-aux-vannes": "Décision prise pendant la tempête qui sature les filtres des deux Colonies.",
           "bassins.deversoir.le-chassis-des-bassins": "Décision prise devant le châssis destiné à porter la transformation régionale.",
-          "bassins.deversoir.le-passage-sans-retour": "Décision prise avant le passage irréversible vers la Trame de Fer."
+          "bassins.deversoir.le-passage-sans-retour": "Décision prise avant le passage irréversible vers la Trame de Fer.",
+          "trame.barriere-neuve.le-permis-des-essieux": "Décision prise au contrôle des essieux de Barrière-Neuve.",
+          "trame.barriere-neuve.la-taxe-des-lanternes": "Décision prise devant le registre des taxes et réquisitions.",
+          "trame.grand-aiguillage.la-piece-sans-serie": "Décision prise devant la pièce de régulation sans numéro de série.",
+          "trame.grand-aiguillage.l-eau-des-machines": "Décision prise devant les circuits de refroidissement des ateliers.",
+          "trame.grand-aiguillage.ilyana-et-l-attelage": "Décision prise avec Ilyana au quai des attelages."
         },
         "acteurs": {
           "ilyana-voss": "Ilyana Voss",
@@ -5559,7 +6989,13 @@ export default {
           "maelys-rive": "Maëlys Rive",
           "nacelliers-des-vannes": "Nacelliers des Vannes",
           "frein-magnetique-des-nacelles": "Frein magnétique des Nacelles",
-          "techniciens-du-deversoir": "Techniciens du Déversoir"
+          "techniciens-du-deversoir": "Techniciens du Déversoir",
+          "republique-du-rail": "République du Rail",
+          "douaniers-du-rail": "Douaniers du Rail",
+          "aiguilleurs": "Aiguilleurs de Grand-Aiguillage",
+          "ateliers-grand-aiguillage": "Ateliers de Grand-Aiguillage",
+          "habitants-grand-aiguillage": "Habitants de Grand-Aiguillage",
+          "attelages-puits-libres": "Attelages des Puits Libres"
         },
         "cibles": {
           "equipes-entretien": "Équipes d’entretien",
@@ -5576,7 +7012,12 @@ export default {
           "conduite-de-la-ligne-zero": "Conduite de la Ligne Zéro",
           "conseil-des-vannes": "Conseil des Vannes",
           "chassis-regional-des-bassins": "Châssis régional des Bassins",
-          "passage-vers-la-trame": "Passage vers la Trame de Fer"
+          "passage-vers-la-trame": "Passage vers la Trame de Fer",
+          "barriere-neuve": "Barrière-Neuve",
+          "republique-du-rail": "République du Rail",
+          "piece-de-regulation": "Pièce de régulation",
+          "grand-aiguillage": "Grand-Aiguillage",
+          "train-outil-ligne-zero": "Train-outil de la Ligne Zéro"
         }
       }
     },
@@ -5617,7 +7058,17 @@ export default {
           "bassins.deversoir.transformation-scellee": "The regional transformation was sealed",
           "bassins.deversoir.gabarits-conserves": "The regional templates were preserved",
           "bassins.deversoir.passage-prepare": "The abandoned places were recorded before passage",
-          "bassins.deversoir.passage-transmis": "The Basins’ registers were handed on"
+          "bassins.deversoir.passage-transmis": "The Basins’ registers were handed on",
+          "trame.barriere-neuve.permis-republicain": "Republican circulation permit",
+          "trame.barriere-neuve.droit-local-conteste": "Contested local right of passage",
+          "trame.barriere-neuve.taxe-des-lanternes": "Lantern tax paid",
+          "trame.barriere-neuve.priorite-aux-requisitions": "Requisition priority granted",
+          "trame.grand-aiguillage.train-outil-annonce": "Tool Train announced for the regulation part",
+          "trame.grand-aiguillage.reparation-locale-ouverte": "Local repair opened outside the monopoly",
+          "trame.grand-aiguillage.refroidissement-securise": "Workshop cooling secured",
+          "trame.grand-aiguillage.refroidissement-rationne": "Workshop cooling rationed",
+          "trame.grand-aiguillage.attelage-federe-annonce": "Federated Hauler announced",
+          "trame.grand-aiguillage.train-outil-reserve": "Tool Train reserved"
         },
         "causes": {
           "bassins.haut-puits.pacte-des-citernes": "The cistern pact",
@@ -5635,7 +7086,12 @@ export default {
           "bassins.deversoir.la-conduite-zero": "Decision made before the Black Spillway’s revealed conduit.",
           "bassins.deversoir.la-tempete-aux-vannes": "Decision made during the storm saturating both Colonies’ filters.",
           "bassins.deversoir.le-chassis-des-bassins": "Decision made before the frame built to carry the regional transformation.",
-          "bassins.deversoir.le-passage-sans-retour": "Decision made before irreversible passage into the Iron Weave."
+          "bassins.deversoir.le-passage-sans-retour": "Decision made before irreversible passage into the Iron Weave.",
+          "trame.barriere-neuve.le-permis-des-essieux": "Decision made at New Barrier’s axle control.",
+          "trame.barriere-neuve.la-taxe-des-lanternes": "Decision made before the tax and requisition register.",
+          "trame.grand-aiguillage.la-piece-sans-serie": "Decision made before the unnumbered regulation part.",
+          "trame.grand-aiguillage.l-eau-des-machines": "Decision made before the workshops’ cooling circuits.",
+          "trame.grand-aiguillage.ilyana-et-l-attelage": "Decision made with Ilyana at the haulers’ platform."
         },
         "acteurs": {
           "ilyana-voss": "Ilyana Voss",
@@ -5650,7 +7106,13 @@ export default {
           "maelys-rive": "Maëlys Rive",
           "nacelliers-des-vannes": "Sluice Cable Crews",
           "frein-magnetique-des-nacelles": "Cableway Magnetic Brake",
-          "techniciens-du-deversoir": "Spillway Technicians"
+          "techniciens-du-deversoir": "Spillway Technicians",
+          "republique-du-rail": "Rail Republic",
+          "douaniers-du-rail": "Rail Customs Officers",
+          "aiguilleurs": "Grand Junction Switch Crews",
+          "ateliers-grand-aiguillage": "Grand Junction Workshops",
+          "habitants-grand-aiguillage": "Grand Junction Residents",
+          "attelages-puits-libres": "Free Wells Haulers"
         },
         "cibles": {
           "equipes-entretien": "Maintenance crews",
@@ -5667,7 +7129,12 @@ export default {
           "conduite-de-la-ligne-zero": "Zero Line Conduit",
           "conseil-des-vannes": "Sluice Council",
           "chassis-regional-des-bassins": "Basins Regional Frame",
-          "passage-vers-la-trame": "Passage into the Iron Weave"
+          "passage-vers-la-trame": "Passage into the Iron Weave",
+          "barriere-neuve": "New Barrier",
+          "republique-du-rail": "Rail Republic",
+          "piece-de-regulation": "Regulation Part",
+          "grand-aiguillage": "Grand Junction",
+          "train-outil-ligne-zero": "Zero Line Tool Train"
         }
       }
     }

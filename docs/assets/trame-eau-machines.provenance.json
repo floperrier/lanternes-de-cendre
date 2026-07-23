@@ -1,0 +1,15 @@
+{
+  "asset": "serveur-commercial/assets/trame-eau-machines.webp",
+  "sha256": "5f9e8cac790b8aed4b537ab24dc60f8ed97cf4ce12bef69263c1663e97725085",
+  "createdAt": "2026-07-23",
+  "tool": "Codex built-in image_gen",
+  "model": "built-in model (identifier not exposed)",
+  "useCase": "stylized-concept",
+  "input": "No input image; generated from the project’s established oblique industrial art direction.",
+  "prompt": "Grand-Aiguillage's heavy workshop cooling system at the edge of failure, with low cisterns feeding steaming lathes while residents and machinists ration water. Painterly cinematic game concept art, grounded industrial realism, wide 16:9 oblique elevated view showing the relationship between scarce water and heavy services, furnace glow softened by gray ash daylight. No text, letters, numbers, logos, watermark, explosion or foregrounded weapons.",
+  "rights": "OpenAI Terms of Use — output assigned to the user",
+  "approval": {
+    "status": "pending-pull-request-review",
+    "reviewer": null
+  }
+}

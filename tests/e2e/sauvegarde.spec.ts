@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 import { readFileSync } from "node:fs";
 
 import { TAILLE_MAX_ARCHIVE_SAUVEGARDE } from "../../src/sauvegarde/sauvegarde";
+import { VERSION_SAUVEGARDE_COURANTE } from "../../src/sauvegarde/version";
 import { installerHorlogeFixe } from "./horloge";
 
 const archiveV1 = readFileSync(
@@ -21,12 +22,16 @@ test("IndexedDB applique le même contrat tournant et protège les archives inco
     );
     const moduleSession = await import("/src/sauvegarde/session.ts");
     const moduleEmpreinte = await import("/src/simulation/empreinte.ts");
+    const moduleVersion = await import("/src/sauvegarde/version.ts");
     const nomDeBase = "lanternes-de-cendre-contrat-e2e";
     const port = modulePersistance.creerPortDePersistanceIndexedDb({
       nomDeBase,
       nombreDeSnapshots: 2,
     });
-    const creerArchive = (id: string, version = 8) => ({
+    const creerArchive = (
+      id: string,
+      version: number = moduleVersion.VERSION_SAUVEGARDE_COURANTE,
+    ) => ({
       id,
       version,
       contenu: JSON.stringify({ id, version }),
@@ -97,13 +102,19 @@ test("IndexedDB applique le même contrat tournant et protège les archives inco
   const archivesAttendues = [
     {
       id: "troisieme",
-      version: 8,
-      contenu: JSON.stringify({ id: "troisieme", version: 8 }),
+      version: VERSION_SAUVEGARDE_COURANTE,
+      contenu: JSON.stringify({
+        id: "troisieme",
+        version: VERSION_SAUVEGARDE_COURANTE,
+      }),
     },
     {
       id: "deuxieme",
-      version: 8,
-      contenu: JSON.stringify({ id: "deuxieme", version: 8 }),
+      version: VERSION_SAUVEGARDE_COURANTE,
+      contenu: JSON.stringify({
+        id: "deuxieme",
+        version: VERSION_SAUVEGARDE_COURANTE,
+      }),
     },
     {
       id: "meme-id",

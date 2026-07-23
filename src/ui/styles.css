@@ -2722,6 +2722,15 @@ button:hover:not(:disabled) {
   }
 }
 
+@media (max-width: 900px) and (max-height: 600px) {
+  .app-header,
+  .commandes-du-temps {
+    position: relative;
+    top: auto;
+    bottom: auto;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .app-header__lanterne,
   .economie-du-convoi::after,

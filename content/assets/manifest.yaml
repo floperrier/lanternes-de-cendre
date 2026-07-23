@@ -105,3 +105,28 @@ assets:
     alternative: evenement.deversoir.passage.asset.alt
     contient_texte: false
     provenance: docs/assets/deversoir-passage.provenance.json
+  - id: trame.barriere-neuve.le-permis-des-essieux
+    fichier: /api/commercial/assets/trame-barriere-permis.webp
+    alternative: evenement.trame.permis.asset.alt
+    contient_texte: false
+    provenance: docs/assets/trame-barriere-permis.provenance.json
+  - id: trame.barriere-neuve.la-taxe-des-lanternes
+    fichier: /api/commercial/assets/trame-barriere-taxe.webp
+    alternative: evenement.trame.taxe.asset.alt
+    contient_texte: false
+    provenance: docs/assets/trame-barriere-taxe.provenance.json
+  - id: trame.grand-aiguillage.la-piece-sans-serie
+    fichier: /api/commercial/assets/trame-piece-regulation.webp
+    alternative: evenement.trame.piece.asset.alt
+    contient_texte: false
+    provenance: docs/assets/trame-piece-regulation.provenance.json
+  - id: trame.grand-aiguillage.l-eau-des-machines
+    fichier: /api/commercial/assets/trame-eau-machines.webp
+    alternative: evenement.trame.eau.asset.alt
+    contient_texte: false
+    provenance: docs/assets/trame-eau-machines.provenance.json
+  - id: trame.grand-aiguillage.ilyana-et-l-attelage
+    fichier: /api/commercial/assets/trame-attelage-federe.webp
+    alternative: evenement.trame.attelage.asset.alt
+    contient_texte: false
+    provenance: docs/assets/trame-attelage-federe.provenance.json

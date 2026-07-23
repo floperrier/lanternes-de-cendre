@@ -1,0 +1,15 @@
+{
+  "asset": "serveur-commercial/assets/trame-barriere-taxe.webp",
+  "sha256": "bf36f074c30b6b0068a2c0164de024dd5ab66052cb9205bf79c1b36ac5c6a30b",
+  "createdAt": "2026-07-23",
+  "tool": "Codex built-in image_gen",
+  "model": "built-in model (identifier not exposed)",
+  "useCase": "stylized-concept",
+  "input": "No input image; generated from the project’s established oblique industrial art direction.",
+  "prompt": "The lantern tax booth at Barrière-Neuve, with fuel canisters and structural materials weighed beside a registry mechanism while the caravan-city waits. Painterly cinematic game concept art, grounded industrial realism, wide 16:9 oblique elevated view, warm booth lanterns against dim metallic haze. No text, letters, numbers, logos, watermark or foregrounded weapons.",
+  "rights": "OpenAI Terms of Use — output assigned to the user",
+  "approval": {
+    "status": "pending-pull-request-review",
+    "reviewer": null
+  }
+}

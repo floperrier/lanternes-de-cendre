@@ -1,5 +1,6 @@
 import { catalogueDEvenements, trouverEvenement } from "../content/catalogue";
 import type {
+  ChoixDEvenement,
   ConditionDEvenement,
   EffetDEvenement,
   EvenementDuCatalogue,
@@ -109,6 +110,11 @@ import {
   calculerDevenirsDesSitesDesBassins,
   type DevenirsDesSitesDesBassins,
 } from "./sites";
+import {
+  appliquerDecisionDeLaTrameDeFer,
+  creerEtatInitialDeLaTrameDeFer,
+  type EtatDeLaTrameDeFer,
+} from "./trameFer";
 
 export type { GraineDeCampagne } from "./graine";
 export const IDENTIFIANTS_PLATEFORMES_MOBILES =
@@ -154,6 +160,7 @@ export interface EtatCampagne {
   readonly expeditions: EtatDesExpeditions;
   readonly veilleBasse: EtatDeVeilleBasse;
   readonly hautPuits: EtatDeHautPuits;
+  readonly trameDeFer: EtatDeLaTrameDeFer;
   readonly devenirsDesSites: DevenirsDesSitesDesBassins | null;
   readonly echeances: readonly EcheanceDeCampagne[];
   readonly fluxPseudoAleatoires: Readonly<{
@@ -260,6 +267,7 @@ export function creerCampagneInitiale(graine: GraineDeCampagne): EtatCampagne {
     expeditions: creerEtatDesExpeditionsInitial(),
     veilleBasse: creerEtatInitialDeVeilleBasse(),
     hautPuits: creerEtatDeHautPuitsInitial(),
+    trameDeFer: creerEtatInitialDeLaTrameDeFer(),
     devenirsDesSites: null,
     echeances: [],
     fluxPseudoAleatoires: {
@@ -381,6 +389,18 @@ function declencherSuiteNarrativeDeLaDemonstration(
   ) {
     return declencherEvenement(etat, "deversoir-noir");
   }
+  if (
+    etat.routes.position === "barriere-neuve" &&
+    trouverEngagementDeRouteActif(etat.routes) === undefined
+  ) {
+    return declencherEvenement(etat, "barriere-neuve");
+  }
+  if (
+    etat.routes.position === "grand-aiguillage" &&
+    trouverEngagementDeRouteActif(etat.routes) === undefined
+  ) {
+    return declencherEvenement(etat, "grand-aiguillage");
+  }
   return etat.routes.position === "haut-puits" &&
     trouverEngagementDeRouteActif(etat.routes) === undefined
     ? declencherEvenement(etat, "halte-haut-puits")
@@ -429,6 +449,33 @@ function appliquerEffets(
       },
     },
   };
+}
+
+export function choixNarratifEstDisponible(
+  etat: EtatCampagne,
+  evenementId: string,
+  choix: Pick<ChoixDEvenement, "effets">,
+): boolean {
+  if (!evenementId.startsWith("trame.")) {
+    return true;
+  }
+
+  const coutsParStock = new Map<
+    Extract<EffetDEvenement, { readonly type: "stock.modifier" }>["stock"],
+    number
+  >();
+  for (const effet of choix.effets) {
+    if (effet.type === "stock.modifier" && effet.valeur < 0) {
+      coutsParStock.set(
+        effet.stock,
+        (coutsParStock.get(effet.stock) ?? 0) - effet.valeur,
+      );
+    }
+  }
+  return [...coutsParStock].every(
+    ([stock, cout]) =>
+      etat.pilotage.economie.stocks[stock].quantite >= cout,
+  );
 }
 
 function decrireEffetsDeFait(effets: readonly EffetDEvenement[]): EffetsDeFait {
@@ -637,6 +684,11 @@ function choisirDansEvenement(
       `L’intention « ${commande.choixId} » est inconnue pour « ${commande.evenementId} ».`,
     );
   }
+  if (!choixNarratifEstDisponible(etat, evenement.id, choix)) {
+    throw new Error(
+      `Les stocks sont insuffisants pour « ${commande.choixId} ».`,
+    );
+  }
   if (
     evenement.id === "bassins.deversoir.le-chassis-des-bassins" &&
     choix.id === "sceller-transformation"
@@ -702,7 +754,15 @@ function choisirDansEvenement(
     return etat;
   })();
   const etatApresEffets = appliquerEffets(
-    etatApresDecisionDeVeilleBasse,
+    {
+      ...etatApresDecisionDeVeilleBasse,
+      trameDeFer: appliquerDecisionDeLaTrameDeFer(
+        etatApresDecisionDeVeilleBasse.trameDeFer,
+        evenement.id,
+        choix.id,
+        etat.tempsDuConvoi.secondes,
+      ),
+    },
     choix.effets,
   );
   let etatApresDecision = etatApresEffets;

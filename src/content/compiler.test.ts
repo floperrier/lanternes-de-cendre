@@ -20,6 +20,11 @@ import provenanceDeversoirChassis from "../../docs/assets/deversoir-chassis.prov
 import provenanceDeversoirConseil from "../../docs/assets/deversoir-conseil.provenance.json?raw";
 import provenanceDeversoirLigneZero from "../../docs/assets/deversoir-ligne-zero.provenance.json?raw";
 import provenanceDeversoirPassage from "../../docs/assets/deversoir-passage.provenance.json?raw";
+import provenanceTrameAttelageFedere from "../../docs/assets/trame-attelage-federe.provenance.json?raw";
+import provenanceTrameBarrierePermis from "../../docs/assets/trame-barriere-permis.provenance.json?raw";
+import provenanceTrameBarriereTaxe from "../../docs/assets/trame-barriere-taxe.provenance.json?raw";
+import provenanceTrameEauMachines from "../../docs/assets/trame-eau-machines.provenance.json?raw";
+import provenanceTramePieceRegulation from "../../docs/assets/trame-piece-regulation.provenance.json?raw";
 import provenanceFiltres from "../../docs/assets/prologue-filtres-de-la-veille.provenance.json?raw";
 import provenanceIlyana from "../../docs/assets/prologue-ilyana-au-clapet.provenance.json?raw";
 import provenanceReponse from "../../docs/assets/prologue-reponse-du-phare.provenance.json?raw";
@@ -78,6 +83,16 @@ const sourcesValides: SourcesDuCatalogue = {
       provenanceDeversoirChassis,
     "docs/assets/deversoir-passage.provenance.json":
       provenanceDeversoirPassage,
+    "docs/assets/trame-barriere-permis.provenance.json":
+      provenanceTrameBarrierePermis,
+    "docs/assets/trame-barriere-taxe.provenance.json":
+      provenanceTrameBarriereTaxe,
+    "docs/assets/trame-piece-regulation.provenance.json":
+      provenanceTramePieceRegulation,
+    "docs/assets/trame-eau-machines.provenance.json":
+      provenanceTrameEauMachines,
+    "docs/assets/trame-attelage-federe.provenance.json":
+      provenanceTrameAttelageFedere,
   },
   cheminDeProvenanceAsset: (chemin) =>
     chemin.startsWith("/api/commercial/assets/")
@@ -105,6 +120,11 @@ const sourcesValides: SourcesDuCatalogue = {
       "/api/commercial/assets/deversoir-conseil.webp",
       "/api/commercial/assets/deversoir-chassis.webp",
       "/api/commercial/assets/deversoir-passage.webp",
+      "/api/commercial/assets/trame-barriere-permis.webp",
+      "/api/commercial/assets/trame-barriere-taxe.webp",
+      "/api/commercial/assets/trame-piece-regulation.webp",
+      "/api/commercial/assets/trame-eau-machines.webp",
+      "/api/commercial/assets/trame-attelage-federe.webp",
     ].includes(chemin),
   empreinteAsset: (chemin) =>
     ({
@@ -148,6 +168,16 @@ const sourcesValides: SourcesDuCatalogue = {
         "38f5768f518bfad2617a2b1c1c7c60a76250078c880e8dd20c507e8c1f5ec7b5",
       "/api/commercial/assets/deversoir-passage.webp":
         "34038892ac53eb9a5b22b9d41f3ba1787c29cda98097beb5dd2c175955df1aa4",
+      "/api/commercial/assets/trame-barriere-permis.webp":
+        "0f75eaf191fec9cf8e94663f83e3896f64fd420597988fcac0dacc6abc8e2a14",
+      "/api/commercial/assets/trame-barriere-taxe.webp":
+        "bf36f074c30b6b0068a2c0164de024dd5ab66052cb9205bf79c1b36ac5c6a30b",
+      "/api/commercial/assets/trame-piece-regulation.webp":
+        "55183d51ad02a7b0b08fe2cd1c82f911b36b7d4a96bf240a4a3f279b5e6f6ab8",
+      "/api/commercial/assets/trame-eau-machines.webp":
+        "5f9e8cac790b8aed4b537ab24dc60f8ed97cf4ce12bef69263c1663e97725085",
+      "/api/commercial/assets/trame-attelage-federe.webp":
+        "9ac372ba941e1645495dbf01d8c818e6d04b8ccf3af02af116c15a85a72b70cb",
     })[chemin] ?? "0".repeat(64),
   tailleAsset: () => 256_000,
 };
