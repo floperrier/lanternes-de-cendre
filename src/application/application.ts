@@ -45,6 +45,7 @@ export interface ProjectionDeCampagne {
 
 export interface ApplicationCampagne {
   readonly lireEtat: () => EtatCampagne;
+  readonly commandeEstAutorisee: (commande: CommandeCampagne) => boolean;
   readonly envoyerCommande: (
     commande: CommandeCampagne,
   ) => readonly EvenementDeDomaine[];
@@ -57,6 +58,29 @@ export interface ApplicationCampagne {
     ) => void,
   ) => () => void;
 }
+
+export interface PolitiqueDAccesAuContenu {
+  readonly verifierCommande: (
+    etat: EtatCampagne,
+    commande: CommandeCampagne,
+  ) => string | null;
+}
+
+export interface OptionsDApplicationCampagne {
+  readonly politiqueDAcces?: PolitiqueDAccesAuContenu;
+}
+
+const ACCES_AU_CONTENU_DE_LA_DEMONSTRATION: PolitiqueDAccesAuContenu = {
+  verifierCommande: (etat, commande) =>
+    commande.type === "engagement-de-route.confirmer" &&
+    etat.routes.jalons.length > 0
+      ? "Le deuxième Tronçon exige l’Accès premium ; la Campagne sauvegardée reste poursuivable."
+      : null,
+};
+
+export const ACCES_AU_CONTENU_COMPLET: PolitiqueDAccesAuContenu = {
+  verifierCommande: () => null,
+};
 
 interface TempsDecompose {
   readonly minutes: number;
@@ -119,7 +143,15 @@ function projeterEvenementNarratif(
 
   const textes = evenement.textes[langue];
   const contexte = { habitants: etat.citeCaravane.habitants };
-  const idVariante = evenement.variantes[0]?.id;
+  const idVariante = evenement.variantes.find(({ condition }) => {
+    if (condition === "toujours") {
+      return true;
+    }
+    const faitAttendu = condition.slice("fait-present:".length);
+    return etat.narration.faitsDeCampagne.some(
+      (fait) => fait.id === faitAttendu,
+    );
+  })?.id;
   const texteVariante =
     idVariante === undefined ? undefined : textes.variantes[idVariante];
   if (texteVariante === undefined) {
@@ -187,6 +219,7 @@ export function projeterCampagne(
 
 function creerApplication(
   etatInitial: EtatCampagne,
+  politiqueDAcces: PolitiqueDAccesAuContenu,
 ): ApplicationCampagne {
   let etat = etatInitial;
   const ecouteurs = new Set<() => void>();
@@ -200,7 +233,13 @@ function creerApplication(
 
   return {
     lireEtat: () => etat,
+    commandeEstAutorisee: (commande) =>
+      politiqueDAcces.verifierCommande(etat, commande) === null,
     envoyerCommande: (commande) => {
+      const refus = politiqueDAcces.verifierCommande(etat, commande);
+      if (refus !== null) {
+        throw new Error(refus);
+      }
       const transition = appliquerCommande(etat, commande);
       etat = transition.etat;
       ecouteursDeCommandes.forEach((ecouteur) =>
@@ -222,14 +261,22 @@ function creerApplication(
 
 export function creerApplicationCampagne(
   graine: GraineDeCampagne,
+  options: OptionsDApplicationCampagne = {},
 ): ApplicationCampagne {
   const etatInitial = creerCampagneInitiale(graine);
 
-  return creerApplication(etatInitial);
+  return creerApplication(
+    etatInitial,
+    options.politiqueDAcces ?? ACCES_AU_CONTENU_DE_LA_DEMONSTRATION,
+  );
 }
 
 export function reprendreApplicationCampagne(
   etat: EtatCampagne,
+  options: OptionsDApplicationCampagne = {},
 ): ApplicationCampagne {
-  return creerApplication(etat);
+  return creerApplication(
+    etat,
+    options.politiqueDAcces ?? ACCES_AU_CONTENU_DE_LA_DEMONSTRATION,
+  );
 }

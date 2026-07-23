@@ -468,7 +468,7 @@ describe("parcours narratif de la Démonstration", () => {
     ]);
   });
 
-  it("borne le contenu gratuit avant le deuxième Tronçon", () => {
+  it("laisse le noyau engager un deuxième Tronçon sans connaître l’offre commerciale", () => {
     let etat = creerCampagneInitiale("CENDRE-01");
     etat = appliquerCommande(etat, {
       type: "engagement-de-route.confirmer",
@@ -483,13 +483,16 @@ describe("parcours narratif de la Démonstration", () => {
       secondesReelles: 90,
     }).etat;
 
-    expect(() =>
-      appliquerCommande(etat, {
-        type: "engagement-de-route.confirmer",
-        tronconId: "chenal-des-vannes",
-      }),
-    ).toThrow(
-      "Le deuxième Tronçon exige l’Accès premium ; la Campagne sauvegardée reste poursuivable.",
-    );
+    const transition = appliquerCommande(etat, {
+      type: "engagement-de-route.confirmer",
+      tronconId: "chenal-des-vannes",
+    });
+
+    expect(transition.etat.routes.engagements.at(-1)).toMatchObject({
+      tronconId: "chenal-des-vannes",
+      origine: "haut-puits",
+      destination: "relais-des-vannes",
+      statut: "en-cours",
+    });
   });
 });

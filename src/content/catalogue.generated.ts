@@ -291,6 +291,13 @@ export default {
           {
             "type": "temps-au-moins",
             "secondes": 60
+          },
+          {
+            "type": "un-des-faits-present",
+            "faits": [
+              "prologue.cohorte-accueillie",
+              "prologue.cohorte-orientee"
+            ]
           }
         ],
         "interdites": []
@@ -308,7 +315,10 @@ export default {
       "sourcesInformations": [
         "equipes-entretien"
       ],
-      "faitsLus": [],
+      "faitsLus": [
+        "prologue.cohorte-accueillie",
+        "prologue.cohorte-orientee"
+      ],
       "choix": [
         {
           "id": "consigner-harmonique",
@@ -537,6 +547,13 @@ export default {
           {
             "type": "temps-au-moins",
             "secondes": 60
+          },
+          {
+            "type": "un-des-faits-present",
+            "faits": [
+              "prologue.harmonique-consignee",
+              "prologue.signal-etouffe"
+            ]
           }
         ],
         "interdites": []
@@ -554,7 +571,10 @@ export default {
       "sourcesInformations": [
         "equipes-entretien"
       ],
-      "faitsLus": [],
+      "faitsLus": [
+        "prologue.harmonique-consignee",
+        "prologue.signal-etouffe"
+      ],
       "choix": [
         {
           "id": "proteger-foyers",
@@ -783,6 +803,13 @@ export default {
           {
             "type": "temps-au-moins",
             "secondes": 60
+          },
+          {
+            "type": "un-des-faits-present",
+            "faits": [
+              "prologue.filtres-foyers-prioritaires",
+              "prologue.filtres-ateliers-prioritaires"
+            ]
           }
         ],
         "interdites": []
@@ -800,7 +827,10 @@ export default {
       "sourcesInformations": [
         "ilyana-voss"
       ],
-      "faitsLus": [],
+      "faitsLus": [
+        "prologue.filtres-foyers-prioritaires",
+        "prologue.filtres-ateliers-prioritaires"
+      ],
       "choix": [
         {
           "id": "confier-clapet",
@@ -1029,6 +1059,13 @@ export default {
           {
             "type": "temps-au-moins",
             "secondes": 360
+          },
+          {
+            "type": "un-des-faits-present",
+            "faits": [
+              "prologue.ilyana-ecoutee",
+              "prologue.ilyana-contredite"
+            ]
           }
         ],
         "interdites": []
@@ -1047,7 +1084,12 @@ export default {
       "sourcesInformations": [
         "habitants-haut-puits"
       ],
-      "faitsLus": [],
+      "faitsLus": [
+        "prologue.ilyana-ecoutee",
+        "prologue.ilyana-contredite",
+        "prologue.cohorte-accueillie",
+        "prologue.cohorte-orientee"
+      ],
       "choix": [
         {
           "id": "promettre-partage",
@@ -1078,6 +1120,14 @@ export default {
         "type": "engagement-renegociable"
       },
       "variantes": [
+        {
+          "id": "cohorte-accueillie",
+          "condition": "fait-present:prologue.cohorte-accueillie"
+        },
+        {
+          "id": "cohorte-orientee",
+          "condition": "fait-present:prologue.cohorte-orientee"
+        },
         {
           "id": "standard",
           "condition": "toujours"
@@ -1142,6 +1192,18 @@ export default {
             }
           ],
           "variantes": {
+            "cohorte-accueillie": {
+              "cle": "evenement.bassins.haut-puits.variante.cohorte-accueillie",
+              "modele": "Les six membres accueillis dans les Foyers se tiennent devant la citerne : la place ouverte sur la route engage désormais le partage de l’eau.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "cohorte-orientee": {
+              "cle": "evenement.bassins.haut-puits.variante.cohorte-orientee",
+              "modele": "La cohorte orientée vers Veille-Basse a fait porter sa demande : la promesse donnée sur la route atteint désormais la citerne.",
+              "variables": [],
+              "valeurs": {}
+            },
             "standard": {
               "cle": "evenement.bassins.haut-puits.variante.standard",
               "modele": "Autour de la vanne levée, personne ne conteste la pénurie ; le conflit porte sur qui en portera le poids.",
@@ -1218,6 +1280,18 @@ export default {
             }
           ],
           "variantes": {
+            "cohorte-accueillie": {
+              "cle": "evenement.bassins.haut-puits.variante.cohorte-accueillie",
+              "modele": "The six people welcomed into the Hearths stand before the cistern: the place opened on the road now commits the convoy to sharing water.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "cohorte-orientee": {
+              "cle": "evenement.bassins.haut-puits.variante.cohorte-orientee",
+              "modele": "The cohort directed to Lower Watch sent its request ahead: the promise made on the road has now reached the cistern.",
+              "variables": [],
+              "valeurs": {}
+            },
             "standard": {
               "cle": "evenement.bassins.haut-puits.variante.standard",
               "modele": "Around the raised valve, no one disputes the shortage; the conflict is about who will bear its weight.",

@@ -483,6 +483,20 @@ function compilerCondition(
     verifierReference(references.faits, fait, `${chemin}/fait`);
     return { type, fait };
   }
+  if (type === "un-des-faits-present") {
+    const faits = chaines(condition.faits, `${chemin}/faits`);
+    if (faits.length < 2) {
+      echouer(
+        "schema",
+        `${chemin}/faits`,
+        "au moins deux Faits alternatifs sont requis",
+      );
+    }
+    faits.forEach((fait, index) =>
+      verifierReference(references.faits, fait, `${chemin}/faits/${index}`),
+    );
+    return { type, faits };
+  }
 
   return echouer("reference", `${chemin}/type`, `condition inconnue « ${type} »`);
 }
@@ -572,6 +586,40 @@ function compilerEvenement(
     );
     return { source: sourceInformation, texte: informationSource.texte };
   });
+  const variantesSource = tableau(
+    evenement.variantes,
+    `${chemin}/variantes`,
+  ).map((variante, varianteIndex) => {
+    const cheminVariante = `${chemin}/variantes/${varianteIndex}`;
+    const valeur = objet(variante, cheminVariante);
+    const condition = chaine(
+      valeur.condition,
+      `${cheminVariante}/condition`,
+    );
+    if (condition !== "toujours") {
+      const prefixe = "fait-present:";
+      if (!condition.startsWith(prefixe)) {
+        echouer(
+          "reference",
+          `${cheminVariante}/condition`,
+          `condition de variante inconnue « ${condition} »`,
+        );
+      }
+      verifierReference(
+        references.faits,
+        condition.slice(prefixe.length),
+        `${cheminVariante}/condition`,
+      );
+    }
+    return {
+      id: chaine(valeur.id, `${cheminVariante}/id`),
+      condition,
+      presentation: valeur.presentation,
+    };
+  });
+  if (variantesSource.length === 0) {
+    echouer("schema", `${chemin}/variantes`, "au moins une variante requise");
+  }
   const faitsLus = chaines(evenement.faits_lus, `${chemin}/faits_lus`);
   faitsLus.forEach((fait, faitIndex) =>
     verifierReference(
@@ -584,9 +632,18 @@ function compilerEvenement(
     ...conditions.requises,
     ...conditions.interdites,
   ].flatMap((condition) =>
-    condition.type === "fait-present" ? [condition.fait] : [],
+    condition.type === "fait-present"
+      ? [condition.fait]
+      : condition.type === "un-des-faits-present"
+        ? condition.faits
+        : [],
   );
-  if (!memesValeurs(faitsLus, faitsTestes)) {
+  const faitsTestesParLesVariantes = variantesSource.flatMap((variante) =>
+    variante.condition.startsWith("fait-present:")
+      ? [variante.condition.slice("fait-present:".length)]
+      : [],
+  );
+  if (!memesValeurs(faitsLus, [...faitsTestes, ...faitsTestesParLesVariantes])) {
     echouer(
       "schema",
       `${chemin}/faits_lus`,
@@ -629,22 +686,6 @@ function compilerEvenement(
       };
     },
   );
-
-  const variantesSource = tableau(
-    evenement.variantes,
-    `${chemin}/variantes`,
-  ).map((variante, varianteIndex) => {
-    const cheminVariante = `${chemin}/variantes/${varianteIndex}`;
-    const valeur = objet(variante, cheminVariante);
-    return {
-      id: chaine(valeur.id, `${cheminVariante}/id`),
-      condition: chaine(valeur.condition, `${cheminVariante}/condition`),
-      presentation: valeur.presentation,
-    };
-  });
-  if (variantesSource.length === 0) {
-    echouer("schema", `${chemin}/variantes`, "au moins une variante requise");
-  }
 
   const compilerTextes = (langue: Langue): TextesDUnEvenement => {
     const textesChoix = Object.fromEntries(

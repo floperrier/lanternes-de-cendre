@@ -40,4 +40,37 @@ describe("contenu de la Démonstration", () => {
     );
     expect(octetsTransferes).toBeLessThanOrEqual(12 * 1_024 * 1_024);
   });
+
+  it("enchaîne les cinq Événements par leurs Faits persistants", () => {
+    const evenements = EVENEMENTS_DE_LA_DEMONSTRATION.map((id) =>
+      catalogueDEvenements.evenements.find((evenement) => evenement.id === id),
+    );
+
+    expect(evenements.map((evenement) => evenement?.faitsLus)).toEqual([
+      ["prologue.cohorte-accueillie", "prologue.cohorte-orientee"],
+      ["prologue.cohorte-accueillie", "prologue.cohorte-orientee"],
+      ["prologue.harmonique-consignee", "prologue.signal-etouffe"],
+      [
+        "prologue.filtres-foyers-prioritaires",
+        "prologue.filtres-ateliers-prioritaires",
+      ],
+      [
+        "prologue.ilyana-ecoutee",
+        "prologue.ilyana-contredite",
+        "prologue.cohorte-accueillie",
+        "prologue.cohorte-orientee",
+      ],
+    ]);
+    expect(evenements[4]?.variantes).toEqual([
+      {
+        id: "cohorte-accueillie",
+        condition: "fait-present:prologue.cohorte-accueillie",
+      },
+      {
+        id: "cohorte-orientee",
+        condition: "fait-present:prologue.cohorte-orientee",
+      },
+      { id: "standard", condition: "toujours" },
+    ]);
+  });
 });

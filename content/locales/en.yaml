@@ -51,6 +51,8 @@ textes:
   evenement.bassins.haut-puits.choix.reserves: "Secure High Well’s reserves first"
   evenement.bassins.haut-puits.choix.reserves.cout: "Known cost: the displaced families will remember this refusal at the next Council."
   evenement.bassins.haut-puits.variante.standard: "Around the raised valve, no one disputes the shortage; the conflict is about who will bear its weight."
+  evenement.bassins.haut-puits.variante.cohorte-accueillie: "The six people welcomed into the Hearths stand before the cistern: the place opened on the road now commits the convoy to sharing water."
+  evenement.bassins.haut-puits.variante.cohorte-orientee: "The cohort directed to Lower Watch sent its request ahead: the promise made on the road has now reached the cistern."
   evenement.bassins.haut-puits.asset.alt: "At High Well, the Free Wells and displaced families face each other around the cistern valve."
   installation.cuisine.nom: "Preserving kitchen"
   installation.cuisine.service: "Prepare and preserve the caravan-city's rations."

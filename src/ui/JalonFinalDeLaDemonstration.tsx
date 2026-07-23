@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 
 import type { ProjectionDeDemonstration } from "../application/demonstration";
 import type { Langue } from "../content/types";
@@ -6,15 +6,17 @@ import type { Langue } from "../content/types";
 interface JalonFinalDeLaDemonstrationProps {
   readonly projection: ProjectionDeDemonstration;
   readonly langue: Langue;
+  readonly children: ReactNode;
 }
 
 export function JalonFinalDeLaDemonstration({
   projection,
   langue,
+  children,
 }: JalonFinalDeLaDemonstrationProps) {
   const titre = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
-    titre.current?.focus();
+    titre.current?.focus({ preventScroll: true });
   }, []);
 
   if (projection.jalonFinal === null) {
@@ -25,6 +27,7 @@ export function JalonFinalDeLaDemonstration({
     <section
       className="jalon-final-demonstration"
       aria-labelledby="titre-jalon-final-demonstration"
+      aria-describedby="explication-jalon-final-demonstration"
       lang={langue}
     >
       <p>{langue === "fr" ? "Jalon de la Démonstration" : "Demonstration milestone"}</p>
@@ -35,7 +38,10 @@ export function JalonFinalDeLaDemonstration({
       >
         {projection.jalonFinal.titre}
       </h2>
-      <p>{projection.jalonFinal.explication}</p>
+      <p id="explication-jalon-final-demonstration">
+        {projection.jalonFinal.explication}
+      </p>
+      <div className="jalon-final-demonstration__outils">{children}</div>
     </section>
   );
 }

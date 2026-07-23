@@ -92,7 +92,7 @@ describe("projection de l’Atlas", () => {
       type: "temps-du-convoi.ecouler",
       secondesReelles: 90,
     }).etat;
-    expect(projeterAtlas(arrivee, "en")).toMatchObject({
+    expect(projeterAtlas(arrivee, "en", () => false)).toMatchObject({
       position: "High Well",
       engagement: null,
       dernierJalon: {
@@ -103,8 +103,16 @@ describe("projection de l’Atlas", () => {
           id: "chenal-des-vannes",
           destination: "Sluice Relay",
           connexion: "High Well → Sluice Relay",
+          engageable: false,
         },
       ],
     });
+
+    expect(projeterAtlas(arrivee, "en", () => true).troncons[0]).toMatchObject(
+      {
+        id: "chenal-des-vannes",
+        engageable: true,
+      },
+    );
   });
 });

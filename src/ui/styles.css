@@ -1309,11 +1309,10 @@ summary:focus-visible,
 }
 
 .jalon-final-demonstration {
-  position: absolute;
-  z-index: 20;
-  right: clamp(1rem, 12vw, 14rem);
-  bottom: 10rem;
-  left: clamp(1rem, 12vw, 14rem);
+  position: fixed;
+  z-index: 40;
+  inset: clamp(1rem, 8vh, 5rem) clamp(1rem, 12vw, 14rem);
+  overflow: auto;
   padding: clamp(1.5rem, 4vw, 3rem);
   background: rgba(8, 15, 18, 0.99);
   border: 1px solid var(--ambre);
@@ -1341,6 +1340,12 @@ summary:focus-visible,
   font-size: clamp(2.3rem, 5vw, 4.5rem);
   font-weight: 500;
   line-height: 1;
+}
+
+.jalon-final-demonstration__outils {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.5rem;
 }
 
 .commandes-du-temps {

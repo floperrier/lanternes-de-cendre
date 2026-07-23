@@ -51,6 +51,8 @@ textes:
   evenement.bassins.haut-puits.choix.reserves: "Garantir d’abord les réserves de Haut-Puits"
   evenement.bassins.haut-puits.choix.reserves.cout: "Coût connu : les familles déplacées retiendront ce refus au prochain Conseil."
   evenement.bassins.haut-puits.variante.standard: "Autour de la vanne levée, personne ne conteste la pénurie ; le conflit porte sur qui en portera le poids."
+  evenement.bassins.haut-puits.variante.cohorte-accueillie: "Les six membres accueillis dans les Foyers se tiennent devant la citerne : la place ouverte sur la route engage désormais le partage de l’eau."
+  evenement.bassins.haut-puits.variante.cohorte-orientee: "La cohorte orientée vers Veille-Basse a fait porter sa demande : la promesse donnée sur la route atteint désormais la citerne."
   evenement.bassins.haut-puits.asset.alt: "À Haut-Puits, les Puits Libres et des familles déplacées se font face autour de la vanne de la citerne."
   installation.cuisine.nom: "Cuisine-conserverie"
   installation.cuisine.service: "Préparer et conserver les rations de la Cité-caravane."

@@ -30,6 +30,7 @@ import { SelecteurDeLangue } from "./SelecteurDeLangue";
 import { CriseDuConvoi } from "./CriseDuConvoi";
 import { OrdreDistantDExpedition } from "./OrdreDistantDExpedition";
 import { JalonFinalDeLaDemonstration } from "./JalonFinalDeLaDemonstration";
+import { choisirSurfacePrioritaire } from "./ordreDesSurfaces";
 
 interface PropsCampagne {
   readonly etatDuControleur: Extract<
@@ -51,7 +52,11 @@ function CampagnePersistante({ etatDuControleur, controleur }: PropsCampagne) {
   const projectionDuPilotage = projeterPilotage(etat, langue);
   const projectionDInfrastructure = projeterInfrastructure(etat, langue);
   const projectionDuConseil = projeterCompagnonEtConseil(etat, langue);
-  const projectionDeLAtlas = projeterAtlas(etat, langue);
+  const projectionDeLAtlas = projeterAtlas(
+    etat,
+    langue,
+    application.commandeEstAutorisee,
+  );
   const projectionDesCrises = projeterCrises(etat, langue);
   const checkpointDeCriseRequis = criseAttendSonCheckpoint(
     etat.crises,
@@ -61,6 +66,16 @@ function CampagnePersistante({ etatDuControleur, controleur }: PropsCampagne) {
     checkpointDeCriseRequis || projectionDesCrises.active !== null;
   const projectionDExpedition = projeterExpedition(etat, langue);
   const projectionDeDemonstration = projeterDemonstration(etat, langue);
+  const surfacePrioritaire = choisirSurfacePrioritaire({
+    criseActive: projectionDesCrises.active !== null,
+    checkpointDeCriseRequis,
+    demonstrationTerminee: projectionDeDemonstration.terminee,
+    ordreDExpedition: projectionDExpedition.ordreImportant !== null,
+    evenementNarratif: projection.evenementNarratif !== null,
+    conseil: projectionDuConseil.conseil !== null,
+  });
+  const jalonDeDemonstrationAffiche =
+    surfacePrioritaire === "jalon-demonstration";
 
   useEffect(() => {
     const horloge = window.setInterval(() => {
@@ -91,7 +106,11 @@ function CampagnePersistante({ etatDuControleur, controleur }: PropsCampagne) {
     <main className="app-shell">
       <header
         className="app-header"
-        inert={projectionDesCrises.active !== null ? true : undefined}
+        inert={
+          projectionDesCrises.active !== null || jalonDeDemonstrationAffiche
+            ? true
+            : undefined
+        }
       >
         <div>
           <h1>Les Lanternes de Cendre</h1>
@@ -99,23 +118,27 @@ function CampagnePersistante({ etatDuControleur, controleur }: PropsCampagne) {
             {projection.graine}
           </p>
         </div>
-        <div className="app-header__outils">
-          <SelecteurDeLangue langue={langue} choisirLangue={choisirLangue} />
-          <PanneauSauvegarde
-            controleur={controleur}
-            statutAutomatique={etatDuControleur.statutSauvegarde}
-            erreurAsynchrone={etatDuControleur.erreurSauvegarde}
-            explicationInitiale={etatDuControleur.ouverture.explication}
-            archiveIncompatibleInitiale={
-              etatDuControleur.ouverture.archiveIncompatible
-            }
-          />
-        </div>
+        {jalonDeDemonstrationAffiche ? null : (
+          <div className="app-header__outils">
+            <SelecteurDeLangue langue={langue} choisirLangue={choisirLangue} />
+            <PanneauSauvegarde
+              controleur={controleur}
+              statutAutomatique={etatDuControleur.statutSauvegarde}
+              erreurAsynchrone={etatDuControleur.erreurSauvegarde}
+              explicationInitiale={etatDuControleur.ouverture.explication}
+              archiveIncompatibleInitiale={
+                etatDuControleur.ouverture.archiveIncompatible
+              }
+            />
+          </div>
+        )}
       </header>
 
       <div
         className="scene-layout"
-        inert={criseBloquante ? true : undefined}
+        inert={
+          criseBloquante || jalonDeDemonstrationAffiche ? true : undefined
+        }
       >
         <div className="surface-du-monde">
           <CoupeHabitee
@@ -146,31 +169,41 @@ function CampagnePersistante({ etatDuControleur, controleur }: PropsCampagne) {
         </div>
       </div>
 
-      {projectionDeDemonstration.terminee ? (
-        <JalonFinalDeLaDemonstration
-          projection={projectionDeDemonstration}
-          langue={langue}
-        />
-      ) : projectionDesCrises.active !== null ? (
+      {surfacePrioritaire === "crise" && projectionDesCrises.active !== null ? (
         <CriseDuConvoi
           application={application}
           crise={projectionDesCrises.active}
           langue={langue}
         />
-      ) : checkpointDeCriseRequis ? null : projectionDExpedition.ordreImportant !==
-        null ? (
+      ) : surfacePrioritaire === "checkpoint-crise" ? null : surfacePrioritaire ===
+        "jalon-demonstration" ? (
+        <JalonFinalDeLaDemonstration
+          projection={projectionDeDemonstration}
+          langue={langue}
+        >
+          <SelecteurDeLangue langue={langue} choisirLangue={choisirLangue} />
+          <PanneauSauvegarde
+            controleur={controleur}
+            statutAutomatique={etatDuControleur.statutSauvegarde}
+            erreurAsynchrone={etatDuControleur.erreurSauvegarde}
+          />
+        </JalonFinalDeLaDemonstration>
+      ) : surfacePrioritaire === "ordre-expedition" &&
+        projectionDExpedition.ordreImportant !== null ? (
         <OrdreDistantDExpedition
           application={application}
           expedition={projectionDExpedition}
           langue={langue}
         />
-      ) : projection.evenementNarratif !== null ? (
+      ) : surfacePrioritaire === "evenement-narratif" &&
+        projection.evenementNarratif !== null ? (
         <RubanNarratif
           application={application}
           evenement={projection.evenementNarratif}
           langue={langue}
         />
-      ) : projectionDuConseil.conseil !== null ? (
+      ) : surfacePrioritaire === "conseil" &&
+        projectionDuConseil.conseil !== null ? (
         <ConseilDuConvoi
           application={application}
           conseil={projectionDuConseil.conseil}

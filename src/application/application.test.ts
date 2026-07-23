@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  ACCES_AU_CONTENU_COMPLET,
   creerApplicationCampagne,
   projeterCampagne,
   reprendreApplicationCampagne,
@@ -140,5 +141,85 @@ describe("application de Campagne", () => {
     expect(projeterCampagne(applicationReprise.lireEtat())).toEqual(
       projeterCampagne(application.lireEtat()),
     );
+  });
+
+  it("porte la limite de la Démonstration dans une politique d’accès remplaçable", () => {
+    const application = creerApplicationCampagne("CENDRE-01");
+    application.envoyerCommande({
+      type: "engagement-de-route.confirmer",
+      tronconId: "digue-des-puits",
+    });
+    application.envoyerCommande({
+      type: "temps-du-convoi.regler-vitesse",
+      vitesse: 4,
+    });
+    application.envoyerCommande({
+      type: "temps-du-convoi.ecouler",
+      secondesReelles: 90,
+    });
+
+    const deuxiemeTroncon = {
+      type: "engagement-de-route.confirmer" as const,
+      tronconId: "chenal-des-vannes" as const,
+    };
+    expect(application.commandeEstAutorisee(deuxiemeTroncon)).toBe(false);
+    expect(() => application.envoyerCommande(deuxiemeTroncon)).toThrow(
+      "Le deuxième Tronçon exige l’Accès premium ; la Campagne sauvegardée reste poursuivable.",
+    );
+
+    const applicationComplete = reprendreApplicationCampagne(
+      application.lireEtat(),
+      { politiqueDAcces: ACCES_AU_CONTENU_COMPLET },
+    );
+    expect(applicationComplete.commandeEstAutorisee(deuxiemeTroncon)).toBe(
+      true,
+    );
+    expect(() => applicationComplete.envoyerCommande(deuxiemeTroncon)).not
+      .toThrow();
+  });
+
+  it("restitue dans le conflit régional le choix persistant du prologue", () => {
+    const application = creerApplicationCampagne("CENDRE-01");
+    application.envoyerCommande({
+      type: "temps-du-convoi.ecouler",
+      secondesReelles: 60,
+    });
+    for (const [evenementId, choixId] of [
+      ["prologue.signaux-sous-la-cendre", "orienter"],
+      ["prologue.reponse-du-phare", "consigner-harmonique"],
+      ["prologue.filtres-de-la-veille", "proteger-foyers"],
+      ["prologue.ilyana-au-clapet", "confier-clapet"],
+    ] as const) {
+      application.envoyerCommande({
+        type: "evenement-narratif.choisir",
+        evenementId,
+        choixId,
+      });
+      if (evenementId !== "prologue.ilyana-au-clapet") {
+        application.envoyerCommande({
+          type: "temps-du-convoi.ecouler",
+          secondesReelles: 1,
+        });
+      }
+    }
+    application.envoyerCommande({
+      type: "engagement-de-route.confirmer",
+      tronconId: "digue-des-puits",
+    });
+    application.envoyerCommande({
+      type: "temps-du-convoi.regler-vitesse",
+      vitesse: 4,
+    });
+    application.envoyerCommande({
+      type: "temps-du-convoi.ecouler",
+      secondesReelles: 90,
+    });
+
+    expect(projeterCampagne(application.lireEtat(), "fr").evenementNarratif)
+      .toMatchObject({
+        id: "bassins-fendus.eau-de-haut-puits",
+        variante:
+          "La cohorte orientée vers Veille-Basse a fait porter sa demande : la promesse donnée sur la route atteint désormais la citerne.",
+      });
   });
 });

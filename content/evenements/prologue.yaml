@@ -98,6 +98,10 @@ evenements:
       requises:
         - type: temps-au-moins
           secondes: 60
+        - type: un-des-faits-present
+          faits:
+            - prologue.cohorte-accueillie
+            - prologue.cohorte-orientee
       interdites: []
     periode_eligibilite:
       debut: 60
@@ -124,7 +128,9 @@ evenements:
         texte:
           cle: evenement.prologue.reponse.information
           variables: []
-    faits_lus: []
+    faits_lus:
+      - prologue.cohorte-accueillie
+      - prologue.cohorte-orientee
     choix:
       - id: consigner-harmonique
         intention:
@@ -172,6 +178,10 @@ evenements:
       requises:
         - type: temps-au-moins
           secondes: 60
+        - type: un-des-faits-present
+          faits:
+            - prologue.harmonique-consignee
+            - prologue.signal-etouffe
       interdites: []
     periode_eligibilite:
       debut: 60
@@ -198,7 +208,9 @@ evenements:
         texte:
           cle: evenement.prologue.filtres.information
           variables: []
-    faits_lus: []
+    faits_lus:
+      - prologue.harmonique-consignee
+      - prologue.signal-etouffe
     choix:
       - id: proteger-foyers
         intention:
@@ -246,6 +258,10 @@ evenements:
       requises:
         - type: temps-au-moins
           secondes: 60
+        - type: un-des-faits-present
+          faits:
+            - prologue.filtres-foyers-prioritaires
+            - prologue.filtres-ateliers-prioritaires
       interdites: []
     periode_eligibilite:
       debut: 60
@@ -272,7 +288,9 @@ evenements:
         texte:
           cle: evenement.prologue.ilyana.information
           variables: []
-    faits_lus: []
+    faits_lus:
+      - prologue.filtres-foyers-prioritaires
+      - prologue.filtres-ateliers-prioritaires
     choix:
       - id: confier-clapet
         intention:
@@ -320,6 +338,10 @@ evenements:
       requises:
         - type: temps-au-moins
           secondes: 360
+        - type: un-des-faits-present
+          faits:
+            - prologue.ilyana-ecoutee
+            - prologue.ilyana-contredite
       interdites: []
     periode_eligibilite:
       debut: 360
@@ -347,7 +369,11 @@ evenements:
         texte:
           cle: evenement.bassins.haut-puits.information
           variables: []
-    faits_lus: []
+    faits_lus:
+      - prologue.ilyana-ecoutee
+      - prologue.ilyana-contredite
+      - prologue.cohorte-accueillie
+      - prologue.cohorte-orientee
     choix:
       - id: promettre-partage
         intention:
@@ -377,6 +403,16 @@ evenements:
     recuperation:
       type: engagement-renegociable
     variantes:
+      - id: cohorte-accueillie
+        condition: fait-present:prologue.cohorte-accueillie
+        presentation:
+          cle: evenement.bassins.haut-puits.variante.cohorte-accueillie
+          variables: []
+      - id: cohorte-orientee
+        condition: fait-present:prologue.cohorte-orientee
+        presentation:
+          cle: evenement.bassins.haut-puits.variante.cohorte-orientee
+          variables: []
       - id: standard
         condition: toujours
         presentation:

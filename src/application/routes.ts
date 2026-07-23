@@ -1,5 +1,5 @@
 import type { Langue } from "../content/types";
-import type { EtatCampagne } from "../simulation/campagne";
+import type { CommandeCampagne, EtatCampagne } from "../simulation/campagne";
 import {
   LIEUX_DE_ROUTE,
   listerTronconsEngageables,
@@ -231,6 +231,12 @@ function formaterMoment(secondes: number): string {
 export function projeterAtlas(
   etat: EtatCampagne,
   langue: Langue = "fr",
+  commandeEstAutorisee: (
+    commande: Extract<
+      CommandeCampagne,
+      { readonly type: "engagement-de-route.confirmer" }
+    >,
+  ) => boolean = () => true,
 ): ProjectionDeLAtlas {
   const textes = TEXTES[langue];
   const libelles = LIBELLES[langue];
@@ -243,7 +249,10 @@ export function projeterAtlas(
     engagement === undefined
       ? listerTronconsEngageables(etat.routes).map((possibilite) => ({
           ...possibilite,
-          engageable: etat.routes.jalons.length === 0,
+          engageable: commandeEstAutorisee({
+            type: "engagement-de-route.confirmer",
+            tronconId: possibilite.troncon.id,
+          }),
         }))
       : [
           {

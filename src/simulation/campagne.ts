@@ -238,8 +238,14 @@ function conditionEstRemplie(
     return etat.tempsDuConvoi.secondes >= condition.secondes;
   }
 
-  return etat.narration.faitsDeCampagne.some(
-    (fait) => fait.id === condition.fait,
+  if (condition.type === "fait-present") {
+    return etat.narration.faitsDeCampagne.some(
+      (fait) => fait.id === condition.fait,
+    );
+  }
+
+  return condition.faits.some((faitAttendu) =>
+    etat.narration.faitsDeCampagne.some((fait) => fait.id === faitAttendu),
   );
 }
 
@@ -920,11 +926,6 @@ export function appliquerCommande(
   }
 
   if (commande.type === "engagement-de-route.confirmer") {
-    if (etat.routes.jalons.length > 0) {
-      throw new Error(
-        "Le deuxième Tronçon exige l’Accès premium ; la Campagne sauvegardée reste poursuivable.",
-      );
-    }
     if (
       etat.infrastructure.deploiement === "halte" ||
       etat.infrastructure.chantierActif !== null

@@ -96,6 +96,12 @@ function creerArchiveDeDemonstration(
   );
 }
 
+/**
+ * Les longues attentes de simulation sont remplacées par des archives de
+ * checkpoint produites par le moteur et rejouables bit à bit. Le scénario
+ * vérifie donc les frontières avant/après reprise ; il ne prétend pas simuler
+ * une continuité murale de plusieurs heures dans le navigateur.
+ */
 async function importerArchive(
   page: Page,
   nom: string,
@@ -115,10 +121,22 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.clock.install();
   await page.goto("/");
-  await page.evaluate(() => {
-    document.documentElement.style.zoom = "200%";
+  const sessionCdp = await page.context().newCDPSession(page);
+  await sessionCdp.send("Emulation.setPageScaleFactor", {
+    pageScaleFactor: 2,
   });
-  await expect(page.locator("html")).toHaveCSS("zoom", "2");
+  const emulationNavigateur = await page.evaluate(() => ({
+    mouvementReduit: window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches,
+    echelleVisuelle: window.visualViewport?.scale ?? 1,
+    zoomCss: getComputedStyle(document.documentElement).zoom,
+  }));
+  expect(emulationNavigateur).toEqual({
+    mouvementReduit: true,
+    echelleVisuelle: 2,
+    zoomCss: "1",
+  });
   const surfacesVisuelles = page.locator("canvas");
   await expect(surfacesVisuelles).toHaveCount(2);
   for (const surface of await surfacesVisuelles.all()) {
@@ -199,7 +217,7 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
     name: "Confirmer l’Engagement sans retour vers Haut-Puits",
   });
   await expect(confirmerEngagement).toBeFocused();
-  await confirmerEngagement.press("Enter");
+  await activerAuClavier(confirmerEngagement);
 
   await activerAuClavier(page.getByRole("button", { name: "Vitesse 4×" }));
   await importerArchive(
@@ -241,6 +259,8 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
 
   const jalon = page.getByRole("region", { name: "La route continue" });
   await expect(jalon.getByRole("heading")).toBeFocused();
+  await expect(page.locator(".app-header")).toHaveAttribute("inert", "");
+  await expect(page.locator(".scene-layout")).toHaveAttribute("inert", "");
   await expect(jalon).toContainText(
     "La même Campagne pourra continuer avec l’Accès premium, sans recommencer.",
   );
