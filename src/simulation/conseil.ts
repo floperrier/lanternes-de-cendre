@@ -1,6 +1,10 @@
-import { catalogueDEvenements } from "../content/catalogue";
+import {
+  catalogueDEvenements,
+  trouverConseil,
+} from "../content/catalogue";
 import type { FaitDeCampagne } from "./faits";
 import { QUARTIER_INTENDANCE, trouverQuartierMobileCanonique } from "./quartiers";
+import type { IdentifiantDeLieu } from "./routes";
 
 const conseilCompile = catalogueDEvenements.conseils[0];
 if (conseilCompile === undefined) {
@@ -32,6 +36,17 @@ export const FAIT_D_AFFECTATION_DU_COMPAGNON = Object.freeze({
 });
 
 export const PREMIER_CONSEIL = conseilCompile;
+export const IDENTIFIANT_DU_CONSEIL_DES_VANNES = "conseil.des-vannes";
+export const FAITS_DE_DECISION_DU_CONSEIL_DES_VANNES = Object.freeze([
+  "bassins.conseil.reserves-partagees",
+  "bassins.conseil.decanteur-repare",
+  "bassins.conseil.cohorte-reorientee",
+  "bassins.conseil.vannes-contraintes",
+] as const);
+const FAITS_DE_CONVOCATION_DU_CONSEIL_DES_VANNES = [
+  "bassins.deversoir.conseil-convoque",
+  "bassins.deversoir.conseil-public",
+] as const;
 
 export interface CommandeDAffectationDeCompagnon {
   readonly type: "compagnon.affecter";
@@ -123,6 +138,49 @@ export function conseilEstTermine(
   );
 }
 
+function idsDesFaits(faits: readonly FaitDeCampagne[]): readonly string[] {
+  return faits.map((fait) => fait.id);
+}
+
+export function conseilDesVannesEstConvoque(
+  faits: readonly FaitDeCampagne[],
+): boolean {
+  const ids = idsDesFaits(faits);
+  return FAITS_DE_CONVOCATION_DU_CONSEIL_DES_VANNES.some((id) =>
+    ids.includes(id)
+  );
+}
+
+export function conseilDesVannesEstTermine(
+  faits: readonly FaitDeCampagne[],
+): boolean {
+  const ids = idsDesFaits(faits);
+  return FAITS_DE_DECISION_DU_CONSEIL_DES_VANNES.some((id) =>
+    ids.includes(id)
+  );
+}
+
+export function decisionDuConseilDesVannesEstDisponible(
+  decisionId: string,
+  faits: readonly FaitDeCampagne[],
+): boolean {
+  const ids = idsDesFaits(faits);
+  if (decisionId === "partager-reserves") {
+    return ids.includes("bassins.haut-puits.pacte-partage");
+  }
+  if (decisionId === "reparer-decanteur") {
+    return ids.includes("bassins.haut-puits.decanteur-documente");
+  }
+  if (decisionId === "reorienter-cohorte") {
+    return [
+      "veille-basse.cohorte-accueillie",
+      "veille-basse.cohorte-refusee",
+      "veille-basse.cohorte-redirigee",
+    ].some((id) => ids.includes(id));
+  }
+  return decisionId === "contraindre-vannes";
+}
+
 export function affecterCompagnon(
   faits: readonly FaitDeCampagne[],
   commande: CommandeDAffectationDeCompagnon,
@@ -163,40 +221,75 @@ export function affecterCompagnon(
 
 export function deciderAuConseil(
   faits: readonly FaitDeCampagne[],
+  position: IdentifiantDeLieu,
   commande: CommandeDeDecisionDuConseil,
   moment: number,
 ): {
   readonly faitProduit: FaitDeCampagne;
   readonly evenement: EvenementDeDecisionDuConseil;
 } {
-  if (!compagnonEstAffecte(faits)) {
-    throw new Error(
-      "L’Affectation d’Ilyana à l’Intendance est requise.",
-    );
-  }
-  if (conseilEstTermine(faits)) {
-    throw new Error("Ce Conseil possède déjà une décision.");
-  }
-
-  const sujet = PREMIER_CONSEIL.sujets.find(
+  const definition =
+    commande.conseilId === PREMIER_CONSEIL.id
+      ? PREMIER_CONSEIL
+      : commande.conseilId === IDENTIFIANT_DU_CONSEIL_DES_VANNES
+        ? trouverConseil(IDENTIFIANT_DU_CONSEIL_DES_VANNES)
+        : undefined;
+  const sujet = definition?.sujets.find(
     (candidat) => candidat.id === commande.sujetId,
   );
   const decision = sujet?.decisions.find(
     (candidate) => candidate.id === commande.decisionId,
   );
   if (
-    commande.conseilId !== PREMIER_CONSEIL.id ||
+    definition === undefined ||
     sujet === undefined ||
     decision === undefined
   ) {
     throw new Error("Cette décision du Conseil est inconnue.");
   }
+  if (
+    definition.id === PREMIER_CONSEIL.id &&
+    !compagnonEstAffecte(faits)
+  ) {
+    throw new Error(
+      "L’Affectation d’Ilyana à l’Intendance est requise.",
+    );
+  }
+  if (
+    definition.id === PREMIER_CONSEIL.id &&
+    conseilEstTermine(faits)
+  ) {
+    throw new Error("Ce Conseil possède déjà une décision.");
+  }
+  if (definition.id === IDENTIFIANT_DU_CONSEIL_DES_VANNES) {
+    if (
+      position !== "deversoir-noir" ||
+      !conseilDesVannesEstConvoque(faits)
+    ) {
+      throw new Error(
+        `Le Conseil « ${definition.id} » n’est pas convoqué.`,
+      );
+    }
+    if (conseilDesVannesEstTermine(faits)) {
+      throw new Error("Ce Conseil possède déjà une décision.");
+    }
+    if (
+      !decisionDuConseilDesVannesEstDisponible(decision.id, faits)
+    ) {
+      throw new Error(
+        "Cette option n’a pas été préparée dans les Colonies.",
+      );
+    }
+  }
 
   const faitProduit: FaitDeCampagne = {
     id: decision.faitProduit,
-    cause: PREMIER_CONSEIL.id,
+    cause: definition.id,
     acteurs: ["porte-lanterne", COMPAGNON_DE_REFERENCE.id],
-    cible: QUARTIER_INTENDANCE.id,
+    cible:
+      definition.id === PREMIER_CONSEIL.id
+        ? QUARTIER_INTENDANCE.id
+        : "conseil-des-vannes",
     moment,
     effets: { materiels: [], humains: [] },
   };

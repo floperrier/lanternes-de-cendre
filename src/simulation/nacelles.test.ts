@@ -55,6 +55,41 @@ describe("liaison coûteuse des Nacelles", () => {
     ).toBe(true);
   });
 
+  it("garde la Ligne Zéro utile mais non obligatoire quand sa conduite est préservée", () => {
+    const passagePrepare = ["bassins.deversoir.passage-prepare"];
+
+    expect(
+      routeAvalDesBassinsEstPreparee(
+        "passage-de-la-ligne-zero",
+        null,
+        [
+          ...passagePrepare,
+          "bassins.deversoir.ligne-zero-preservee",
+        ],
+      ),
+    ).toBe(false);
+    expect(
+      routeAvalDesBassinsEstPreparee(
+        "piste-des-levees",
+        null,
+        [
+          ...passagePrepare,
+          "bassins.deversoir.ligne-zero-preservee",
+        ],
+      ),
+    ).toBe(true);
+    expect(
+      routeAvalDesBassinsEstPreparee(
+        "passage-de-la-ligne-zero",
+        null,
+        [
+          ...passagePrepare,
+          "bassins.deversoir.ligne-zero-relevee",
+        ],
+      ),
+    ).toBe(true);
+  });
+
   it("fait coopérer les deux branches pour réduire le coût et confirmer le Renseignement", () => {
     const hautPuits = {
       ...creerEtatDeHautPuitsInitial(),
@@ -155,7 +190,7 @@ describe("liaison coûteuse des Nacelles", () => {
     ).toMatchObject({
       tronconId: "nacelles-de-veille-basse",
       branche: "veille-basse",
-      destination: "relais-des-vannes",
+      destination: "haut-puits",
     });
     expect(
       calculerOffreDesNacelles(

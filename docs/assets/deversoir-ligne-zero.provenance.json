@@ -1,0 +1,15 @@
+{
+  "asset": "serveur-commercial/assets/deversoir-ligne-zero.webp",
+  "sha256": "e267303bf7451cbdb4bc82e28d23cef13992994231d7c836b9bfd39cba2f3c82",
+  "createdAt": "2026-07-23",
+  "tool": "Codex built-in image_gen",
+  "model": "built-in model (identifier not exposed)",
+  "useCase": "illustration-story",
+  "input": "The repository Cité-Caravane illustration was supplied only as a visual world and style reference.",
+  "prompt": "Generate a wide narrative-game environment illustration of the Déversoir Noir: a cracked settling basin whose broken wall reveals the buried Ligne Zéro maintenance conduit and its circular mobile-lighthouse docking interface, inspected by cable crews under an ash storm. Match the elevated oblique painterly-industrial direction, charcoal palette and restrained amber light of the supplied world reference. No readable text, typography, logos, watermark, weapons or UI.",
+  "rights": "OpenAI Terms of Use — output assigned to the user",
+  "approval": {
+    "status": "pending-pull-request-review",
+    "reviewer": null
+  }
+}

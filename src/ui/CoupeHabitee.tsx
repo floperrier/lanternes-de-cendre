@@ -94,9 +94,15 @@ export function CoupeHabitee({
         silhouettes.clear();
         const marge = Math.max(14, application.screen.width * 0.025);
         const espacement = Math.max(8, application.screen.width * 0.012);
+        const nombreDePlateformes = Math.max(1, plateformes.length);
         const largeurDisponible =
-          application.screen.width - marge * 2 - espacement * 4;
-        const largeurPlateforme = Math.max(54, largeurDisponible / 5);
+          application.screen.width -
+          marge * 2 -
+          espacement * Math.max(0, nombreDePlateformes - 1);
+        const largeurPlateforme = Math.max(
+          54,
+          largeurDisponible / nombreDePlateformes,
+        );
         const basePlateformes = application.screen.height - 52;
         plateformes.forEach((plateforme, index) => {
           const x = marge + index * (largeurPlateforme + espacement);

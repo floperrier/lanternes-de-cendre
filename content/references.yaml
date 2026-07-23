@@ -14,6 +14,12 @@ acteurs:
   - hospice-du-sillon
   - nacelliers-des-vannes
   - frein-magnetique-des-nacelles
+  - techniciens-du-deversoir
+  - conduite-de-la-ligne-zero
+  - conseil-des-vannes
+  - chassis-regional-des-bassins
+  - passage-vers-la-trame
+  - habitants-des-bassins
 quartiers:
   - intendance
   - foyers
@@ -25,12 +31,15 @@ fenetres:
   - premier-jalon-bassins-fendus
   - halte-haut-puits
   - relais-des-nacelles
+  - deversoir-noir
 lieux:
   - halte-du-puits-sec
   - haut-puits
   - veille-basse
   - hospice-du-sillon
   - relais-des-vannes
+  - deversoir-noir
+  - lisiere-trame-de-fer
 destinations_echo:
   - journal-de-campagne
 faits:
@@ -71,6 +80,18 @@ faits:
   - bassins.nacelles.trace-laiton-persistante
   - bassins.nacelles.conseil-passage-partage
   - bassins.nacelles.conseil-maintenance-commune
+  - bassins.deversoir.ligne-zero-relevee
+  - bassins.deversoir.ligne-zero-preservee
+  - bassins.deversoir.conseil-convoque
+  - bassins.deversoir.conseil-public
+  - bassins.conseil.reserves-partagees
+  - bassins.conseil.decanteur-repare
+  - bassins.conseil.cohorte-reorientee
+  - bassins.conseil.vannes-contraintes
+  - bassins.deversoir.transformation-scellee
+  - bassins.deversoir.gabarits-conserves
+  - bassins.deversoir.passage-prepare
+  - bassins.deversoir.passage-transmis
   - compagnon.ilyana-voss.affectee-intendance
   - conseil.premiere-veille.circuit-securise
   - conseil.premiere-veille.distribution-maintenue

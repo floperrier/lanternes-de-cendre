@@ -52,6 +52,13 @@ export interface EtatDeHautPuits {
     | "decanteur-itinerant"
     | "arche-des-deplaces"
     | null;
+  readonly projetRegional?: {
+    readonly id: "decanteur-itinerant" | "arche-des-deplaces";
+    readonly statut: "retenu" | "scelle";
+    readonly retenuA: number;
+    readonly scelleA: number | null;
+    readonly coutMateriaux: 0 | 12;
+  } | null;
   readonly decisionPriseA: number | null;
 }
 
@@ -133,6 +140,7 @@ export function creerEtatDeHautPuitsInitial(): EtatDeHautPuits {
       "arche-des-deplaces",
     ],
     projetChoisi: null,
+    projetRegional: null,
     decisionPriseA: null,
   };
 }

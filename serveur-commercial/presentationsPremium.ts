@@ -187,6 +187,7 @@ export const PRESENTATIONS_PREMIUM = {
         "veille-basse": "Veille-Basse",
         "cite-caravane": "Cité-caravane",
         "hospice-du-sillon": "Hospice du Sillon",
+        nacelles: "Nacelles",
         "hors-de-veille-basse": "Routes hors de Veille-Basse",
       },
       origine: "Camp des Digues",
@@ -335,6 +336,158 @@ export const PRESENTATIONS_PREMIUM = {
       libellePosition: "Location",
       libelleReleve: "Survey",
       libelleRevelation: "Essential revelation",
+    },
+  },
+  deversoir: {
+    fr: {
+      nomsDesLieux: {
+        "halte-du-puits-sec": "Maison des Filtres",
+        "haut-puits": "Haut-Puits",
+        "les-vanniers": "Les Vanniers",
+        "veille-basse": "Veille-Basse",
+        "hospice-du-sillon": "Hospice du Sillon",
+        nacelles: "Nacelles",
+        "relais-des-vannes": "Relais des Vannes",
+        "deversoir-noir": "Déversoir Noir",
+      },
+      lieuxTraverses: "Lieux traversés puis quittés : {lieux}.",
+      lieuxNonRejoints: "Lieux non rejoints : {lieux}.",
+      aucunLieu: "aucun",
+      etatDesColonies:
+        "Colonies : Haut-Puits est {hautPuitsStatut} ({hautPuitsDevenir}) ; Veille-Basse est {veilleBasseStatut}, son Hospice est {hospiceDevenir} et la destination de la Cohorte est {cohorteDestination}.",
+      occasions:
+        "Occasions encore ouvertes : relevé de la Ligne Zéro {ligneZero} ; transformation régionale {projet} ; archives de Veille-Basse {archives}.",
+      ligneZeroEmportee: "emporté vers la Trame de Fer",
+      ligneZeroNonEmportee: "non emporté",
+      projetNonRetenu: "non retenue",
+      projets: {
+        "decanteur-itinerant": "Décanteur itinérant",
+        "arche-des-deplaces": "Arche des déplacés",
+      },
+      statutsDeProjet: {
+        retenu: "retenue, encore inachevée",
+        scelle: "scellée dans le châssis",
+      },
+      statutsDeColonie: {
+        prospere: "prospère",
+        stable: "stable",
+        fragile: "fragile",
+        perdue: "perdue",
+      },
+      devenirsDeHautPuits: {
+        "negociation-ouverte": "négociation ouverte",
+        "partage-organise": "partage organisé",
+        "reserves-protegees": "réserves protégées",
+      },
+      devenirsDeHospice: {
+        ouvert: "ouvert",
+        "sous-charge": "sous charge",
+        renforce: "renforcé",
+      },
+      destinationsDeCohorte: {
+        "veille-basse": "Veille-Basse",
+        "cite-caravane": "Cité-caravane",
+        "hospice-du-sillon": "Hospice du Sillon",
+        "hors-de-veille-basse": "routes au-delà de Veille-Basse",
+      },
+      etatsDArchives: {
+        scellees: "restées scellées",
+        ouvertes: "désormais consultables",
+      },
+      nomDePlateforme: "Châssis régional des Bassins",
+      servicesDeProjet: {
+        "purification-mobile":
+          "Purification mobile des eaux troubles sur la route.",
+        "accueil-deplaces":
+          "Accueil étanche durable des déplacés et de leurs métiers.",
+      },
+      contraintesDeProjet: {
+        "entretien-hydraulique-dedie":
+          "Une équipe hydraulique reste affectée au châssis indivisible.",
+        "charge-habitable-permanente":
+          "La capacité habitable du châssis ne peut plus être réaffectée.",
+      },
+      devenirsDeSites: {
+        actif: "actif",
+        evacue: "évacué",
+        absorbe: "absorbé",
+        abandonne: "abandonné",
+      },
+    },
+    en: {
+      nomsDesLieux: {
+        "halte-du-puits-sec": "Filter House",
+        "haut-puits": "High Well",
+        "les-vanniers": "The Basketmakers",
+        "veille-basse": "Lower Watch",
+        "hospice-du-sillon": "Sillon Hospice",
+        nacelles: "Cableways",
+        "relais-des-vannes": "Sluice Relay",
+        "deversoir-noir": "Black Spillway",
+      },
+      lieuxTraverses: "Places crossed and left behind: {lieux}.",
+      lieuxNonRejoints: "Places not reached: {lieux}.",
+      aucunLieu: "none",
+      etatDesColonies:
+        "Colonies: High Well is {hautPuitsStatut} ({hautPuitsDevenir}); Lower Watch is {veilleBasseStatut}, its Hospice is {hospiceDevenir}, and the Cohort’s destination is {cohorteDestination}.",
+      occasions:
+        "Open opportunities: Zero Line survey {ligneZero}; regional transformation {projet}; Lower Watch archives {archives}.",
+      ligneZeroEmportee: "carried forward for the Iron Weave",
+      ligneZeroNonEmportee: "not carried forward",
+      projetNonRetenu: "not selected",
+      projets: {
+        "decanteur-itinerant": "Mobile settler",
+        "arche-des-deplaces": "Ark for the displaced",
+      },
+      statutsDeProjet: {
+        retenu: "selected, still unfinished",
+        scelle: "sealed into the chassis",
+      },
+      statutsDeColonie: {
+        prospere: "thriving",
+        stable: "stable",
+        fragile: "fragile",
+        perdue: "lost",
+      },
+      devenirsDeHautPuits: {
+        "negociation-ouverte": "negotiation open",
+        "partage-organise": "sharing organized",
+        "reserves-protegees": "reserves protected",
+      },
+      devenirsDeHospice: {
+        ouvert: "open",
+        "sous-charge": "under load",
+        renforce: "reinforced",
+      },
+      destinationsDeCohorte: {
+        "veille-basse": "Lower Watch",
+        "cite-caravane": "Caravan-city",
+        "hospice-du-sillon": "Sillon Hospice",
+        "hors-de-veille-basse": "roads beyond Lower Watch",
+      },
+      etatsDArchives: {
+        scellees: "left sealed",
+        ouvertes: "now available for consultation",
+      },
+      nomDePlateforme: "Basins regional chassis",
+      servicesDeProjet: {
+        "purification-mobile":
+          "Mobile purification of murky water along the road.",
+        "accueil-deplaces":
+          "Durable sealed shelter for displaced people and their trades.",
+      },
+      contraintesDeProjet: {
+        "entretien-hydraulique-dedie":
+          "One hydraulic team remains assigned to the indivisible chassis.",
+        "charge-habitable-permanente":
+          "The chassis’ living capacity can no longer be reassigned.",
+      },
+      devenirsDeSites: {
+        actif: "active",
+        evacue: "evacuated",
+        absorbe: "absorbed",
+        abandonne: "abandoned",
+      },
     },
   },
 } as const satisfies PresentationsPremium;

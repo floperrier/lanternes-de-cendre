@@ -1,10 +1,15 @@
 import type { Langue, TexteCompile } from "../content/types";
+import { trouverConseil } from "../content/catalogue";
 import type { EtatCampagne } from "../simulation/campagne";
 import {
   COMPAGNON_DE_REFERENCE,
+  IDENTIFIANT_DU_CONSEIL_DES_VANNES,
   PREMIER_CONSEIL,
   compagnonEstAffecte,
+  conseilDesVannesEstConvoque,
+  conseilDesVannesEstTermine,
   conseilEstTermine,
+  decisionDuConseilDesVannesEstDisponible,
   selectionnerVoixPertinentes,
   type CritereDePertinence,
 } from "../simulation/conseil";
@@ -148,13 +153,27 @@ export function projeterCompagnonEtConseil(
     },
   };
 
-  if (!estAffecte || conseilEstTermine(faits)) {
+  const conseilDesVannes = trouverConseil(
+    IDENTIFIANT_DU_CONSEIL_DES_VANNES,
+  );
+  const definitionDuConseil =
+    etat.routes.position === "deversoir-noir" &&
+    etat.narration.evenementActif === null &&
+    conseilDesVannes !== undefined &&
+    conseilDesVannesEstConvoque(faits) &&
+    !conseilDesVannesEstTermine(faits)
+      ? conseilDesVannes
+      : estAffecte && !conseilEstTermine(faits)
+        ? PREMIER_CONSEIL
+        : null;
+  if (definitionDuConseil === null) {
     return { compagnon, conseil: null };
   }
-
-  const sujets = PREMIER_CONSEIL.sujets.slice(0, 3).map((sujet) => {
+  const textesDuConseil = definitionDuConseil.textes[langue];
+  const libellesDuConseil = textesDuConseil.libelles;
+  const sujets = definitionDuConseil.sujets.slice(0, 3).map((sujet) => {
     const textesDuSujet = exiger(
-      textes.sujets[sujet.id],
+      textesDuConseil.sujets[sujet.id],
       `Textes absents pour le sujet « ${sujet.id} ».`,
     );
     const voix = selectionnerVoixPertinentes(
@@ -167,7 +186,9 @@ export function projeterCompagnonEtConseil(
           compagnonId: definitionDeVoix.compagnonId,
           criteres:
             definitionDeVoix.criteres as readonly CritereDePertinence[],
-          compagnon: lire(textesDuCompagnon.nom),
+          compagnon: lire(
+            textesDuConseil.compagnon.nom,
+          ),
           faitConnu: lire(textesDeLaVoix.faitConnu),
           source: {
             nom: lire(textesDeLaVoix.source),
@@ -190,32 +211,42 @@ export function projeterCompagnonEtConseil(
       id: sujet.id,
       titre: lire(textesDuSujet.titre),
       voix,
-      decisions: sujet.decisions.map((decision) => ({
-        id: decision.id,
-        libelle: lire(
-          exiger(
-            textesDuSujet.decisions[decision.id],
-            `Texte absent pour la décision « ${decision.id} ».`,
+      decisions: sujet.decisions
+        .filter(
+          (decision) =>
+            definitionDuConseil.id !==
+              IDENTIFIANT_DU_CONSEIL_DES_VANNES ||
+            decisionDuConseilDesVannesEstDisponible(
+              decision.id,
+              faits,
+            ),
+        )
+        .map((decision) => ({
+          id: decision.id,
+          libelle: lire(
+            exiger(
+              textesDuSujet.decisions[decision.id],
+              `Texte absent pour la décision « ${decision.id} ».`,
+            ),
           ),
-        ),
-        ouverteParAffectation: decision.ouverteParAffectation,
-      })),
+          ouverteParAffectation: decision.ouverteParAffectation,
+        })),
     };
   });
 
   return {
     compagnon,
     conseil: {
-      id: PREMIER_CONSEIL.id,
-      titre: lire(textes.titre),
+      id: definitionDuConseil.id,
+      titre: lire(textesDuConseil.titre),
       libelles: {
-        conseil: lire(libelles.conseil),
-        fait: lire(libelles.faitConnu),
-        source: lire(libelles.source),
-        recommandation: lire(libelles.recommandationMorale),
-        enjeu: lire(libelles.enjeuPersonnel),
-        decision: lire(libelles.decision),
-        reponseOuverte: lire(libelles.reponseOuverte),
+        conseil: lire(libellesDuConseil.conseil),
+        fait: lire(libellesDuConseil.faitConnu),
+        source: lire(libellesDuConseil.source),
+        recommandation: lire(libellesDuConseil.recommandationMorale),
+        enjeu: lire(libellesDuConseil.enjeuPersonnel),
+        decision: lire(libellesDuConseil.decision),
+        reponseOuverte: lire(libellesDuConseil.reponseOuverte),
       },
       sujets,
     },

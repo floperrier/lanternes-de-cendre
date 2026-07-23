@@ -28,6 +28,13 @@ export function EtatTextuel({ projection }: EtatTextuelProps) {
             plateformes
           </li>
           <li>Habitants — {projection.habitants}</li>
+          {projection.transformationRegionale === null ? null : (
+            <li>
+              Transformation régionale —{" "}
+              {projection.transformationRegionale.nom} (
+              {projection.transformationRegionale.statut})
+            </li>
+          )}
         </ul>
       </section>
     </aside>

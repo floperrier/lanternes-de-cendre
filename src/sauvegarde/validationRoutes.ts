@@ -108,6 +108,7 @@ function estEngagementAttendu(
   secondeMinimale: number,
   secondeCourante: number,
   coutsV7DesNacelles: boolean,
+  autoriserTopologieHistoriqueDesNacelles: boolean,
 ): valeur is EngagementDeRoute {
   const cles = [
     "id",
@@ -151,8 +152,16 @@ function estEngagementAttendu(
     return false;
   }
   const troncon = trouverTroncon(valeur.tronconId);
-  const destination =
-    troncon === undefined ? undefined : trouverDestination(troncon, position);
+  const destinationHistoriqueV7 =
+    autoriserTopologieHistoriqueDesNacelles &&
+    valeur.tronconId === "nacelles-de-veille-basse" &&
+    position === "veille-basse" &&
+    valeur.destination === "relais-des-vannes";
+  const destination = destinationHistoriqueV7
+    ? "relais-des-vannes"
+    : troncon === undefined
+      ? undefined
+      : trouverDestination(troncon, position);
   return (
     troncon !== undefined &&
     destination !== undefined &&
@@ -187,16 +196,23 @@ function estJalonAttendu(
 export function estEtatDesRoutes(
   valeur: unknown,
   secondeCourante: number,
+  autoriserTopologieHistoriqueSansMarqueur = false,
 ): valeur is EtatDesRoutes {
+  const clesAttendues = [
+    "position",
+    "etatsReels",
+    "renseignements",
+    "engagements",
+    "jalons",
+    ...(estObjet(valeur) && "topologieHistorique" in valeur
+      ? ["topologieHistorique" as const]
+      : []),
+  ] as const;
   if (
     !estObjet(valeur) ||
-    !memesCles(valeur, [
-      "position",
-      "etatsReels",
-      "renseignements",
-      "engagements",
-      "jalons",
-    ]) ||
+    !memesCles(valeur, clesAttendues) ||
+    (valeur.topologieHistorique !== undefined &&
+      valeur.topologieHistorique !== "nacelles-v7") ||
     !estObjet(valeur.etatsReels) ||
     !Array.isArray(valeur.renseignements) ||
     !Array.isArray(valeur.engagements) ||
@@ -208,6 +224,9 @@ export function estEtatDesRoutes(
   const initial = creerEtatDesRoutesInitial();
   const etatsReels = valeur.etatsReels;
   const coutsV7DesNacelles = "nacelles-de-veille-basse" in etatsReels;
+  const topologieHistoriqueEstAutorisee =
+    valeur.topologieHistorique === "nacelles-v7" ||
+    autoriserTopologieHistoriqueSansMarqueur;
   if (
     valeur.renseignements.length !== initial.renseignements.length ||
     !valeur.renseignements.every((renseignement, index) =>
@@ -220,11 +239,17 @@ export function estEtatDesRoutes(
   let position: IdentifiantDeLieu = initial.position;
   let prochaineSecondePossible = 0;
   let nombreDeJalons = 0;
+  let topologieHistoriqueEstUtilisee = false;
   const etatsAttendus: Partial<
     Record<IdentifiantDeTroncon, EtatReelDeRoute>
   > = { ...initial.etatsReels };
 
   for (const [index, candidat] of valeur.engagements.entries()) {
+    const candidatUtiliseLaTopologieHistorique =
+      estObjet(candidat) &&
+      candidat.tronconId === "nacelles-de-veille-basse" &&
+      position === "veille-basse" &&
+      candidat.destination === "relais-des-vannes";
     if (
       !estEngagementAttendu(
         candidat,
@@ -233,10 +258,12 @@ export function estEtatDesRoutes(
         prochaineSecondePossible,
         secondeCourante,
         coutsV7DesNacelles,
+        topologieHistoriqueEstAutorisee,
       )
     ) {
       return false;
     }
+    topologieHistoriqueEstUtilisee ||= candidatUtiliseLaTopologieHistorique;
     if (etatsAttendus[candidat.tronconId] === "coupe") {
       return false;
     }
@@ -280,6 +307,46 @@ export function estEtatDesRoutes(
     TRONCONS_DE_ROUTE.every(
       ({ id, etatInitial }) =>
         (etatsReels[id] ?? etatInitial) === etatsAttendus[id],
-    )
+    ) &&
+    (valeur.topologieHistorique === undefined ||
+      topologieHistoriqueEstUtilisee)
   );
+}
+
+const FAITS_OUVRANT_LA_CONDUITE_DU_DEVERSOIR = new Set([
+  "bassins.nacelles.conseil-passage-partage",
+  "bassins.nacelles.conseil-maintenance-commune",
+]);
+
+const FAITS_OUVRANT_LE_PASSAGE_REGIONAL = new Set([
+  "bassins.deversoir.passage-prepare",
+  "bassins.deversoir.passage-transmis",
+]);
+
+export function engagementsDuDeversoirSontCausaux(
+  routes: EtatDesRoutes,
+  faits: readonly { readonly id: string; readonly moment: number }[],
+): boolean {
+  return routes.engagements.every((engagement) => {
+    const faitsRequis =
+      engagement.tronconId === "conduite-du-deversoir"
+        ? FAITS_OUVRANT_LA_CONDUITE_DU_DEVERSOIR
+        : engagement.tronconId === "passage-de-la-ligne-zero" ||
+            engagement.tronconId === "piste-des-levees"
+          ? FAITS_OUVRANT_LE_PASSAGE_REGIONAL
+          : null;
+    return (
+      faitsRequis === null ||
+      (faits.some(
+          (fait) =>
+            faitsRequis.has(fait.id) && fait.moment <= engagement.engageA,
+        ) &&
+        (engagement.tronconId !== "passage-de-la-ligne-zero" ||
+          faits.some(
+            (fait) =>
+              fait.id === "bassins.deversoir.ligne-zero-relevee" &&
+              fait.moment <= engagement.engageA,
+          )))
+    );
+  });
 }

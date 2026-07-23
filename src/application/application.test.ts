@@ -22,6 +22,7 @@ describe("application de Campagne", () => {
       phare: "actif",
       formation: "grappe",
       nombreDePlateformes: 5,
+      transformationRegionale: null,
       evenementNarratif: null,
     });
   });

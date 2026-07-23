@@ -20,9 +20,19 @@ import {
 function sansRouteBasse(etat: EtatCampagne) {
   const {
     "nacelles-de-veille-basse": routeBasse,
+    "chemin-de-l-hospice": cheminDeLHospice,
+    "chenal-de-l-hospice": chenalDeLHospice,
+    "conduite-du-deversoir": routeDuDeversoir,
+    "passage-de-la-ligne-zero": passageRegional,
+    "piste-des-levees": pisteDesLevees,
     ...etatsReelsV6
   } = etat.routes.etatsReels;
   void routeBasse;
+  void cheminDeLHospice;
+  void chenalDeLHospice;
+  void routeDuDeversoir;
+  void passageRegional;
+  void pisteDesLevees;
   return {
     ...etat,
     version: VERSION_SIMULATION_AVANT_NACELLES,

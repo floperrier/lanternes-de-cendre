@@ -25,12 +25,16 @@ import {
 } from "./pilotage";
 import {
   creerInfrastructureInitiale,
+  ajouterPlateformeRegionale,
+  ajouterPlateformeRegionaleOrdinaire,
+  IDENTIFIANT_DE_PLATEFORME_REGIONALE,
   engagerChantier,
   faireProgresserChantier,
   IDENTIFIANTS_DE_PLATEFORME_INITIALE,
   secondesAvantFinDuChantier,
   type CommandeDInfrastructure,
   type EtatInfrastructure,
+  type IdentifiantDePlateformeMobile,
   type EvenementDInfrastructure,
 } from "./infrastructure";
 import {
@@ -101,12 +105,15 @@ import {
   calculerOffreDesNacelles,
   routeAvalDesBassinsEstPreparee,
 } from "./nacelles";
+import {
+  calculerDevenirsDesSitesDesBassins,
+  type DevenirsDesSitesDesBassins,
+} from "./sites";
 
 export type { GraineDeCampagne } from "./graine";
 export const IDENTIFIANTS_PLATEFORMES_MOBILES =
   IDENTIFIANTS_DE_PLATEFORME_INITIALE;
-export type IdentifiantPlateformeMobile =
-  (typeof IDENTIFIANTS_PLATEFORMES_MOBILES)[number];
+export type IdentifiantPlateformeMobile = IdentifiantDePlateformeMobile;
 export const VITESSES_DU_CONVOI = [0, 1, 2, 4] as const;
 export type VitesseDuConvoi = (typeof VITESSES_DU_CONVOI)[number];
 
@@ -138,6 +145,7 @@ export interface EtatCampagne {
     readonly evenementActif: string | null;
     readonly evenementsJoues: readonly string[];
     readonly faitsDeCampagne: readonly FaitDeCampagne[];
+    readonly causaliteHistorique?: "eau-haut-puits-a-veille-basse";
   };
   readonly pilotage: EtatPilotage;
   readonly infrastructure: EtatInfrastructure;
@@ -146,6 +154,7 @@ export interface EtatCampagne {
   readonly expeditions: EtatDesExpeditions;
   readonly veilleBasse: EtatDeVeilleBasse;
   readonly hautPuits: EtatDeHautPuits;
+  readonly devenirsDesSites: DevenirsDesSitesDesBassins | null;
   readonly echeances: readonly EcheanceDeCampagne[];
   readonly fluxPseudoAleatoires: Readonly<{
     "evenements-narratifs": FluxPseudoAleatoire;
@@ -251,6 +260,7 @@ export function creerCampagneInitiale(graine: GraineDeCampagne): EtatCampagne {
     expeditions: creerEtatDesExpeditionsInitial(),
     veilleBasse: creerEtatInitialDeVeilleBasse(),
     hautPuits: creerEtatDeHautPuitsInitial(),
+    devenirsDesSites: null,
     echeances: [],
     fluxPseudoAleatoires: {
       "evenements-narratifs": creerFluxPseudoAleatoire(
@@ -364,6 +374,12 @@ function declencherSuiteNarrativeDeLaDemonstration(
     trouverEngagementDeRouteActif(etat.routes) === undefined
   ) {
     return declencherEvenement(etat, "relais-des-nacelles");
+  }
+  if (
+    etat.routes.position === "deversoir-noir" &&
+    trouverEngagementDeRouteActif(etat.routes) === undefined
+  ) {
+    return declencherEvenement(etat, "deversoir-noir");
   }
   return etat.routes.position === "haut-puits" &&
     trouverEngagementDeRouteActif(etat.routes) === undefined
@@ -621,6 +637,21 @@ function choisirDansEvenement(
       `L’intention « ${commande.choixId} » est inconnue pour « ${commande.evenementId} ».`,
     );
   }
+  if (
+    evenement.id === "bassins.deversoir.le-chassis-des-bassins" &&
+    choix.id === "sceller-transformation"
+  ) {
+    if (etat.hautPuits.projetRegional?.statut !== "retenu") {
+      throw new Error(
+        "Aucune transformation régionale retenue ne peut être scellée.",
+      );
+    }
+    if (etat.pilotage.economie.stocks.materiaux.quantite < 12) {
+      throw new Error(
+        "Il faut 12 Matériaux pour sceller le châssis régional.",
+      );
+    }
+  }
 
   const etatApresDecisionDeVeilleBasse = (() => {
     if (evenement.id === "veille-basse.la-place-sous-le-phare") {
@@ -675,6 +706,49 @@ function choisirDansEvenement(
     choix.effets,
   );
   let etatApresDecision = etatApresEffets;
+  const scellerTransformation =
+    evenement.id === "bassins.deversoir.le-chassis-des-bassins" &&
+    choix.id === "sceller-transformation" &&
+    etatApresEffets.hautPuits.projetRegional !== null &&
+    etatApresEffets.hautPuits.projetRegional !== undefined;
+  const integrerPlateformeOrdinaire =
+    evenement.id === "bassins.deversoir.le-chassis-des-bassins" &&
+    choix.id === "conserver-gabarits";
+  if (scellerTransformation || integrerPlateformeOrdinaire) {
+    etatApresDecision = {
+      ...etatApresEffets,
+      citeCaravane: {
+        ...etatApresEffets.citeCaravane,
+        formation: {
+          ...etatApresEffets.citeCaravane.formation,
+          plateformes: [
+            ...etatApresEffets.citeCaravane.formation.plateformes,
+            IDENTIFIANT_DE_PLATEFORME_REGIONALE,
+          ],
+        },
+      },
+      infrastructure: scellerTransformation
+        ? ajouterPlateformeRegionale(
+            etatApresEffets.infrastructure,
+            etatApresEffets.hautPuits.projetRegional!.id,
+            etat.tempsDuConvoi.secondes,
+          )
+        : ajouterPlateformeRegionaleOrdinaire(
+            etatApresEffets.infrastructure,
+          ),
+      hautPuits: scellerTransformation
+        ? {
+            ...etatApresEffets.hautPuits,
+            projetRegional: {
+              ...etatApresEffets.hautPuits.projetRegional!,
+              statut: "scelle",
+              scelleA: etat.tempsDuConvoi.secondes,
+              coutMateriaux: 12,
+            },
+          }
+        : etatApresEffets.hautPuits,
+    };
+  }
   const evenementsDeHautPuits: readonly EvenementDeHautPuits[] =
     evenement.id === "bassins.haut-puits.pacte-des-citernes"
       ? (() => {
@@ -716,6 +790,20 @@ function choisirDansEvenement(
         })()
       : [];
   const effetsDeFait = decrireEffetsDeFait(choix.effets);
+  if (
+    evenement.id === "bassins.deversoir.le-passage-sans-retour"
+  ) {
+    etatApresDecision = {
+      ...etatApresDecision,
+      devenirsDesSites: calculerDevenirsDesSitesDesBassins({
+        routes: etatApresDecision.routes,
+        veilleBasse: etatApresDecision.veilleBasse,
+        faits: etatApresDecision.narration.faitsDeCampagne.map(
+          (fait) => fait.id,
+        ),
+      }),
+    };
+  }
   const faitsProduits = choix.faitsProduits.map((fait) => ({
     id: fait.id,
     cause: evenement.id,
@@ -729,6 +817,7 @@ function choisirDansEvenement(
     etat: {
       ...etatApresDecision,
       narration: {
+        ...etatApresDecision.narration,
         evenementActif: null,
         evenementsJoues: [...etat.narration.evenementsJoues, evenement.id],
         faitsDeCampagne: [...etat.narration.faitsDeCampagne, ...faitsProduits],
@@ -1160,11 +1249,57 @@ export function appliquerCommande(
   if (commande.type === "conseil.decider") {
     const transition = deciderAuConseil(
       etat.narration.faitsDeCampagne,
+      etat.routes.position,
       commande,
       etat.tempsDuConvoi.secondes,
     );
+    const etatAvecFait = enregistrerFaitsDeCampagne(etat, [
+      transition.faitProduit,
+    ]);
+    const etatApresDecisionRegionale =
+      commande.conseilId !== "conseil.des-vannes"
+        ? etatAvecFait
+        : commande.decisionId === "reparer-decanteur"
+            ? {
+                ...etatAvecFait,
+                hautPuits: {
+                  ...etatAvecFait.hautPuits,
+                  projetChoisi: "decanteur-itinerant" as const,
+                  projetRegional: {
+                    id: "decanteur-itinerant" as const,
+                    statut: "retenu" as const,
+                    retenuA: etat.tempsDuConvoi.secondes,
+                    scelleA: null,
+                    coutMateriaux: 0 as const,
+                  },
+                },
+              }
+            : commande.decisionId === "reorienter-cohorte"
+              ? {
+                  ...etatAvecFait,
+                  hautPuits: {
+                    ...etatAvecFait.hautPuits,
+                    projetChoisi: "arche-des-deplaces" as const,
+                    projetRegional: {
+                      id: "arche-des-deplaces" as const,
+                      statut: "retenu" as const,
+                      retenuA: etat.tempsDuConvoi.secondes,
+                      scelleA: null,
+                      coutMateriaux: 0 as const,
+                    },
+                  },
+                  veilleBasse: {
+                    ...etatAvecFait.veilleBasse,
+                    cohorte: {
+                      ...etatAvecFait.veilleBasse.cohorte,
+                      orientationRegionale:
+                        "arche-des-deplaces" as const,
+                    },
+                  },
+                }
+              : etatAvecFait;
     return {
-      etat: enregistrerFaitsDeCampagne(etat, [transition.faitProduit]),
+      etat: etatApresDecisionRegionale,
       evenements: [transition.evenement],
     };
   }

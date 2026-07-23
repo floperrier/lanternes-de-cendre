@@ -1,0 +1,15 @@
+{
+  "asset": "serveur-commercial/assets/deversoir-passage.webp",
+  "sha256": "34038892ac53eb9a5b22b9d41f3ba1787c29cda98097beb5dd2c175955df1aa4",
+  "createdAt": "2026-07-23",
+  "tool": "Codex built-in image_gen",
+  "model": "built-in model (identifier not exposed)",
+  "useCase": "illustration-story",
+  "input": "The repository Cité-Caravane illustration was supplied only as a visual world and style reference.",
+  "prompt": "Generate a wide narrative-game illustration of the irreversible Passage de région: the Cité-Caravane enters a buried Ligne Zéro corridor while the ash Front closes behind, with physical lantern tokens recalling High Well, Lower Watch, the cable gondolas and the black sluice. Match the supplied world reference. No readable text, typography, logos, watermark, weapons or UI.",
+  "rights": "OpenAI Terms of Use — output assigned to the user",
+  "approval": {
+    "status": "pending-pull-request-review",
+    "reviewer": null
+  }
+}

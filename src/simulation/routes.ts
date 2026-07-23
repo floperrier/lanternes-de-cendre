@@ -8,15 +8,23 @@ export type IdentifiantDeLieu =
   | "halte-du-puits-sec"
   | "haut-puits"
   | "veille-basse"
+  | "hospice-du-sillon"
   | "les-vanniers"
-  | "relais-des-vannes";
+  | "relais-des-vannes"
+  | "deversoir-noir"
+  | "lisiere-trame-de-fer";
 
 export type IdentifiantDeTroncon =
   | "digue-des-puits"
   | "chaussee-de-veille-basse"
   | "chemin-des-vanniers"
   | "chenal-des-vannes"
-  | "nacelles-de-veille-basse";
+  | "nacelles-de-veille-basse"
+  | "chemin-de-l-hospice"
+  | "chenal-de-l-hospice"
+  | "conduite-du-deversoir"
+  | "passage-de-la-ligne-zero"
+  | "piste-des-levees";
 
 export interface DefinitionDeLieu {
   readonly id: IdentifiantDeLieu;
@@ -25,6 +33,7 @@ export interface DefinitionDeLieu {
 
 export interface TronconDeRoute {
   readonly id: IdentifiantDeTroncon;
+  readonly nom?: { readonly fr: string; readonly en: string };
   readonly extremites: readonly [
     IdentifiantDeLieu,
     IdentifiantDeLieu,
@@ -84,6 +93,7 @@ export const TRONCONS_DE_ROUTE: TronconDeRoute[] = [
   {
     id: "digue-des-puits",
     extremites: ["halte-du-puits-sec", "haut-puits"],
+    originesAutorisees: ["halte-du-puits-sec"],
     dureeSecondes: 360,
     etatInitial: "praticable",
     consommationConnue: {
@@ -104,6 +114,7 @@ export const TRONCONS_DE_ROUTE: TronconDeRoute[] = [
   {
     id: "chaussee-de-veille-basse",
     extremites: ["halte-du-puits-sec", "veille-basse"],
+    originesAutorisees: ["halte-du-puits-sec"],
     dureeSecondes: 480,
     etatInitial: "degrade",
     consommationConnue: {
@@ -133,7 +144,8 @@ export interface RenseignementDeRoute {
     | "messagers-de-haut-puits"
     | "relais-des-pelerins"
     | "eclaireurs-de-haut-puits"
-    | "nacelliers-des-vannes";
+    | "nacelliers-des-vannes"
+    | "techniciens-du-deversoir";
   readonly releveA: number;
   readonly fiabilite: "confirme" | "ancien" | "rapporte";
   readonly etatAnnonce: Exclude<EtatReelDeRoute, "coupe">;
@@ -143,13 +155,15 @@ export interface RenseignementDeRoute {
     | "saumure"
     | "orniere"
     | "visibilite"
-    | "cables-fatigues";
+    | "cables-fatigues"
+    | "conduit-effondrable";
   readonly controlePolitique:
     | "puits-libres"
     | "pelerins-de-cendre"
     | "sans-controle-etabli"
     | "accord-des-bassins"
-    | "passage-conteste";
+    | "passage-conteste"
+    | "conseil-des-vannes";
   readonly libelles?: Readonly<
     Record<
       "fr" | "en",
@@ -188,6 +202,7 @@ export interface JalonDeRoute {
 
 export interface EtatDesRoutes {
   readonly position: IdentifiantDeLieu;
+  readonly topologieHistorique?: "nacelles-v7";
   readonly etatsReels: Readonly<
     Partial<Record<IdentifiantDeTroncon, EtatReelDeRoute>>
   >;
@@ -272,8 +287,11 @@ const IDENTIFIANTS_DE_LIEUX = new Set<IdentifiantDeLieu>([
   "halte-du-puits-sec",
   "haut-puits",
   "veille-basse",
+  "hospice-du-sillon",
   "les-vanniers",
   "relais-des-vannes",
+  "deversoir-noir",
+  "lisiere-trame-de-fer",
 ]);
 const IDENTIFIANTS_DE_TRONCONS = new Set<IdentifiantDeTroncon>([
   "digue-des-puits",
@@ -281,6 +299,11 @@ const IDENTIFIANTS_DE_TRONCONS = new Set<IdentifiantDeTroncon>([
   "chemin-des-vanniers",
   "chenal-des-vannes",
   "nacelles-de-veille-basse",
+  "chemin-de-l-hospice",
+  "chenal-de-l-hospice",
+  "conduite-du-deversoir",
+  "passage-de-la-ligne-zero",
+  "piste-des-levees",
 ]);
 
 export function installerContenuPremiumDesRoutes(

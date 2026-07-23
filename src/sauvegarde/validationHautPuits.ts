@@ -72,7 +72,34 @@ export function estEtatDeHautPuits(
     valeur.projetsTransformationDisponibles[0] !==
       "decanteur-itinerant" ||
     valeur.projetsTransformationDisponibles[1] !== "arche-des-deplaces" ||
-    valeur.projetChoisi !== null
+    ![
+      null,
+      "decanteur-itinerant",
+      "arche-des-deplaces",
+    ].includes(valeur.projetChoisi as string | null)
+  ) {
+    return false;
+  }
+  const projetRegional = valeur.projetRegional;
+  if (
+    projetRegional !== undefined &&
+    projetRegional !== null &&
+    (!estObjet(projetRegional) ||
+      !["decanteur-itinerant", "arche-des-deplaces"].includes(
+        String(projetRegional.id),
+      ) ||
+      !["retenu", "scelle"].includes(String(projetRegional.statut)) ||
+      !Number.isInteger(projetRegional.retenuA) ||
+      Number(projetRegional.retenuA) < 0 ||
+      Number(projetRegional.retenuA) > secondeCourante ||
+      (projetRegional.statut === "retenu"
+        ? projetRegional.scelleA !== null ||
+          projetRegional.coutMateriaux !== 0
+        : !Number.isInteger(projetRegional.scelleA) ||
+          Number(projetRegional.scelleA) <
+            Number(projetRegional.retenuA) ||
+          Number(projetRegional.scelleA) > secondeCourante ||
+          projetRegional.coutMateriaux !== 12))
   ) {
     return false;
   }
@@ -205,16 +232,61 @@ export function activitesDeHautPuitsSontCausales(
       fait.id === "bassins.haut-puits.pacte-partage" ||
       fait.id === "bassins.haut-puits.pacte-autonomie",
   );
-  if (hautPuits.colonie.devenir === "negociation-ouverte") {
-    return faitsDuPacte.length === 0;
-  }
-  const faitAttendu =
-    hautPuits.colonie.devenir === "partage-organise"
-      ? "bassins.haut-puits.pacte-partage"
-      : "bassins.haut-puits.pacte-autonomie";
-  return (
-    faitsDuPacte.length === 1 &&
-    faitsDuPacte[0]?.id === faitAttendu &&
-    faitsDuPacte[0].moment === hautPuits.decisionPriseA
+  const negociationEstCausale =
+    hautPuits.colonie.devenir === "negociation-ouverte"
+      ? faitsDuPacte.length === 0
+      : (() => {
+          const faitAttendu =
+            hautPuits.colonie.devenir === "partage-organise"
+              ? "bassins.haut-puits.pacte-partage"
+              : "bassins.haut-puits.pacte-autonomie";
+          return (
+            faitsDuPacte.length === 1 &&
+            faitsDuPacte[0]?.id === faitAttendu &&
+            faitsDuPacte[0].moment === hautPuits.decisionPriseA
+          );
+        })();
+  const faitsDeProjet = faits.filter(
+    (fait) =>
+      fait.id === "bassins.conseil.decanteur-repare" ||
+      fait.id === "bassins.conseil.cohorte-reorientee",
   );
+  const faitsDeScellement = faits.filter(
+    (fait) => fait.id === "bassins.deversoir.transformation-scellee",
+  );
+  const projetRegional = hautPuits.projetRegional;
+  const projetEstCausal = (() => {
+    if (hautPuits.projetChoisi === null) {
+      return (
+        faitsDeProjet.length === 0 &&
+        faitsDeScellement.length === 0 &&
+        (projetRegional === undefined || projetRegional === null)
+      );
+    }
+    const faitDeSelection = faitsDeProjet[0];
+    const faitDeSelectionAttendu =
+      hautPuits.projetChoisi === "decanteur-itinerant"
+        ? "bassins.conseil.decanteur-repare"
+        : "bassins.conseil.cohorte-reorientee";
+    if (
+      faitsDeProjet.length !== 1 ||
+      faitDeSelection?.id !== faitDeSelectionAttendu ||
+      projetRegional === undefined ||
+      projetRegional === null ||
+      projetRegional.id !== hautPuits.projetChoisi ||
+      projetRegional.retenuA !== faitDeSelection.moment
+    ) {
+      return false;
+    }
+    if (projetRegional.statut === "retenu") {
+      return faitsDeScellement.length === 0;
+    }
+    return (
+      faitsDeScellement.length === 1 &&
+      faitsDeScellement[0]?.moment === projetRegional.scelleA &&
+      faitsDeScellement[0].moment >= faitDeSelection.moment &&
+      projetRegional.coutMateriaux === 12
+    );
+  })();
+  return negociationEstCausale && projetEstCausal;
 }

@@ -146,7 +146,7 @@ describe("validation de Haut-Puits", () => {
       estEtatDeHautPuits(
         {
           ...initial,
-          projetChoisi: "decanteur-itinerant",
+          projetChoisi: "solution-finale",
         },
         0,
       ),

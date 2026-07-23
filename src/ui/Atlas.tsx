@@ -39,7 +39,7 @@ function TronconDansAtlas({
     <article className="atlas__troncon">
       <header>
         <div>
-          <h3>{troncon.destination}</h3>
+          <h3>{troncon.libelle}</h3>
           <p>{troncon.connexion}</p>
         </div>
         <p>{troncon.duree}</p>
@@ -50,9 +50,9 @@ function TronconDansAtlas({
         <button
           type="button"
           onClick={(evenement) => etudier(troncon, evenement.currentTarget)}
-          aria-label={`${projection.actionEtudier} ${troncon.destination}`}
+          aria-label={`${projection.actionEtudier} ${troncon.libelle}`}
         >
-          {projection.actionEtudier} {troncon.destination}
+          {projection.actionEtudier} {troncon.libelle}
         </button>
       ) : null}
 
@@ -226,9 +226,9 @@ export function Atlas({ application, projection, expedition, langue }: AtlasProp
               onClick={(evenement) =>
                 etudier(troncon, evenement.currentTarget)
               }
-              aria-label={`${projection.actionEtudier} ${troncon.destination}`}
+              aria-label={`${projection.actionEtudier} ${troncon.libelle}`}
             >
-              {projection.actionEtudier} {troncon.destination}
+              {projection.actionEtudier} {troncon.libelle}
             </button>
           ))}
       </div>

@@ -5,7 +5,10 @@ import {
   creerEtatDesRoutesInitial,
   traiterJalonsDeRoute,
 } from "../simulation/routes";
-import { estEtatDesRoutes } from "./validationRoutes";
+import {
+  engagementsDuDeversoirSontCausaux,
+  estEtatDesRoutes,
+} from "./validationRoutes";
 
 describe("validation persistante des routes", () => {
   it("accepte les états initiaux, engagés et arrivés produits par la simulation", () => {
@@ -161,5 +164,159 @@ describe("validation persistante des routes", () => {
         780,
       ),
     ).toBe(false);
+  });
+
+  it("circonscrit l’ancienne liaison Veille-Basse–Relais à sa provenance V7", () => {
+    const initial = creerEtatDesRoutesInitial();
+    const versVeilleBasse = confirmerEngagementDeRoute(
+      initial,
+      "chaussee-de-veille-basse",
+      0,
+    ).etat;
+    const aVeilleBasse = traiterJalonsDeRoute(
+      versVeilleBasse,
+      0,
+      480,
+    ).etat;
+    const engagementHistorique = {
+      id: "engagement-2",
+      tronconId: "nacelles-de-veille-basse",
+      origine: "veille-basse",
+      destination: "relais-des-vannes",
+      engageA: 480,
+      arriveeA: 840,
+      statut: "termine",
+      consommationsAppliquees: { combustible: 6, eau: 8 },
+    } as const;
+    const etatHistorique = {
+      ...aVeilleBasse,
+      position: "relais-des-vannes" as const,
+      etatsReels: {
+        ...aVeilleBasse.etatsReels,
+        "nacelles-de-veille-basse": "coupe" as const,
+      },
+      engagements: [...aVeilleBasse.engagements, engagementHistorique],
+      jalons: [
+        ...aVeilleBasse.jalons,
+        {
+          id: "jalon-route-2",
+          type: "fin-de-troncon",
+          moment: 840,
+          tronconId: "nacelles-de-veille-basse",
+          cause: "front-de-cendre.condamnation-arriere",
+        } as const,
+      ],
+    };
+
+    expect(estEtatDesRoutes(etatHistorique, 840)).toBe(false);
+    expect(estEtatDesRoutes(etatHistorique, 840, true)).toBe(true);
+    expect(
+      estEtatDesRoutes(
+        { ...etatHistorique, topologieHistorique: "nacelles-v7" },
+        840,
+      ),
+    ).toBe(true);
+    expect(
+      estEtatDesRoutes(
+        { ...initial, topologieHistorique: "nacelles-v7" },
+        0,
+      ),
+    ).toBe(false);
+  });
+
+  it("refuse les gates du Déversoir franchies avant leurs faits publics", () => {
+    const initial = creerEtatDesRoutesInitial();
+    const auRelais = {
+      ...initial,
+      position: "relais-des-vannes" as const,
+    };
+    const conduite = confirmerEngagementDeRoute(
+      auRelais,
+      "conduite-du-deversoir",
+      100,
+    ).etat;
+
+    expect(engagementsDuDeversoirSontCausaux(conduite, [])).toBe(false);
+    expect(
+      engagementsDuDeversoirSontCausaux(conduite, [
+        {
+          id: "bassins.nacelles.conseil-passage-partage",
+          moment: 101,
+        },
+      ]),
+    ).toBe(false);
+    expect(
+      engagementsDuDeversoirSontCausaux(conduite, [
+        {
+          id: "bassins.nacelles.conseil-passage-partage",
+          moment: 100,
+        },
+      ]),
+    ).toBe(true);
+
+    const auDeversoir = traiterJalonsDeRoute(
+      conduite,
+      100,
+      460,
+    ).etat;
+    const passage = confirmerEngagementDeRoute(
+      auDeversoir,
+      "piste-des-levees",
+      460,
+    ).etat;
+    expect(
+      engagementsDuDeversoirSontCausaux(passage, [
+        {
+          id: "bassins.nacelles.conseil-passage-partage",
+          moment: 100,
+        },
+      ]),
+    ).toBe(false);
+    expect(
+      engagementsDuDeversoirSontCausaux(passage, [
+        {
+          id: "bassins.nacelles.conseil-passage-partage",
+          moment: 100,
+        },
+        {
+          id: "bassins.deversoir.passage-transmis",
+          moment: 460,
+        },
+      ]),
+    ).toBe(true);
+
+    const passageParLaLigneZero = confirmerEngagementDeRoute(
+      auDeversoir,
+      "passage-de-la-ligne-zero",
+      460,
+    ).etat;
+    const faitsDePassage = [
+      {
+        id: "bassins.nacelles.conseil-passage-partage",
+        moment: 100,
+      },
+      {
+        id: "bassins.deversoir.passage-prepare",
+        moment: 460,
+      },
+    ];
+    expect(
+      engagementsDuDeversoirSontCausaux(passageParLaLigneZero, [
+        ...faitsDePassage,
+        {
+          id: "bassins.deversoir.ligne-zero-preservee",
+          moment: 460,
+        },
+      ]),
+    ).toBe(false);
+    expect(
+      engagementsDuDeversoirSontCausaux(passageParLaLigneZero, [
+        ...faitsDePassage,
+        {
+          id: "bassins.deversoir.ligne-zero-relevee",
+          moment: 460,
+        },
+      ]),
+    ).toBe(true);
   });
 });

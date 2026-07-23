@@ -33,6 +33,7 @@ import {
   EVENEMENTS_HISTORIQUES_V6,
   TRONCONS_HISTORIQUES_V6,
 } from "./catalogueHistoriqueV6";
+import { EVENEMENTS_HISTORIQUES_V7 } from "./catalogueHistoriqueV7";
 import { creerSauvegarde } from "./snapshot";
 import type {
   CommandeDeReproduction,
@@ -41,6 +42,7 @@ import type {
 } from "./types";
 import {
   VERSION_SIMULATION_AVANT_CRISES,
+  VERSION_SIMULATION_AVANT_DEVERSOIR,
   VERSION_SIMULATION_AVANT_HAUT_PUITS,
   VERSION_SIMULATION_AVANT_NACELLES,
   VERSION_SIMULATION_AVANT_VEILLE_BASSE,
@@ -52,6 +54,7 @@ import {
   VERSION_CONTENU_COURANTE,
   VERSION_SAUVEGARDE_AVANT_ROUTES,
   VERSION_SAUVEGARDE_AVANT_CRISES,
+  VERSION_SAUVEGARDE_AVANT_DEVERSOIR,
   VERSION_SAUVEGARDE_AVANT_HAUT_PUITS,
   VERSION_SAUVEGARDE_AVANT_NACELLES,
   VERSION_SAUVEGARDE_AVANT_VEILLE_BASSE,
@@ -65,6 +68,7 @@ import {
   estCommande,
   estCommandeV5,
   estCommandeV6,
+  estCommandeV7,
   estCommandeV2,
   estCommandeV1,
   estObjet,
@@ -77,9 +81,12 @@ import {
   lireEtatV4,
   lireEtatV5,
   lireEtatV6,
+  lireEtatV7,
   lireSnapshotV4,
   lireSnapshotV5,
   lireSnapshotV6,
+  lireSnapshotV7,
+  marquerCausaliteHistoriqueDeNarrationSiNecessaire,
   projeterEtatAvantRoutesHistorique,
   type EtatCampagneAvantCrises,
   type EtatCampagneAvantRoutes,
@@ -88,6 +95,7 @@ import {
   type EtatCampagneV4,
   type EtatCampagneV5,
   type EtatCampagneV6,
+  type EtatCampagneV7,
   type ObjetInconnu,
 } from "./validation";
 
@@ -222,6 +230,7 @@ function migrerEtatV1(etat: EtatCampagneV1): EtatCampagne {
     expeditions: creerEtatDesExpeditionsInitial(),
     veilleBasse: creerEtatInitialDeVeilleBasse(),
     hautPuits: creerEtatDeHautPuitsInitial(),
+    devenirsDesSites: null,
     citeCaravane: {
       ...etat.citeCaravane,
       formation: {
@@ -267,6 +276,7 @@ function migrerEtatV2(
     expeditions: creerEtatDesExpeditionsInitial(),
     veilleBasse: creerEtatInitialDeVeilleBasse(),
     hautPuits: creerEtatDeHautPuitsInitial(),
+    devenirsDesSites: null,
   };
 }
 
@@ -317,6 +327,7 @@ function migrerEtatAvantRoutes(
     expeditions: creerEtatDesExpeditionsInitial(),
     veilleBasse: creerEtatInitialDeVeilleBasse(),
     hautPuits: creerEtatDeHautPuitsInitial(),
+    devenirsDesSites: null,
   };
 }
 
@@ -334,6 +345,7 @@ function migrerEtatAvantCrises(
     expeditions: creerEtatDesExpeditionsInitial(),
     veilleBasse: creerEtatInitialDeVeilleBasse(),
     hautPuits: creerEtatDeHautPuitsInitial(),
+    devenirsDesSites: null,
   };
 }
 
@@ -473,12 +485,13 @@ export function migrerSauvegardeV1(
 export function promouvoirEtatV4VersCourant(
   etat: EtatCampagneV4,
 ): EtatCampagne {
-  return {
+  return marquerCausaliteHistoriqueDeNarrationSiNecessaire({
     ...etat,
     version: VERSION_SIMULATION_COURANTE,
     veilleBasse: creerEtatInitialDeVeilleBasse(),
     hautPuits: creerEtatDeHautPuitsInitial(),
-  };
+    devenirsDesSites: null,
+  });
 }
 
 export function promouvoirEtatV6VersCourant(
@@ -487,9 +500,10 @@ export function promouvoirEtatV6VersCourant(
   const aDejaEmprunteLesNacelles = etat.routes.engagements.some(
     (engagement) => engagement.tronconId === "chenal-des-vannes",
   );
-  return {
+  return marquerCausaliteHistoriqueDeNarrationSiNecessaire({
     ...etat,
     version: VERSION_SIMULATION_COURANTE,
+    devenirsDesSites: null,
     routes: aDejaEmprunteLesNacelles
       ? etat.routes
       : {
@@ -499,29 +513,43 @@ export function promouvoirEtatV6VersCourant(
             "nacelles-de-veille-basse": "degrade",
           },
         },
-  };
+  });
 }
 
 function promouvoirEtatV6PourReplay(
   etat: EtatCampagneV6,
 ): EtatCampagne {
-  return {
+  return marquerCausaliteHistoriqueDeNarrationSiNecessaire({
     ...etat,
     version: VERSION_SIMULATION_COURANTE,
-  };
+    devenirsDesSites: null,
+  });
 }
 
 function normaliserEtatCourantEnV6(
   etat: EtatCampagne,
 ): EtatCampagneV6 {
+  const { causaliteHistorique, ...narrationV6 } = etat.narration;
+  void causaliteHistorique;
   const {
     "nacelles-de-veille-basse": routeAjoutee,
+    "chemin-de-l-hospice": cheminDeLHospice,
+    "chenal-de-l-hospice": chenalDeLHospice,
+    "conduite-du-deversoir": routeDuDeversoir,
+    "passage-de-la-ligne-zero": passageRegional,
+    "piste-des-levees": pisteDesLevees,
     ...etatsReelsV6
   } = etat.routes.etatsReels;
   void routeAjoutee;
+  void cheminDeLHospice;
+  void chenalDeLHospice;
+  void routeDuDeversoir;
+  void passageRegional;
+  void pisteDesLevees;
   return {
     ...etat,
     version: VERSION_SIMULATION_AVANT_NACELLES,
+    narration: narrationV6,
     routes: {
       ...etat.routes,
       etatsReels: etatsReelsV6,
@@ -538,16 +566,18 @@ function appliquerCommandeSelonCatalogueAvantNacelles(
     coutsDesNacelles: "historiques-v6",
   }).etat;
   const nouvelEvenement = applique.narration.evenementActif;
-  return evenementActifAvant === null &&
-    nouvelEvenement?.startsWith("bassins.nacelles.") === true
-    ? {
-        ...applique,
-        narration: {
-          ...applique.narration,
-          evenementActif: null,
-        },
-      }
-    : applique;
+  return marquerCausaliteHistoriqueDeNarrationSiNecessaire(
+    evenementActifAvant === null &&
+      nouvelEvenement?.startsWith("bassins.nacelles.") === true
+      ? {
+          ...applique,
+          narration: {
+            ...applique.narration,
+            evenementActif: null,
+          },
+        }
+      : applique,
+  );
 }
 
 function migrerSauvegardeV6AvecCatalogueHistorique(
@@ -659,26 +689,242 @@ export function migrerSauvegardeV6(
   );
 }
 
+function promouvoirEtatV7PourReplay(
+  etat: EtatCampagneV7,
+): EtatCampagne {
+  const topologieHistoriqueEstUtilisee = etat.routes.engagements.some(
+    (engagement) =>
+      engagement.tronconId === "nacelles-de-veille-basse" &&
+      engagement.origine === "veille-basse" &&
+      engagement.destination === "relais-des-vannes",
+  );
+  return marquerCausaliteHistoriqueDeNarrationSiNecessaire({
+    ...etat,
+    version: VERSION_SIMULATION_COURANTE,
+    hautPuits: {
+      ...etat.hautPuits,
+      projetRegional: null,
+    },
+    routes: {
+      ...etat.routes,
+      ...(topologieHistoriqueEstUtilisee
+        ? { topologieHistorique: "nacelles-v7" as const }
+        : {}),
+    },
+    devenirsDesSites: null,
+  });
+}
+
+export function promouvoirEtatV7VersCourant(
+  etat: EtatCampagneV7,
+): EtatCampagne {
+  const routesInitiales = creerEtatDesRoutesInitial();
+  const etatPromu = promouvoirEtatV7PourReplay(etat);
+  return {
+    ...etatPromu,
+    routes: {
+      ...etatPromu.routes,
+      etatsReels: {
+        ...routesInitiales.etatsReels,
+        ...etatPromu.routes.etatsReels,
+      },
+    },
+  };
+}
+
+function normaliserEtatCourantEnV7(
+  etat: EtatCampagne,
+): EtatCampagneV7 {
+  const { devenirsDesSites, ...sansDevenirs } = etat;
+  void devenirsDesSites;
+  const { causaliteHistorique, ...narrationV7 } = sansDevenirs.narration;
+  void causaliteHistorique;
+  const { projetRegional, ...hautPuitsV7 } = sansDevenirs.hautPuits;
+  void projetRegional;
+  const {
+    orientationRegionale,
+    ...cohorteV7
+  } = sansDevenirs.veilleBasse.cohorte;
+  void orientationRegionale;
+  const {
+    "chemin-de-l-hospice": cheminDeLHospice,
+    "chenal-de-l-hospice": chenalDeLHospice,
+    "conduite-du-deversoir": conduiteDuDeversoir,
+    "passage-de-la-ligne-zero": passageDeLaLigneZero,
+    "piste-des-levees": pisteDesLevees,
+    ...etatsReelsV7
+  } = sansDevenirs.routes.etatsReels;
+  void cheminDeLHospice;
+  void chenalDeLHospice;
+  void conduiteDuDeversoir;
+  void passageDeLaLigneZero;
+  void pisteDesLevees;
+  const { topologieHistorique, ...routesV7 } = sansDevenirs.routes;
+  void topologieHistorique;
+  return {
+    ...sansDevenirs,
+    version: VERSION_SIMULATION_AVANT_DEVERSOIR,
+    narration: narrationV7,
+    hautPuits: hautPuitsV7,
+    veilleBasse: {
+      ...sansDevenirs.veilleBasse,
+      cohorte: cohorteV7,
+    },
+    routes: {
+      ...routesV7,
+      etatsReels: etatsReelsV7,
+    },
+  };
+}
+
+function migrerSauvegardeV7AvecCatalogueHistorique(
+  valeur: ObjetInconnu,
+): SauvegardeCampagne | undefined {
+  if (
+    valeur.format !== FORMAT_SAUVEGARDE ||
+    typeof valeur.id !== "string" ||
+    valeur.version !== VERSION_SAUVEGARDE_AVANT_DEVERSOIR ||
+    !estObjet(valeur.versions) ||
+    valeur.versions.simulation !== VERSION_SIMULATION_AVANT_DEVERSOIR ||
+    valeur.versions.contenu !== VERSIONS_DU_SNAPSHOT_COURANT.contenu ||
+    valeur.versions.aleatoire !== VERSIONS_DU_SNAPSHOT_COURANT.aleatoire ||
+    valeur.versions.empreinte !== VERSIONS_DU_SNAPSHOT_COURANT.empreinte ||
+    typeof valeur.graine !== "string" ||
+    !estObjet(valeur.horloge) ||
+    typeof valeur.horloge.secondes !== "number" ||
+    !Number.isFinite(valeur.horloge.secondes) ||
+    !estObjet(valeur.reproduction) ||
+    !Array.isArray(valeur.reproduction.commandes) ||
+    typeof valeur.reproduction.empreinteSnapshot !== "string" ||
+    !EMPREINTE.test(valeur.reproduction.empreinteSnapshot) ||
+    typeof valeur.empreinte !== "string" ||
+    !EMPREINTE.test(valeur.empreinte)
+  ) {
+    return undefined;
+  }
+
+  const snapshotV7 = lireSnapshotV7(valeur.reproduction.snapshot);
+  const etatDeclareV7 = lireEtatV7(valeur.etat);
+  if (
+    snapshotV7 === undefined ||
+    etatDeclareV7 === undefined ||
+    valeur.graine !== etatDeclareV7.graine ||
+    valeur.horloge.secondes !== etatDeclareV7.tempsDuConvoi.secondes ||
+    empreinteEtat(snapshotV7 as unknown as EtatCampagne) !==
+      valeur.reproduction.empreinteSnapshot ||
+    empreinteEtat(etatDeclareV7 as unknown as EtatCampagne) !== valeur.empreinte
+  ) {
+    return undefined;
+  }
+
+  let etat = promouvoirEtatV7PourReplay(snapshotV7);
+  try {
+    for (const [index, entree] of valeur.reproduction.commandes.entries()) {
+      if (
+        !estObjet(entree) ||
+        entree.sequence !== index ||
+        !estCommandeV7(entree.commande) ||
+        typeof entree.empreinteApres !== "string" ||
+        !EMPREINTE.test(entree.empreinteApres)
+      ) {
+        return undefined;
+      }
+      etat = appliquerCommande(etat, entree.commande).etat;
+      if (
+        empreinteEtat(
+          normaliserEtatCourantEnV7(etat) as unknown as EtatCampagne,
+        ) !== entree.empreinteApres
+      ) {
+        return undefined;
+      }
+    }
+  } catch {
+    return undefined;
+  }
+
+  if (
+    !sontStructurellementEgaux(
+      normaliserEtatCourantEnV7(etat),
+      etatDeclareV7,
+    )
+  ) {
+    return undefined;
+  }
+
+  const etatCourant = promouvoirEtatV7VersCourant(etatDeclareV7);
+  if (
+    lireSnapshotCourant(etatCourant) === undefined ||
+    lireEtatCourant(etatCourant) === undefined
+  ) {
+    return undefined;
+  }
+  const reproduction: ReproductionDeCampagne = {
+    snapshot: etatCourant,
+    empreinteSnapshot: empreinteEtat(etatCourant),
+    commandes: [],
+  };
+  const sauvegarde = creerSauvegarde(etatCourant, reproduction);
+  return {
+    ...sauvegarde,
+    id: `${valeur.id}-v${VERSION_SAUVEGARDE_COURANTE}-${sauvegarde.empreinte}`,
+  };
+}
+
+export function migrerSauvegardeV7(
+  valeur: ObjetInconnu,
+): SauvegardeCampagne | undefined {
+  const evenementsDuDeversoirNeutralises =
+    catalogueDEvenements.evenements
+      .filter((evenement) => evenement.id.startsWith("bassins.deversoir."))
+      .map((evenement) => ({
+        ...evenement,
+        conditions: {
+          requises: [
+            {
+              type: "fait-present" as const,
+              fait: "migration.v7.deversoir-indisponible",
+            },
+          ],
+          interdites: [],
+        },
+      }));
+  return executerAvecTronconsTemporaires(
+    TRONCONS_HISTORIQUES_V6,
+    () =>
+      executerAvecEvenementsStructurelsTemporaires(
+        [
+          ...EVENEMENTS_HISTORIQUES_V7,
+          ...evenementsDuDeversoirNeutralises,
+        ],
+        () => migrerSauvegardeV7AvecCatalogueHistorique(valeur),
+      ),
+  );
+}
+
 function normaliserEtatCourantEnV4(
   etat: EtatCampagne,
 ): EtatCampagneV4 {
   const { veilleBasse, hautPuits, ...etatV4 } = etat;
   void veilleBasse;
   void hautPuits;
+  const { causaliteHistorique, ...narrationV4 } = etatV4.narration;
+  void causaliteHistorique;
   return {
     ...etatV4,
     version: VERSION_SIMULATION_AVANT_VEILLE_BASSE,
+    narration: narrationV4,
   };
 }
 
 export function promouvoirEtatV5VersCourant(
   etat: EtatCampagneV5,
 ): EtatCampagne {
-  return {
+  return marquerCausaliteHistoriqueDeNarrationSiNecessaire({
     ...etat,
     version: VERSION_SIMULATION_COURANTE,
     hautPuits: creerEtatDeHautPuitsInitial(),
-  };
+    devenirsDesSites: null,
+  });
 }
 
 function normaliserEtatCourantEnV5(
@@ -686,9 +932,12 @@ function normaliserEtatCourantEnV5(
 ): EtatCampagneV5 {
   const { hautPuits, ...etatV5 } = etat;
   void hautPuits;
+  const { causaliteHistorique, ...narrationV5 } = etatV5.narration;
+  void causaliteHistorique;
   return {
     ...etatV5,
     version: VERSION_SIMULATION_AVANT_HAUT_PUITS,
+    narration: narrationV5,
   };
 }
 
@@ -699,17 +948,19 @@ function appliquerCommandeSelonCatalogueAvantHautPuits(
   const evenementActifAvant = etat.narration.evenementActif;
   const applique = appliquerCommande(etat, commande).etat;
   const nouvelEvenement = applique.narration.evenementActif;
-  return evenementActifAvant === null &&
-    commande.type === "temps-du-convoi.ecouler" &&
-    nouvelEvenement?.startsWith("bassins.haut-puits.") === true
-    ? {
-        ...applique,
-        narration: {
-          ...applique.narration,
-          evenementActif: null,
-        },
-      }
-    : applique;
+  return marquerCausaliteHistoriqueDeNarrationSiNecessaire(
+    evenementActifAvant === null &&
+      commande.type === "temps-du-convoi.ecouler" &&
+      nouvelEvenement?.startsWith("bassins.haut-puits.") === true
+      ? {
+          ...applique,
+          narration: {
+            ...applique.narration,
+            evenementActif: null,
+          },
+        }
+      : applique,
+  );
 }
 
 function migrerSauvegardeV5AvecCatalogueHistorique(
@@ -848,7 +1099,7 @@ function appliquerCommandeSelonCatalogueAvantVeilleBasse(
     (doitRetablirAncienConflit ||
       nouvelEvenement?.startsWith("veille-basse.") === true)
   ) {
-    return {
+    return marquerCausaliteHistoriqueDeNarrationSiNecessaire({
       ...applique,
       narration: {
         ...applique.narration,
@@ -856,9 +1107,9 @@ function appliquerCommandeSelonCatalogueAvantVeilleBasse(
           ? "bassins-fendus.eau-de-haut-puits"
           : null,
       },
-    };
+    });
   }
-  return applique;
+  return marquerCausaliteHistoriqueDeNarrationSiNecessaire(applique);
 }
 
 function creerReproductionMigree(

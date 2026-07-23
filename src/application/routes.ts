@@ -26,6 +26,7 @@ export interface RenseignementDeRouteProjete {
 
 export interface TronconProjete {
   readonly id: IdentifiantDeTroncon;
+  readonly libelle: string;
   readonly destination: string;
   readonly connexion: string;
   readonly duree: string;
@@ -277,9 +278,19 @@ export function projeterAtlas(
     veilleBasse: etat.veilleBasse,
     faits: etat.narration.faitsDeCampagne.map((fait) => fait.id),
   });
+  const ligneZeroAEtRelevee =
+    etat.narration.faitsDeCampagne.some(
+      (fait) => fait.id === "bassins.deversoir.ligne-zero-relevee",
+    );
   const tronconsAffiches =
     engagement === undefined
-      ? listerTronconsEngageables(etat.routes).map((possibilite) => ({
+      ? listerTronconsEngageables(etat.routes)
+          .filter(
+            ({ troncon }) =>
+              troncon.id !== "passage-de-la-ligne-zero" ||
+              ligneZeroAEtRelevee,
+          )
+          .map((possibilite) => ({
           ...possibilite,
           engageable:
             routeAvalDesBassinsEstPreparee(
@@ -397,6 +408,7 @@ export function projeterAtlas(
               });
         return {
           id: troncon.id,
+          libelle: troncon.nom?.[langue] ?? nommerLieu(destination, langue),
           destination: nommerLieu(destination, langue),
           connexion: `${nommerLieu(etat.routes.position, langue)} → ${nommerLieu(
             destination,

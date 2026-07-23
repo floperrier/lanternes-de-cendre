@@ -1,0 +1,15 @@
+{
+  "asset": "serveur-commercial/assets/deversoir-chassis.webp",
+  "sha256": "38f5768f518bfad2617a2b1c1c7c60a76250078c880e8dd20c507e8c1f5ec7b5",
+  "createdAt": "2026-07-23",
+  "tool": "Codex built-in image_gen",
+  "model": "built-in model (identifier not exposed)",
+  "useCase": "illustration-story",
+  "input": "The repository Cité-Caravane illustration was supplied only as a visual world and style reference.",
+  "prompt": "Generate a wide narrative-game worksite illustration where one finite regional chassis is committed either to a travelling settling apparatus or to sealed Ark frames for displaced people, with unchosen plans preserved nearby. Match the supplied elevated oblique painterly-industrial world reference. No readable text, typography, logos, watermark, weapons or UI.",
+  "rights": "OpenAI Terms of Use — output assigned to the user",
+  "approval": {
+    "status": "pending-pull-request-review",
+    "reviewer": null
+  }
+}

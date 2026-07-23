@@ -198,3 +198,243 @@ conseils:
               cible:
                 cle: quartier.intendance.nom
                 variables: []
+  - id: conseil.des-vannes
+    titre:
+      cle: conseil.des-vannes.titre
+      variables: []
+    compagnon:
+      id: ilyana-voss
+      competences:
+        majeure: intendance
+        secondaire: diplomatie
+      trait: minutieuse-intransigeante
+      conviction: eau-sure-pour-tous
+      projet: circuit-de-purification-redondant
+      etat_personnel:
+        id: brulures-de-cendre-stabilisees
+        contrainte: eviter-eau-contaminee
+        voie_de_soin: filtres-et-repos-en-halo
+      affectation:
+        quartier: intendance
+        occupation: tete-de-quartier
+        fait_produit: compagnon.ilyana-voss.affectee-intendance
+        cause: affectation.porte-lanterne
+        journal:
+          titre:
+            cle: journal.conseil.affectation.titre
+            variables: []
+          cause:
+            cle: journal.conseil.affectation.cause
+            variables: []
+          acteurs:
+            - cle: journal.acteur.porte-lanterne
+              variables: []
+            - cle: compagnon.ilyana-voss.nom
+              variables: []
+          cible:
+            cle: quartier.intendance.nom
+            variables: []
+      textes:
+        nom:
+          cle: compagnon.ilyana-voss.nom
+          variables: []
+        competence_majeure:
+          cle: competence.intendance
+          variables: []
+        competence_secondaire:
+          cle: competence.diplomatie
+          variables: []
+        trait:
+          cle: compagnon.ilyana-voss.trait
+          variables: []
+        ambivalence:
+          cle: compagnon.ilyana-voss.ambivalence
+          variables: []
+        conviction:
+          cle: compagnon.ilyana-voss.conviction
+          variables: []
+        projet:
+          cle: compagnon.ilyana-voss.projet
+          variables: []
+        etat_personnel:
+          cle: compagnon.ilyana-voss.etat
+          variables: []
+        contrainte:
+          cle: compagnon.ilyana-voss.contrainte
+          variables: []
+        voie_de_soin:
+          cle: compagnon.ilyana-voss.soin
+          variables: []
+        quartier:
+          cle: quartier.intendance.nom
+          variables: []
+        information_ouverte:
+          cle: compagnon.ilyana-voss.information-ouverte
+          variables: []
+    libelles:
+      type_compagnon:
+        cle: interface.compagnon.type
+        variables: []
+      competence_majeure:
+        cle: interface.compagnon.competence-majeure
+        variables: []
+      competence_secondaire:
+        cle: interface.compagnon.competence-secondaire
+        variables: []
+      trait:
+        cle: interface.compagnon.trait
+        variables: []
+      conviction:
+        cle: interface.compagnon.conviction
+        variables: []
+      projet:
+        cle: interface.compagnon.projet
+        variables: []
+      etat_personnel:
+        cle: interface.compagnon.etat
+        variables: []
+      soin:
+        cle: interface.compagnon.soin
+        variables: []
+      affecter:
+        cle: interface.compagnon.affecter-intendance
+        variables: []
+      affectee:
+        cle: interface.compagnon.affectee
+        variables: []
+      information_ouverte:
+        cle: interface.compagnon.information-ouverte
+        variables: []
+      conseil:
+        cle: interface.conseil.type
+        variables: []
+      fait_connu:
+        cle: interface.conseil.fait-connu
+        variables: []
+      source:
+        cle: interface.conseil.source
+        variables: []
+      recommandation_morale:
+        cle: interface.conseil.recommandation
+        variables: []
+      enjeu_personnel:
+        cle: interface.conseil.enjeu
+        variables: []
+      decision:
+        cle: interface.conseil.decision
+        variables: []
+      reponse_ouverte:
+        cle: interface.conseil.reponse-ouverte
+        variables: []
+    sujets:
+      - id: eau-cohorte-et-deversoir
+        titre:
+          cle: conseil.des-vannes.sujet.titre
+          variables: []
+        voix:
+          - compagnon: ilyana-voss
+            criteres:
+              - affectation-au-quartier
+              - competence-majeure
+              - competence-secondaire
+              - conviction-concernee
+            fait_connu:
+              cle: conseil.des-vannes.voix.fait-connu
+              variables: []
+            source:
+              cle: conseil.des-vannes.voix.source
+              variables: []
+            date_source:
+              cle: conseil.des-vannes.voix.date
+              variables: []
+            recommandation_morale:
+              cle: conseil.des-vannes.voix.recommandation
+              variables: []
+            enjeu_personnel:
+              cle: conseil.des-vannes.voix.enjeu
+              variables: []
+        decisions:
+          - id: partager-reserves
+            fait_produit: bassins.conseil.reserves-partagees
+            ouverte_par_affectation: false
+            libelle:
+              cle: conseil.des-vannes.decision.partager
+              variables: []
+            journal:
+              titre:
+                cle: journal.conseil.des-vannes.partager.titre
+                variables: []
+              cause:
+                cle: journal.conseil.des-vannes.cause
+                variables: []
+              acteurs:
+                - cle: journal.acteur.porte-lanterne
+                  variables: []
+                - cle: compagnon.ilyana-voss.nom
+                  variables: []
+              cible:
+                cle: journal.cible.conseil-des-vannes
+                variables: []
+          - id: reparer-decanteur
+            fait_produit: bassins.conseil.decanteur-repare
+            ouverte_par_affectation: false
+            libelle:
+              cle: conseil.des-vannes.decision.decanteur
+              variables: []
+            journal:
+              titre:
+                cle: journal.conseil.des-vannes.decanteur.titre
+                variables: []
+              cause:
+                cle: journal.conseil.des-vannes.cause
+                variables: []
+              acteurs:
+                - cle: journal.acteur.porte-lanterne
+                  variables: []
+                - cle: compagnon.ilyana-voss.nom
+                  variables: []
+              cible:
+                cle: journal.cible.conseil-des-vannes
+                variables: []
+          - id: reorienter-cohorte
+            fait_produit: bassins.conseil.cohorte-reorientee
+            ouverte_par_affectation: false
+            libelle:
+              cle: conseil.des-vannes.decision.cohorte
+              variables: []
+            journal:
+              titre:
+                cle: journal.conseil.des-vannes.cohorte.titre
+                variables: []
+              cause:
+                cle: journal.conseil.des-vannes.cause
+                variables: []
+              acteurs:
+                - cle: journal.acteur.porte-lanterne
+                  variables: []
+                - cle: compagnon.ilyana-voss.nom
+                  variables: []
+              cible:
+                cle: journal.cible.conseil-des-vannes
+                variables: []
+          - id: contraindre-vannes
+            fait_produit: bassins.conseil.vannes-contraintes
+            ouverte_par_affectation: false
+            libelle:
+              cle: conseil.des-vannes.decision.contraindre
+              variables: []
+            journal:
+              titre:
+                cle: journal.conseil.des-vannes.contraindre.titre
+                variables: []
+              cause:
+                cle: journal.conseil.des-vannes.cause
+                variables: []
+              acteurs:
+                - cle: journal.acteur.porte-lanterne
+                  variables: []
+                - cle: compagnon.ilyana-voss.nom
+                  variables: []
+              cible:
+                cle: journal.cible.conseil-des-vannes
+                variables: []

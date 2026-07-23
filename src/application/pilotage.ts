@@ -1,7 +1,6 @@
 import type { EtatCampagne } from "../simulation/campagne";
 import { catalogueDEvenements } from "../content/catalogue";
 import type { Langue } from "../content/types";
-import { PREMIER_CONSEIL } from "../simulation/conseil";
 import type {
   EffetHumainDeFait,
   EffetMaterielDeFait,
@@ -362,7 +361,9 @@ const TITRES_DE_RETOUR_D_EXPEDITION: Readonly<Record<Langue, string>> = {
 };
 
 function textesDeJournalDuConseil(fait: FaitDeCampagne, langue: Langue) {
-  return PREMIER_CONSEIL.textes[langue].journal[fait.id];
+  return catalogueDEvenements.conseils
+    .map((conseil) => conseil.textes[langue].journal[fait.id])
+    .find((textes) => textes !== undefined);
 }
 
 function libellesDuJournalDeContenu(langue: Langue) {

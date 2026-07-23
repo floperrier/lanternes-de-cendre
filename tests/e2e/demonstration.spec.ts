@@ -398,6 +398,107 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
     journalCausal.getByText("Trace de limaille de laiton persistante"),
   ).toBeVisible();
 
+  await activerAuClavier(
+    page,
+    atlas.getByRole("button", {
+      name: "Étudier l’Engagement vers Déversoir Noir",
+    }),
+  );
+  await activerAuClavier(
+    page,
+    page
+      .getByRole("dialog", { name: "Engagement vers Déversoir Noir" })
+      .getByRole("button", {
+        name: "Confirmer l’Engagement sans retour vers Déversoir Noir",
+      }),
+  );
+  await activerAuClavier(
+    page,
+    page.getByRole("button", { name: "Vitesse 4×" }),
+  );
+  await page.clock.fastForward(90_000);
+
+  const ouvertureDuDeversoir = [
+    ["La conduite zéro", "Relever l’interface avant de refermer la dalle"],
+    [
+      "La tempête aux vannes",
+      "Convoquer chaque délégation autour de la table",
+    ],
+  ] as const;
+  for (const [titre, choix] of ouvertureDuDeversoir) {
+    const evenement = page.getByRole("region", { name: titre });
+    await expect(evenement.getByRole("img")).toBeVisible();
+    await activerAuClavier(
+      page,
+      evenement.getByRole("button", { name: choix }),
+    );
+    await page.clock.fastForward(1_000);
+  }
+
+  const conseilDesVannes = page.getByRole("region", {
+    name: "Conseil des Vannes",
+  });
+  await expect(
+    conseilDesVannes.getByRole("button", {
+      name: "Réorienter la Cohorte vers une Arche de déplacés",
+    }),
+  ).toHaveCount(0);
+  await expect(
+    conseilDesVannes.getByRole("button", {
+      name: "Contraindre les vannes et assumer la coercition",
+    }),
+  ).toBeVisible();
+  await activerAuClavier(
+    page,
+    conseilDesVannes.getByRole("button", {
+      name: "Réparer le vieux décanteur comme projet majeur",
+    }),
+  );
+  await page.clock.fastForward(1_000);
+
+  const fermetureDesBassins = [
+    [
+      "Le châssis des Bassins",
+      "Sceller la transformation retenue dans le châssis",
+    ],
+    [
+      "Le passage sans retour",
+      "Consigner chaque abandon et chaque occasion",
+    ],
+  ] as const;
+  for (const [titre, choix] of fermetureDesBassins) {
+    const evenement = page.getByRole("region", { name: titre });
+    await expect(evenement.getByRole("img")).toBeVisible();
+    await activerAuClavier(
+      page,
+      evenement.getByRole("button", { name: choix }),
+    );
+    await page.clock.fastForward(1_000);
+  }
+
+  await activerAuClavier(
+    page,
+    atlas.getByRole("button", {
+      name: "Étudier l’Engagement vers Passage de la Ligne Zéro",
+    }),
+  );
+  await activerAuClavier(
+    page,
+    page
+      .getByRole("dialog", {
+        name: "Engagement vers Lisière de la Trame de Fer",
+      })
+      .getByRole("button", {
+        name: "Confirmer l’Engagement sans retour vers Lisière de la Trame de Fer",
+      }),
+  );
+  await activerAuClavier(
+    page,
+    page.getByRole("button", { name: "Vitesse 4×" }),
+  );
+  await page.clock.fastForward(120_000);
+  await expect(atlas).toContainText("Lisière de la Trame de Fer");
+
   await expect(expedition).toContainText("Bilan de retour");
   const exportApresAchat = page.waitForEvent("download");
   await page

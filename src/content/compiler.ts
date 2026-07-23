@@ -1165,8 +1165,12 @@ function compilerConseil(
       chemin: `${cheminSujet}/decisions/${decisionIndex}`,
       valeur: objet(decision, `${cheminSujet}/decisions/${decisionIndex}`),
     }));
-    if (decisionsSources.length !== 2) {
-      echouer("schema", `${cheminSujet}/decisions`, "deux décisions requises");
+    if (decisionsSources.length < 2 || decisionsSources.length > 4) {
+      echouer(
+        "schema",
+        `${cheminSujet}/decisions`,
+        "deux à quatre décisions requises",
+      );
     }
     const decisions = decisionsSources.map(
       ({ chemin: cheminDecision, valeur: decision }) => {

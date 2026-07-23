@@ -1,0 +1,381 @@
+version: 1
+evenements:
+  - id: bassins.deversoir.la-conduite-zero
+    famille: mystere-des-phares
+    themes: [ligne-zero, memoire-industrielle]
+    fonction: reveler-la-ligne-zero-dans-les-bassins
+    fenetre: deversoir-noir
+    conditions:
+      requises:
+        - type: lieu-present
+          lieu: deversoir-noir
+      interdites: []
+    periode_eligibilite: { debut: 780, fin: 2147483647 }
+    priorite: 120
+    epuisement: unique
+    acteurs:
+      - porte-lanterne
+      - techniciens-du-deversoir
+      - equipes-entretien
+    origine: { cle: evenement.deversoir.ligne-zero.origine, variables: [] }
+    libelle_intentions: { cle: evenement.ruban.intentions, variables: [] }
+    titre: { cle: evenement.deversoir.ligne-zero.titre, variables: [] }
+    presentation:
+      { cle: evenement.deversoir.ligne-zero.presentation, variables: [] }
+    informations:
+      - source: techniciens-du-deversoir
+        texte:
+          { cle: evenement.deversoir.ligne-zero.information, variables: [] }
+    faits_lus:
+      - prologue.harmonique-consignee
+      - prologue.signal-etouffe
+    choix:
+      - id: relever-interface
+        intention:
+          {
+            cle: evenement.deversoir.ligne-zero.choix.relever,
+            variables: [],
+          }
+        couts_connus:
+          - {
+              cle: evenement.deversoir.ligne-zero.choix.relever.cout,
+              variables: [],
+            }
+        effets: []
+        faits_produits:
+          - id: bassins.deversoir.ligne-zero-relevee
+            cible: conduite-de-la-ligne-zero
+      - id: preserver-conduite
+        intention:
+          {
+            cle: evenement.deversoir.ligne-zero.choix.poumon,
+            variables: [],
+          }
+        couts_connus:
+          - {
+              cle: evenement.deversoir.ligne-zero.choix.poumon.cout,
+              variables: [],
+            }
+        effets: []
+        faits_produits:
+          - id: bassins.deversoir.ligne-zero-preservee
+            cible: conduite-de-la-ligne-zero
+    consequence_differee:
+      { type: renseignement-trame-de-fer, cible: conduite-de-la-ligne-zero }
+    recuperation: { type: interface-conservee }
+    variantes:
+      - id: harmonique-reconnue
+        condition: fait-present:prologue.harmonique-consignee
+        presentation:
+          {
+            cle: evenement.deversoir.ligne-zero.variante.harmonique,
+            variables: [],
+          }
+      - id: signal-perdu
+        condition: fait-present:prologue.signal-etouffe
+        presentation:
+          {
+            cle: evenement.deversoir.ligne-zero.variante.signal,
+            variables: [],
+          }
+      - id: standard
+        condition: toujours
+        presentation:
+          {
+            cle: evenement.deversoir.ligne-zero.variante.standard,
+            variables: [],
+          }
+    destination_echo: journal-de-campagne
+    asset: bassins.deversoir.la-conduite-zero
+
+  - id: bassins.deversoir.la-tempete-aux-vannes
+    famille: conflits-regionaux
+    themes: [partage-de-leau, cohortes, contrainte]
+    fonction: convoquer-le-conseil-des-vannes
+    fenetre: deversoir-noir
+    conditions:
+      requises:
+        - type: lieu-present
+          lieu: deversoir-noir
+        - type: un-des-faits-present
+          faits:
+            - bassins.deversoir.ligne-zero-relevee
+            - bassins.deversoir.ligne-zero-preservee
+      interdites: []
+    periode_eligibilite: { debut: 780, fin: 2147483647 }
+    priorite: 110
+    epuisement: unique
+    acteurs:
+      - porte-lanterne
+      - puits-libres
+      - pelerins-de-cendre
+      - habitants-haut-puits
+      - habitants-veille-basse
+    origine: { cle: evenement.deversoir.tempete.origine, variables: [] }
+    libelle_intentions: { cle: evenement.ruban.intentions, variables: [] }
+    titre: { cle: evenement.deversoir.tempete.titre, variables: [] }
+    presentation:
+      { cle: evenement.deversoir.tempete.presentation, variables: [] }
+    informations:
+      - source: techniciens-du-deversoir
+        texte: { cle: evenement.deversoir.tempete.information, variables: [] }
+    faits_lus:
+      - bassins.deversoir.ligne-zero-relevee
+      - bassins.deversoir.ligne-zero-preservee
+      - veille-basse.intervention-refusee
+      - bassins.nacelles.conseil-passage-partage
+      - bassins.nacelles.conseil-maintenance-commune
+    choix:
+      - id: convoquer-delegations
+        intention:
+          {
+            cle: evenement.deversoir.tempete.choix.delegations,
+            variables: [],
+          }
+        couts_connus:
+          - {
+              cle: evenement.deversoir.tempete.choix.delegations.cout,
+              variables: [],
+            }
+        effets: []
+        faits_produits:
+          - id: bassins.deversoir.conseil-convoque
+            cible: conseil-des-vannes
+      - id: publier-comptes
+        intention:
+          { cle: evenement.deversoir.tempete.choix.comptes, variables: [] }
+        couts_connus:
+          - {
+              cle: evenement.deversoir.tempete.choix.comptes.cout,
+              variables: [],
+            }
+        effets: []
+        faits_produits:
+          - id: bassins.deversoir.conseil-public
+            cible: conseil-des-vannes
+    consequence_differee:
+      { type: conseil-des-vannes, cible: conseil-des-vannes }
+    recuperation: { type: contrainte-explicite-toujours-disponible }
+    variantes:
+      - id: maintenance-commune
+        condition: fait-present:bassins.nacelles.conseil-maintenance-commune
+        presentation:
+          {
+            cle: evenement.deversoir.tempete.variante.maintenance,
+            variables: [],
+          }
+      - id: accord-des-nacelles
+        condition: fait-present:bassins.nacelles.conseil-passage-partage
+        presentation:
+          {
+            cle: evenement.deversoir.tempete.variante.accord,
+            variables: [],
+          }
+      - id: veille-abandonnee
+        condition: fait-present:veille-basse.intervention-refusee
+        presentation:
+          {
+            cle: evenement.deversoir.tempete.variante.perte,
+            variables: [],
+          }
+      - id: standard
+        condition: toujours
+        presentation:
+          {
+            cle: evenement.deversoir.tempete.variante.standard,
+            variables: [],
+          }
+    destination_echo: journal-de-campagne
+    asset: bassins.deversoir.la-tempete-aux-vannes
+
+  - id: bassins.deversoir.le-chassis-des-bassins
+    famille: consequences-systemiques
+    themes: [transformation-du-convoi, dette-regionale]
+    fonction: inscrire-la-transformation-regionale
+    fenetre: deversoir-noir
+    conditions:
+      requises:
+        - type: lieu-present
+          lieu: deversoir-noir
+        - type: un-des-faits-present
+          faits:
+            - bassins.conseil.reserves-partagees
+            - bassins.conseil.decanteur-repare
+            - bassins.conseil.cohorte-reorientee
+            - bassins.conseil.vannes-contraintes
+      interdites: []
+    periode_eligibilite: { debut: 780, fin: 2147483647 }
+    priorite: 100
+    epuisement: unique
+    acteurs:
+      - porte-lanterne
+      - equipes-entretien
+      - cohorte-du-sillon
+    origine: { cle: evenement.deversoir.chassis.origine, variables: [] }
+    libelle_intentions: { cle: evenement.ruban.intentions, variables: [] }
+    titre: { cle: evenement.deversoir.chassis.titre, variables: [] }
+    presentation:
+      { cle: evenement.deversoir.chassis.presentation, variables: [] }
+    informations:
+      - source: equipes-entretien
+        texte: { cle: evenement.deversoir.chassis.information, variables: [] }
+    faits_lus:
+      - bassins.conseil.reserves-partagees
+      - bassins.conseil.decanteur-repare
+      - bassins.conseil.cohorte-reorientee
+      - bassins.conseil.vannes-contraintes
+    choix:
+      - id: sceller-transformation
+        intention:
+          {
+            cle: evenement.deversoir.chassis.choix.sceller,
+            variables: [],
+          }
+        couts_connus:
+          - {
+              cle: evenement.deversoir.chassis.choix.sceller.cout,
+              variables: [],
+            }
+        effets:
+          - type: stock.modifier
+            stock: materiaux
+            valeur: -12
+        faits_produits:
+          - id: bassins.deversoir.transformation-scellee
+            cible: chassis-regional-des-bassins
+      - id: conserver-gabarits
+        intention:
+          {
+            cle: evenement.deversoir.chassis.choix.gabarits,
+            variables: [],
+          }
+        couts_connus:
+          - {
+              cle: evenement.deversoir.chassis.choix.gabarits.cout,
+              variables: [],
+            }
+        effets: []
+        faits_produits:
+          - id: bassins.deversoir.gabarits-conserves
+            cible: chassis-regional-des-bassins
+    consequence_differee:
+      { type: projet-regional-persistant, cible: chassis-regional-des-bassins }
+    recuperation: { type: plans-non-choisis-conserves }
+    variantes:
+      - id: decanteur
+        condition: fait-present:bassins.conseil.decanteur-repare
+        presentation:
+          {
+            cle: evenement.deversoir.chassis.variante.decanteur,
+            variables: [],
+          }
+      - id: arche
+        condition: fait-present:bassins.conseil.cohorte-reorientee
+        presentation:
+          {
+            cle: evenement.deversoir.chassis.variante.arche,
+            variables: [],
+          }
+      - id: sans-transformation
+        condition: toujours
+        presentation:
+          {
+            cle: evenement.deversoir.chassis.variante.aucune,
+            variables: [],
+          }
+    destination_echo: journal-de-campagne
+    asset: bassins.deversoir.le-chassis-des-bassins
+
+  - id: bassins.deversoir.le-passage-sans-retour
+    famille: consequences-systemiques
+    themes: [passage-de-region, memoire-des-lieux]
+    fonction: preparer-le-passage-de-region
+    fenetre: deversoir-noir
+    conditions:
+      requises:
+        - type: lieu-present
+          lieu: deversoir-noir
+        - type: un-des-faits-present
+          faits:
+            - bassins.deversoir.transformation-scellee
+            - bassins.deversoir.gabarits-conserves
+      interdites: []
+    periode_eligibilite: { debut: 780, fin: 2147483647 }
+    priorite: 90
+    epuisement: unique
+    acteurs:
+      - porte-lanterne
+      - techniciens-du-deversoir
+      - habitants-haut-puits
+      - habitants-veille-basse
+    origine: { cle: evenement.deversoir.passage.origine, variables: [] }
+    libelle_intentions: { cle: evenement.ruban.intentions, variables: [] }
+    titre: { cle: evenement.deversoir.passage.titre, variables: [] }
+    presentation:
+      { cle: evenement.deversoir.passage.presentation, variables: [] }
+    informations:
+      - source: techniciens-du-deversoir
+        texte: { cle: evenement.deversoir.passage.information, variables: [] }
+    faits_lus:
+      - bassins.deversoir.transformation-scellee
+      - bassins.deversoir.gabarits-conserves
+      - bassins.haut-puits.ilyana-garante
+      - veille-basse.maelys-mission-confiee
+    choix:
+      - id: consigner-abandons
+        intention:
+          {
+            cle: evenement.deversoir.passage.choix.consigner,
+            variables: [],
+          }
+        couts_connus:
+          - {
+              cle: evenement.deversoir.passage.choix.consigner.cout,
+              variables: [],
+            }
+        effets: []
+        faits_produits:
+          - id: bassins.deversoir.passage-prepare
+            cible: passage-vers-la-trame
+      - id: transmettre-registres
+        intention:
+          {
+            cle: evenement.deversoir.passage.choix.transmettre,
+            variables: [],
+          }
+        couts_connus:
+          - {
+              cle: evenement.deversoir.passage.choix.transmettre.cout,
+              variables: [],
+            }
+        effets: []
+        faits_produits:
+          - id: bassins.deversoir.passage-transmis
+            cible: passage-vers-la-trame
+    consequence_differee:
+      { type: retours-de-region, cible: habitants-des-bassins }
+    recuperation: { type: rapports-et-epilogue }
+    variantes:
+      - id: haut-puits-quitte
+        condition: fait-present:bassins.haut-puits.ilyana-garante
+        presentation:
+          {
+            cle: evenement.deversoir.passage.variante.haut-puits,
+            variables: [],
+          }
+      - id: veille-basse-quitte
+        condition: fait-present:veille-basse.maelys-mission-confiee
+        presentation:
+          {
+            cle: evenement.deversoir.passage.variante.veille-basse,
+            variables: [],
+          }
+      - id: standard
+        condition: toujours
+        presentation:
+          {
+            cle: evenement.deversoir.passage.variante.standard,
+            variables: [],
+          }
+    destination_echo: journal-de-campagne
+    asset: bassins.deversoir.le-passage-sans-retour

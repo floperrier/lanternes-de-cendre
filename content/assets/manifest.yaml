@@ -85,3 +85,23 @@ assets:
     alternative: evenement.nacelles.compagnons.asset.alt
     contient_texte: false
     provenance: docs/assets/nacelles-compagnes.provenance.json
+  - id: bassins.deversoir.la-conduite-zero
+    fichier: /api/commercial/assets/deversoir-ligne-zero.webp
+    alternative: evenement.deversoir.ligne-zero.asset.alt
+    contient_texte: false
+    provenance: docs/assets/deversoir-ligne-zero.provenance.json
+  - id: bassins.deversoir.la-tempete-aux-vannes
+    fichier: /api/commercial/assets/deversoir-conseil.webp
+    alternative: evenement.deversoir.tempete.asset.alt
+    contient_texte: false
+    provenance: docs/assets/deversoir-conseil.provenance.json
+  - id: bassins.deversoir.le-chassis-des-bassins
+    fichier: /api/commercial/assets/deversoir-chassis.webp
+    alternative: evenement.deversoir.chassis.asset.alt
+    contient_texte: false
+    provenance: docs/assets/deversoir-chassis.provenance.json
+  - id: bassins.deversoir.le-passage-sans-retour
+    fichier: /api/commercial/assets/deversoir-passage.webp
+    alternative: evenement.deversoir.passage.asset.alt
+    contient_texte: false
+    provenance: docs/assets/deversoir-passage.provenance.json

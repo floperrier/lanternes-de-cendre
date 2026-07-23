@@ -60,7 +60,7 @@ function dessinerTroncon(
     .stroke({ color: COULEURS.cuivre, width: 1 });
   conteneur.addChild(carte);
 
-  ajouterTexte(conteneur, troncon.destination, x + 12, y + 9, {
+  ajouterTexte(conteneur, troncon.libelle, x + 12, y + 9, {
     taille: 17,
     graisse: "700",
     largeur: largeur - 70,

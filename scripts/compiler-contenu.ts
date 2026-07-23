@@ -47,6 +47,7 @@ const CHEMINS_D_EVENEMENTS_PREMIUM = [
   "content/evenements/veille-basse.yaml",
   "content/evenements/haut-puits.yaml",
   "content/evenements/nacelles.yaml",
+  "content/evenements/deversoir.yaml",
 ] as const;
 const provenances = {
   "docs/assets/cite-caravane.provenance.json": lire(
@@ -97,6 +98,18 @@ const provenances = {
   "docs/assets/nacelles-compagnes.provenance.json": lire(
     "docs/assets/nacelles-compagnes.provenance.json",
   ),
+  "docs/assets/deversoir-ligne-zero.provenance.json": lire(
+    "docs/assets/deversoir-ligne-zero.provenance.json",
+  ),
+  "docs/assets/deversoir-conseil.provenance.json": lire(
+    "docs/assets/deversoir-conseil.provenance.json",
+  ),
+  "docs/assets/deversoir-chassis.provenance.json": lire(
+    "docs/assets/deversoir-chassis.provenance.json",
+  ),
+  "docs/assets/deversoir-passage.provenance.json": lire(
+    "docs/assets/deversoir-passage.provenance.json",
+  ),
 };
 
 function cheminPhysiqueAsset(chemin: string): string {
@@ -143,6 +156,12 @@ const evenementsDeBase = catalogueComplet.evenements.filter(({ id }) =>
 const evenementsPremium = catalogueComplet.evenements.filter(
   ({ id }) => !idsDeBase.has(id),
 );
+const conseilsDeBase = catalogueComplet.conseils.filter(
+  ({ id }) => id === "conseil.premiere-veille",
+);
+const conseilsPremium = catalogueComplet.conseils.filter(
+  ({ id }) => id !== "conseil.premiere-veille",
+);
 
 function idsDeFaits(evenements: readonly EvenementDuCatalogue[]): Set<string> {
   return new Set(
@@ -177,8 +196,18 @@ function filtrerDictionnaire(
   );
 }
 
-const faitsPremium = idsDeFaits(evenementsPremium);
-const causesPremium = new Set(evenementsPremium.map(({ id }) => id));
+const faitsPremium = new Set([
+  ...idsDeFaits(evenementsPremium),
+  ...conseilsPremium.flatMap((conseil) =>
+    conseil.sujets.flatMap((sujet) =>
+      sujet.decisions.map((decision) => decision.faitProduit)
+    )
+  ),
+]);
+const causesPremium = new Set([
+  ...evenementsPremium.map(({ id }) => id),
+  ...conseilsPremium.map(({ id }) => id),
+]);
 const acteursDeBase = acteurs(evenementsDeBase);
 const acteursPremium = acteurs(evenementsPremium);
 const acteursExclusifsPremium = new Set(
@@ -237,6 +266,7 @@ function journalPremium(langue: Langue): JournalCompile {
 const catalogueDeBase: CatalogueDEvenements = {
   ...catalogueComplet,
   evenements: evenementsDeBase,
+  conseils: conseilsDeBase,
   libellesTransversaux: {
     fr: {
       ...catalogueComplet.libellesTransversaux.fr,
@@ -251,6 +281,7 @@ const catalogueDeBase: CatalogueDEvenements = {
 const cataloguePremiumNarratif = {
   version: 1,
   evenements: evenementsPremium,
+  conseils: conseilsPremium,
   libellesTransversaux: {
     fr: { journal: journalPremium("fr") },
     en: { journal: journalPremium("en") },
@@ -305,11 +336,13 @@ const fragmentsPublicsPartages = new Set([
   "Materials",
   "Maison des Filtres",
   "Matériaux",
+  "Nacelles",
   "Pèlerins de Cendre",
   "Position",
   "Pressions",
   "Remedies",
   "Veille-Basse",
+  "evacuated",
   "personnes",
 ]);
 
@@ -332,6 +365,9 @@ const fragmentsNarratifsProteges = [
         ]),
     ...collecterModelesNarratifs(evenement.textes),
   ]),
+  ...cataloguePremiumNarratif.conseils.flatMap((conseil) =>
+    collecterModelesNarratifs(conseil.textes)
+  ),
   ...collecterChaines(cataloguePremiumNarratif.libellesTransversaux),
 ].filter(
   (fragment) =>

@@ -264,9 +264,9 @@ describe("persistance de Veille-Basse", () => {
     expect(importation).toMatchObject({
       statut: "compatible",
       sauvegarde: {
-        version: 7,
+        version: 8,
         etat: {
-          version: 7,
+          version: 8,
           veilleBasse: {
             colonie: { statut: "fragile" },
             cohorte: {
@@ -279,7 +279,7 @@ describe("persistance de Veille-Basse", () => {
         },
         reproduction: {
           snapshot: {
-            version: 7,
+            version: 8,
             veilleBasse: {
               cohorte: { specialite: "charpente-etanche" },
             },
@@ -328,15 +328,15 @@ describe("persistance de Veille-Basse", () => {
     expect(importation).toMatchObject({
       statut: "migree",
       sauvegarde: {
-        version: 7,
+        version: 8,
         etat: {
-          version: 7,
+          version: 8,
           veilleBasse: etatCourant.veilleBasse,
           hautPuits: creerEtatDeHautPuitsInitial(),
         },
         reproduction: {
           snapshot: {
-            version: 7,
+            version: 8,
             veilleBasse: etatCourant.veilleBasse,
             hautPuits: creerEtatDeHautPuitsInitial(),
           },
@@ -404,15 +404,15 @@ describe("persistance de Veille-Basse", () => {
     expect(importation).toMatchObject({
       statut: "migree",
       sauvegarde: {
-        version: 7,
+        version: 8,
         etat: {
-          version: 7,
+          version: 8,
           tempsDuConvoi: { vitesse: 2 },
           veilleBasse: creerEtatInitialDeVeilleBasse(),
         },
         reproduction: {
           snapshot: {
-            version: 7,
+            version: 8,
             veilleBasse: creerEtatInitialDeVeilleBasse(),
           },
           commandes: [
@@ -526,6 +526,7 @@ describe("persistance de Veille-Basse", () => {
           routes: { position: "veille-basse" },
           narration: {
             evenementActif: null,
+            causaliteHistorique: "eau-haut-puits-a-veille-basse",
             evenementsJoues: expect.arrayContaining([
               "bassins-fendus.eau-de-haut-puits",
             ]),
@@ -544,6 +545,26 @@ describe("persistance de Veille-Basse", () => {
     if (importation.statut !== "migree") {
       throw new Error("Le routage historique devrait être migré.");
     }
+    const { causaliteHistorique, ...narrationSansProvenance } =
+      importation.sauvegarde.etat.narration;
+    expect(causaliteHistorique).toBe(
+      "eau-haut-puits-a-veille-basse",
+    );
+    expect(
+      lireEtatCourant({
+        ...importation.sauvegarde.etat,
+        narration: narrationSansProvenance,
+      }),
+    ).toBeUndefined();
+    expect(
+      lireEtatCourant({
+        ...creerCampagneInitiale("MARQUEUR-ORPHELIN"),
+        narration: {
+          ...creerCampagneInitiale("MARQUEUR-ORPHELIN").narration,
+          causaliteHistorique: "eau-haut-puits-a-veille-basse",
+        },
+      }),
+    ).toBeUndefined();
     expect(
       rejouerReproduction(importation.sauvegarde.reproduction),
     ).toMatchObject({
@@ -553,6 +574,30 @@ describe("persistance de Veille-Basse", () => {
     expect(
       importerSauvegarde(
         exporterSauvegarde(importation.sauvegarde),
+      ).statut,
+    ).toBe("compatible");
+    let apresMigration = appliquerCommande(importation.sauvegarde.etat, {
+      type: "temps-du-convoi.ecouler",
+      secondesReelles: 0,
+    }).etat;
+    expect(apresMigration.narration.evenementActif).toBe(
+      "veille-basse.la-place-sous-le-phare",
+    );
+    apresMigration = appliquerCommande(apresMigration, {
+      type: "evenement-narratif.choisir",
+      evenementId: "veille-basse.la-place-sous-le-phare",
+      choixId: "accueillir",
+    }).etat;
+    expect(apresMigration.narration.causaliteHistorique).toBe(
+      "eau-haut-puits-a-veille-basse",
+    );
+    const sauvegardeApresChoix = creerSauvegarde(
+      apresMigration,
+      creerReproductionInitiale(apresMigration),
+    );
+    expect(
+      importerSauvegarde(
+        exporterSauvegarde(sauvegardeApresChoix),
       ).statut,
     ).toBe("compatible");
   });

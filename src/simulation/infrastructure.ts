@@ -19,6 +19,11 @@ export const IDENTIFIANTS_DE_PLATEFORME_INITIALE = [
 export type IdentifiantDeQuartier = (typeof IDENTIFIANTS_DE_QUARTIER)[number];
 export type IdentifiantDePlateformeInitiale =
   (typeof IDENTIFIANTS_DE_PLATEFORME_INITIALE)[number];
+export const IDENTIFIANT_DE_PLATEFORME_REGIONALE =
+  "chassis-regional-des-bassins" as const;
+export type IdentifiantDePlateformeMobile =
+  | IdentifiantDePlateformeInitiale
+  | typeof IDENTIFIANT_DE_PLATEFORME_REGIONALE;
 export type CategorieDEmplacement = "technique" | "habitable" | "polyvalent";
 export type EtatMateriel = "operationnelle" | "degradee" | "hors-service";
 export type PrioriteDeChantier = "basse" | "normale" | "haute";
@@ -274,11 +279,19 @@ export interface EmplacementConstructible {
 }
 
 export interface PlateformeMobile {
-  readonly id: IdentifiantDePlateformeInitiale;
+  readonly id: IdentifiantDePlateformeMobile;
   readonly nom: string;
   readonly type: "phare" | "standard";
   readonly quartierId: IdentifiantDeQuartier | null;
   readonly emplacements: readonly EmplacementConstructible[];
+  readonly projetRegional?: {
+    readonly id: "decanteur-itinerant" | "arche-des-deplaces";
+    readonly service: "purification-mobile" | "accueil-deplaces";
+    readonly contrainte:
+      | "entretien-hydraulique-dedie"
+      | "charge-habitable-permanente";
+    readonly scelleA: number;
+  };
 }
 
 export interface QuartierMobile {
@@ -486,6 +499,86 @@ export function creerInfrastructureInitiale(): EtatInfrastructure {
     ],
     chantierActif: null,
     chantiersTermines: [],
+  };
+}
+
+export function ajouterPlateformeRegionale(
+  etat: EtatInfrastructure,
+  projetId: "decanteur-itinerant" | "arche-des-deplaces",
+  moment: number,
+): EtatInfrastructure {
+  if (
+    etat.plateformes.some(
+      ({ id }) => id === IDENTIFIANT_DE_PLATEFORME_REGIONALE,
+    )
+  ) {
+    throw new Error("Le châssis régional est déjà intégré au convoi.");
+  }
+  return {
+    ...etat,
+    plateformes: [
+      ...etat.plateformes,
+      {
+        id: IDENTIFIANT_DE_PLATEFORME_REGIONALE,
+        nom: IDENTIFIANT_DE_PLATEFORME_REGIONALE,
+        type: "standard",
+        quartierId: null,
+        emplacements: [],
+        projetRegional: {
+          id: projetId,
+          service:
+            projetId === "decanteur-itinerant"
+              ? "purification-mobile"
+              : "accueil-deplaces",
+          contrainte:
+            projetId === "decanteur-itinerant"
+              ? "entretien-hydraulique-dedie"
+              : "charge-habitable-permanente",
+          scelleA: moment,
+        },
+      },
+    ],
+  };
+}
+
+export function ajouterPlateformeRegionaleOrdinaire(
+  etat: EtatInfrastructure,
+): EtatInfrastructure {
+  if (
+    etat.plateformes.some(
+      ({ id }) => id === IDENTIFIANT_DE_PLATEFORME_REGIONALE,
+    )
+  ) {
+    throw new Error("Le châssis régional est déjà intégré au convoi.");
+  }
+  return {
+    ...etat,
+    plateformes: [
+      ...etat.plateformes,
+      {
+        id: IDENTIFIANT_DE_PLATEFORME_REGIONALE,
+        nom: IDENTIFIANT_DE_PLATEFORME_REGIONALE,
+        type: "standard",
+        quartierId: null,
+        emplacements: [
+          {
+            id: "chassis-regional-des-bassins.habitable",
+            categorie: "habitable",
+            installation: null,
+          },
+          {
+            id: "chassis-regional-des-bassins.technique",
+            categorie: "technique",
+            installation: null,
+          },
+          {
+            id: "chassis-regional-des-bassins.polyvalent",
+            categorie: "polyvalent",
+            installation: null,
+          },
+        ],
+      },
+    ],
   };
 }
 

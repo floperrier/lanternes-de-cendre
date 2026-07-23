@@ -56,6 +56,7 @@ export interface EtatDeVeilleBasse {
     readonly etatDominant: "epuisee";
     readonly specialite: "charpente-etanche";
     readonly memoire: "aucune" | "aidee" | "refusee" | "redirigee";
+    readonly orientationRegionale?: "arche-des-deplaces";
     readonly integration: {
       readonly statut:
         | "en-attente"
@@ -767,6 +768,17 @@ function estCausaliteDeVeilleBasseRespectee(
   const faitAccueil = fait("veille-basse.cohorte-accueillie");
   const faitRefus = fait("veille-basse.cohorte-refusee");
   const faitRedirection = fait("veille-basse.cohorte-redirigee");
+  const faitOrientationRegionale = fait(
+    "bassins.conseil.cohorte-reorientee",
+  );
+  if (
+    (faitOrientationRegionale === undefined &&
+      cohorte.orientationRegionale !== undefined) ||
+    (faitOrientationRegionale !== undefined &&
+      cohorte.orientationRegionale !== "arche-des-deplaces")
+  ) {
+    return false;
+  }
   const consequenceDuRefus = consequence(
     "veille-basse.cohorte-refusee-revient-aux-portes",
   );
@@ -1108,6 +1120,11 @@ export function estEtatDeVeilleBasse(
     cohorte.specialite !== "charpente-etanche" ||
     !["aucune", "aidee", "refusee", "redirigee"].includes(
       String(cohorte.memoire),
+    ) ||
+    ![undefined, "arche-des-deplaces"].includes(
+      cohorte.orientationRegionale as
+        | "arche-des-deplaces"
+        | undefined,
     ) ||
     !estObjet(cohorte.integration) ||
     ![

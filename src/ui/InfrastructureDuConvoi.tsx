@@ -341,6 +341,8 @@ export function InfrastructureDuConvoi({
               <span>
                 {plateforme.type === "phare"
                   ? libelles.phare
+                  : plateforme.projetRegional !== null
+                    ? `${plateforme.projetRegional.service} — ${plateforme.projetRegional.contrainte}`
                   : plateforme.emplacements
                       .map(
                         (emplacement) =>
@@ -419,7 +421,11 @@ export function InfrastructureDuConvoi({
               onChange={(event) => choisirQuartier(event.target.value)}
             >
               {projection.plateformes
-                .filter((plateforme) => plateforme.type === "standard")
+                .filter(
+                  (plateforme) =>
+                    plateforme.type === "standard" &&
+                    plateforme.projetRegional === null,
+                )
                 .map((plateforme) => (
                   <option key={plateforme.id} value={plateforme.id}>
                     {plateforme.nom}

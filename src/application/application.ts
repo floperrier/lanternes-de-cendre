@@ -1,6 +1,7 @@
 import { trouverEvenement } from "../content/catalogue";
 import { remplacerVariables } from "../content/texte";
 import type { Langue, TexteCompile } from "../content/types";
+import { lirePresentationsPremium } from "../content/presentationsPremium";
 import {
   appliquerCommande,
   creerCampagneInitiale,
@@ -10,6 +11,7 @@ import {
   type GraineDeCampagne,
   type VitesseDuConvoi,
 } from "../simulation/campagne";
+import { calculerDevenirsDesSitesDesBassins } from "../simulation/sites";
 
 export interface ProjectionEvenementNarratif {
   readonly id: string;
@@ -40,6 +42,10 @@ export interface ProjectionDeCampagne {
   readonly phare: "actif";
   readonly formation: "grappe";
   readonly nombreDePlateformes: number;
+  readonly transformationRegionale: {
+    readonly nom: string;
+    readonly statut: string;
+  } | null;
   readonly evenementNarratif: ProjectionEvenementNarratif | null;
 }
 
@@ -153,6 +159,128 @@ function rendreTexte(
   });
 }
 
+function recapitulatifDesBassins(
+  etat: EtatCampagne,
+  langue: Langue,
+): readonly string[] {
+  const textes = lirePresentationsPremium()?.deversoir?.[langue];
+  if (textes === undefined) {
+    throw new Error(
+      "Les présentations premium du récapitulatif régional sont absentes.",
+    );
+  }
+  const nomsDesLieux = textes.nomsDesLieux;
+  const formater = (
+    modele: string,
+    valeurs: Readonly<Record<string, string>>,
+  ) =>
+    modele.replace(
+      /\{([^}]+)\}/g,
+      (_correspondance, cle: string) => valeurs[cle] ?? `{${cle}}`,
+    );
+  const lieuxParcourus = new Set<string>(
+    etat.routes.engagements.flatMap(({ origine, destination }) => [
+      origine,
+      destination,
+    ]),
+  );
+  lieuxParcourus.add(etat.routes.position);
+  if (
+    etat.veilleBasse.cohorte.destination === "hospice-du-sillon" ||
+    etat.veilleBasse.maelysRive.position === "hospice-du-sillon" ||
+    etat.veilleBasse.hospiceDuSillon.devenir !== "ouvert"
+  ) {
+    lieuxParcourus.add("hospice-du-sillon");
+  }
+  if (
+    etat.routes.engagements.some(
+      ({ tronconId }) =>
+        tronconId === "nacelles-de-veille-basse" ||
+        tronconId === "chenal-des-vannes",
+    ) ||
+    etat.narration.faitsDeCampagne.some((fait) =>
+      fait.id.startsWith("bassins.nacelles."),
+    )
+  ) {
+    lieuxParcourus.add("nacelles");
+  }
+  const lieuxDesBassins = [
+    "halte-du-puits-sec",
+    "haut-puits",
+    "les-vanniers",
+    "veille-basse",
+    "hospice-du-sillon",
+    "nacelles",
+    "relais-des-vannes",
+    "deversoir-noir",
+  ] as const;
+  const visites = lieuxDesBassins.filter((lieu) => lieuxParcourus.has(lieu));
+  const nonRejoints = lieuxDesBassins.filter(
+    (lieu) => !lieuxParcourus.has(lieu),
+  );
+  const faitPresent = (id: string) =>
+    etat.narration.faitsDeCampagne.some((fait) => fait.id === id);
+  const projet = etat.hautPuits.projetRegional;
+  const devenirsDesSites =
+    etat.devenirsDesSites ??
+    calculerDevenirsDesSitesDesBassins({
+      routes: etat.routes,
+      veilleBasse: etat.veilleBasse,
+      faits: etat.narration.faitsDeCampagne.map((fait) => fait.id),
+    });
+  const devenirParLieu: Readonly<Record<string, string>> = {
+    "halte-du-puits-sec":
+      textes.devenirsDeSites[devenirsDesSites.maisonDesFiltres],
+    "les-vanniers": textes.devenirsDeSites[devenirsDesSites.vanniers],
+    "hospice-du-sillon":
+      textes.devenirsDeSites[devenirsDesSites.hospiceDuSillon],
+    nacelles: textes.devenirsDeSites[devenirsDesSites.nacelles],
+  };
+  const nommerLieuAvecDevenir = (id: (typeof lieuxDesBassins)[number]) =>
+    devenirParLieu[id] === undefined
+      ? nomsDesLieux[id]
+      : `${nomsDesLieux[id]} (${devenirParLieu[id]})`;
+  const projetDecrit =
+    projet === null || projet === undefined
+      ? textes.projetNonRetenu
+      : `${textes.projets[projet.id]}, ${textes.statutsDeProjet[projet.statut]}`;
+  return [
+    formater(textes.lieuxTraverses, {
+      lieux: visites.map(nommerLieuAvecDevenir).join(", "),
+    }),
+    formater(textes.lieuxNonRejoints, {
+      lieux:
+        nonRejoints.length === 0
+          ? textes.aucunLieu
+          : nonRejoints.map(nommerLieuAvecDevenir).join(", "),
+    }),
+    formater(textes.etatDesColonies, {
+      hautPuitsStatut:
+        textes.statutsDeColonie[etat.hautPuits.colonie.statut],
+      hautPuitsDevenir:
+        textes.devenirsDeHautPuits[etat.hautPuits.colonie.devenir],
+      veilleBasseStatut:
+        textes.statutsDeColonie[etat.veilleBasse.colonie.statut],
+      hospiceDevenir:
+        textes.devenirsDeHospice[
+          etat.veilleBasse.hospiceDuSillon.devenir
+        ],
+      cohorteDestination:
+        textes.destinationsDeCohorte[
+          etat.veilleBasse.cohorte.destination
+        ],
+    }),
+    formater(textes.occasions, {
+      ligneZero: faitPresent("bassins.deversoir.ligne-zero-relevee")
+        ? textes.ligneZeroEmportee
+        : textes.ligneZeroNonEmportee,
+      projet: projetDecrit,
+      archives:
+        textes.etatsDArchives[etat.veilleBasse.colonie.archives.etat],
+    }),
+  ];
+}
+
 function projeterEvenementNarratif(
   etat: EtatCampagne,
   langue: Langue,
@@ -192,9 +320,15 @@ function projeterEvenementNarratif(
     titre: rendreTexte(textes.titre, contexte),
     presentation: rendreTexte(textes.presentation, contexte),
     variante: rendreTexte(texteVariante, contexte),
-    informations: textes.informations.map((information) =>
-      rendreTexte(information, contexte),
-    ),
+    informations: [
+      ...textes.informations.map((information) =>
+        rendreTexte(information, contexte),
+      ),
+      ...(evenement.id ===
+      "bassins.deversoir.le-passage-sans-retour"
+        ? recapitulatifDesBassins(etat, langue)
+        : []),
+    ],
     asset:
       evenement.asset === null
         ? null
@@ -202,22 +336,31 @@ function projeterEvenementNarratif(
             fichier: evenement.asset.fichier,
             alternative: evenement.asset.alternatives[langue],
           },
-    choix: evenement.choix.map((choix) => {
-      const textesDuChoix = textes.choix[choix.id];
-      if (textesDuChoix === undefined) {
-        throw new Error(
-          `Les textes du choix « ${choix.id} » de « ${evenement.id} » sont introuvables.`,
-        );
-      }
+    choix: evenement.choix
+      .filter(
+        (choix) =>
+          evenement.id !==
+            "bassins.deversoir.le-chassis-des-bassins" ||
+          choix.id !== "sceller-transformation" ||
+          (etat.hautPuits.projetRegional?.statut === "retenu" &&
+            etat.pilotage.economie.stocks.materiaux.quantite >= 12),
+      )
+      .map((choix) => {
+        const textesDuChoix = textes.choix[choix.id];
+        if (textesDuChoix === undefined) {
+          throw new Error(
+            `Les textes du choix « ${choix.id} » de « ${evenement.id} » sont introuvables.`,
+          );
+        }
 
-      return {
-        id: choix.id,
-        intention: rendreTexte(textesDuChoix.intention, contexte),
-        coutsConnus: textesDuChoix.coutsConnus.map((cout) =>
-          rendreTexte(cout, contexte),
-        ),
-      };
-    }),
+        return {
+          id: choix.id,
+          intention: rendreTexte(textesDuChoix.intention, contexte),
+          coutsConnus: textesDuChoix.coutsConnus.map((cout) =>
+            rendreTexte(cout, contexte),
+          ),
+        };
+      }),
   };
 }
 
@@ -238,6 +381,21 @@ export function projeterCampagne(
     phare: etat.citeCaravane.phare,
     formation: etat.citeCaravane.formation.type,
     nombreDePlateformes: etat.citeCaravane.formation.plateformes.length,
+    transformationRegionale:
+      etat.hautPuits.projetRegional === null ||
+      etat.hautPuits.projetRegional === undefined
+        ? null
+        : {
+            nom:
+              lirePresentationsPremium()?.deversoir?.[langue].projets[
+                etat.hautPuits.projetRegional.id
+              ] ?? etat.hautPuits.projetRegional.id,
+            statut:
+              lirePresentationsPremium()?.deversoir?.[langue]
+                .statutsDeProjet[
+                etat.hautPuits.projetRegional.statut
+              ] ?? etat.hautPuits.projetRegional.statut,
+          },
     evenementNarratif: projeterEvenementNarratif(etat, langue),
   };
 }

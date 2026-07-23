@@ -12,6 +12,7 @@ describe("projection de l’Atlas", () => {
 
     expect(digue).toEqual({
       id: "digue-des-puits",
+      libelle: "Haut-Puits",
       destination: "Haut-Puits",
       connexion: "Maison des Filtres → Haut-Puits",
       duree: "6 min",

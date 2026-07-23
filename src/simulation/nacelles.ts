@@ -44,7 +44,10 @@ export interface OffreDesNacelles {
     "chenal-des-vannes" | "nacelles-de-veille-basse"
   >;
   readonly branche: BrancheDesNacelles;
-  readonly destination: "relais-des-vannes";
+  readonly destination:
+    | "relais-des-vannes"
+    | "haut-puits"
+    | "veille-basse";
   readonly consommations: {
     readonly combustible: number;
     readonly eau: number;
@@ -139,6 +142,14 @@ const FAITS_TERMINAUX_DE_VEILLE_BASSE = [
   "veille-basse.maelys-equipes-prioritaires",
   "veille-basse.intervention-refusee",
 ] as const;
+const FAITS_D_ACCORD_DU_RELAIS = [
+  "bassins.nacelles.conseil-passage-partage",
+  "bassins.nacelles.conseil-maintenance-commune",
+] as const;
+const FAITS_DE_PASSAGE_REGIONAL = [
+  "bassins.deversoir.passage-prepare",
+  "bassins.deversoir.passage-transmis",
+] as const;
 
 export function routeAvalDesBassinsEstPreparee(
   tronconId: IdentifiantDeTroncon,
@@ -147,17 +158,36 @@ export function routeAvalDesBassinsEstPreparee(
 ): boolean {
   if (
     tronconId !== "chemin-des-vanniers" &&
-    tronconId !== "nacelles-de-veille-basse"
+    tronconId !== "chemin-de-l-hospice" &&
+    tronconId !== "nacelles-de-veille-basse" &&
+    tronconId !== "conduite-du-deversoir" &&
+    tronconId !== "passage-de-la-ligne-zero" &&
+    tronconId !== "piste-des-levees"
   ) {
     return true;
   }
   if (evenementActif !== null) {
     return false;
   }
+  if (
+    tronconId === "passage-de-la-ligne-zero" &&
+    !faits.includes("bassins.deversoir.ligne-zero-relevee")
+  ) {
+    return false;
+  }
   const faitsAttendus =
     tronconId === "nacelles-de-veille-basse"
-      ? FAITS_TERMINAUX_DE_VEILLE_BASSE
-      : FAITS_TERMINAUX_DE_HAUT_PUITS;
+      ? [
+          ...FAITS_TERMINAUX_DE_HAUT_PUITS,
+          ...FAITS_TERMINAUX_DE_VEILLE_BASSE,
+        ]
+      : tronconId === "chemin-de-l-hospice"
+        ? FAITS_TERMINAUX_DE_VEILLE_BASSE
+      : tronconId === "chemin-des-vanniers"
+        ? FAITS_TERMINAUX_DE_HAUT_PUITS
+        : tronconId === "conduite-du-deversoir"
+          ? FAITS_D_ACCORD_DU_RELAIS
+          : FAITS_DE_PASSAGE_REGIONAL;
   return faitsAttendus.some((fait) => faits.includes(fait));
 }
 
@@ -174,6 +204,8 @@ export function calculerOffreDesNacelles(
   const branche =
     contexte.position === "les-vanniers"
       ? ("haut-puits" as const)
+      : contexte.position === "haut-puits"
+        ? ("haut-puits" as const)
       : contexte.position === "veille-basse"
         ? ("veille-basse" as const)
         : null;
@@ -181,8 +213,12 @@ export function calculerOffreDesNacelles(
     return null;
   }
 
-  let combustible = branche === "haut-puits" ? 5 : 6;
-  let eau = branche === "haut-puits" ? 7 : 8;
+  const tronconId =
+    contexte.position === "les-vanniers"
+      ? ("chenal-des-vannes" as const)
+      : ("nacelles-de-veille-basse" as const);
+  let combustible = tronconId === "chenal-des-vannes" ? 5 : 6;
+  let eau = tronconId === "chenal-des-vannes" ? 7 : 8;
   const facteurs: FacteurDeTraverseeDesNacelles[] = [];
   const options: OptionDeTraverseeDesNacelles[] = ["treuil-principal"];
 
@@ -261,12 +297,14 @@ export function calculerOffreDesNacelles(
   }
 
   return {
-    tronconId:
-      branche === "haut-puits"
-        ? "chenal-des-vannes"
-        : "nacelles-de-veille-basse",
+    tronconId,
     branche,
-    destination: "relais-des-vannes",
+    destination:
+      contexte.position === "les-vanniers"
+        ? "relais-des-vannes"
+        : contexte.position === "haut-puits"
+          ? "veille-basse"
+          : "haut-puits",
     consommations: {
       combustible: Math.max(1, combustible),
       eau: Math.max(1, eau),

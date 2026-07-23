@@ -1,5 +1,6 @@
 import type { EtatCampagne } from "../simulation/campagne";
 import { trouverTextesDInstallation } from "../content/catalogue";
+import { lirePresentationsPremium } from "../content/presentationsPremium";
 import type { Langue, TextesDInstallation } from "../content/types";
 import {
   CATALOGUE_D_INSTALLATIONS,
@@ -46,6 +47,12 @@ const NOMS_DE_PLATEFORMES: Readonly<
 };
 
 function nomDePlateforme(id: string, langue: Langue, repli: string): string {
+  if (id === "chassis-regional-des-bassins") {
+    return (
+      lirePresentationsPremium()?.deversoir?.[langue].nomDePlateforme ??
+      repli
+    );
+  }
   return NOMS_DE_PLATEFORMES[langue][id] ?? repli;
 }
 
@@ -73,6 +80,10 @@ export interface ProjectionDInfrastructure {
     readonly id: string;
     readonly nom: string;
     readonly type: "phare" | "standard";
+    readonly projetRegional: {
+      readonly service: string;
+      readonly contrainte: string;
+    } | null;
     readonly emplacements: readonly {
       readonly id: string;
       readonly categorie: CategorieDEmplacement;
@@ -185,6 +196,20 @@ export function projeterInfrastructure(
       id: plateforme.id,
       nom: nomDePlateforme(plateforme.id, langue, plateforme.nom),
       type: plateforme.type,
+      projetRegional:
+        plateforme.projetRegional === undefined
+          ? null
+          : {
+              service:
+                lirePresentationsPremium()?.deversoir?.[langue]
+                  .servicesDeProjet[plateforme.projetRegional.service] ??
+                plateforme.projetRegional.service,
+              contrainte:
+                lirePresentationsPremium()?.deversoir?.[langue]
+                  .contraintesDeProjet[
+                  plateforme.projetRegional.contrainte
+                ] ?? plateforme.projetRegional.contrainte,
+            },
       emplacements: plateforme.emplacements.map((emplacement) => ({
         id: emplacement.id,
         categorie: emplacement.categorie,

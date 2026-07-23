@@ -11,6 +11,7 @@ import {
 import {
   VERSION_ALEATOIRE_COURANTE,
   VERSION_SIMULATION_AVANT_CRISES,
+  VERSION_SIMULATION_AVANT_DEVERSOIR,
   VERSION_SIMULATION_AVANT_HAUT_PUITS,
   VERSION_SIMULATION_AVANT_NACELLES,
   VERSION_SIMULATION_AVANT_ROUTES,
@@ -29,12 +30,17 @@ import {
   type EtatPilotage,
 } from "../simulation/pilotage";
 import { catalogueDEvenements, trouverEvenement } from "../content/catalogue";
+import type {
+  ConditionDEvenement,
+  EvenementDuCatalogue,
+} from "../content/types";
 import {
   IDENTIFIANTS_DE_FAITS_D_INCIDENT,
   type FaitDeCampagne,
 } from "../simulation/faits";
 import {
   calculerModificateursEconomiques,
+  ajouterPlateformeRegionaleOrdinaire,
   CATALOGUE_D_INSTALLATIONS,
   creerInfrastructureInitiale,
   demandeDeChargePourCategorie,
@@ -62,7 +68,10 @@ import {
   type EtatDeVeilleBasse,
 } from "../simulation/veilleBasse";
 import { rejouerReproduction } from "./replay";
-import { estEtatDesRoutes } from "./validationRoutes";
+import {
+  engagementsDuDeversoirSontCausaux,
+  estEtatDesRoutes,
+} from "./validationRoutes";
 import {
   estEtatDesExpeditions,
   estJournalDExpeditionCoherent,
@@ -98,6 +107,7 @@ import {
   creerEtatDeHautPuitsInitial,
   type EtatDeHautPuits,
 } from "../simulation/hautPuits";
+import { calculerDevenirsDesSitesDesBassins } from "../simulation/sites";
 import {
   activitesDeHautPuitsSontCausales,
   estEtatDeHautPuits,
@@ -169,6 +179,7 @@ export interface EtatCampagneV2
     | "veilleBasse"
     | "hautPuits"
     | "citeCaravane"
+    | "devenirsDesSites"
   > {
   readonly version: typeof VERSION_SIMULATION_AVANT_ROUTES;
   readonly citeCaravane: Omit<EtatCampagne["citeCaravane"], "formation"> & {
@@ -188,6 +199,7 @@ export interface EtatCampagneAvantRoutes
     | "expeditions"
     | "veilleBasse"
     | "hautPuits"
+    | "devenirsDesSites"
   > {
   readonly version: typeof VERSION_SIMULATION_AVANT_CRISES;
 }
@@ -200,6 +212,7 @@ export interface EtatCampagneAvantCrises
     | "expeditions"
     | "veilleBasse"
     | "hautPuits"
+    | "devenirsDesSites"
   > {
   readonly version: typeof VERSION_SIMULATION_AVANT_CRISES;
 }
@@ -207,17 +220,26 @@ export interface EtatCampagneAvantCrises
 export type EtatCampagneV3 = EtatCampagneAvantCrises;
 
 export interface EtatCampagneV4
-  extends Omit<EtatCampagne, "version" | "veilleBasse" | "hautPuits"> {
+  extends Omit<
+    EtatCampagne,
+    "version" | "veilleBasse" | "hautPuits" | "devenirsDesSites"
+  > {
   readonly version: typeof VERSION_SIMULATION_AVANT_VEILLE_BASSE;
 }
 
 export interface EtatCampagneV5
-  extends Omit<EtatCampagne, "version" | "hautPuits"> {
+  extends Omit<EtatCampagne, "version" | "hautPuits" | "devenirsDesSites"> {
   readonly version: typeof VERSION_SIMULATION_AVANT_HAUT_PUITS;
 }
 
-export interface EtatCampagneV6 extends Omit<EtatCampagne, "version"> {
+export interface EtatCampagneV6
+  extends Omit<EtatCampagne, "version" | "devenirsDesSites"> {
   readonly version: typeof VERSION_SIMULATION_AVANT_NACELLES;
+}
+
+export interface EtatCampagneV7
+  extends Omit<EtatCampagne, "version" | "devenirsDesSites"> {
+  readonly version: typeof VERSION_SIMULATION_AVANT_DEVERSOIR;
 }
 
 export function estObjet(valeur: unknown): valeur is ObjetInconnu {
@@ -395,6 +417,41 @@ export function estCommandeV6(valeur: unknown): valeur is CommandeCampagne {
     typeof valeur.evenementId === "string" &&
     valeur.evenementId.startsWith("bassins.nacelles.")
   );
+}
+
+export function estCommandeV7(valeur: unknown): valeur is CommandeCampagne {
+  if (!estObjet(valeur)) {
+    return false;
+  }
+  if (
+    valeur.type === "conseil.decider" &&
+    valeur.conseilId === "conseil.des-vannes"
+  ) {
+    return false;
+  }
+  if (!estCommande(valeur)) {
+    return false;
+  }
+  if (
+    valeur.type === "engagement-de-route.confirmer" &&
+    [
+      "chemin-de-l-hospice",
+      "chenal-de-l-hospice",
+      "conduite-du-deversoir",
+      "passage-de-la-ligne-zero",
+      "piste-des-levees",
+    ].includes(String(valeur.tronconId))
+  ) {
+    return false;
+  }
+  if (
+    valeur.type === "evenement-narratif.choisir" &&
+    typeof valeur.evenementId === "string" &&
+    valeur.evenementId.startsWith("bassins.deversoir.")
+  ) {
+    return false;
+  }
+  return true;
 }
 
 function estOrdreDeChantier(valeur: unknown): valeur is OrdreDeChantier {
@@ -796,8 +853,41 @@ function estEtatInfrastructure(
     return false;
   }
   const initiale = creerInfrastructureInitiale();
+  const faitDeScellement = faits.find(
+    (fait) => fait.id === "bassins.deversoir.transformation-scellee",
+  );
+  const faitDeProjet = faits.find(
+    (fait) =>
+      fait.id === "bassins.conseil.decanteur-repare" ||
+      fait.id === "bassins.conseil.cohorte-reorientee",
+  );
+  const faitDeGabarits = faits.find(
+    (fait) => fait.id === "bassins.deversoir.gabarits-conserves",
+  );
+  const projetRegionalAttendu =
+    faitDeScellement === undefined || faitDeProjet === undefined
+      ? null
+      : {
+          id:
+            faitDeProjet.id === "bassins.conseil.decanteur-repare"
+              ? ("decanteur-itinerant" as const)
+              : ("arche-des-deplaces" as const),
+          service:
+            faitDeProjet.id === "bassins.conseil.decanteur-repare"
+              ? ("purification-mobile" as const)
+              : ("accueil-deplaces" as const),
+          contrainte:
+            faitDeProjet.id === "bassins.conseil.decanteur-repare"
+              ? ("entretien-hydraulique-dedie" as const)
+              : ("charge-habitable-permanente" as const),
+          scelleA: faitDeScellement.moment,
+        };
   if (
-    valeur.plateformes.length !== initiale.plateformes.length ||
+    valeur.plateformes.length !==
+      initiale.plateformes.length +
+        (projetRegionalAttendu === null && faitDeGabarits === undefined
+          ? 0
+          : 1) ||
     valeur.quartiers.length !== initiale.quartiers.length ||
     !valeur.quartiers.every((quartier, index) => {
       const quartierInitial = initiale.quartiers[index];
@@ -820,6 +910,7 @@ function estEtatInfrastructure(
       plateforme.nom !== plateformeInitiale.nom ||
       plateforme.type !== plateformeInitiale.type ||
       plateforme.quartierId !== plateformeInitiale.quartierId ||
+      plateforme.projetRegional !== undefined ||
       !Array.isArray(plateforme.emplacements) ||
       plateforme.emplacements.length !== plateformeInitiale.emplacements.length
     ) {
@@ -862,6 +953,79 @@ function estEtatInfrastructure(
       }
     }
   }
+  const plateformeRegionale =
+    valeur.plateformes[initiale.plateformes.length];
+  if (projetRegionalAttendu !== null) {
+    if (
+      !estObjet(plateformeRegionale) ||
+        plateformeRegionale.id !== "chassis-regional-des-bassins" ||
+        plateformeRegionale.nom !== "chassis-regional-des-bassins" ||
+        plateformeRegionale.type !== "standard" ||
+        plateformeRegionale.quartierId !== null ||
+        !Array.isArray(plateformeRegionale.emplacements) ||
+        plateformeRegionale.emplacements.length !== 0 ||
+        !sontStructurellementEgaux(
+          plateformeRegionale.projetRegional,
+          projetRegionalAttendu,
+        )
+    ) {
+      return false;
+    }
+  } else if (faitDeGabarits !== undefined) {
+    if (
+      !estObjet(plateformeRegionale) ||
+      plateformeRegionale.id !== "chassis-regional-des-bassins" ||
+      plateformeRegionale.nom !== "chassis-regional-des-bassins" ||
+      plateformeRegionale.type !== "standard" ||
+      plateformeRegionale.quartierId !== null ||
+      plateformeRegionale.projetRegional !== undefined ||
+      !Array.isArray(plateformeRegionale.emplacements) ||
+      plateformeRegionale.emplacements.length !== 3
+    ) {
+      return false;
+    }
+    const emplacementsAttendus = [
+      ["chassis-regional-des-bassins.habitable", "habitable"],
+      ["chassis-regional-des-bassins.technique", "technique"],
+      ["chassis-regional-des-bassins.polyvalent", "polyvalent"],
+    ] as const;
+    for (const [index, [id, categorie]] of emplacementsAttendus.entries()) {
+      const emplacement = plateformeRegionale.emplacements[index];
+      if (
+        !estObjet(emplacement) ||
+        emplacement.id !== id ||
+        emplacement.categorie !== categorie ||
+        !(
+          emplacement.installation === null ||
+          estInstallationDuConvoi(
+            emplacement.installation,
+            secondesCourantes,
+          )
+        )
+      ) {
+        return false;
+      }
+      if (estObjet(emplacement.installation)) {
+        if (installations.has(String(emplacement.installation.id))) {
+          return false;
+        }
+        installations.add(String(emplacement.installation.id));
+        const definition =
+          CATALOGUE_D_INSTALLATIONS[
+            emplacement.installation
+              .definitionId as keyof typeof CATALOGUE_D_INSTALLATIONS
+          ];
+        if (
+          categorie !== "polyvalent" &&
+          !definition.categoriesCompatibles.includes(categorie)
+        ) {
+          return false;
+        }
+      }
+    }
+  } else if (plateformeRegionale !== undefined) {
+    return false;
+  }
   if (
     valeur.chantierActif !== null &&
     !estChantier(valeur.chantierActif, secondesCourantes, false)
@@ -872,7 +1036,11 @@ function estEtatInfrastructure(
     return false;
   }
   let dernierTerme = 0;
-  const emplacementsInitiaux = initiale.plateformes.flatMap(
+  const infrastructureDeReference =
+    faitDeGabarits === undefined
+      ? initiale
+      : ajouterPlateformeRegionaleOrdinaire(initiale);
+  const emplacementsInitiaux = infrastructureDeReference.plateformes.flatMap(
     (plateforme) => plateforme.emplacements,
   );
   const installationsAttendues = new Map(
@@ -914,8 +1082,8 @@ function estEtatInfrastructure(
     );
   };
   const infrastructureAttendue = (): EtatInfrastructure => ({
-    ...initiale,
-    plateformes: initiale.plateformes.map((plateforme) => ({
+    ...infrastructureDeReference,
+    plateformes: infrastructureDeReference.plateformes.map((plateforme) => ({
       ...plateforme,
       emplacements: plateforme.emplacements.map((emplacement) => ({
         ...emplacement,
@@ -923,6 +1091,18 @@ function estEtatInfrastructure(
       })),
     })),
   });
+  const ordreToucheLaPlateformeRegionale = (ordre: OrdreDeChantier) =>
+    (ordre.type === "deplacement"
+      ? [ordre.origineId, ordre.destinationId]
+      : [ordre.emplacementId]
+    ).some((id) => id.startsWith("chassis-regional-des-bassins."));
+  const ordreEstPosterieurAuChassis = (
+    ordre: OrdreDeChantier,
+    commenceA: number,
+  ) =>
+    !ordreToucheLaPlateformeRegionale(ordre) ||
+    (faitDeGabarits !== undefined &&
+      commenceA >= (faitDeGabarits.moment as number));
   let momentDesMateriaux = 0;
   let quantiteDeMateriaux = PILOTAGE_INITIAL.economie.stocks.materiaux.quantite;
   let reliquatDeMateriaux =
@@ -1020,6 +1200,9 @@ function estEtatInfrastructure(
     }
     avancerMateriauxJusqua(chantier.commenceA);
     const ordre = chantier.ordre;
+    if (!ordreEstPosterieurAuChassis(ordre, chantier.commenceA)) {
+      return false;
+    }
     if (ordre.type === "construction") {
       if (
         installationsAttendues.get(ordre.emplacementId) !== null ||
@@ -1100,6 +1283,7 @@ function estEtatInfrastructure(
     avancerMateriauxJusqua(chantier.commenceA);
     const ordre = chantier.ordre;
     if (
+      !ordreEstPosterieurAuChassis(ordre, chantier.commenceA) ||
       (ordre.type === "construction" &&
         (installationsAttendues.get(ordre.emplacementId) !== null ||
           !compatible(ordre.definitionId, ordre.emplacementId) ||
@@ -1724,21 +1908,79 @@ function estCausaliteDeNarrationValide(
   parties: Omit<EtatCampagneV1, "version">,
   pilotage: EtatPilotage,
   veilleBasse: EtatCampagne["veilleBasse"],
+  routes: EtatDesRoutes,
+  autoriserCausaliteHistoriqueSansMarqueur = false,
 ): boolean {
   const narration = parties.narration;
   const faits = narration.faitsDeCampagne;
   const evenementsJoues = narration.evenementsJoues;
+  const positionAuMoment = (moment: number) => {
+    let position = creerEtatDesRoutesInitial().position;
+    for (const engagement of routes.engagements) {
+      if (
+        engagement.statut === "termine" &&
+        engagement.arriveeA <= moment
+      ) {
+        position = engagement.destination;
+      }
+    }
+    return position;
+  };
+  const conditionEstRemplie = (
+    condition: ConditionDEvenement,
+    moment: number,
+    faitsDisponibles: readonly FaitDeCampagne[],
+  ) => {
+    if (condition.type === "temps-au-moins") {
+      return moment >= condition.secondes;
+    }
+    if (condition.type === "fait-present") {
+      return faitsDisponibles.some((fait) => fait.id === condition.fait);
+    }
+    if (condition.type === "lieu-present") {
+      return positionAuMoment(moment) === condition.lieu;
+    }
+    return condition.faits.some((id) =>
+      faitsDisponibles.some((fait) => fait.id === id),
+    );
+  };
+  const conditionsSontRemplies = (
+    evenement: EvenementDuCatalogue,
+    moment: number,
+    faitsDisponibles: readonly FaitDeCampagne[],
+    ignorerLeLieu = false,
+  ) =>
+    moment >= evenement.periodeEligibilite.debut &&
+    moment <= evenement.periodeEligibilite.fin &&
+    evenement.conditions.requises.every((condition) =>
+      (ignorerLeLieu && condition.type === "lieu-present") ||
+      conditionEstRemplie(condition, moment, faitsDisponibles),
+    ) &&
+    evenement.conditions.interdites.every(
+      (condition) =>
+        (ignorerLeLieu && condition.type === "lieu-present") ||
+        !conditionEstRemplie(condition, moment, faitsDisponibles),
+    );
+  const evenementActif =
+    narration.evenementActif === null
+      ? null
+      : trouverEvenement(narration.evenementActif)!;
   if (
     new Set(evenementsJoues).size !== evenementsJoues.length ||
     (narration.evenementActif !== null &&
       (evenementsJoues.includes(narration.evenementActif) ||
-        parties.tempsDuConvoi.secondes <
-          trouverEvenement(narration.evenementActif)!.periodeEligibilite.debut))
+        evenementActif === null ||
+        !conditionsSontRemplies(
+          evenementActif,
+          parties.tempsDuConvoi.secondes,
+          faits,
+        )))
   ) {
     return false;
   }
 
   let habitantsAttendus = 184;
+  let causaliteHistoriqueEstUtilisee = false;
   for (const evenement of catalogueDEvenements.evenements) {
     const faitsDeLEvenement = faits.filter(
       (fait) => fait.cause === evenement.id,
@@ -1750,12 +1992,45 @@ function estCausaliteDeNarrationValide(
       ),
     );
     const estJoue = evenementsJoues.includes(evenement.id);
+    const premierFaitDeLEvenement = faitsDeLEvenement[0];
+    const indexDuPremierFait =
+      premierFaitDeLEvenement === undefined
+        ? -1
+        : faits.indexOf(premierFaitDeLEvenement);
+    const conditionsNormalesEtaientRemplies =
+      premierFaitDeLEvenement !== undefined &&
+      indexDuPremierFait >= 0 &&
+      conditionsSontRemplies(
+        evenement,
+        premierFaitDeLEvenement.moment,
+        faits.slice(0, indexDuPremierFait),
+      );
+    const causaliteHistoriqueEstApplicable =
+      !conditionsNormalesEtaientRemplies &&
+      premierFaitDeLEvenement !== undefined &&
+      indexDuPremierFait >= 0 &&
+      evenement.id === "bassins-fendus.eau-de-haut-puits" &&
+      positionAuMoment(premierFaitDeLEvenement.moment) === "veille-basse" &&
+      conditionsSontRemplies(
+        evenement,
+        premierFaitDeLEvenement.moment,
+        faits.slice(0, indexDuPremierFait),
+        true,
+      );
+    const conditionsEtaientRemplies =
+      conditionsNormalesEtaientRemplies ||
+      (causaliteHistoriqueEstApplicable &&
+        (narration.causaliteHistorique ===
+          "eau-haut-puits-a-veille-basse" ||
+          autoriserCausaliteHistoriqueSansMarqueur));
+    causaliteHistoriqueEstUtilisee ||= causaliteHistoriqueEstApplicable;
     if (
       faitsDeLEvenement.some(
         (fait) => fait.moment < evenement.periodeEligibilite.debut,
       ) ||
       new Set(faitsDeLEvenement.map((fait) => fait.moment)).size > 1 ||
       (estJoue && choixCorrespondants.length !== 1) ||
+      (estJoue && !conditionsEtaientRemplies) ||
       (!estJoue && faitsDeLEvenement.length !== 0)
     ) {
       return false;
@@ -1808,10 +2083,53 @@ function estCausaliteDeNarrationValide(
         faitDIncident.id !== IDENTIFIANTS_DE_FAITS_D_INCIDENT[2]);
   return (
     parties.citeCaravane.habitants === habitantsAttendus &&
+    (narration.causaliteHistorique === undefined ||
+      causaliteHistoriqueEstUtilisee) &&
     nombreDeFaitsDIncident === (pilotage.incidentActif === null ? 1 : 0) &&
     resolutionDIncidentEstPossible &&
-    estCausaliteDuConseilValide(faits)
+    estCausaliteDuConseilValide(
+      faits,
+      routes,
+      parties.tempsDuConvoi.secondes,
+    )
   );
+}
+
+export function marquerCausaliteHistoriqueDeNarrationSiNecessaire(
+  etat: EtatCampagne,
+): EtatCampagne {
+  if (
+    !etat.narration.evenementsJoues.includes(
+      "bassins-fendus.eau-de-haut-puits",
+    )
+  ) {
+    return etat;
+  }
+  const premierFait = etat.narration.faitsDeCampagne.find(
+    (fait) => fait.cause === "bassins-fendus.eau-de-haut-puits",
+  );
+  if (premierFait === undefined) {
+    return etat;
+  }
+  let position = creerEtatDesRoutesInitial().position;
+  for (const engagement of etat.routes.engagements) {
+    if (
+      engagement.statut === "termine" &&
+      engagement.arriveeA <= premierFait.moment
+    ) {
+      position = engagement.destination;
+    }
+  }
+  if (position !== "veille-basse") {
+    return etat;
+  }
+  return {
+    ...etat,
+    narration: {
+      ...etat.narration,
+      causaliteHistorique: "eau-haut-puits-a-veille-basse",
+    },
+  };
 }
 
 function sontStructurellementEgaux(gauche: unknown, droite: unknown): boolean {
@@ -2028,6 +2346,7 @@ function lirePartiesCommunesDEtat(
   valeur: ObjetInconnu,
   validerFait: (fait: unknown) => boolean,
   plateformesAttendues: readonly string[],
+  autoriserPlateformeRegionale = false,
 ): Omit<EtatCampagneV1, "version"> | undefined {
   const temps = valeur.tempsDuConvoi;
   const cite = valeur.citeCaravane;
@@ -2048,8 +2367,18 @@ function lirePartiesCommunesDEtat(
     !estObjet(cite.formation) ||
     cite.formation.type !== "grappe" ||
     !estTableauDeChaines(cite.formation.plateformes) ||
-    !memesChaines(cite.formation.plateformes, plateformesAttendues) ||
+    !(
+      memesChaines(cite.formation.plateformes, plateformesAttendues) ||
+      (autoriserPlateformeRegionale &&
+        memesChaines(cite.formation.plateformes, [
+          ...plateformesAttendues,
+          "chassis-regional-des-bassins",
+        ]))
+    ) ||
     !estObjet(narration) ||
+    (narration.causaliteHistorique !== undefined &&
+      narration.causaliteHistorique !==
+        "eau-haut-puits-a-veille-basse") ||
     !(
       narration.evenementActif === null ||
       (typeof narration.evenementActif === "string" &&
@@ -2084,6 +2413,13 @@ function lirePartiesCommunesDEtat(
       evenementActif: narration.evenementActif,
       evenementsJoues: narration.evenementsJoues,
       faitsDeCampagne: narration.faitsDeCampagne,
+      ...(narration.causaliteHistorique ===
+      "eau-haut-puits-a-veille-basse"
+        ? {
+            causaliteHistorique:
+              "eau-haut-puits-a-veille-basse" as const,
+          }
+        : {}),
     },
   } as Omit<EtatCampagneV1, "version">;
 }
@@ -2209,6 +2545,8 @@ function lireEtatAvecSchemaCourant(
   validerCrises: boolean,
   autoriserMarqueurHistoriqueSansFait = false,
   utiliserCoutsHistoriquesDesNacelles = false,
+  autoriserCausaliteHistoriqueSansMarqueur = false,
+  autoriserTopologieHistoriqueSansMarqueur = false,
 ): EtatCampagne | undefined {
   if (
     !estObjet(valeur) ||
@@ -2220,6 +2558,7 @@ function lireEtatAvecSchemaCourant(
     valeur,
     estFaitDeCampagneV2,
     IDENTIFIANTS_PLATEFORMES_MOBILES,
+    true,
   );
   const flux = valeur.fluxPseudoAleatoires;
   const narration = valeur.narration;
@@ -2230,6 +2569,16 @@ function lireEtatAvecSchemaCourant(
   const expeditions = valeur.expeditions;
   const veilleBasse = valeur.veilleBasse;
   const hautPuits = valeur.hautPuits;
+  const devenirsDesSites = valeur.devenirsDesSites;
+  const faitDePassageRegional =
+    estObjet(narration) &&
+    Array.isArray(narration.faitsDeCampagne) &&
+    narration.faitsDeCampagne.some(
+      (fait) =>
+        estObjet(fait) &&
+        (fait.id === "bassins.deversoir.passage-prepare" ||
+          fait.id === "bassins.deversoir.passage-transmis"),
+    );
   const routeV7DesNacellesEstMarquee =
     estObjet(routes) &&
     estObjet(routes.etatsReels) &&
@@ -2258,7 +2607,24 @@ function lireEtatAvecSchemaCourant(
       parties.tempsDuConvoi.secondes,
       narration.faitsDeCampagne,
     ) ||
-    !estEtatDesRoutes(routes, parties.tempsDuConvoi.secondes) ||
+    !estEtatDesRoutes(
+      routes,
+      parties.tempsDuConvoi.secondes,
+      autoriserTopologieHistoriqueSansMarqueur,
+    ) ||
+    (parties.citeCaravane.formation.plateformes.includes(
+      "chassis-regional-des-bassins",
+    ) !==
+      narration.faitsDeCampagne.some(
+        (fait) =>
+          estObjet(fait) &&
+          (fait.id === "bassins.deversoir.transformation-scellee" ||
+            fait.id === "bassins.deversoir.gabarits-conserves"),
+      )) ||
+    !engagementsDuDeversoirSontCausaux(
+      routes as EtatDesRoutes,
+      narration.faitsDeCampagne as unknown as readonly FaitDeCampagne[],
+    ) ||
     !estEtatDesExpeditions(expeditions, parties.tempsDuConvoi.secondes) ||
     !estEtatDeVeilleBasse(
       veilleBasse,
@@ -2268,6 +2634,18 @@ function lireEtatAvecSchemaCourant(
         readonly moment: number;
       }[],
     ) ||
+    (faitDePassageRegional
+      ? !sontStructurellementEgaux(
+          devenirsDesSites,
+          calculerDevenirsDesSitesDesBassins({
+            routes: routes as EtatDesRoutes,
+            veilleBasse: veilleBasse as EtatDeVeilleBasse,
+            faits: (
+              narration.faitsDeCampagne as unknown as readonly FaitDeCampagne[]
+            ).map((fait) => fait.id),
+          }),
+        )
+      : devenirsDesSites !== null) ||
     !estEtatDeHautPuits(hautPuits, parties.tempsDuConvoi.secondes) ||
     !activitesDeHautPuitsSontCausales(
       hautPuits,
@@ -2317,6 +2695,8 @@ function lireEtatAvecSchemaCourant(
       parties,
       pilotage,
       veilleBasse as EtatCampagne["veilleBasse"],
+      routes as EtatDesRoutes,
+      autoriserCausaliteHistoriqueSansMarqueur,
     ) ||
     !Array.isArray(valeur.echeances) ||
     !valeur.echeances.every(
@@ -2351,6 +2731,84 @@ export function lireSnapshotCourant(
   valeur: unknown,
 ): EtatCampagne | undefined {
   return lireEtatAvecSchemaCourant(valeur, true, true);
+}
+
+function lireEtatAvecSchemaV7(
+  valeur: unknown,
+  autoriserMarqueurHistoriqueSansFait = false,
+): EtatCampagneV7 | undefined {
+  if (
+    !estObjet(valeur) ||
+    valeur.version !== VERSION_SIMULATION_AVANT_DEVERSOIR ||
+    "devenirsDesSites" in valeur ||
+    !estObjet(valeur.hautPuits) ||
+    "projetRegional" in valeur.hautPuits ||
+    !estObjet(valeur.veilleBasse) ||
+    !estObjet(valeur.veilleBasse.cohorte) ||
+    "orientationRegionale" in valeur.veilleBasse.cohorte ||
+    !estObjet(valeur.routes) ||
+    !estObjet(valeur.routes.etatsReels) ||
+    [
+      "chemin-de-l-hospice",
+      "chenal-de-l-hospice",
+      "conduite-du-deversoir",
+      "passage-de-la-ligne-zero",
+      "piste-des-levees",
+    ].some((id) =>
+      Object.prototype.hasOwnProperty.call(
+        (valeur.routes as ObjetInconnu).etatsReels,
+        id,
+      ),
+    ) ||
+    !estObjet(valeur.narration) ||
+    !Array.isArray(valeur.narration.evenementsJoues) ||
+    valeur.narration.evenementsJoues.some(
+      (id) => typeof id === "string" && id.startsWith("bassins.deversoir."),
+    ) ||
+    (typeof valeur.narration.evenementActif === "string" &&
+      valeur.narration.evenementActif.startsWith("bassins.deversoir.")) ||
+    !Array.isArray(valeur.narration.faitsDeCampagne) ||
+    valeur.narration.faitsDeCampagne.some(
+      (fait) =>
+        estObjet(fait) &&
+        typeof fait.id === "string" &&
+        fait.id.startsWith("bassins.deversoir."),
+    )
+  ) {
+    return undefined;
+  }
+
+  const etatCourant = lireEtatAvecSchemaCourant(
+    {
+      ...valeur,
+      version: VERSION_SIMULATION_COURANTE,
+      hautPuits: {
+        ...valeur.hautPuits,
+        projetRegional: null,
+      },
+      devenirsDesSites: null,
+    },
+    true,
+    autoriserMarqueurHistoriqueSansFait,
+    false,
+    true,
+    true,
+  );
+  return etatCourant === undefined
+    ? undefined
+    : (valeur as unknown as EtatCampagneV7);
+}
+
+export function lireEtatV7(
+  valeur: unknown,
+): EtatCampagneV7 | undefined {
+  return lireEtatAvecSchemaV7(valeur);
+}
+
+export function lireSnapshotV7(
+  valeur: unknown,
+): EtatCampagneV7 | undefined {
+  return lireEtatAvecSchemaV7(valeur, true);
 }
 
 function lireEtatAvecSchemaV6(
@@ -2398,9 +2856,11 @@ function lireEtatAvecSchemaV6(
     {
       ...valeur,
       version: VERSION_SIMULATION_COURANTE,
+      devenirsDesSites: null,
     },
     true,
     autoriserMarqueurHistoriqueSansFait,
+    true,
     true,
   );
   return etatCourant === undefined
@@ -2436,9 +2896,12 @@ function lireEtatAvecSchemaV5(
       ...valeur,
       version: VERSION_SIMULATION_COURANTE,
       hautPuits: creerEtatDeHautPuitsInitial(),
+      devenirsDesSites: null,
     },
     true,
     autoriserMarqueurHistoriqueSansFait,
+    false,
+    true,
   );
   return etatCourant === undefined
     ? undefined
@@ -2475,9 +2938,12 @@ function lireEtatAvecSchemaV4(
       version: VERSION_SIMULATION_COURANTE,
       veilleBasse: creerEtatInitialDeVeilleBasse(),
       hautPuits: creerEtatDeHautPuitsInitial(),
+      devenirsDesSites: null,
     },
     true,
     autoriserMarqueurHistoriqueSansFait,
+    false,
+    true,
   );
   return etatCourant === undefined
     ? undefined
@@ -2542,6 +3008,7 @@ export function lireEtatAvantRoutes(
     expeditions: creerEtatDesExpeditionsInitial(),
     veilleBasse: creerEtatInitialDeVeilleBasse(),
     hautPuits: creerEtatDeHautPuitsInitial(),
+    devenirsDesSites: null,
   }, false);
   if (etatNormalise === undefined) {
     return undefined;
@@ -2623,6 +3090,7 @@ export function lireEtatV3(valeur: unknown): EtatCampagneV3 | undefined {
     expeditions: creerEtatDesExpeditionsInitial(),
     veilleBasse: creerEtatInitialDeVeilleBasse(),
     hautPuits: creerEtatDeHautPuitsInitial(),
+    devenirsDesSites: null,
   }, false);
   return etatCourant === undefined
     ? undefined
@@ -2661,6 +3129,7 @@ export function lireEtatV2(valeur: unknown): EtatCampagneV2 | undefined {
     expeditions: creerEtatDesExpeditionsInitial(),
     veilleBasse: creerEtatInitialDeVeilleBasse(),
     hautPuits: creerEtatDeHautPuitsInitial(),
+    devenirsDesSites: null,
   }, false);
   return etatCourant === undefined
     ? undefined

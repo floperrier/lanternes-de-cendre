@@ -1,0 +1,15 @@
+{
+  "asset": "serveur-commercial/assets/deversoir-conseil.webp",
+  "sha256": "b887ca0bc7a20f5a2eb820e7b019617d5fdfc87d5b46078beaff35a47b5da22a",
+  "createdAt": "2026-07-23",
+  "tool": "Codex built-in image_gen",
+  "model": "built-in model (identifier not exposed)",
+  "useCase": "illustration-story",
+  "input": "The repository Cité-Caravane illustration was supplied only as a visual world and style reference.",
+  "prompt": "Generate a wide narrative-game illustration of the Conseil des Vannes during an ash storm, with delegates around a mechanical sluice table and four physically legible courses of action: shared cistern valves, settler repair parts, sealed refugee frames and a chained coercive gate. Match the supplied world reference without copying it. No readable text, typography, logos, watermark, weapons or UI.",
+  "rights": "OpenAI Terms of Use — output assigned to the user",
+  "approval": {
+    "status": "pending-pull-request-review",
+    "reviewer": null
+  }
+}

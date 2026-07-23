@@ -14,6 +14,9 @@ export let catalogueDEvenements = figerProfondement(
 const IDS_D_EVENEMENTS_DE_BASE = new Set(
   catalogueGenere.evenements.map(({ id }) => id as string),
 );
+const IDS_DE_CONSEILS_DE_BASE = new Set(
+  catalogueGenere.conseils.map(({ id }) => id as string),
+);
 
 export type EvenementStructurel = Pick<
   EvenementDuCatalogue,
@@ -30,6 +33,7 @@ export interface ContenuPremiumNarratif {
   readonly version: 1;
   readonly catalogue: {
     readonly evenements: readonly EvenementDuCatalogue[];
+    readonly conseils: readonly ConseilDuCatalogue[];
     readonly libellesTransversaux: Readonly<
       Record<
         Langue,
@@ -50,6 +54,8 @@ export function installerContenuPremiumNarratif(
     contenu.version !== 1 ||
     catalogue === undefined ||
     !Array.isArray(catalogue.evenements) ||
+    (catalogue.conseils !== undefined &&
+      !Array.isArray(catalogue.conseils)) ||
     catalogue.libellesTransversaux === undefined ||
     !["fr", "en"].every((langue) => {
       const journal =
@@ -75,6 +81,13 @@ export function installerContenuPremiumNarratif(
         typeof evenement !== "object" ||
         typeof evenement.id !== "string" ||
         evenement.id.length === 0,
+    ) ||
+    (catalogue.conseils ?? []).some(
+      (conseil) =>
+        conseil === null ||
+        typeof conseil !== "object" ||
+        typeof conseil.id !== "string" ||
+        conseil.id.length === 0,
     )
   ) {
     throw new Error("contenu-premium-narratif-invalide");
@@ -83,9 +96,18 @@ export function installerContenuPremiumNarratif(
   const evenementsPremium =
     catalogue.evenements as readonly EvenementDuCatalogue[];
   const idsPremium = new Set(evenementsPremium.map(({ id }) => id));
+  const conseilsPremium =
+    (catalogue.conseils ?? []) as readonly ConseilDuCatalogue[];
+  const idsDeConseilsPremium = new Set(
+    conseilsPremium.map(({ id }) => id),
+  );
   if (
     idsPremium.size !== evenementsPremium.length ||
-    [...idsPremium].some((id) => IDS_D_EVENEMENTS_DE_BASE.has(id))
+    [...idsPremium].some((id) => IDS_D_EVENEMENTS_DE_BASE.has(id)) ||
+    idsDeConseilsPremium.size !== conseilsPremium.length ||
+    [...idsDeConseilsPremium].some((id) =>
+      IDS_DE_CONSEILS_DE_BASE.has(id)
+    )
   ) {
     throw new Error("contenu-premium-narratif-duplique");
   }
@@ -111,6 +133,12 @@ export function installerContenuPremiumNarratif(
         ({ id }) => !idsPremium.has(id),
       ),
       ...evenementsPremium,
+    ],
+    conseils: [
+      ...catalogueDEvenements.conseils.filter(
+        ({ id }) => !idsDeConseilsPremium.has(id),
+      ),
+      ...conseilsPremium,
     ],
     libellesTransversaux: {
       fr: fusionnerJournal("fr"),

@@ -2959,7 +2959,8 @@ export default {
           "equipes-entretien": "Équipes d’entretien",
           "ilyana-voss": "Ilyana Voss",
           "puits-libres": "Puits Libres",
-          "habitants-haut-puits": "Habitants de Haut-Puits"
+          "habitants-haut-puits": "Habitants de Haut-Puits",
+          "habitants-des-bassins": "Habitants des Bassins"
         }
       }
     },
@@ -2997,7 +2998,8 @@ export default {
           "equipes-entretien": "Maintenance crews",
           "ilyana-voss": "Ilyana Voss",
           "puits-libres": "Free Wells",
-          "habitants-haut-puits": "High Well inhabitants"
+          "habitants-haut-puits": "High Well inhabitants",
+          "habitants-des-bassins": "People of the Basins"
         }
       }
     }

@@ -10,6 +10,10 @@ export const NOMS_D_ASSETS_PREMIUM = [
   "nacelles-frein.webp",
   "nacelles-trace.webp",
   "nacelles-compagnes.webp",
+  "deversoir-ligne-zero.webp",
+  "deversoir-conseil.webp",
+  "deversoir-chassis.webp",
+  "deversoir-passage.webp",
 ] as const;
 
 export const LIEUX_PREMIUM = [
@@ -18,10 +22,70 @@ export const LIEUX_PREMIUM = [
     nom: { fr: "Les Vanniers", en: "The Basketmakers" },
   },
   {
+    id: "hospice-du-sillon",
+    nom: { fr: "Hospice du Sillon", en: "Sillon Hospice" },
+  },
+  {
     id: "relais-des-vannes",
     nom: { fr: "Relais des Vannes", en: "Sluice Relay" },
   },
+  {
+    id: "deversoir-noir",
+    nom: { fr: "Déversoir Noir", en: "Black Spillway" },
+  },
+  {
+    id: "lisiere-trame-de-fer",
+    nom: { fr: "Lisière de la Trame de Fer", en: "Iron Weave Verge" },
+  },
 ] as const;
+
+const RENSEIGNEMENT_D_APPROCHE_DU_DEVERSOIR = {
+  id: "approche-du-deversoir",
+  source: "nacelliers-des-vannes",
+  releveA: 0,
+  fiabilite: "rapporte",
+  etatAnnonce: "praticable",
+  meteo: "rafales-de-cendre",
+  panache: "incertain",
+  danger: "orniere",
+  controlePolitique: "sans-controle-etabli",
+  libelles: {
+    fr: {
+      source: "Dernier relevé transmis par les Nacelliers",
+      danger: "Dalles fendues sous une cendre mobile",
+      controlePolitique: "Déversoir sans contrôle établi",
+    },
+    en: {
+      source: "Latest survey relayed by the Cable Crews",
+      danger: "Cracked slabs beneath moving ash",
+      controlePolitique: "Spillway under no established control",
+    },
+  },
+} as const;
+
+const RENSEIGNEMENT_DE_LA_LIGNE_ZERO = {
+  id: "ligne-zero-passage",
+  source: "techniciens-du-deversoir",
+  releveA: 0,
+  fiabilite: "confirme",
+  etatAnnonce: "praticable",
+  meteo: "cendre-basse",
+  panache: "absent",
+  danger: "conduit-effondrable",
+  controlePolitique: "conseil-des-vannes",
+  libelles: {
+    fr: {
+      source: "Interface relevée par les techniciens du Déversoir",
+      danger: "Conduit ancien dont la fermeture condamnera l’arrière",
+      controlePolitique: "Passage placé sous la décision du Conseil des Vannes",
+    },
+    en: {
+      source: "Interface surveyed by the Spillway technicians",
+      danger: "Ancient conduit whose closure will condemn the rear",
+      controlePolitique: "Passage governed by the Sluice Council’s decision",
+    },
+  },
+} as const;
 
 const RENSEIGNEMENTS_NACELLES = [
   {
@@ -193,8 +257,7 @@ export const TRONCONS_PREMIUM = [
   },
   {
     id: "nacelles-de-veille-basse",
-    extremites: ["veille-basse", "relais-des-vannes"],
-    originesAutorisees: ["veille-basse"],
+    extremites: ["haut-puits", "veille-basse"],
     libellesDOptions: LIBELLES_D_OPTIONS_DES_NACELLES,
     dureeSecondes: 360,
     etatInitial: "degrade",
@@ -215,5 +278,188 @@ export const TRONCONS_PREMIUM = [
       ...renseignement,
       tronconId: "nacelles-de-veille-basse",
     })),
+  },
+  {
+    id: "chemin-de-l-hospice",
+    extremites: ["veille-basse", "hospice-du-sillon"],
+    originesAutorisees: ["veille-basse"],
+    dureeSecondes: 300,
+    etatInitial: "praticable",
+    consommationConnue: {
+      stock: "combustible",
+      quantite: 3,
+      unite: "litres",
+    },
+    consommationIncertaine: {
+      stock: "eau",
+      minimum: 3,
+      maximum: 5,
+      quantiteReelle: 4,
+      unite: "litres",
+      renseignementId: "hospice-releve-branche-basse",
+    },
+    renseignements: [
+      {
+        ...RENSEIGNEMENT_D_APPROCHE_DU_DEVERSOIR,
+        id: "hospice-releve-branche-basse",
+        tronconId: "chemin-de-l-hospice",
+        source: "techniciens-de-veille-basse",
+        etatAnnonce: "praticable",
+        libelles: {
+          fr: {
+            source: "Techniciens de Veille-Basse",
+            danger: "Sas étroits sous une cendre filtrée",
+            controlePolitique: "Relais tenu par l’Hospice du Sillon",
+          },
+          en: {
+            source: "Lower Watch technicians",
+            danger: "Narrow airlocks under filtered ash",
+            controlePolitique: "Relay held by Sillon Hospice",
+          },
+        },
+      },
+    ],
+  },
+  {
+    id: "chenal-de-l-hospice",
+    extremites: ["hospice-du-sillon", "relais-des-vannes"],
+    originesAutorisees: ["hospice-du-sillon"],
+    dureeSecondes: 360,
+    etatInitial: "degrade",
+    consommationConnue: {
+      stock: "combustible",
+      quantite: 4,
+      unite: "litres",
+    },
+    consommationIncertaine: {
+      stock: "eau",
+      minimum: 4,
+      maximum: 7,
+      quantiteReelle: 5,
+      unite: "litres",
+      renseignementId: "hospice-releve-aval",
+    },
+    renseignements: [
+      {
+        ...RENSEIGNEMENT_D_APPROCHE_DU_DEVERSOIR,
+        id: "hospice-releve-aval",
+        tronconId: "chenal-de-l-hospice",
+        source: "relais-de-l-hospice",
+        etatAnnonce: "degrade",
+        libelles: {
+          fr: {
+            source: "Relais filtré de l’Hospice",
+            danger: "Canal bas encombré de filtres usés",
+            controlePolitique: "Passage garanti par l’Hospice",
+          },
+          en: {
+            source: "Hospice filtered relay",
+            danger: "Low canal cluttered with spent filters",
+            controlePolitique: "Passage guaranteed by the Hospice",
+          },
+        },
+      },
+    ],
+  },
+  {
+    id: "conduite-du-deversoir",
+    extremites: ["relais-des-vannes", "deversoir-noir"],
+    originesAutorisees: ["relais-des-vannes"],
+    dureeSecondes: 360,
+    etatInitial: "praticable",
+    consommationConnue: {
+      stock: "combustible",
+      quantite: 4,
+      unite: "litres",
+    },
+    consommationIncertaine: {
+      stock: "eau",
+      minimum: 4,
+      maximum: 6,
+      quantiteReelle: 5,
+      unite: "litres",
+      renseignementId: "approche-du-deversoir",
+    },
+    renseignements: [
+      {
+        ...RENSEIGNEMENT_D_APPROCHE_DU_DEVERSOIR,
+        tronconId: "conduite-du-deversoir",
+      },
+    ],
+  },
+  {
+    id: "passage-de-la-ligne-zero",
+    nom: {
+      fr: "Passage de la Ligne Zéro",
+      en: "Zero Line Passage",
+    },
+    extremites: ["deversoir-noir", "lisiere-trame-de-fer"],
+    originesAutorisees: ["deversoir-noir"],
+    dureeSecondes: 480,
+    etatInitial: "praticable",
+    consommationConnue: {
+      stock: "combustible",
+      quantite: 4,
+      unite: "litres",
+    },
+    consommationIncertaine: {
+      stock: "eau",
+      minimum: 4,
+      maximum: 6,
+      quantiteReelle: 5,
+      unite: "litres",
+      renseignementId: "ligne-zero-passage",
+    },
+    renseignements: [
+      {
+        ...RENSEIGNEMENT_DE_LA_LIGNE_ZERO,
+        tronconId: "passage-de-la-ligne-zero",
+      },
+    ],
+  },
+  {
+    id: "piste-des-levees",
+    nom: {
+      fr: "Piste des levées",
+      en: "Embankment Track",
+    },
+    extremites: ["deversoir-noir", "lisiere-trame-de-fer"],
+    originesAutorisees: ["deversoir-noir"],
+    dureeSecondes: 540,
+    etatInitial: "degrade",
+    consommationConnue: {
+      stock: "combustible",
+      quantite: 7,
+      unite: "litres",
+    },
+    consommationIncertaine: {
+      stock: "eau",
+      minimum: 8,
+      maximum: 10,
+      quantiteReelle: 9,
+      unite: "litres",
+      renseignementId: "levees-releve-deversoir",
+    },
+    renseignements: [
+      {
+        ...RENSEIGNEMENT_D_APPROCHE_DU_DEVERSOIR,
+        id: "levees-releve-deversoir",
+        tronconId: "piste-des-levees",
+        source: "techniciens-du-deversoir",
+        etatAnnonce: "degrade",
+        libelles: {
+          fr: {
+            source: "Relevé de surface des techniciens du Déversoir",
+            danger: "Levées instables sous la tempête de cendre",
+            controlePolitique: "Passage extérieur au Conseil des Vannes",
+          },
+          en: {
+            source: "Spillway technicians’ surface survey",
+            danger: "Unstable embankments beneath the ash storm",
+            controlePolitique: "Passage outside the Sluice Council",
+          },
+        },
+      },
+    ],
   },
 ] as const;

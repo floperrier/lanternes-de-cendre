@@ -179,7 +179,14 @@ describe("convergence jouable aux Nacelles", () => {
 
     expect(arrivee.routes.position).toBe("relais-des-vannes");
     expect(arrivee.routes.etatsReels["chenal-des-vannes"]).toBe("coupe");
-    expect(listerTronconsEngageables(arrivee.routes)).toEqual([]);
+    expect(listerTronconsEngageables(arrivee.routes)).toEqual([
+      expect.objectContaining({
+        destination: "deversoir-noir",
+        troncon: expect.objectContaining({
+          id: "conduite-du-deversoir",
+        }),
+      }),
+    ]);
     expect(arrivee.narration.evenementActif).toBe(
       "bassins.nacelles.le-poids-des-deux-rives",
     );
@@ -198,7 +205,7 @@ describe("convergence jouable aux Nacelles", () => {
 
     expect(etat.routes.engagements.at(-1)).toMatchObject({
       origine: "veille-basse",
-      destination: "relais-des-vannes",
+      destination: "haut-puits",
       consommationsAppliquees: { combustible: 5, eau: 7 },
     });
     expect(etat.pilotage.economie.stocks.combustible.quantite).toBe(
@@ -217,8 +224,11 @@ describe("convergence jouable aux Nacelles", () => {
       secondesReelles: 90,
     }).etat;
 
-    expect(etat.routes.position).toBe("relais-des-vannes");
-    expect(etat.narration.evenementActif).toBe(
+    expect(etat.routes.position).toBe("haut-puits");
+    expect(
+      etat.routes.etatsReels["nacelles-de-veille-basse"],
+    ).toBe("coupe");
+    expect(etat.narration.evenementActif).not.toBe(
       "bassins.nacelles.le-poids-des-deux-rives",
     );
   });

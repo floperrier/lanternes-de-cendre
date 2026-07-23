@@ -16,6 +16,7 @@ export const CONTENU_PREMIUM_V1 = {
     lieux: LIEUX_PREMIUM,
     troncons: TRONCONS_PREMIUM,
     evenements: catalogueNarratif.evenements,
+    conseils: catalogueNarratif.conseils,
     libellesTransversaux: catalogueNarratif.libellesTransversaux,
     presentations: PRESENTATIONS_PREMIUM,
   },

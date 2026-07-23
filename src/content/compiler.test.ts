@@ -16,6 +16,10 @@ import provenanceNacellesCompagnes from "../../docs/assets/nacelles-compagnes.pr
 import provenanceNacellesDeuxRives from "../../docs/assets/nacelles-deux-rives.provenance.json?raw";
 import provenanceNacellesFrein from "../../docs/assets/nacelles-frein.provenance.json?raw";
 import provenanceNacellesTrace from "../../docs/assets/nacelles-trace.provenance.json?raw";
+import provenanceDeversoirChassis from "../../docs/assets/deversoir-chassis.provenance.json?raw";
+import provenanceDeversoirConseil from "../../docs/assets/deversoir-conseil.provenance.json?raw";
+import provenanceDeversoirLigneZero from "../../docs/assets/deversoir-ligne-zero.provenance.json?raw";
+import provenanceDeversoirPassage from "../../docs/assets/deversoir-passage.provenance.json?raw";
 import provenanceFiltres from "../../docs/assets/prologue-filtres-de-la-veille.provenance.json?raw";
 import provenanceIlyana from "../../docs/assets/prologue-ilyana-au-clapet.provenance.json?raw";
 import provenanceReponse from "../../docs/assets/prologue-reponse-du-phare.provenance.json?raw";
@@ -66,6 +70,14 @@ const sourcesValides: SourcesDuCatalogue = {
     "docs/assets/nacelles-trace.provenance.json": provenanceNacellesTrace,
     "docs/assets/nacelles-compagnes.provenance.json":
       provenanceNacellesCompagnes,
+    "docs/assets/deversoir-ligne-zero.provenance.json":
+      provenanceDeversoirLigneZero,
+    "docs/assets/deversoir-conseil.provenance.json":
+      provenanceDeversoirConseil,
+    "docs/assets/deversoir-chassis.provenance.json":
+      provenanceDeversoirChassis,
+    "docs/assets/deversoir-passage.provenance.json":
+      provenanceDeversoirPassage,
   },
   cheminDeProvenanceAsset: (chemin) =>
     chemin.startsWith("/api/commercial/assets/")
@@ -89,6 +101,10 @@ const sourcesValides: SourcesDuCatalogue = {
       "/api/commercial/assets/nacelles-frein.webp",
       "/api/commercial/assets/nacelles-trace.webp",
       "/api/commercial/assets/nacelles-compagnes.webp",
+      "/api/commercial/assets/deversoir-ligne-zero.webp",
+      "/api/commercial/assets/deversoir-conseil.webp",
+      "/api/commercial/assets/deversoir-chassis.webp",
+      "/api/commercial/assets/deversoir-passage.webp",
     ].includes(chemin),
   empreinteAsset: (chemin) =>
     ({
@@ -124,6 +140,14 @@ const sourcesValides: SourcesDuCatalogue = {
         "c9b0b18fa91eb93a818c638e9648e47f4ebde3f6504f403c5b8cd4942b8afc32",
       "/api/commercial/assets/nacelles-compagnes.webp":
         "0b2531363f5f561118a8a656ce36d331d960f204c0c7165ad83f61a7b6363d9b",
+      "/api/commercial/assets/deversoir-ligne-zero.webp":
+        "e267303bf7451cbdb4bc82e28d23cef13992994231d7c836b9bfd39cba2f3c82",
+      "/api/commercial/assets/deversoir-conseil.webp":
+        "b887ca0bc7a20f5a2eb820e7b019617d5fdfc87d5b46078beaff35a47b5da22a",
+      "/api/commercial/assets/deversoir-chassis.webp":
+        "38f5768f518bfad2617a2b1c1c7c60a76250078c880e8dd20c507e8c1f5ec7b5",
+      "/api/commercial/assets/deversoir-passage.webp":
+        "34038892ac53eb9a5b22b9d41f3ba1787c29cda98097beb5dd2c175955df1aa4",
     })[chemin] ?? "0".repeat(64),
   tailleAsset: () => 256_000,
 };
@@ -148,7 +172,7 @@ describe("compilateur du catalogue d’Événements narratifs", () => {
     expect(catalogue.version).toBe(1);
     expect(catalogue.evenements).toHaveLength(5);
     expect(catalogue.installations).toHaveLength(9);
-    expect(catalogue.conseils).toHaveLength(1);
+    expect(catalogue.conseils).toHaveLength(2);
     expect(catalogue.evenements[0]).toMatchObject({
       id: "prologue.signaux-sous-la-cendre",
       famille: "conflits-regionaux",

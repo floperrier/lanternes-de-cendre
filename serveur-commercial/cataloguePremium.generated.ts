@@ -3333,6 +3333,2159 @@ export default {
           }
         }
       }
+    },
+    {
+      "id": "bassins.deversoir.la-conduite-zero",
+      "famille": "mystere-des-phares",
+      "themes": [
+        "ligne-zero",
+        "memoire-industrielle"
+      ],
+      "fonction": "reveler-la-ligne-zero-dans-les-bassins",
+      "fenetre": "deversoir-noir",
+      "conditions": {
+        "requises": [
+          {
+            "type": "lieu-present",
+            "lieu": "deversoir-noir"
+          }
+        ],
+        "interdites": []
+      },
+      "periodeEligibilite": {
+        "debut": 780,
+        "fin": 2147483647
+      },
+      "priorite": 120,
+      "epuisement": "unique",
+      "acteurs": [
+        "porte-lanterne",
+        "techniciens-du-deversoir",
+        "equipes-entretien"
+      ],
+      "sourcesInformations": [
+        "techniciens-du-deversoir"
+      ],
+      "faitsLus": [
+        "prologue.harmonique-consignee",
+        "prologue.signal-etouffe"
+      ],
+      "choix": [
+        {
+          "id": "relever-interface",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "bassins.deversoir.ligne-zero-relevee",
+              "cible": "conduite-de-la-ligne-zero"
+            }
+          ]
+        },
+        {
+          "id": "preserver-conduite",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "bassins.deversoir.ligne-zero-preservee",
+              "cible": "conduite-de-la-ligne-zero"
+            }
+          ]
+        }
+      ],
+      "consequenceDifferee": {
+        "type": "renseignement-trame-de-fer",
+        "cible": "conduite-de-la-ligne-zero"
+      },
+      "recuperation": {
+        "type": "interface-conservee"
+      },
+      "variantes": [
+        {
+          "id": "harmonique-reconnue",
+          "condition": {
+            "type": "fait-present",
+            "fait": "prologue.harmonique-consignee"
+          }
+        },
+        {
+          "id": "signal-perdu",
+          "condition": {
+            "type": "fait-present",
+            "fait": "prologue.signal-etouffe"
+          }
+        },
+        {
+          "id": "standard",
+          "condition": {
+            "type": "toujours"
+          }
+        }
+      ],
+      "destinationEcho": "journal-de-campagne",
+      "asset": {
+        "id": "bassins.deversoir.la-conduite-zero",
+        "fichier": "/api/commercial/assets/deversoir-ligne-zero.webp",
+        "octetsTransferes": 293810,
+        "contientTexte": false,
+        "alternatives": {
+          "fr": "Une dalle fendue révèle une conduite circulaire ancienne sous les bassins de cendre, entourée de techniciens qui en relèvent les repères.",
+          "en": "A cracked slab reveals an ancient circular conduit beneath ash basins while technicians survey its markings."
+        },
+        "provenance": {
+          "fiche": "docs/assets/deversoir-ligne-zero.provenance.json",
+          "creeLe": "2026-07-23",
+          "outil": "Codex built-in image_gen",
+          "modele": "built-in model (identifier not exposed)",
+          "usage": "illustration-story",
+          "entree": "The repository Cité-Caravane illustration was supplied only as a visual world and style reference.",
+          "prompt": "Generate a wide narrative-game environment illustration of the Déversoir Noir: a cracked settling basin whose broken wall reveals the buried Ligne Zéro maintenance conduit and its circular mobile-lighthouse docking interface, inspected by cable crews under an ash storm. Match the elevated oblique painterly-industrial direction, charcoal palette and restrained amber light of the supplied world reference. No readable text, typography, logos, watermark, weapons or UI.",
+          "droits": "OpenAI Terms of Use — output assigned to the user",
+          "empreinteSha256": "e267303bf7451cbdb4bc82e28d23cef13992994231d7c836b9bfd39cba2f3c82",
+          "statutApprobation": "pending-pull-request-review",
+          "reviseur": null
+        }
+      },
+      "textes": {
+        "fr": {
+          "origine": {
+            "cle": "evenement.deversoir.ligne-zero.origine",
+            "modele": "Sous les dalles du Déversoir Noir",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.deversoir.ligne-zero.titre",
+            "modele": "La conduite zéro",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.deversoir.ligne-zero.presentation",
+            "modele": "Une dalle rompue découvre un conduit annulaire du Réseau ancien. Ses repères décrivent la première Ligne Zéro lisible : un service enfoui qui file déjà vers la Trame de Fer.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.deversoir.ligne-zero.information",
+              "modele": "Les techniciens isolent une interface encore exploitable. Son relevé donnera une avance concrète sur les accès de la prochaine Région.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "harmonique-reconnue": {
+              "cle": "evenement.deversoir.ligne-zero.variante.harmonique",
+              "modele": "L’harmonique consignée au départ réapparaît dans les repères de maintenance.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "signal-perdu": {
+              "cle": "evenement.deversoir.ligne-zero.variante.signal",
+              "modele": "Le signal étouffé au départ manque dans la séquence ; l’interface indique précisément cette lacune.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.deversoir.ligne-zero.variante.standard",
+              "modele": "Les repères alternent ventilation, délestage et accès de service.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "relever-interface": {
+              "intention": {
+                "cle": "evenement.deversoir.ligne-zero.choix.relever",
+                "modele": "Relever l’interface avant de refermer la dalle",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.deversoir.ligne-zero.choix.relever.cout",
+                  "modele": "Coût connu : le relevé sera public et le Déversoir saura ce que vous emportez.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "preserver-conduite": {
+              "intention": {
+                "cle": "evenement.deversoir.ligne-zero.choix.poumon",
+                "modele": "Préserver la conduite comme poumon des Bassins",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.deversoir.ligne-zero.choix.poumon.cout",
+                  "modele": "Coût connu : aucun démontage ne renforcera le convoi avant le passage.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        },
+        "en": {
+          "origine": {
+            "cle": "evenement.deversoir.ligne-zero.origine",
+            "modele": "Beneath the Black Spillway slabs",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.deversoir.ligne-zero.titre",
+            "modele": "The Zero Conduit",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.deversoir.ligne-zero.presentation",
+            "modele": "A broken slab exposes an annular Ancient Network conduit. Its markings describe the first legible Zero Line: a buried service route already running toward the Iron Weave.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.deversoir.ligne-zero.information",
+              "modele": "The technicians isolate a usable interface. Surveying it will provide concrete intelligence on the next Region’s access points.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "harmonique-reconnue": {
+              "cle": "evenement.deversoir.ligne-zero.variante.harmonique",
+              "modele": "The harmonic recorded at departure returns among the maintenance marks.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "signal-perdu": {
+              "cle": "evenement.deversoir.ligne-zero.variante.signal",
+              "modele": "The signal smothered at departure is missing from the sequence; the interface identifies the gap.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.deversoir.ligne-zero.variante.standard",
+              "modele": "The markings alternate ventilation, load shedding and service access.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "relever-interface": {
+              "intention": {
+                "cle": "evenement.deversoir.ligne-zero.choix.relever",
+                "modele": "Survey the interface before closing the slab",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.deversoir.ligne-zero.choix.relever.cout",
+                  "modele": "Known cost: the survey will be public and the Spillway will know what you carry.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "preserver-conduite": {
+              "intention": {
+                "cle": "evenement.deversoir.ligne-zero.choix.poumon",
+                "modele": "Preserve the conduit as the Basins’ lung",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.deversoir.ligne-zero.choix.poumon.cout",
+                  "modele": "Known cost: no dismantled part will reinforce the convoy before passage.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "bassins.deversoir.la-tempete-aux-vannes",
+      "famille": "conflits-regionaux",
+      "themes": [
+        "partage-de-leau",
+        "cohortes",
+        "contrainte"
+      ],
+      "fonction": "convoquer-le-conseil-des-vannes",
+      "fenetre": "deversoir-noir",
+      "conditions": {
+        "requises": [
+          {
+            "type": "lieu-present",
+            "lieu": "deversoir-noir"
+          },
+          {
+            "type": "un-des-faits-present",
+            "faits": [
+              "bassins.deversoir.ligne-zero-relevee",
+              "bassins.deversoir.ligne-zero-preservee"
+            ]
+          }
+        ],
+        "interdites": []
+      },
+      "periodeEligibilite": {
+        "debut": 780,
+        "fin": 2147483647
+      },
+      "priorite": 110,
+      "epuisement": "unique",
+      "acteurs": [
+        "porte-lanterne",
+        "puits-libres",
+        "pelerins-de-cendre",
+        "habitants-haut-puits",
+        "habitants-veille-basse"
+      ],
+      "sourcesInformations": [
+        "techniciens-du-deversoir"
+      ],
+      "faitsLus": [
+        "bassins.deversoir.ligne-zero-relevee",
+        "bassins.deversoir.ligne-zero-preservee",
+        "veille-basse.intervention-refusee",
+        "bassins.nacelles.conseil-passage-partage",
+        "bassins.nacelles.conseil-maintenance-commune"
+      ],
+      "choix": [
+        {
+          "id": "convoquer-delegations",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "bassins.deversoir.conseil-convoque",
+              "cible": "conseil-des-vannes"
+            }
+          ]
+        },
+        {
+          "id": "publier-comptes",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "bassins.deversoir.conseil-public",
+              "cible": "conseil-des-vannes"
+            }
+          ]
+        }
+      ],
+      "consequenceDifferee": {
+        "type": "conseil-des-vannes",
+        "cible": "conseil-des-vannes"
+      },
+      "recuperation": {
+        "type": "contrainte-explicite-toujours-disponible"
+      },
+      "variantes": [
+        {
+          "id": "maintenance-commune",
+          "condition": {
+            "type": "fait-present",
+            "fait": "bassins.nacelles.conseil-maintenance-commune"
+          }
+        },
+        {
+          "id": "accord-des-nacelles",
+          "condition": {
+            "type": "fait-present",
+            "fait": "bassins.nacelles.conseil-passage-partage"
+          }
+        },
+        {
+          "id": "veille-abandonnee",
+          "condition": {
+            "type": "fait-present",
+            "fait": "veille-basse.intervention-refusee"
+          }
+        },
+        {
+          "id": "standard",
+          "condition": {
+            "type": "toujours"
+          }
+        }
+      ],
+      "destinationEcho": "journal-de-campagne",
+      "asset": {
+        "id": "bassins.deversoir.la-tempete-aux-vannes",
+        "fichier": "/api/commercial/assets/deversoir-conseil.webp",
+        "octetsTransferes": 402590,
+        "contientTexte": false,
+        "alternatives": {
+          "fr": "Quatre délégations entourent une table mécanique ronde pendant qu’une tempête de cendre frappe les vannes du Déversoir Noir.",
+          "en": "Four delegations surround a round mechanical table while an ash storm strikes the Black Spillway sluices."
+        },
+        "provenance": {
+          "fiche": "docs/assets/deversoir-conseil.provenance.json",
+          "creeLe": "2026-07-23",
+          "outil": "Codex built-in image_gen",
+          "modele": "built-in model (identifier not exposed)",
+          "usage": "illustration-story",
+          "entree": "The repository Cité-Caravane illustration was supplied only as a visual world and style reference.",
+          "prompt": "Generate a wide narrative-game illustration of the Conseil des Vannes during an ash storm, with delegates around a mechanical sluice table and four physically legible courses of action: shared cistern valves, settler repair parts, sealed refugee frames and a chained coercive gate. Match the supplied world reference without copying it. No readable text, typography, logos, watermark, weapons or UI.",
+          "droits": "OpenAI Terms of Use — output assigned to the user",
+          "empreinteSha256": "b887ca0bc7a20f5a2eb820e7b019617d5fdfc87d5b46078beaff35a47b5da22a",
+          "statutApprobation": "pending-pull-request-review",
+          "reviseur": null
+        }
+      },
+      "textes": {
+        "fr": {
+          "origine": {
+            "cle": "evenement.deversoir.tempete.origine",
+            "modele": "Table des Vannes",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.deversoir.tempete.titre",
+            "modele": "La tempête aux vannes",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.deversoir.tempete.presentation",
+            "modele": "La cendre sature les filtres de Veille-Basse tandis que Haut-Puits garde les dernières réserves claires. Les délégations réclament une règle commune avant l’ouverture du passage.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.deversoir.tempete.information",
+              "modele": "Le partage, la réparation du décanteur et la réorientation de la Cohorte ne seront proposés que si vos décisions antérieures les rendent réels. La contrainte restera explicite.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "maintenance-commune": {
+              "cle": "evenement.deversoir.tempete.variante.maintenance",
+              "modele": "La maintenance commune portée depuis les Nacelles garantit déjà des équipes au Relais ; chaque Colonie devra désormais honorer cette obligation.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "accord-des-nacelles": {
+              "cle": "evenement.deversoir.tempete.variante.accord",
+              "modele": "L’accord porté depuis les Nacelles fournit déjà une procédure de passage contestable.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "veille-abandonnee": {
+              "cle": "evenement.deversoir.tempete.variante.perte",
+              "modele": "Le refus de Veille-Basse revient sous la forme d’un filtre vide et d’une délégation sans équipe.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.deversoir.tempete.variante.standard",
+              "modele": "Chaque siège correspond à une réserve, une dette ou une absence vérifiable.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "convoquer-delegations": {
+              "intention": {
+                "cle": "evenement.deversoir.tempete.choix.delegations",
+                "modele": "Convoquer chaque délégation autour de la table",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.deversoir.tempete.choix.delegations.cout",
+                  "modele": "Coût connu : les Colonies entendront aussi les options qu’elles refusent.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "publier-comptes": {
+              "intention": {
+                "cle": "evenement.deversoir.tempete.choix.comptes",
+                "modele": "Publier les réserves et les pertes avant de siéger",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.deversoir.tempete.choix.comptes.cout",
+                  "modele": "Coût connu : aucun camp ne pourra dissimuler sa fragilité après le Conseil.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        },
+        "en": {
+          "origine": {
+            "cle": "evenement.deversoir.tempete.origine",
+            "modele": "Sluice Table",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.deversoir.tempete.titre",
+            "modele": "The storm at the sluices",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.deversoir.tempete.presentation",
+            "modele": "Ash clogs Lower Watch’s filters while High Well holds the last clear reserves. The delegations demand a common rule before the passage opens.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.deversoir.tempete.information",
+              "modele": "Sharing, repairing the settler and redirecting the Cohort will appear only when earlier decisions make them real. Coercion will remain explicit.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "maintenance-commune": {
+              "cle": "evenement.deversoir.tempete.variante.maintenance",
+              "modele": "The common maintenance pledge carried from the Cableways already guarantees crews at the Relay; each Colony must now honor that obligation.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "accord-des-nacelles": {
+              "cle": "evenement.deversoir.tempete.variante.accord",
+              "modele": "The agreement carried from the Cableways already supplies a challengeable crossing procedure.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "veille-abandonnee": {
+              "cle": "evenement.deversoir.tempete.variante.perte",
+              "modele": "Lower Watch’s refusal returns as an empty filter and a delegation without a crew.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.deversoir.tempete.variante.standard",
+              "modele": "Every seat corresponds to a verifiable reserve, debt or absence.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "convoquer-delegations": {
+              "intention": {
+                "cle": "evenement.deversoir.tempete.choix.delegations",
+                "modele": "Summon every delegation around the table",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.deversoir.tempete.choix.delegations.cout",
+                  "modele": "Known cost: the Colonies will also hear the options they reject.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "publier-comptes": {
+              "intention": {
+                "cle": "evenement.deversoir.tempete.choix.comptes",
+                "modele": "Publish reserves and losses before sitting",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.deversoir.tempete.choix.comptes.cout",
+                  "modele": "Known cost: neither camp can conceal its fragility after the Council.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "bassins.deversoir.le-chassis-des-bassins",
+      "famille": "consequences-systemiques",
+      "themes": [
+        "transformation-du-convoi",
+        "dette-regionale"
+      ],
+      "fonction": "inscrire-la-transformation-regionale",
+      "fenetre": "deversoir-noir",
+      "conditions": {
+        "requises": [
+          {
+            "type": "lieu-present",
+            "lieu": "deversoir-noir"
+          },
+          {
+            "type": "un-des-faits-present",
+            "faits": [
+              "bassins.conseil.reserves-partagees",
+              "bassins.conseil.decanteur-repare",
+              "bassins.conseil.cohorte-reorientee",
+              "bassins.conseil.vannes-contraintes"
+            ]
+          }
+        ],
+        "interdites": []
+      },
+      "periodeEligibilite": {
+        "debut": 780,
+        "fin": 2147483647
+      },
+      "priorite": 100,
+      "epuisement": "unique",
+      "acteurs": [
+        "porte-lanterne",
+        "equipes-entretien",
+        "cohorte-du-sillon"
+      ],
+      "sourcesInformations": [
+        "equipes-entretien"
+      ],
+      "faitsLus": [
+        "bassins.conseil.reserves-partagees",
+        "bassins.conseil.decanteur-repare",
+        "bassins.conseil.cohorte-reorientee",
+        "bassins.conseil.vannes-contraintes"
+      ],
+      "choix": [
+        {
+          "id": "sceller-transformation",
+          "effets": [
+            {
+              "type": "stock.modifier",
+              "stock": "materiaux",
+              "valeur": -12
+            }
+          ],
+          "faitsProduits": [
+            {
+              "id": "bassins.deversoir.transformation-scellee",
+              "cible": "chassis-regional-des-bassins"
+            }
+          ]
+        },
+        {
+          "id": "conserver-gabarits",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "bassins.deversoir.gabarits-conserves",
+              "cible": "chassis-regional-des-bassins"
+            }
+          ]
+        }
+      ],
+      "consequenceDifferee": {
+        "type": "projet-regional-persistant",
+        "cible": "chassis-regional-des-bassins"
+      },
+      "recuperation": {
+        "type": "plans-non-choisis-conserves"
+      },
+      "variantes": [
+        {
+          "id": "decanteur",
+          "condition": {
+            "type": "fait-present",
+            "fait": "bassins.conseil.decanteur-repare"
+          }
+        },
+        {
+          "id": "arche",
+          "condition": {
+            "type": "fait-present",
+            "fait": "bassins.conseil.cohorte-reorientee"
+          }
+        },
+        {
+          "id": "sans-transformation",
+          "condition": {
+            "type": "toujours"
+          }
+        }
+      ],
+      "destinationEcho": "journal-de-campagne",
+      "asset": {
+        "id": "bassins.deversoir.le-chassis-des-bassins",
+        "fichier": "/api/commercial/assets/deversoir-chassis.webp",
+        "octetsTransferes": 408904,
+        "contientTexte": false,
+        "alternatives": {
+          "fr": "Un vaste châssis roulant reçoit des éléments de décanteur et d’arche dans un atelier de cendre éclairé par des lanternes.",
+          "en": "A vast rolling frame receives settler and ark components in an ash workshop lit by lanterns."
+        },
+        "provenance": {
+          "fiche": "docs/assets/deversoir-chassis.provenance.json",
+          "creeLe": "2026-07-23",
+          "outil": "Codex built-in image_gen",
+          "modele": "built-in model (identifier not exposed)",
+          "usage": "illustration-story",
+          "entree": "The repository Cité-Caravane illustration was supplied only as a visual world and style reference.",
+          "prompt": "Generate a wide narrative-game worksite illustration where one finite regional chassis is committed either to a travelling settling apparatus or to sealed Ark frames for displaced people, with unchosen plans preserved nearby. Match the supplied elevated oblique painterly-industrial world reference. No readable text, typography, logos, watermark, weapons or UI.",
+          "droits": "OpenAI Terms of Use — output assigned to the user",
+          "empreinteSha256": "38f5768f518bfad2617a2b1c1c7c60a76250078c880e8dd20c507e8c1f5ec7b5",
+          "statutApprobation": "pending-pull-request-review",
+          "reviseur": null
+        }
+      },
+      "textes": {
+        "fr": {
+          "origine": {
+            "cle": "evenement.deversoir.chassis.origine",
+            "modele": "Atelier du Déversoir",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.deversoir.chassis.titre",
+            "modele": "Le châssis des Bassins",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.deversoir.chassis.presentation",
+            "modele": "Les ateliers traduisent la décision du Conseil en bâtis transportables. Le décanteur ou l’arche deviendra une transformation majeure du convoi, jamais une réponse finale à la Trame.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.deversoir.chassis.information",
+              "modele": "Les plans écartés restent lisibles : ils pourront revenir dans un rapport, une dette ou une autre construction.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "decanteur": {
+              "cle": "evenement.deversoir.chassis.variante.decanteur",
+              "modele": "Les bras du vieux décanteur dessinent une purification mobile à l’échelle du convoi.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "arche": {
+              "cle": "evenement.deversoir.chassis.variante.arche",
+              "modele": "Les membrures de l’Arche réservent des travées aux déplacés et à leurs métiers.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "sans-transformation": {
+              "cle": "evenement.deversoir.chassis.variante.aucune",
+              "modele": "Aucun grand projet n’a été choisi ; le châssis conserve plusieurs attaches incompatibles.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "sceller-transformation": {
+              "intention": {
+                "cle": "evenement.deversoir.chassis.choix.sceller",
+                "modele": "Sceller la transformation retenue dans le châssis",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.deversoir.chassis.choix.sceller.cout",
+                  "modele": "Coût connu : 12 Matériaux et le châssis entier ; cette forme suivra durablement le convoi et limitera ses remplacements.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "conserver-gabarits": {
+              "intention": {
+                "cle": "evenement.deversoir.chassis.choix.gabarits",
+                "modele": "Clore le châssis en Plateforme standard et conserver les gabarits",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.deversoir.chassis.choix.gabarits.cout",
+                  "modele": "Coût connu : le châssis gagne trois Emplacements ordinaires mais renonce à porter un Projet majeur dans cette Région.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        },
+        "en": {
+          "origine": {
+            "cle": "evenement.deversoir.chassis.origine",
+            "modele": "Spillway Workshop",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.deversoir.chassis.titre",
+            "modele": "The Basins’ frame",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.deversoir.chassis.presentation",
+            "modele": "The workshops translate the Council’s decision into transportable frames. The settler or the Ark will become a major convoy transformation, never a final answer to the Iron Weave.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.deversoir.chassis.information",
+              "modele": "Rejected plans remain legible: they can return in a report, a debt or another construction.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "decanteur": {
+              "cle": "evenement.deversoir.chassis.variante.decanteur",
+              "modele": "The old settler’s arms outline mobile purification at convoy scale.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "arche": {
+              "cle": "evenement.deversoir.chassis.variante.arche",
+              "modele": "The Ark’s ribs reserve bays for displaced people and their trades.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "sans-transformation": {
+              "cle": "evenement.deversoir.chassis.variante.aucune",
+              "modele": "No major project was chosen; the frame keeps several incompatible fittings.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "sceller-transformation": {
+              "intention": {
+                "cle": "evenement.deversoir.chassis.choix.sceller",
+                "modele": "Seal the chosen transformation into the frame",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.deversoir.chassis.choix.sceller.cout",
+                  "modele": "Known cost: 12 Materials and the whole chassis; this shape will follow the convoy and restrict later replacements.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "conserver-gabarits": {
+              "intention": {
+                "cle": "evenement.deversoir.chassis.choix.gabarits",
+                "modele": "Close the chassis as a Standard Platform and preserve the templates",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.deversoir.chassis.choix.gabarits.cout",
+                  "modele": "Known cost: the chassis gains three ordinary Slots but gives up carrying a Major Project in this Region.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "bassins.deversoir.le-passage-sans-retour",
+      "famille": "consequences-systemiques",
+      "themes": [
+        "passage-de-region",
+        "memoire-des-lieux"
+      ],
+      "fonction": "preparer-le-passage-de-region",
+      "fenetre": "deversoir-noir",
+      "conditions": {
+        "requises": [
+          {
+            "type": "lieu-present",
+            "lieu": "deversoir-noir"
+          },
+          {
+            "type": "un-des-faits-present",
+            "faits": [
+              "bassins.deversoir.transformation-scellee",
+              "bassins.deversoir.gabarits-conserves"
+            ]
+          }
+        ],
+        "interdites": []
+      },
+      "periodeEligibilite": {
+        "debut": 780,
+        "fin": 2147483647
+      },
+      "priorite": 90,
+      "epuisement": "unique",
+      "acteurs": [
+        "porte-lanterne",
+        "techniciens-du-deversoir",
+        "habitants-haut-puits",
+        "habitants-veille-basse"
+      ],
+      "sourcesInformations": [
+        "techniciens-du-deversoir"
+      ],
+      "faitsLus": [
+        "bassins.deversoir.transformation-scellee",
+        "bassins.deversoir.gabarits-conserves",
+        "bassins.haut-puits.ilyana-garante",
+        "veille-basse.maelys-mission-confiee"
+      ],
+      "choix": [
+        {
+          "id": "consigner-abandons",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "bassins.deversoir.passage-prepare",
+              "cible": "passage-vers-la-trame"
+            }
+          ]
+        },
+        {
+          "id": "transmettre-registres",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "bassins.deversoir.passage-transmis",
+              "cible": "passage-vers-la-trame"
+            }
+          ]
+        }
+      ],
+      "consequenceDifferee": {
+        "type": "retours-de-region",
+        "cible": "habitants-des-bassins"
+      },
+      "recuperation": {
+        "type": "rapports-et-epilogue"
+      },
+      "variantes": [
+        {
+          "id": "haut-puits-quitte",
+          "condition": {
+            "type": "fait-present",
+            "fait": "bassins.haut-puits.ilyana-garante"
+          }
+        },
+        {
+          "id": "veille-basse-quitte",
+          "condition": {
+            "type": "fait-present",
+            "fait": "veille-basse.maelys-mission-confiee"
+          }
+        },
+        {
+          "id": "standard",
+          "condition": {
+            "type": "toujours"
+          }
+        }
+      ],
+      "destinationEcho": "journal-de-campagne",
+      "asset": {
+        "id": "bassins.deversoir.le-passage-sans-retour",
+        "fichier": "/api/commercial/assets/deversoir-passage.webp",
+        "octetsTransferes": 320722,
+        "contientTexte": false,
+        "alternatives": {
+          "fr": "Un convoi entre dans un corridor de métal tandis qu’une porte se ferme derrière lui et que des registres des lieux quittés restent visibles.",
+          "en": "A convoy enters a metal corridor as a gate closes behind it, with registers of the abandoned places still visible."
+        },
+        "provenance": {
+          "fiche": "docs/assets/deversoir-passage.provenance.json",
+          "creeLe": "2026-07-23",
+          "outil": "Codex built-in image_gen",
+          "modele": "built-in model (identifier not exposed)",
+          "usage": "illustration-story",
+          "entree": "The repository Cité-Caravane illustration was supplied only as a visual world and style reference.",
+          "prompt": "Generate a wide narrative-game illustration of the irreversible Passage de région: the Cité-Caravane enters a buried Ligne Zéro corridor while the ash Front closes behind, with physical lantern tokens recalling High Well, Lower Watch, the cable gondolas and the black sluice. Match the supplied world reference. No readable text, typography, logos, watermark, weapons or UI.",
+          "droits": "OpenAI Terms of Use — output assigned to the user",
+          "empreinteSha256": "34038892ac53eb9a5b22b9d41f3ba1787c29cda98097beb5dd2c175955df1aa4",
+          "statutApprobation": "pending-pull-request-review",
+          "reviseur": null
+        }
+      },
+      "textes": {
+        "fr": {
+          "origine": {
+            "cle": "evenement.deversoir.passage.origine",
+            "modele": "Seuil de la Trame de Fer",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.deversoir.passage.titre",
+            "modele": "Le passage sans retour",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.deversoir.passage.presentation",
+            "modele": "Les accès arrière du Déversoir seront condamnés dès l’engagement du convoi. Avant de quitter les Bassins, le Conseil nomme les lieux abandonnés, les colonies fragilisées et les occasions encore ouvertes.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.deversoir.passage.information",
+              "modele": "Le Journal gardera ces absences comme causes disponibles pour les rapports et l’épilogue ; le passage de Région, lui, ne sera pas annulable.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "haut-puits-quitte": {
+              "cle": "evenement.deversoir.passage.variante.haut-puits",
+              "modele": "Haut-Puits garde une garante et un pacte dont les effets survivront à votre départ.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "veille-basse-quitte": {
+              "cle": "evenement.deversoir.passage.variante.veille-basse",
+              "modele": "Veille-Basse garde la mission de Maëlys et les équipes dont vous avez fixé la priorité.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.deversoir.passage.variante.standard",
+              "modele": "Les deux Colonies apparaissent dans le registre, y compris par leurs refus et leurs places vides.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "consigner-abandons": {
+              "intention": {
+                "cle": "evenement.deversoir.passage.choix.consigner",
+                "modele": "Consigner chaque abandon et chaque occasion",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.deversoir.passage.choix.consigner.cout",
+                  "modele": "Coût connu : le convoi emporte une dette publique envers les lieux quittés.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "transmettre-registres": {
+              "intention": {
+                "cle": "evenement.deversoir.passage.choix.transmettre",
+                "modele": "Transmettre les registres aux habitants qui restent",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.deversoir.passage.choix.transmettre.cout",
+                  "modele": "Coût connu : les Bassins conserveront leurs propres preuves et pourront contester votre récit.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        },
+        "en": {
+          "origine": {
+            "cle": "evenement.deversoir.passage.origine",
+            "modele": "Threshold of the Iron Weave",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.deversoir.passage.titre",
+            "modele": "The passage without return",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.deversoir.passage.presentation",
+            "modele": "The Spillway’s rear accesses will be condemned once the convoy commits. Before leaving the Basins, the Council names the abandoned places, weakened Colonies and still-open opportunities.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.deversoir.passage.information",
+              "modele": "The Journal will retain these absences as causes for reports and the epilogue; the regional passage itself cannot be undone.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "haut-puits-quitte": {
+              "cle": "evenement.deversoir.passage.variante.haut-puits",
+              "modele": "High Well keeps a guarantor and a pact whose effects survive your departure.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "veille-basse-quitte": {
+              "cle": "evenement.deversoir.passage.variante.veille-basse",
+              "modele": "Lower Watch keeps Maëlys’s mission and the crews whose priority you set.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.deversoir.passage.variante.standard",
+              "modele": "Both Colonies appear in the register, including through refusals and empty places.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "consigner-abandons": {
+              "intention": {
+                "cle": "evenement.deversoir.passage.choix.consigner",
+                "modele": "Record every abandonment and opportunity",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.deversoir.passage.choix.consigner.cout",
+                  "modele": "Known cost: the convoy carries a public debt to the places it leaves.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "transmettre-registres": {
+              "intention": {
+                "cle": "evenement.deversoir.passage.choix.transmettre",
+                "modele": "Hand the registers to the people who remain",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.deversoir.passage.choix.transmettre.cout",
+                  "modele": "Known cost: the Basins retain their own evidence and can challenge your account.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ],
+  "conseils": [
+    {
+      "id": "conseil.des-vannes",
+      "compagnon": {
+        "id": "ilyana-voss",
+        "competences": {
+          "majeure": "intendance",
+          "secondaire": "diplomatie"
+        },
+        "trait": "minutieuse-intransigeante",
+        "conviction": "eau-sure-pour-tous",
+        "projet": "circuit-de-purification-redondant",
+        "etatPersonnel": {
+          "id": "brulures-de-cendre-stabilisees",
+          "contrainte": "eviter-eau-contaminee",
+          "voieDeSoin": "filtres-et-repos-en-halo"
+        },
+        "affectation": {
+          "quartier": "intendance",
+          "occupation": "tete-de-quartier",
+          "faitProduit": "compagnon.ilyana-voss.affectee-intendance",
+          "cause": "affectation.porte-lanterne"
+        }
+      },
+      "sujets": [
+        {
+          "id": "eau-cohorte-et-deversoir",
+          "voix": [
+            {
+              "compagnonId": "ilyana-voss",
+              "criteres": [
+                "affectation-au-quartier",
+                "competence-majeure",
+                "competence-secondaire",
+                "conviction-concernee"
+              ]
+            }
+          ],
+          "decisions": [
+            {
+              "id": "partager-reserves",
+              "faitProduit": "bassins.conseil.reserves-partagees",
+              "ouverteParAffectation": false
+            },
+            {
+              "id": "reparer-decanteur",
+              "faitProduit": "bassins.conseil.decanteur-repare",
+              "ouverteParAffectation": false
+            },
+            {
+              "id": "reorienter-cohorte",
+              "faitProduit": "bassins.conseil.cohorte-reorientee",
+              "ouverteParAffectation": false
+            },
+            {
+              "id": "contraindre-vannes",
+              "faitProduit": "bassins.conseil.vannes-contraintes",
+              "ouverteParAffectation": false
+            }
+          ]
+        }
+      ],
+      "textes": {
+        "fr": {
+          "titre": {
+            "cle": "conseil.des-vannes.titre",
+            "modele": "Conseil des Vannes",
+            "variables": [],
+            "valeurs": {}
+          },
+          "compagnon": {
+            "nom": {
+              "cle": "compagnon.ilyana-voss.nom",
+              "modele": "Ilyana Voss",
+              "variables": [],
+              "valeurs": {}
+            },
+            "competenceMajeure": {
+              "cle": "competence.intendance",
+              "modele": "Intendance",
+              "variables": [],
+              "valeurs": {}
+            },
+            "competenceSecondaire": {
+              "cle": "competence.diplomatie",
+              "modele": "Diplomatie",
+              "variables": [],
+              "valeurs": {}
+            },
+            "trait": {
+              "cle": "compagnon.ilyana-voss.trait",
+              "modele": "Minutieuse, jusqu’à l’intransigeance",
+              "variables": [],
+              "valeurs": {}
+            },
+            "ambivalence": {
+              "cle": "compagnon.ilyana-voss.ambivalence",
+              "modele": "Elle décèle les écarts infimes, mais se raidit sous la pression.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "conviction": {
+              "cle": "compagnon.ilyana-voss.conviction",
+              "modele": "Chaque Habitant a droit à une eau sûre.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "projet": {
+              "cle": "compagnon.ilyana-voss.projet",
+              "modele": "Établir un circuit de purification redondant.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "etatPersonnel": {
+              "cle": "compagnon.ilyana-voss.etat",
+              "modele": "Brûlures de cendre stabilisées",
+              "variables": [],
+              "valeurs": {}
+            },
+            "contrainte": {
+              "cle": "compagnon.ilyana-voss.contrainte",
+              "modele": "Éviter toute exposition à l’eau contaminée.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "voieDeSoin": {
+              "cle": "compagnon.ilyana-voss.soin",
+              "modele": "Renouveler ses filtres et se reposer sous le Halo de veille.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "quartier": {
+              "cle": "quartier.intendance.nom",
+              "modele": "Intendance",
+              "variables": [],
+              "valeurs": {}
+            },
+            "informationOuverte": {
+              "cle": "compagnon.ilyana-voss.information-ouverte",
+              "modele": "Le clapet secondaire peut isoler la pompe douze minutes sans interrompre l’eau des Foyers.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "libelles": {
+            "typeCompagnon": {
+              "cle": "interface.compagnon.type",
+              "modele": "Compagnon",
+              "variables": [],
+              "valeurs": {}
+            },
+            "competenceMajeure": {
+              "cle": "interface.compagnon.competence-majeure",
+              "modele": "Compétence majeure",
+              "variables": [],
+              "valeurs": {}
+            },
+            "competenceSecondaire": {
+              "cle": "interface.compagnon.competence-secondaire",
+              "modele": "Compétence secondaire",
+              "variables": [],
+              "valeurs": {}
+            },
+            "trait": {
+              "cle": "interface.compagnon.trait",
+              "modele": "Trait ambivalent",
+              "variables": [],
+              "valeurs": {}
+            },
+            "conviction": {
+              "cle": "interface.compagnon.conviction",
+              "modele": "Conviction",
+              "variables": [],
+              "valeurs": {}
+            },
+            "projet": {
+              "cle": "interface.compagnon.projet",
+              "modele": "Projet",
+              "variables": [],
+              "valeurs": {}
+            },
+            "etatPersonnel": {
+              "cle": "interface.compagnon.etat",
+              "modele": "État personnel",
+              "variables": [],
+              "valeurs": {}
+            },
+            "soin": {
+              "cle": "interface.compagnon.soin",
+              "modele": "Soin",
+              "variables": [],
+              "valeurs": {}
+            },
+            "affecter": {
+              "cle": "interface.compagnon.affecter-intendance",
+              "modele": "Affecter à l’Intendance",
+              "variables": [],
+              "valeurs": {}
+            },
+            "affectee": {
+              "cle": "interface.compagnon.affectee",
+              "modele": "Affectée",
+              "variables": [],
+              "valeurs": {}
+            },
+            "informationOuverte": {
+              "cle": "interface.compagnon.information-ouverte",
+              "modele": "Information ouverte",
+              "variables": [],
+              "valeurs": {}
+            },
+            "conseil": {
+              "cle": "interface.conseil.type",
+              "modele": "Conseil",
+              "variables": [],
+              "valeurs": {}
+            },
+            "faitConnu": {
+              "cle": "interface.conseil.fait-connu",
+              "modele": "Fait connu",
+              "variables": [],
+              "valeurs": {}
+            },
+            "source": {
+              "cle": "interface.conseil.source",
+              "modele": "Source",
+              "variables": [],
+              "valeurs": {}
+            },
+            "recommandationMorale": {
+              "cle": "interface.conseil.recommandation",
+              "modele": "Recommandation morale",
+              "variables": [],
+              "valeurs": {}
+            },
+            "enjeuPersonnel": {
+              "cle": "interface.conseil.enjeu",
+              "modele": "Enjeu personnel",
+              "variables": [],
+              "valeurs": {}
+            },
+            "decision": {
+              "cle": "interface.conseil.decision",
+              "modele": "Décision du Porte-Lanterne",
+              "variables": [],
+              "valeurs": {}
+            },
+            "reponseOuverte": {
+              "cle": "interface.conseil.reponse-ouverte",
+              "modele": "Réponse ouverte par l’Affectation d’Ilyana",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "sujets": {
+            "eau-cohorte-et-deversoir": {
+              "titre": {
+                "cle": "conseil.des-vannes.sujet.titre",
+                "modele": "Eau, Cohorte et passage régional",
+                "variables": [],
+                "valeurs": {}
+              },
+              "voix": {
+                "ilyana-voss": {
+                  "faitConnu": {
+                    "cle": "conseil.des-vannes.voix.fait-connu",
+                    "modele": "Les réserves, le décanteur et la Cohorte ne sont défendables que s’ils ont été préparés dans les Colonies.",
+                    "variables": [],
+                    "valeurs": {}
+                  },
+                  "source": {
+                    "cle": "conseil.des-vannes.voix.source",
+                    "modele": "Registres croisés de Haut-Puits, Veille-Basse et des Nacelles",
+                    "variables": [],
+                    "valeurs": {}
+                  },
+                  "dateSource": {
+                    "cle": "conseil.des-vannes.voix.date",
+                    "modele": "À la tempête du Déversoir Noir",
+                    "variables": [],
+                    "valeurs": {}
+                  },
+                  "recommandationMorale": {
+                    "cle": "conseil.des-vannes.voix.recommandation",
+                    "modele": "Ilyana recommande la seule option soutenue par des faits publics et une responsabilité durable.",
+                    "variables": [],
+                    "valeurs": {}
+                  },
+                  "enjeuPersonnel": {
+                    "cle": "conseil.des-vannes.voix.enjeu",
+                    "modele": "Une décision sans preuve ferait de l’Intendance une autorité sans recours.",
+                    "variables": [],
+                    "valeurs": {}
+                  }
+                }
+              },
+              "decisions": {
+                "partager-reserves": {
+                  "cle": "conseil.des-vannes.decision.partager",
+                  "modele": "Partager les réserves entre les deux Colonies",
+                  "variables": [],
+                  "valeurs": {}
+                },
+                "reparer-decanteur": {
+                  "cle": "conseil.des-vannes.decision.decanteur",
+                  "modele": "Réparer le vieux décanteur comme projet majeur",
+                  "variables": [],
+                  "valeurs": {}
+                },
+                "reorienter-cohorte": {
+                  "cle": "conseil.des-vannes.decision.cohorte",
+                  "modele": "Réorienter la Cohorte vers une Arche de déplacés",
+                  "variables": [],
+                  "valeurs": {}
+                },
+                "contraindre-vannes": {
+                  "cle": "conseil.des-vannes.decision.contraindre",
+                  "modele": "Contraindre les vannes et assumer la coercition",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              }
+            }
+          },
+          "journal": {
+            "compagnon.ilyana-voss.affectee-intendance": {
+              "titre": {
+                "cle": "journal.conseil.affectation.titre",
+                "modele": "Ilyana Voss affectée à l’Intendance",
+                "variables": [],
+                "valeurs": {}
+              },
+              "cause": {
+                "cle": "journal.conseil.affectation.cause",
+                "modele": "Affectation ordonnée par le Porte-Lanterne",
+                "variables": [],
+                "valeurs": {}
+              },
+              "acteurs": [
+                {
+                  "cle": "journal.acteur.porte-lanterne",
+                  "modele": "Porte-Lanterne",
+                  "variables": [],
+                  "valeurs": {}
+                },
+                {
+                  "cle": "compagnon.ilyana-voss.nom",
+                  "modele": "Ilyana Voss",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ],
+              "cible": {
+                "cle": "quartier.intendance.nom",
+                "modele": "Intendance",
+                "variables": [],
+                "valeurs": {}
+              }
+            },
+            "bassins.conseil.reserves-partagees": {
+              "titre": {
+                "cle": "journal.conseil.des-vannes.partager.titre",
+                "modele": "Les réserves des deux Colonies ont été mises en partage",
+                "variables": [],
+                "valeurs": {}
+              },
+              "cause": {
+                "cle": "journal.conseil.des-vannes.cause",
+                "modele": "Décision du Conseil des Vannes convoqué par la tempête du Déversoir Noir.",
+                "variables": [],
+                "valeurs": {}
+              },
+              "acteurs": [
+                {
+                  "cle": "journal.acteur.porte-lanterne",
+                  "modele": "Porte-Lanterne",
+                  "variables": [],
+                  "valeurs": {}
+                },
+                {
+                  "cle": "compagnon.ilyana-voss.nom",
+                  "modele": "Ilyana Voss",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ],
+              "cible": {
+                "cle": "journal.cible.conseil-des-vannes",
+                "modele": "Conseil des Vannes",
+                "variables": [],
+                "valeurs": {}
+              }
+            },
+            "bassins.conseil.decanteur-repare": {
+              "titre": {
+                "cle": "journal.conseil.des-vannes.decanteur.titre",
+                "modele": "Le vieux décanteur a été retenu comme transformation du convoi",
+                "variables": [],
+                "valeurs": {}
+              },
+              "cause": {
+                "cle": "journal.conseil.des-vannes.cause",
+                "modele": "Décision du Conseil des Vannes convoqué par la tempête du Déversoir Noir.",
+                "variables": [],
+                "valeurs": {}
+              },
+              "acteurs": [
+                {
+                  "cle": "journal.acteur.porte-lanterne",
+                  "modele": "Porte-Lanterne",
+                  "variables": [],
+                  "valeurs": {}
+                },
+                {
+                  "cle": "compagnon.ilyana-voss.nom",
+                  "modele": "Ilyana Voss",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ],
+              "cible": {
+                "cle": "journal.cible.conseil-des-vannes",
+                "modele": "Conseil des Vannes",
+                "variables": [],
+                "valeurs": {}
+              }
+            },
+            "bassins.conseil.cohorte-reorientee": {
+              "titre": {
+                "cle": "journal.conseil.des-vannes.cohorte.titre",
+                "modele": "La Cohorte a été réorientée vers une Arche de déplacés",
+                "variables": [],
+                "valeurs": {}
+              },
+              "cause": {
+                "cle": "journal.conseil.des-vannes.cause",
+                "modele": "Décision du Conseil des Vannes convoqué par la tempête du Déversoir Noir.",
+                "variables": [],
+                "valeurs": {}
+              },
+              "acteurs": [
+                {
+                  "cle": "journal.acteur.porte-lanterne",
+                  "modele": "Porte-Lanterne",
+                  "variables": [],
+                  "valeurs": {}
+                },
+                {
+                  "cle": "compagnon.ilyana-voss.nom",
+                  "modele": "Ilyana Voss",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ],
+              "cible": {
+                "cle": "journal.cible.conseil-des-vannes",
+                "modele": "Conseil des Vannes",
+                "variables": [],
+                "valeurs": {}
+              }
+            },
+            "bassins.conseil.vannes-contraintes": {
+              "titre": {
+                "cle": "journal.conseil.des-vannes.contraindre.titre",
+                "modele": "Les vannes ont été contraintes au nom du passage",
+                "variables": [],
+                "valeurs": {}
+              },
+              "cause": {
+                "cle": "journal.conseil.des-vannes.cause",
+                "modele": "Décision du Conseil des Vannes convoqué par la tempête du Déversoir Noir.",
+                "variables": [],
+                "valeurs": {}
+              },
+              "acteurs": [
+                {
+                  "cle": "journal.acteur.porte-lanterne",
+                  "modele": "Porte-Lanterne",
+                  "variables": [],
+                  "valeurs": {}
+                },
+                {
+                  "cle": "compagnon.ilyana-voss.nom",
+                  "modele": "Ilyana Voss",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ],
+              "cible": {
+                "cle": "journal.cible.conseil-des-vannes",
+                "modele": "Conseil des Vannes",
+                "variables": [],
+                "valeurs": {}
+              }
+            }
+          }
+        },
+        "en": {
+          "titre": {
+            "cle": "conseil.des-vannes.titre",
+            "modele": "Sluice Council",
+            "variables": [],
+            "valeurs": {}
+          },
+          "compagnon": {
+            "nom": {
+              "cle": "compagnon.ilyana-voss.nom",
+              "modele": "Ilyana Voss",
+              "variables": [],
+              "valeurs": {}
+            },
+            "competenceMajeure": {
+              "cle": "competence.intendance",
+              "modele": "Stewardship",
+              "variables": [],
+              "valeurs": {}
+            },
+            "competenceSecondaire": {
+              "cle": "competence.diplomatie",
+              "modele": "Diplomacy",
+              "variables": [],
+              "valeurs": {}
+            },
+            "trait": {
+              "cle": "compagnon.ilyana-voss.trait",
+              "modele": "Meticulous, to the point of intransigence",
+              "variables": [],
+              "valeurs": {}
+            },
+            "ambivalence": {
+              "cle": "compagnon.ilyana-voss.ambivalence",
+              "modele": "She spots the smallest deviations, but hardens under pressure.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "conviction": {
+              "cle": "compagnon.ilyana-voss.conviction",
+              "modele": "Every inhabitant deserves safe water.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "projet": {
+              "cle": "compagnon.ilyana-voss.projet",
+              "modele": "Build a redundant purification circuit.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "etatPersonnel": {
+              "cle": "compagnon.ilyana-voss.etat",
+              "modele": "Stabilized ash burns",
+              "variables": [],
+              "valeurs": {}
+            },
+            "contrainte": {
+              "cle": "compagnon.ilyana-voss.contrainte",
+              "modele": "Avoid any exposure to contaminated water.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "voieDeSoin": {
+              "cle": "compagnon.ilyana-voss.soin",
+              "modele": "Renew her filters and rest inside the watch halo.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "quartier": {
+              "cle": "quartier.intendance.nom",
+              "modele": "Stewardship",
+              "variables": [],
+              "valeurs": {}
+            },
+            "informationOuverte": {
+              "cle": "compagnon.ilyana-voss.information-ouverte",
+              "modele": "The secondary valve can isolate the pump for twelve minutes without cutting water to the living quarters.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "libelles": {
+            "typeCompagnon": {
+              "cle": "interface.compagnon.type",
+              "modele": "Companion",
+              "variables": [],
+              "valeurs": {}
+            },
+            "competenceMajeure": {
+              "cle": "interface.compagnon.competence-majeure",
+              "modele": "Major skill",
+              "variables": [],
+              "valeurs": {}
+            },
+            "competenceSecondaire": {
+              "cle": "interface.compagnon.competence-secondaire",
+              "modele": "Secondary skill",
+              "variables": [],
+              "valeurs": {}
+            },
+            "trait": {
+              "cle": "interface.compagnon.trait",
+              "modele": "Ambivalent trait",
+              "variables": [],
+              "valeurs": {}
+            },
+            "conviction": {
+              "cle": "interface.compagnon.conviction",
+              "modele": "Conviction",
+              "variables": [],
+              "valeurs": {}
+            },
+            "projet": {
+              "cle": "interface.compagnon.projet",
+              "modele": "Project",
+              "variables": [],
+              "valeurs": {}
+            },
+            "etatPersonnel": {
+              "cle": "interface.compagnon.etat",
+              "modele": "Personal condition",
+              "variables": [],
+              "valeurs": {}
+            },
+            "soin": {
+              "cle": "interface.compagnon.soin",
+              "modele": "Care",
+              "variables": [],
+              "valeurs": {}
+            },
+            "affecter": {
+              "cle": "interface.compagnon.affecter-intendance",
+              "modele": "Assign to Stewardship",
+              "variables": [],
+              "valeurs": {}
+            },
+            "affectee": {
+              "cle": "interface.compagnon.affectee",
+              "modele": "Assigned",
+              "variables": [],
+              "valeurs": {}
+            },
+            "informationOuverte": {
+              "cle": "interface.compagnon.information-ouverte",
+              "modele": "Unlocked information",
+              "variables": [],
+              "valeurs": {}
+            },
+            "conseil": {
+              "cle": "interface.conseil.type",
+              "modele": "Council",
+              "variables": [],
+              "valeurs": {}
+            },
+            "faitConnu": {
+              "cle": "interface.conseil.fait-connu",
+              "modele": "Known fact",
+              "variables": [],
+              "valeurs": {}
+            },
+            "source": {
+              "cle": "interface.conseil.source",
+              "modele": "Source",
+              "variables": [],
+              "valeurs": {}
+            },
+            "recommandationMorale": {
+              "cle": "interface.conseil.recommandation",
+              "modele": "Moral recommendation",
+              "variables": [],
+              "valeurs": {}
+            },
+            "enjeuPersonnel": {
+              "cle": "interface.conseil.enjeu",
+              "modele": "Personal stake",
+              "variables": [],
+              "valeurs": {}
+            },
+            "decision": {
+              "cle": "interface.conseil.decision",
+              "modele": "Lantern-Bearer decision",
+              "variables": [],
+              "valeurs": {}
+            },
+            "reponseOuverte": {
+              "cle": "interface.conseil.reponse-ouverte",
+              "modele": "Response unlocked by Ilyana’s Assignment",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "sujets": {
+            "eau-cohorte-et-deversoir": {
+              "titre": {
+                "cle": "conseil.des-vannes.sujet.titre",
+                "modele": "Water, Cohort and regional passage",
+                "variables": [],
+                "valeurs": {}
+              },
+              "voix": {
+                "ilyana-voss": {
+                  "faitConnu": {
+                    "cle": "conseil.des-vannes.voix.fait-connu",
+                    "modele": "The reserves, settler and Cohort can be defended only if they were prepared in the Colonies.",
+                    "variables": [],
+                    "valeurs": {}
+                  },
+                  "source": {
+                    "cle": "conseil.des-vannes.voix.source",
+                    "modele": "Cross-checked registers from High Well, Lower Watch and the Cableways",
+                    "variables": [],
+                    "valeurs": {}
+                  },
+                  "dateSource": {
+                    "cle": "conseil.des-vannes.voix.date",
+                    "modele": "During the storm at the Black Spillway",
+                    "variables": [],
+                    "valeurs": {}
+                  },
+                  "recommandationMorale": {
+                    "cle": "conseil.des-vannes.voix.recommandation",
+                    "modele": "Ilyana recommends the sole option backed by public facts and durable responsibility.",
+                    "variables": [],
+                    "valeurs": {}
+                  },
+                  "enjeuPersonnel": {
+                    "cle": "conseil.des-vannes.voix.enjeu",
+                    "modele": "A decision without evidence would turn Stewardship into an authority without appeal.",
+                    "variables": [],
+                    "valeurs": {}
+                  }
+                }
+              },
+              "decisions": {
+                "partager-reserves": {
+                  "cle": "conseil.des-vannes.decision.partager",
+                  "modele": "Share the reserves between both Colonies",
+                  "variables": [],
+                  "valeurs": {}
+                },
+                "reparer-decanteur": {
+                  "cle": "conseil.des-vannes.decision.decanteur",
+                  "modele": "Repair the old settler as a major project",
+                  "variables": [],
+                  "valeurs": {}
+                },
+                "reorienter-cohorte": {
+                  "cle": "conseil.des-vannes.decision.cohorte",
+                  "modele": "Redirect the Cohort into an Ark for the displaced",
+                  "variables": [],
+                  "valeurs": {}
+                },
+                "contraindre-vannes": {
+                  "cle": "conseil.des-vannes.decision.contraindre",
+                  "modele": "Force the sluices and own the coercion",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              }
+            }
+          },
+          "journal": {
+            "compagnon.ilyana-voss.affectee-intendance": {
+              "titre": {
+                "cle": "journal.conseil.affectation.titre",
+                "modele": "Ilyana Voss assigned to Stewardship",
+                "variables": [],
+                "valeurs": {}
+              },
+              "cause": {
+                "cle": "journal.conseil.affectation.cause",
+                "modele": "Assignment ordered by the Lantern-Bearer",
+                "variables": [],
+                "valeurs": {}
+              },
+              "acteurs": [
+                {
+                  "cle": "journal.acteur.porte-lanterne",
+                  "modele": "Lantern-Bearer",
+                  "variables": [],
+                  "valeurs": {}
+                },
+                {
+                  "cle": "compagnon.ilyana-voss.nom",
+                  "modele": "Ilyana Voss",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ],
+              "cible": {
+                "cle": "quartier.intendance.nom",
+                "modele": "Stewardship",
+                "variables": [],
+                "valeurs": {}
+              }
+            },
+            "bassins.conseil.reserves-partagees": {
+              "titre": {
+                "cle": "journal.conseil.des-vannes.partager.titre",
+                "modele": "Both Colonies’ reserves were placed in common",
+                "variables": [],
+                "valeurs": {}
+              },
+              "cause": {
+                "cle": "journal.conseil.des-vannes.cause",
+                "modele": "Decision of the Sluice Council summoned by the Black Spillway storm.",
+                "variables": [],
+                "valeurs": {}
+              },
+              "acteurs": [
+                {
+                  "cle": "journal.acteur.porte-lanterne",
+                  "modele": "Lantern-Bearer",
+                  "variables": [],
+                  "valeurs": {}
+                },
+                {
+                  "cle": "compagnon.ilyana-voss.nom",
+                  "modele": "Ilyana Voss",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ],
+              "cible": {
+                "cle": "journal.cible.conseil-des-vannes",
+                "modele": "Sluice Council",
+                "variables": [],
+                "valeurs": {}
+              }
+            },
+            "bassins.conseil.decanteur-repare": {
+              "titre": {
+                "cle": "journal.conseil.des-vannes.decanteur.titre",
+                "modele": "The old settler was chosen as a convoy transformation",
+                "variables": [],
+                "valeurs": {}
+              },
+              "cause": {
+                "cle": "journal.conseil.des-vannes.cause",
+                "modele": "Decision of the Sluice Council summoned by the Black Spillway storm.",
+                "variables": [],
+                "valeurs": {}
+              },
+              "acteurs": [
+                {
+                  "cle": "journal.acteur.porte-lanterne",
+                  "modele": "Lantern-Bearer",
+                  "variables": [],
+                  "valeurs": {}
+                },
+                {
+                  "cle": "compagnon.ilyana-voss.nom",
+                  "modele": "Ilyana Voss",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ],
+              "cible": {
+                "cle": "journal.cible.conseil-des-vannes",
+                "modele": "Sluice Council",
+                "variables": [],
+                "valeurs": {}
+              }
+            },
+            "bassins.conseil.cohorte-reorientee": {
+              "titre": {
+                "cle": "journal.conseil.des-vannes.cohorte.titre",
+                "modele": "The Cohort was redirected into an Ark for the displaced",
+                "variables": [],
+                "valeurs": {}
+              },
+              "cause": {
+                "cle": "journal.conseil.des-vannes.cause",
+                "modele": "Decision of the Sluice Council summoned by the Black Spillway storm.",
+                "variables": [],
+                "valeurs": {}
+              },
+              "acteurs": [
+                {
+                  "cle": "journal.acteur.porte-lanterne",
+                  "modele": "Lantern-Bearer",
+                  "variables": [],
+                  "valeurs": {}
+                },
+                {
+                  "cle": "compagnon.ilyana-voss.nom",
+                  "modele": "Ilyana Voss",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ],
+              "cible": {
+                "cle": "journal.cible.conseil-des-vannes",
+                "modele": "Sluice Council",
+                "variables": [],
+                "valeurs": {}
+              }
+            },
+            "bassins.conseil.vannes-contraintes": {
+              "titre": {
+                "cle": "journal.conseil.des-vannes.contraindre.titre",
+                "modele": "The sluices were forced in the name of passage",
+                "variables": [],
+                "valeurs": {}
+              },
+              "cause": {
+                "cle": "journal.conseil.des-vannes.cause",
+                "modele": "Decision of the Sluice Council summoned by the Black Spillway storm.",
+                "variables": [],
+                "valeurs": {}
+              },
+              "acteurs": [
+                {
+                  "cle": "journal.acteur.porte-lanterne",
+                  "modele": "Lantern-Bearer",
+                  "variables": [],
+                  "valeurs": {}
+                },
+                {
+                  "cle": "compagnon.ilyana-voss.nom",
+                  "modele": "Ilyana Voss",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ],
+              "cible": {
+                "cle": "journal.cible.conseil-des-vannes",
+                "modele": "Sluice Council",
+                "variables": [],
+                "valeurs": {}
+              }
+            }
+          }
+        }
+      }
     }
   ],
   "libellesTransversaux": {
@@ -3365,7 +5518,15 @@ export default {
           "bassins.nacelles.frein-transforme-clandestinement": "Frein des Nacelles transformé clandestinement",
           "bassins.nacelles.trace-laiton-persistante": "Trace de limaille de laiton persistante",
           "bassins.nacelles.conseil-passage-partage": "Passage partagé préparé pour le Conseil",
-          "bassins.nacelles.conseil-maintenance-commune": "Maintenance commune préparée pour le Conseil"
+          "bassins.nacelles.conseil-maintenance-commune": "Maintenance commune préparée pour le Conseil",
+          "bassins.deversoir.ligne-zero-relevee": "L’interface de la Ligne Zéro a été relevée",
+          "bassins.deversoir.ligne-zero-preservee": "La conduite de la Ligne Zéro a été préservée",
+          "bassins.deversoir.conseil-convoque": "Les délégations ont été convoquées aux Vannes",
+          "bassins.deversoir.conseil-public": "Les comptes d’eau ont été rendus publics",
+          "bassins.deversoir.transformation-scellee": "La transformation régionale a été scellée",
+          "bassins.deversoir.gabarits-conserves": "Les gabarits régionaux ont été conservés",
+          "bassins.deversoir.passage-prepare": "Les abandons ont été consignés avant le passage",
+          "bassins.deversoir.passage-transmis": "Les registres des Bassins ont été transmis"
         },
         "causes": {
           "bassins.haut-puits.pacte-des-citernes": "Le pacte des citernes",
@@ -3379,7 +5540,11 @@ export default {
           "bassins.nacelles.le-poids-des-deux-rives": "Le poids des deux rives",
           "bassins.nacelles.le-frein-sous-la-cendre": "Le frein sous la cendre",
           "bassins.nacelles.la-main-sur-le-frein": "La main sur le frein",
-          "bassins.nacelles.deux-voix-dans-le-cable": "Deux voix dans le câble"
+          "bassins.nacelles.deux-voix-dans-le-cable": "Deux voix dans le câble",
+          "bassins.deversoir.la-conduite-zero": "Décision prise devant la conduite révélée du Déversoir Noir.",
+          "bassins.deversoir.la-tempete-aux-vannes": "Décision prise pendant la tempête qui sature les filtres des deux Colonies.",
+          "bassins.deversoir.le-chassis-des-bassins": "Décision prise devant le châssis destiné à porter la transformation régionale.",
+          "bassins.deversoir.le-passage-sans-retour": "Décision prise avant le passage irréversible vers la Trame de Fer."
         },
         "acteurs": {
           "ilyana-voss": "Ilyana Voss",
@@ -3393,7 +5558,8 @@ export default {
           "pelerins-de-cendre": "Pèlerins de Cendre",
           "maelys-rive": "Maëlys Rive",
           "nacelliers-des-vannes": "Nacelliers des Vannes",
-          "frein-magnetique-des-nacelles": "Frein magnétique des Nacelles"
+          "frein-magnetique-des-nacelles": "Frein magnétique des Nacelles",
+          "techniciens-du-deversoir": "Techniciens du Déversoir"
         },
         "cibles": {
           "equipes-entretien": "Équipes d’entretien",
@@ -3406,7 +5572,11 @@ export default {
           "hospice-du-sillon": "Hospice du Sillon",
           "maelys-rive": "Maëlys Rive",
           "nacelliers-des-vannes": "Nacelliers des Vannes",
-          "frein-magnetique-des-nacelles": "Frein magnétique des Nacelles"
+          "frein-magnetique-des-nacelles": "Frein magnétique des Nacelles",
+          "conduite-de-la-ligne-zero": "Conduite de la Ligne Zéro",
+          "conseil-des-vannes": "Conseil des Vannes",
+          "chassis-regional-des-bassins": "Châssis régional des Bassins",
+          "passage-vers-la-trame": "Passage vers la Trame de Fer"
         }
       }
     },
@@ -3439,7 +5609,15 @@ export default {
           "bassins.nacelles.frein-transforme-clandestinement": "Cable brake covertly altered",
           "bassins.nacelles.trace-laiton-persistante": "Persistent brass-filings Trace",
           "bassins.nacelles.conseil-passage-partage": "Shared crossing prepared for the Council",
-          "bassins.nacelles.conseil-maintenance-commune": "Common maintenance prepared for the Council"
+          "bassins.nacelles.conseil-maintenance-commune": "Common maintenance prepared for the Council",
+          "bassins.deversoir.ligne-zero-relevee": "The Zero Line interface was surveyed",
+          "bassins.deversoir.ligne-zero-preservee": "The Zero Line conduit was preserved",
+          "bassins.deversoir.conseil-convoque": "The delegations were summoned to the Sluices",
+          "bassins.deversoir.conseil-public": "The water accounts were made public",
+          "bassins.deversoir.transformation-scellee": "The regional transformation was sealed",
+          "bassins.deversoir.gabarits-conserves": "The regional templates were preserved",
+          "bassins.deversoir.passage-prepare": "The abandoned places were recorded before passage",
+          "bassins.deversoir.passage-transmis": "The Basins’ registers were handed on"
         },
         "causes": {
           "bassins.haut-puits.pacte-des-citernes": "The cistern pact",
@@ -3453,7 +5631,11 @@ export default {
           "bassins.nacelles.le-poids-des-deux-rives": "The weight of both banks",
           "bassins.nacelles.le-frein-sous-la-cendre": "The brake beneath the ash",
           "bassins.nacelles.la-main-sur-le-frein": "A hand on the brake",
-          "bassins.nacelles.deux-voix-dans-le-cable": "Two voices in the cable"
+          "bassins.nacelles.deux-voix-dans-le-cable": "Two voices in the cable",
+          "bassins.deversoir.la-conduite-zero": "Decision made before the Black Spillway’s revealed conduit.",
+          "bassins.deversoir.la-tempete-aux-vannes": "Decision made during the storm saturating both Colonies’ filters.",
+          "bassins.deversoir.le-chassis-des-bassins": "Decision made before the frame built to carry the regional transformation.",
+          "bassins.deversoir.le-passage-sans-retour": "Decision made before irreversible passage into the Iron Weave."
         },
         "acteurs": {
           "ilyana-voss": "Ilyana Voss",
@@ -3467,7 +5649,8 @@ export default {
           "pelerins-de-cendre": "Ash Pilgrims",
           "maelys-rive": "Maëlys Rive",
           "nacelliers-des-vannes": "Sluice Cable Crews",
-          "frein-magnetique-des-nacelles": "Cableway Magnetic Brake"
+          "frein-magnetique-des-nacelles": "Cableway Magnetic Brake",
+          "techniciens-du-deversoir": "Spillway Technicians"
         },
         "cibles": {
           "equipes-entretien": "Maintenance crews",
@@ -3480,7 +5663,11 @@ export default {
           "hospice-du-sillon": "Sillon Hospice",
           "maelys-rive": "Maëlys Rive",
           "nacelliers-des-vannes": "Sluice Cable Crews",
-          "frein-magnetique-des-nacelles": "Cableway Magnetic Brake"
+          "frein-magnetique-des-nacelles": "Cableway Magnetic Brake",
+          "conduite-de-la-ligne-zero": "Zero Line Conduit",
+          "conseil-des-vannes": "Sluice Council",
+          "chassis-regional-des-bassins": "Basins Regional Frame",
+          "passage-vers-la-trame": "Passage into the Iron Weave"
         }
       }
     }

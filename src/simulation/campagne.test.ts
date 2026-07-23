@@ -15,7 +15,7 @@ describe("Graine de campagne", () => {
     const etat = creerCampagneInitiale("CENDRE-01");
 
     expect(JSON.parse(JSON.stringify(etat))).toEqual({
-      version: 7,
+      version: 8,
       graine: "CENDRE-01",
       tempsDuConvoi: {
         secondes: 0,
@@ -142,6 +142,11 @@ describe("Graine de campagne", () => {
           "chemin-des-vanniers": "praticable",
           "chenal-des-vannes": "praticable",
           "nacelles-de-veille-basse": "degrade",
+          "chemin-de-l-hospice": "praticable",
+          "chenal-de-l-hospice": "degrade",
+          "conduite-du-deversoir": "praticable",
+          "passage-de-la-ligne-zero": "praticable",
+          "piste-des-levees": "degrade",
         },
         engagements: [],
         jalons: [],
@@ -150,6 +155,7 @@ describe("Graine de campagne", () => {
       expeditions: creerEtatDesExpeditionsInitial(),
       veilleBasse: creerEtatInitialDeVeilleBasse(),
       hautPuits: creerEtatDeHautPuitsInitial(),
+      devenirsDesSites: null,
       fluxPseudoAleatoires: {
         "evenements-narratifs": {
           algorithme: "xoshiro128**",

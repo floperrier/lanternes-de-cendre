@@ -88,6 +88,33 @@ export interface TextesDeVeilleBasse {
 export interface PresentationsPremium {
   readonly hautPuits: Readonly<Record<Langue, TextesDeHautPuits>>;
   readonly veilleBasse: Readonly<Record<Langue, TextesDeVeilleBasse>>;
+  readonly deversoir?: Readonly<
+    Record<
+      Langue,
+      {
+        readonly nomsDesLieux: DictionnaireDeTextes;
+        readonly lieuxTraverses: string;
+        readonly lieuxNonRejoints: string;
+        readonly aucunLieu: string;
+        readonly etatDesColonies: string;
+        readonly occasions: string;
+        readonly ligneZeroEmportee: string;
+        readonly ligneZeroNonEmportee: string;
+        readonly projetNonRetenu: string;
+        readonly projets: DictionnaireDeTextes;
+        readonly statutsDeProjet: DictionnaireDeTextes;
+        readonly statutsDeColonie: DictionnaireDeTextes;
+        readonly devenirsDeHautPuits: DictionnaireDeTextes;
+        readonly devenirsDeHospice: DictionnaireDeTextes;
+        readonly destinationsDeCohorte: DictionnaireDeTextes;
+        readonly etatsDArchives: DictionnaireDeTextes;
+        readonly nomDePlateforme: string;
+        readonly servicesDeProjet: DictionnaireDeTextes;
+        readonly contraintesDeProjet: DictionnaireDeTextes;
+        readonly devenirsDeSites: DictionnaireDeTextes;
+      }
+    >
+  >;
 }
 
 let presentationsInstallees: PresentationsPremium | null = null;
@@ -116,9 +143,23 @@ export function installerPresentationsPremium(valeur: unknown): void {
   const presentations = estObjet(catalogue)
     ? catalogue.presentations
     : undefined;
+  const evenements = estObjet(catalogue) ? catalogue.evenements : undefined;
+  const inclutLeDeversoir =
+    Array.isArray(evenements) &&
+    evenements.some(
+      (evenement) =>
+        estObjet(evenement) &&
+        typeof evenement.id === "string" &&
+        evenement.id.startsWith("bassins.deversoir."),
+    );
+  const surfacesAttendues = [
+    "hautPuits",
+    "veilleBasse",
+    ...(inclutLeDeversoir ? ["deversoir"] : []),
+  ];
   if (
     !estObjet(presentations) ||
-    !["hautPuits", "veilleBasse"].every((surface) => {
+    !surfacesAttendues.every((surface) => {
       return (
         estObjet(presentations[surface]) &&
         ["fr", "en"].every((langue) =>
