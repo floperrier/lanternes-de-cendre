@@ -159,16 +159,16 @@ describe("application de Campagne", () => {
       secondesReelles: 90,
     });
 
-    const deuxiemeTroncon = {
-      type: "engagement-de-route.confirmer" as const,
-      tronconId: "chemin-des-vanniers" as const,
+    const commandePremium = {
+      type: "haut-puits.marche.echanger" as const,
+      offreId: "eau-contre-materiaux" as const,
     };
-    expect(application.commandeEstAutorisee(deuxiemeTroncon)).toBe(false);
-    expect(() => application.envoyerCommande(deuxiemeTroncon)).toThrow(
+    expect(application.commandeEstAutorisee(commandePremium)).toBe(false);
+    expect(() => application.envoyerCommande(commandePremium)).toThrow(
       ErreurDeCommandeRefusee,
     );
     try {
-      application.envoyerCommande(deuxiemeTroncon);
+      application.envoyerCommande(commandePremium);
     } catch (erreur) {
       expect(erreur).toMatchObject({
         refus: { code: "acces-premium-requis" },
@@ -179,10 +179,10 @@ describe("application de Campagne", () => {
       application.lireEtat(),
       { politiqueDAcces: ACCES_AU_CONTENU_COMPLET },
     );
-    expect(applicationComplete.commandeEstAutorisee(deuxiemeTroncon)).toBe(
+    expect(applicationComplete.commandeEstAutorisee(commandePremium)).toBe(
       true,
     );
-    expect(() => applicationComplete.envoyerCommande(deuxiemeTroncon)).not
+    expect(() => applicationComplete.envoyerCommande(commandePremium)).not
       .toThrow();
   });
 

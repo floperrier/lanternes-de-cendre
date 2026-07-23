@@ -1,0 +1,15 @@
+{
+  "asset": "serveur-commercial/assets/nacelles-compagnes.webp",
+  "sha256": "0b2531363f5f561118a8a656ce36d331d960f204c0c7165ad83f61a7b6363d9b",
+  "createdAt": "2026-07-23",
+  "tool": "Codex built-in image_gen",
+  "model": "built-in model (identifier not exposed)",
+  "useCase": "illustration-story",
+  "input": "No external input image; generated from the written Ilyana Voss and Maëlys Rive companion-story brief.",
+  "prompt": "Create a single 16:9 narrative event illustration matching the established “Les Lanternes de Cendre” painterly dieselpunk concept-art style. Scene on a high cableway relay footbridge over ash basins: two competent women stand side by side but retain distinct roles—an older dark-haired steward named Ilyana holds an open water-sharing register, while a younger field engineer named Maëlys carries a compact weathered survey case. They face heavy cables stretching toward two different settlement banks and calmly compare proposals; cable crews work behind them. No heroic pose, no romance, no authority tableau: collaborative disagreement and practical trust. Muted charcoal, ash beige, oxidized copper, restrained amber beacon light; windblown ash, strong readable silhouettes and value contrast. No text, no legible writing, no letters, no logos, no UI, no watermark.",
+  "rights": "OpenAI Terms of Use — output assigned to the user",
+  "approval": {
+    "status": "pending-pull-request-review",
+    "reviewer": null
+  }
+}

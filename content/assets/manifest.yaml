@@ -65,3 +65,23 @@ assets:
     alternative: evenement.haut-puits.ilyana.asset.alt
     contient_texte: false
     provenance: docs/assets/haut-puits-ilyana.provenance.json
+  - id: bassins.nacelles.le-poids-des-deux-rives
+    fichier: /api/commercial/assets/nacelles-deux-rives.webp
+    alternative: evenement.nacelles.conflit.asset.alt
+    contient_texte: false
+    provenance: docs/assets/nacelles-deux-rives.provenance.json
+  - id: bassins.nacelles.le-frein-sous-la-cendre
+    fichier: /api/commercial/assets/nacelles-frein.webp
+    alternative: evenement.nacelles.mystere.asset.alt
+    contient_texte: false
+    provenance: docs/assets/nacelles-frein.provenance.json
+  - id: bassins.nacelles.la-main-sur-le-frein
+    fichier: /api/commercial/assets/nacelles-trace.webp
+    alternative: evenement.nacelles.systeme.asset.alt
+    contient_texte: false
+    provenance: docs/assets/nacelles-trace.provenance.json
+  - id: bassins.nacelles.deux-voix-dans-le-cable
+    fichier: /api/commercial/assets/nacelles-compagnes.webp
+    alternative: evenement.nacelles.compagnons.asset.alt
+    contient_texte: false
+    provenance: docs/assets/nacelles-compagnes.provenance.json

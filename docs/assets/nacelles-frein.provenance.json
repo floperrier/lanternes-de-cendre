@@ -1,0 +1,15 @@
+{
+  "asset": "serveur-commercial/assets/nacelles-frein.webp",
+  "sha256": "4869a9a069f961680a2745fa67b58d6b4c8c8723728aacd5ee2c9b717f20e0ae",
+  "createdAt": "2026-07-23",
+  "tool": "Codex built-in image_gen",
+  "model": "built-in model (identifier not exposed)",
+  "useCase": "illustration-story",
+  "input": "No external input image; generated from the written Nacelles mystery brief.",
+  "prompt": "Create a single 16:9 narrative event illustration matching the established “Les Lanternes de Cendre” painterly dieselpunk concept-art style. Scene: beneath the main drum of an old industrial cableway relay, technicians discover a precise ancient magnetic brake connected to a patterned brass plate; they mark and measure the housing without touching it. Massive pulleys and worn steel cables frame the machinery, ash dust hangs in the air, dim amber work lamps reveal the concrete target. Palette: muted charcoal, ash beige, oxidized copper, restrained amber; sober archaeological-industrial mystery, materially plausible, strong readable silhouettes and value contrast. No text, no letters, no logos, no UI, no watermark.",
+  "rights": "OpenAI Terms of Use — output assigned to the user",
+  "approval": {
+    "status": "pending-pull-request-review",
+    "reviewer": null
+  }
+}

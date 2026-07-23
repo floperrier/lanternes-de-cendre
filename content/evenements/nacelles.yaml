@@ -1,0 +1,342 @@
+version: 1
+evenements:
+  - id: bassins.nacelles.le-poids-des-deux-rives
+    famille: conflits-regionaux
+    themes: [eau, accueil, factions]
+    fonction: confronter-les-decisions-des-deux-branches
+    fenetre: relais-des-nacelles
+    conditions:
+      requises:
+        - type: lieu-present
+          lieu: relais-des-vannes
+      interdites: []
+    periode_eligibilite: { debut: 780, fin: 2147483647 }
+    priorite: 120
+    epuisement: unique
+    acteurs:
+      - porte-lanterne
+      - nacelliers-des-vannes
+      - puits-libres
+      - pelerins-de-cendre
+      - cohorte-du-sillon
+    origine: { cle: evenement.nacelles.conflit.origine, variables: [] }
+    libelle_intentions: { cle: evenement.ruban.intentions, variables: [] }
+    titre: { cle: evenement.nacelles.conflit.titre, variables: [] }
+    presentation:
+      { cle: evenement.nacelles.conflit.presentation, variables: [] }
+    informations:
+      - source: nacelliers-des-vannes
+        texte: { cle: evenement.nacelles.conflit.information, variables: [] }
+    faits_lus:
+      - bassins.haut-puits.ilyana-garante
+      - bassins.haut-puits.ilyana-contredite
+      - veille-basse.maelys-mission-confiee
+      - veille-basse.maelys-equipes-prioritaires
+      - veille-basse.intervention-refusee
+    choix:
+      - id: partager-contrepoids
+        intention:
+          { cle: evenement.nacelles.conflit.choix.partager, variables: [] }
+        couts_connus:
+          - {
+              cle: evenement.nacelles.conflit.choix.partager.cout,
+              variables: [],
+            }
+        effets:
+          - type: stock.modifier
+            stock: materiaux
+            valeur: -4
+        faits_produits:
+          - id: bassins.nacelles.accord-regional
+            cible: nacelliers-des-vannes
+      - id: reserver-passage
+        intention:
+          { cle: evenement.nacelles.conflit.choix.reserver, variables: [] }
+        couts_connus:
+          - {
+              cle: evenement.nacelles.conflit.choix.reserver.cout,
+              variables: [],
+            }
+        effets:
+          - type: stock.modifier
+            stock: eau
+            valeur: -8
+        faits_produits:
+          - id: bassins.nacelles.passage-restreint
+            cible: cohorte-du-sillon
+    consequence_differee:
+      { type: conseil-des-vannes, cible: nacelliers-des-vannes }
+    recuperation: { type: accord-regional-couteux }
+    variantes:
+      - id: echo-ilyana-garante
+        condition: fait-present:bassins.haut-puits.ilyana-garante
+        presentation:
+          {
+            cle: evenement.nacelles.conflit.variante.ilyana-garante,
+            variables: [],
+          }
+      - id: echo-ilyana-contredite
+        condition: fait-present:bassins.haut-puits.ilyana-contredite
+        presentation:
+          {
+            cle: evenement.nacelles.conflit.variante.ilyana-contredite,
+            variables: [],
+          }
+      - id: echo-maelys-mission
+        condition: fait-present:veille-basse.maelys-mission-confiee
+        presentation:
+          {
+            cle: evenement.nacelles.conflit.variante.maelys-mission,
+            variables: [],
+          }
+      - id: echo-maelys-equipes
+        condition: fait-present:veille-basse.maelys-equipes-prioritaires
+        presentation:
+          {
+            cle: evenement.nacelles.conflit.variante.maelys-equipes,
+            variables: [],
+          }
+      - id: echo-veille-abandonnee
+        condition: fait-present:veille-basse.intervention-refusee
+        presentation:
+          {
+            cle: evenement.nacelles.conflit.variante.veille-abandonnee,
+            variables: [],
+          }
+      - id: standard
+        condition: toujours
+        presentation:
+          { cle: evenement.nacelles.conflit.variante.standard, variables: [] }
+    destination_echo: journal-de-campagne
+    asset: bassins.nacelles.le-poids-des-deux-rives
+
+  - id: bassins.nacelles.le-frein-sous-la-cendre
+    famille: mystere-des-phares
+    themes: [reseau-ancien, cible-clandestine]
+    fonction: reveler-la-cible-du-frein-magnetique
+    fenetre: relais-des-nacelles
+    conditions:
+      requises:
+        - type: lieu-present
+          lieu: relais-des-vannes
+        - type: un-des-faits-present
+          faits:
+            - bassins.nacelles.accord-regional
+            - bassins.nacelles.passage-restreint
+      interdites: []
+    periode_eligibilite: { debut: 780, fin: 2147483647 }
+    priorite: 110
+    epuisement: unique
+    acteurs:
+      - porte-lanterne
+      - nacelliers-des-vannes
+      - frein-magnetique-des-nacelles
+    origine: { cle: evenement.nacelles.mystere.origine, variables: [] }
+    libelle_intentions: { cle: evenement.ruban.intentions, variables: [] }
+    titre: { cle: evenement.nacelles.mystere.titre, variables: [] }
+    presentation:
+      { cle: evenement.nacelles.mystere.presentation, variables: [] }
+    informations:
+      - source: nacelliers-des-vannes
+        texte: { cle: evenement.nacelles.mystere.information, variables: [] }
+    faits_lus:
+      - bassins.nacelles.accord-regional
+      - bassins.nacelles.passage-restreint
+    choix:
+      - id: baliser-frein
+        intention:
+          { cle: evenement.nacelles.mystere.choix.baliser, variables: [] }
+        couts_connus:
+          - {
+              cle: evenement.nacelles.mystere.choix.baliser.cout,
+              variables: [],
+            }
+        effets: []
+        faits_produits:
+          - id: bassins.nacelles.cible-frein-balisee
+            cible: frein-magnetique-des-nacelles
+      - id: consigner-frein
+        intention:
+          { cle: evenement.nacelles.mystere.choix.consigner, variables: [] }
+        couts_connus:
+          - {
+              cle: evenement.nacelles.mystere.choix.consigner.cout,
+              variables: [],
+            }
+        effets: []
+        faits_produits:
+          - id: bassins.nacelles.cible-frein-consignee
+            cible: frein-magnetique-des-nacelles
+    consequence_differee:
+      { type: cible-clandestine-revelee, cible: frein-magnetique-des-nacelles }
+    recuperation: { type: renseignement-concret }
+    variantes:
+      - id: standard
+        condition: toujours
+        presentation:
+          { cle: evenement.nacelles.mystere.variante.standard, variables: [] }
+    destination_echo: journal-de-campagne
+    asset: bassins.nacelles.le-frein-sous-la-cendre
+
+  - id: bassins.nacelles.la-main-sur-le-frein
+    famille: consequences-systemiques
+    themes: [intervention-clandestine, trace-clandestine]
+    fonction: transformer-le-frein-revele
+    fenetre: relais-des-nacelles
+    conditions:
+      requises:
+        - type: lieu-present
+          lieu: relais-des-vannes
+        - type: un-des-faits-present
+          faits:
+            - bassins.nacelles.cible-frein-balisee
+            - bassins.nacelles.cible-frein-consignee
+      interdites: []
+    periode_eligibilite: { debut: 780, fin: 2147483647 }
+    priorite: 100
+    epuisement: unique
+    acteurs:
+      - porte-lanterne
+      - nacelliers-des-vannes
+      - frein-magnetique-des-nacelles
+      - puits-libres
+      - pelerins-de-cendre
+    origine: { cle: evenement.nacelles.systeme.origine, variables: [] }
+    libelle_intentions: { cle: evenement.ruban.intentions, variables: [] }
+    titre: { cle: evenement.nacelles.systeme.titre, variables: [] }
+    presentation:
+      { cle: evenement.nacelles.systeme.presentation, variables: [] }
+    informations:
+      - source: frein-magnetique-des-nacelles
+        texte: { cle: evenement.nacelles.systeme.information, variables: [] }
+    faits_lus:
+      - bassins.nacelles.cible-frein-balisee
+      - bassins.nacelles.cible-frein-consignee
+    choix:
+      - id: reparer-publiquement
+        intention:
+          { cle: evenement.nacelles.systeme.choix.reparer, variables: [] }
+        couts_connus:
+          - {
+              cle: evenement.nacelles.systeme.choix.reparer.cout,
+              variables: [],
+            }
+        effets:
+          - type: stock.modifier
+            stock: materiaux
+            valeur: -6
+        faits_produits:
+          - id: bassins.nacelles.frein-reaccorde
+            cible: nacelliers-des-vannes
+      - id: intervenir-clandestinement
+        intention:
+          {
+            cle: evenement.nacelles.systeme.choix.clandestin,
+            variables: [],
+          }
+        couts_connus:
+          - {
+              cle: evenement.nacelles.systeme.choix.clandestin.cout,
+              variables: [],
+            }
+        effets:
+          - type: stock.modifier
+            stock: materiaux
+            valeur: -2
+        faits_produits:
+          - id: bassins.nacelles.frein-transforme-clandestinement
+            cible: frein-magnetique-des-nacelles
+          - id: bassins.nacelles.trace-laiton-persistante
+            cible: nacelliers-des-vannes
+    consequence_differee:
+      { type: enquete-au-dela-de-la-region, cible: nacelliers-des-vannes }
+    recuperation: { type: reparation-publique-toujours-disponible }
+    variantes:
+      - id: standard
+        condition: toujours
+        presentation:
+          { cle: evenement.nacelles.systeme.variante.standard, variables: [] }
+    destination_echo: journal-de-campagne
+    asset: bassins.nacelles.la-main-sur-le-frein
+
+  - id: bassins.nacelles.deux-voix-dans-le-cable
+    famille: histoires-de-compagnons
+    themes: [ilyana-voss, maelys-rive, conseil-des-vannes]
+    fonction: preparer-une-option-du-conseil
+    fenetre: relais-des-nacelles
+    conditions:
+      requises:
+        - type: lieu-present
+          lieu: relais-des-vannes
+        - type: un-des-faits-present
+          faits:
+            - bassins.nacelles.frein-reaccorde
+            - bassins.nacelles.frein-transforme-clandestinement
+      interdites: []
+    periode_eligibilite: { debut: 780, fin: 2147483647 }
+    priorite: 90
+    epuisement: unique
+    acteurs:
+      - porte-lanterne
+      - ilyana-voss
+      - maelys-rive
+      - nacelliers-des-vannes
+    origine: { cle: evenement.nacelles.compagnons.origine, variables: [] }
+    libelle_intentions: { cle: evenement.ruban.intentions, variables: [] }
+    titre: { cle: evenement.nacelles.compagnons.titre, variables: [] }
+    presentation:
+      { cle: evenement.nacelles.compagnons.presentation, variables: [] }
+    informations:
+      - source: ilyana-voss
+        texte:
+          { cle: evenement.nacelles.compagnons.information.ilyana, variables: [] }
+      - source: maelys-rive
+        texte:
+          { cle: evenement.nacelles.compagnons.information.maelys, variables: [] }
+    faits_lus:
+      - bassins.nacelles.frein-reaccorde
+      - bassins.nacelles.frein-transforme-clandestinement
+    choix:
+      - id: porter-passage-partage
+        intention:
+          {
+            cle: evenement.nacelles.compagnons.choix.partage,
+            variables: [],
+          }
+        couts_connus:
+          - {
+              cle: evenement.nacelles.compagnons.choix.partage.cout,
+              variables: [],
+            }
+        effets: []
+        faits_produits:
+          - id: bassins.nacelles.conseil-passage-partage
+            cible: ilyana-voss
+      - id: porter-maintenance-commune
+        intention:
+          {
+            cle: evenement.nacelles.compagnons.choix.maintenance,
+            variables: [],
+          }
+        couts_connus:
+          - {
+              cle: evenement.nacelles.compagnons.choix.maintenance.cout,
+              variables: [],
+            }
+        effets: []
+        faits_produits:
+          - id: bassins.nacelles.conseil-maintenance-commune
+            cible: maelys-rive
+    consequence_differee:
+      { type: conseil-des-vannes, cible: nacelliers-des-vannes }
+    recuperation: { type: deux-voix-non-obligatoires }
+    variantes:
+      - id: standard
+        condition: toujours
+        presentation:
+          {
+            cle: evenement.nacelles.compagnons.variante.standard,
+            variables: [],
+          }
+    destination_echo: journal-de-campagne
+    asset: bassins.nacelles.deux-voix-dans-le-cable

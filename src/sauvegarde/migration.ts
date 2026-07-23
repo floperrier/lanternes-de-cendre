@@ -16,7 +16,10 @@ import {
 } from "../content/catalogue";
 import type { EffetsDeFait } from "../simulation/faits";
 import { creerInfrastructureInitiale } from "../simulation/infrastructure";
-import { creerEtatDesRoutesInitial } from "../simulation/routes";
+import {
+  creerEtatDesRoutesInitial,
+  executerAvecTronconsTemporaires,
+} from "../simulation/routes";
 import {
   creerEtatDesCrisesInitial,
   FAIT_ANNONCANT_LA_CRISE,
@@ -26,6 +29,10 @@ import { creerEtatDesExpeditionsInitial } from "../simulation/expeditions";
 import { creerEtatInitialDeVeilleBasse } from "../simulation/veilleBasse";
 import { creerEtatDeHautPuitsInitial } from "../simulation/hautPuits";
 import { EVENEMENTS_HISTORIQUES_V5 } from "./catalogueHistoriqueV5";
+import {
+  EVENEMENTS_HISTORIQUES_V6,
+  TRONCONS_HISTORIQUES_V6,
+} from "./catalogueHistoriqueV6";
 import { creerSauvegarde } from "./snapshot";
 import type {
   CommandeDeReproduction,
@@ -35,6 +42,7 @@ import type {
 import {
   VERSION_SIMULATION_AVANT_CRISES,
   VERSION_SIMULATION_AVANT_HAUT_PUITS,
+  VERSION_SIMULATION_AVANT_NACELLES,
   VERSION_SIMULATION_AVANT_VEILLE_BASSE,
   VERSION_SIMULATION_COURANTE,
   VERSION_SIMULATION_INITIALE,
@@ -45,6 +53,7 @@ import {
   VERSION_SAUVEGARDE_AVANT_ROUTES,
   VERSION_SAUVEGARDE_AVANT_CRISES,
   VERSION_SAUVEGARDE_AVANT_HAUT_PUITS,
+  VERSION_SAUVEGARDE_AVANT_NACELLES,
   VERSION_SAUVEGARDE_AVANT_VEILLE_BASSE,
   VERSION_SAUVEGARDE_COURANTE,
   VERSION_SAUVEGARDE_INITIALE,
@@ -55,6 +64,7 @@ import {
   estCommandeAvantRoutes,
   estCommande,
   estCommandeV5,
+  estCommandeV6,
   estCommandeV2,
   estCommandeV1,
   estObjet,
@@ -66,8 +76,10 @@ import {
   lireEtatV2,
   lireEtatV4,
   lireEtatV5,
+  lireEtatV6,
   lireSnapshotV4,
   lireSnapshotV5,
+  lireSnapshotV6,
   projeterEtatAvantRoutesHistorique,
   type EtatCampagneAvantCrises,
   type EtatCampagneAvantRoutes,
@@ -75,6 +87,7 @@ import {
   type EtatCampagneV2,
   type EtatCampagneV4,
   type EtatCampagneV5,
+  type EtatCampagneV6,
   type ObjetInconnu,
 } from "./validation";
 
@@ -466,6 +479,184 @@ export function promouvoirEtatV4VersCourant(
     veilleBasse: creerEtatInitialDeVeilleBasse(),
     hautPuits: creerEtatDeHautPuitsInitial(),
   };
+}
+
+export function promouvoirEtatV6VersCourant(
+  etat: EtatCampagneV6,
+): EtatCampagne {
+  const aDejaEmprunteLesNacelles = etat.routes.engagements.some(
+    (engagement) => engagement.tronconId === "chenal-des-vannes",
+  );
+  return {
+    ...etat,
+    version: VERSION_SIMULATION_COURANTE,
+    routes: aDejaEmprunteLesNacelles
+      ? etat.routes
+      : {
+          ...etat.routes,
+          etatsReels: {
+            ...etat.routes.etatsReels,
+            "nacelles-de-veille-basse": "degrade",
+          },
+        },
+  };
+}
+
+function promouvoirEtatV6PourReplay(
+  etat: EtatCampagneV6,
+): EtatCampagne {
+  return {
+    ...etat,
+    version: VERSION_SIMULATION_COURANTE,
+  };
+}
+
+function normaliserEtatCourantEnV6(
+  etat: EtatCampagne,
+): EtatCampagneV6 {
+  const {
+    "nacelles-de-veille-basse": routeAjoutee,
+    ...etatsReelsV6
+  } = etat.routes.etatsReels;
+  void routeAjoutee;
+  return {
+    ...etat,
+    version: VERSION_SIMULATION_AVANT_NACELLES,
+    routes: {
+      ...etat.routes,
+      etatsReels: etatsReelsV6,
+    },
+  };
+}
+
+function appliquerCommandeSelonCatalogueAvantNacelles(
+  etat: EtatCampagne,
+  commande: Parameters<typeof appliquerCommande>[1],
+): EtatCampagne {
+  const evenementActifAvant = etat.narration.evenementActif;
+  const applique = appliquerCommande(etat, commande, {
+    coutsDesNacelles: "historiques-v6",
+  }).etat;
+  const nouvelEvenement = applique.narration.evenementActif;
+  return evenementActifAvant === null &&
+    nouvelEvenement?.startsWith("bassins.nacelles.") === true
+    ? {
+        ...applique,
+        narration: {
+          ...applique.narration,
+          evenementActif: null,
+        },
+      }
+    : applique;
+}
+
+function migrerSauvegardeV6AvecCatalogueHistorique(
+  valeur: ObjetInconnu,
+): SauvegardeCampagne | undefined {
+  if (
+    valeur.format !== FORMAT_SAUVEGARDE ||
+    typeof valeur.id !== "string" ||
+    valeur.version !== VERSION_SAUVEGARDE_AVANT_NACELLES ||
+    !estObjet(valeur.versions) ||
+    valeur.versions.simulation !== VERSION_SIMULATION_AVANT_NACELLES ||
+    valeur.versions.contenu !== VERSIONS_DU_SNAPSHOT_COURANT.contenu ||
+    valeur.versions.aleatoire !== VERSIONS_DU_SNAPSHOT_COURANT.aleatoire ||
+    valeur.versions.empreinte !== VERSIONS_DU_SNAPSHOT_COURANT.empreinte ||
+    typeof valeur.graine !== "string" ||
+    !estObjet(valeur.horloge) ||
+    typeof valeur.horloge.secondes !== "number" ||
+    !Number.isFinite(valeur.horloge.secondes) ||
+    !estObjet(valeur.reproduction) ||
+    !Array.isArray(valeur.reproduction.commandes) ||
+    typeof valeur.reproduction.empreinteSnapshot !== "string" ||
+    !EMPREINTE.test(valeur.reproduction.empreinteSnapshot) ||
+    typeof valeur.empreinte !== "string" ||
+    !EMPREINTE.test(valeur.empreinte)
+  ) {
+    return undefined;
+  }
+
+  const snapshotV6 = lireSnapshotV6(valeur.reproduction.snapshot);
+  const etatDeclareV6 = lireEtatV6(valeur.etat);
+  if (
+    snapshotV6 === undefined ||
+    etatDeclareV6 === undefined ||
+    valeur.graine !== etatDeclareV6.graine ||
+    valeur.horloge.secondes !== etatDeclareV6.tempsDuConvoi.secondes ||
+    empreinteEtat(snapshotV6 as unknown as EtatCampagne) !==
+      valeur.reproduction.empreinteSnapshot ||
+    empreinteEtat(etatDeclareV6 as unknown as EtatCampagne) !== valeur.empreinte
+  ) {
+    return undefined;
+  }
+
+  let etat = promouvoirEtatV6PourReplay(snapshotV6);
+  try {
+    for (const [index, entree] of valeur.reproduction.commandes.entries()) {
+      if (
+        !estObjet(entree) ||
+        entree.sequence !== index ||
+        !estCommandeV6(entree.commande) ||
+        typeof entree.empreinteApres !== "string" ||
+        !EMPREINTE.test(entree.empreinteApres)
+      ) {
+        return undefined;
+      }
+      etat = appliquerCommandeSelonCatalogueAvantNacelles(
+        etat,
+        entree.commande,
+      );
+      if (
+        empreinteEtat(
+          normaliserEtatCourantEnV6(etat) as unknown as EtatCampagne,
+        ) !== entree.empreinteApres
+      ) {
+        return undefined;
+      }
+    }
+  } catch {
+    return undefined;
+  }
+
+  if (
+    !sontStructurellementEgaux(
+      normaliserEtatCourantEnV6(etat),
+      etatDeclareV6,
+    )
+  ) {
+    return undefined;
+  }
+
+  const etatCourant = promouvoirEtatV6VersCourant(etatDeclareV6);
+  if (
+    lireSnapshotCourant(etatCourant) === undefined ||
+    lireEtatCourant(etatCourant) === undefined
+  ) {
+    return undefined;
+  }
+  const reproduction: ReproductionDeCampagne = {
+    snapshot: etatCourant,
+    empreinteSnapshot: empreinteEtat(etatCourant),
+    commandes: [],
+  };
+  const sauvegarde = creerSauvegarde(etatCourant, reproduction);
+  return {
+    ...sauvegarde,
+    id: `${valeur.id}-v${VERSION_SAUVEGARDE_COURANTE}-${sauvegarde.empreinte}`,
+  };
+}
+
+export function migrerSauvegardeV6(
+  valeur: ObjetInconnu,
+): SauvegardeCampagne | undefined {
+  return executerAvecTronconsTemporaires(
+    TRONCONS_HISTORIQUES_V6,
+    () =>
+      executerAvecEvenementsStructurelsTemporaires(
+        EVENEMENTS_HISTORIQUES_V6,
+        () => migrerSauvegardeV6AvecCatalogueHistorique(valeur),
+      ),
+  );
 }
 
 function normaliserEtatCourantEnV4(

@@ -4,6 +4,7 @@ import {
   migrerSauvegardeV3,
   migrerSauvegardeV4,
   migrerSauvegardeV5,
+  migrerSauvegardeV6,
 } from "./migration";
 import { lireSauvegardeCourante, estObjet } from "./validation";
 import type {
@@ -17,6 +18,7 @@ import {
   VERSION_SAUVEGARDE_AVANT_ROUTES,
   VERSION_SAUVEGARDE_AVANT_CRISES,
   VERSION_SAUVEGARDE_AVANT_HAUT_PUITS,
+  VERSION_SAUVEGARDE_AVANT_NACELLES,
   VERSION_SAUVEGARDE_AVANT_VEILLE_BASSE,
   VERSION_SAUVEGARDE_INITIALE,
   VERSIONS_DU_SNAPSHOT_COURANT,
@@ -196,6 +198,21 @@ export function importerSauvegarde(
           statut: "migree",
           sauvegarde,
           archiveOriginale,
+      };
+  }
+
+  if (version === VERSION_SAUVEGARDE_AVANT_NACELLES) {
+    const sauvegarde = migrerSauvegardeV6(valeur);
+    return sauvegarde === undefined
+      ? {
+          statut: "invalide",
+          archiveOriginale,
+          explication: "La sauvegarde v6 est incomplète ou incohérente.",
+        }
+      : {
+          statut: "migree",
+          sauvegarde,
+          archiveOriginale,
         };
   }
 
@@ -205,7 +222,7 @@ export function importerSauvegarde(
         statut: "invalide",
         archiveOriginale,
         explication:
-          "La sauvegarde v6 est incomplète, altérée ou diverge lors du replay.",
+          "La sauvegarde v7 est incomplète, altérée ou diverge lors du replay.",
       }
     : { statut: "compatible", sauvegarde };
 }

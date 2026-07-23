@@ -46,6 +46,7 @@ const CHEMINS_D_EVENEMENTS_DE_BASE = [
 const CHEMINS_D_EVENEMENTS_PREMIUM = [
   "content/evenements/veille-basse.yaml",
   "content/evenements/haut-puits.yaml",
+  "content/evenements/nacelles.yaml",
 ] as const;
 const provenances = {
   "docs/assets/cite-caravane.provenance.json": lire(
@@ -83,6 +84,18 @@ const provenances = {
   ),
   "docs/assets/haut-puits-ilyana.provenance.json": lire(
     "docs/assets/haut-puits-ilyana.provenance.json",
+  ),
+  "docs/assets/nacelles-deux-rives.provenance.json": lire(
+    "docs/assets/nacelles-deux-rives.provenance.json",
+  ),
+  "docs/assets/nacelles-frein.provenance.json": lire(
+    "docs/assets/nacelles-frein.provenance.json",
+  ),
+  "docs/assets/nacelles-trace.provenance.json": lire(
+    "docs/assets/nacelles-trace.provenance.json",
+  ),
+  "docs/assets/nacelles-compagnes.provenance.json": lire(
+    "docs/assets/nacelles-compagnes.provenance.json",
   ),
 };
 
@@ -336,6 +349,9 @@ const fragmentsDesRoutesProtegees = [
           troncon.consequenceDuHalo.fr,
           troncon.consequenceDuHalo.en,
         ]),
+    ...(!("libellesDOptions" in troncon)
+      ? []
+      : collecterChaines(troncon.libellesDOptions)),
     ...troncon.renseignements.flatMap((renseignement) => [
       renseignement.libelles.fr.source,
       renseignement.libelles.fr.danger,

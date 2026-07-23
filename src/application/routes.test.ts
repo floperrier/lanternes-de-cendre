@@ -122,8 +122,64 @@ describe("projection de l’Atlas", () => {
     expect(projeterAtlas(arrivee, "en", () => true).troncons[0]).toMatchObject(
       {
         id: "chemin-des-vanniers",
-        engageable: true,
+        engageable: false,
       },
     );
+  });
+
+  it("projette le coût et le Renseignement causal des Nacelles sans révéler leur état réel", () => {
+    const initial = creerCampagneInitiale("CENDRE-NACELLES");
+    const projection = projeterAtlas({
+      ...initial,
+      routes: { ...initial.routes, position: "les-vanniers" },
+      hautPuits: {
+        ...initial.hautPuits,
+        relationPublique: "cooperative",
+      },
+      narration: {
+        ...initial.narration,
+        faitsDeCampagne: [
+          {
+            id: "bassins.haut-puits.panache-confine",
+            cause: "bassins.haut-puits.vanniers-du-panache",
+            acteurs: ["porte-lanterne"],
+            cible: "nacelliers-des-vannes",
+            moment: 0,
+            effets: { materiels: [], humains: [] },
+          },
+          {
+            id: "bassins.haut-puits.ilyana-garante",
+            cause: "bassins.haut-puits.ilyana-et-la-vanne",
+            acteurs: ["porte-lanterne"],
+            cible: "ilyana-voss",
+            moment: 0,
+            effets: { materiels: [], humains: [] },
+          },
+        ],
+      },
+    });
+    const nacelles = projection.troncons.find(
+      ({ id }) => id === "chenal-des-vannes",
+    );
+
+    expect(nacelles).toMatchObject({
+      destination: "Relais des Vannes",
+      consommation: "4 L de Combustible · 6 L d’Eau",
+      renseignements: [
+        expect.objectContaining({
+          source: "Relevé transmis par la branche d’approche",
+          fiabilite: "Rapporté",
+          controlePolitique: "Mandat des Nacelliers non reconnu",
+        }),
+      ],
+      bilan: {
+        consequencesConnues: expect.arrayContaining([
+          "Consommation exacte : 4 L de Combustible · 6 L d’Eau",
+          "Appui appliqué : treuil principal sous charge contrôlée",
+        ]),
+        incertitudes: [],
+      },
+    });
+    expect(JSON.stringify(nacelles)).not.toContain('"degrade"');
   });
 });

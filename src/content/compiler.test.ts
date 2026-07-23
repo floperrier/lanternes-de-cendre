@@ -12,6 +12,10 @@ import provenanceHautPuits from "../../docs/assets/bassins-haut-puits.provenance
 import provenanceDecanteur from "../../docs/assets/haut-puits-decanteur.provenance.json?raw";
 import provenanceIlyanaHautPuits from "../../docs/assets/haut-puits-ilyana.provenance.json?raw";
 import provenanceVanniers from "../../docs/assets/haut-puits-vanniers.provenance.json?raw";
+import provenanceNacellesCompagnes from "../../docs/assets/nacelles-compagnes.provenance.json?raw";
+import provenanceNacellesDeuxRives from "../../docs/assets/nacelles-deux-rives.provenance.json?raw";
+import provenanceNacellesFrein from "../../docs/assets/nacelles-frein.provenance.json?raw";
+import provenanceNacellesTrace from "../../docs/assets/nacelles-trace.provenance.json?raw";
 import provenanceFiltres from "../../docs/assets/prologue-filtres-de-la-veille.provenance.json?raw";
 import provenanceIlyana from "../../docs/assets/prologue-ilyana-au-clapet.provenance.json?raw";
 import provenanceReponse from "../../docs/assets/prologue-reponse-du-phare.provenance.json?raw";
@@ -56,6 +60,12 @@ const sourcesValides: SourcesDuCatalogue = {
     "docs/assets/haut-puits-decanteur.provenance.json": provenanceDecanteur,
     "docs/assets/haut-puits-ilyana.provenance.json":
       provenanceIlyanaHautPuits,
+    "docs/assets/nacelles-deux-rives.provenance.json":
+      provenanceNacellesDeuxRives,
+    "docs/assets/nacelles-frein.provenance.json": provenanceNacellesFrein,
+    "docs/assets/nacelles-trace.provenance.json": provenanceNacellesTrace,
+    "docs/assets/nacelles-compagnes.provenance.json":
+      provenanceNacellesCompagnes,
   },
   cheminDeProvenanceAsset: (chemin) =>
     chemin.startsWith("/api/commercial/assets/")
@@ -75,6 +85,10 @@ const sourcesValides: SourcesDuCatalogue = {
       "/api/commercial/assets/haut-puits-vanniers.webp",
       "/api/commercial/assets/haut-puits-decanteur.webp",
       "/api/commercial/assets/haut-puits-ilyana.webp",
+      "/api/commercial/assets/nacelles-deux-rives.webp",
+      "/api/commercial/assets/nacelles-frein.webp",
+      "/api/commercial/assets/nacelles-trace.webp",
+      "/api/commercial/assets/nacelles-compagnes.webp",
     ].includes(chemin),
   empreinteAsset: (chemin) =>
     ({
@@ -102,6 +116,14 @@ const sourcesValides: SourcesDuCatalogue = {
         "9543f42946840cfa2ef894bce527d9c52db6a2fe6a026e90ca49145d539a9327",
       "/api/commercial/assets/haut-puits-ilyana.webp":
         "5b97d81678fa990d6289f36a79a4d34b24e7be92b0fc75fd43168eea6c9e5e4e",
+      "/api/commercial/assets/nacelles-deux-rives.webp":
+        "e0ef9c1eae5553779db0e9aed19590ebb84debf0657409eb1b3e5fea50b295c0",
+      "/api/commercial/assets/nacelles-frein.webp":
+        "4869a9a069f961680a2745fa67b58d6b4c8c8723728aacd5ee2c9b717f20e0ae",
+      "/api/commercial/assets/nacelles-trace.webp":
+        "c9b0b18fa91eb93a818c638e9648e47f4ebde3f6504f403c5b8cd4942b8afc32",
+      "/api/commercial/assets/nacelles-compagnes.webp":
+        "0b2531363f5f561118a8a656ce36d331d960f204c0c7165ad83f61a7b6363d9b",
     })[chemin] ?? "0".repeat(64),
   tailleAsset: () => 256_000,
 };

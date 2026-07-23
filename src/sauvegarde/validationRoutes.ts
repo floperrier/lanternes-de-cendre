@@ -10,11 +10,38 @@ import {
   type RenseignementDeRoute,
   type TronconDeRoute,
 } from "../simulation/routes";
+import { consommationsDesNacellesSontAtteignables } from "../simulation/nacelles";
 
 type ObjetInconnu = Record<string, unknown>;
 
+const TRONCONS_A_COUT_CONTEXTUEL = [
+  "chenal-des-vannes",
+  "nacelles-de-veille-basse",
+] as const;
+
+function estTronconACoutContextuel(
+  tronconId: unknown,
+): tronconId is (typeof TRONCONS_A_COUT_CONTEXTUEL)[number] {
+  return TRONCONS_A_COUT_CONTEXTUEL.some((id) => id === tronconId);
+}
+
 function estObjet(valeur: unknown): valeur is ObjetInconnu {
   return valeur !== null && typeof valeur === "object" && !Array.isArray(valeur);
+}
+
+function estConsommationContextuelleValide(
+  valeur: unknown,
+): valeur is { readonly combustible: number; readonly eau: number } {
+  return (
+    estObjet(valeur) &&
+    memesCles(valeur, ["combustible", "eau"]) &&
+    typeof valeur.combustible === "number" &&
+    Number.isInteger(valeur.combustible) &&
+    valeur.combustible > 0 &&
+    typeof valeur.eau === "number" &&
+    Number.isInteger(valeur.eau) &&
+    valeur.eau > 0
+  );
 }
 
 function memesCles(objet: ObjetInconnu, cles: readonly string[]): boolean {
@@ -59,6 +86,12 @@ function trouverDestination(
   troncon: TronconDeRoute,
   origine: IdentifiantDeLieu,
 ): IdentifiantDeLieu | undefined {
+  if (
+    troncon.originesAutorisees !== undefined &&
+    !troncon.originesAutorisees.includes(origine)
+  ) {
+    return undefined;
+  }
   if (troncon.extremites[0] === origine) {
     return troncon.extremites[1];
   }
@@ -74,18 +107,46 @@ function estEngagementAttendu(
   position: IdentifiantDeLieu,
   secondeMinimale: number,
   secondeCourante: number,
+  coutsV7DesNacelles: boolean,
 ): valeur is EngagementDeRoute {
+  const cles = [
+    "id",
+    "tronconId",
+    "origine",
+    "destination",
+    "engageA",
+    "arriveeA",
+    "statut",
+    ...("consommationsAppliquees" in (estObjet(valeur) ? valeur : {})
+      ? ["consommationsAppliquees" as const]
+      : []),
+  ] as const;
   if (
     !estObjet(valeur) ||
-    !memesCles(valeur, [
-      "id",
-      "tronconId",
-      "origine",
-      "destination",
-      "engageA",
-      "arriveeA",
-      "statut",
-    ])
+    !memesCles(valeur, cles)
+  ) {
+    return false;
+  }
+  const consommations = valeur.consommationsAppliquees;
+  const estNacelles = estTronconACoutContextuel(valeur.tronconId);
+  if (
+    (!estNacelles && consommations !== undefined) ||
+    (estNacelles && coutsV7DesNacelles && consommations === undefined) ||
+    (estNacelles &&
+      !coutsV7DesNacelles &&
+      (valeur.tronconId !== "chenal-des-vannes" ||
+        consommations !== undefined))
+  ) {
+    return false;
+  }
+  if (
+    consommations !== undefined &&
+    (!estConsommationContextuelleValide(consommations) ||
+      !estTronconACoutContextuel(valeur.tronconId) ||
+      !consommationsDesNacellesSontAtteignables(
+        valeur.tronconId,
+        consommations,
+      ))
   ) {
     return false;
   }
@@ -146,6 +207,7 @@ export function estEtatDesRoutes(
 
   const initial = creerEtatDesRoutesInitial();
   const etatsReels = valeur.etatsReels;
+  const coutsV7DesNacelles = "nacelles-de-veille-basse" in etatsReels;
   if (
     valeur.renseignements.length !== initial.renseignements.length ||
     !valeur.renseignements.every((renseignement, index) =>
@@ -170,6 +232,7 @@ export function estEtatDesRoutes(
         position,
         prochaineSecondePossible,
         secondeCourante,
+        coutsV7DesNacelles,
       )
     ) {
       return false;

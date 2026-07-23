@@ -14,7 +14,7 @@ evenements:
       interdites: []
     periode_eligibilite:
       debut: 480
-      fin: 24000
+      fin: 2147483647
     priorite: 110
     epuisement: unique
     acteurs:
@@ -112,7 +112,7 @@ evenements:
       interdites: []
     periode_eligibilite:
       debut: 480
-      fin: 24600
+      fin: 2147483647
     priorite: 100
     epuisement: unique
     acteurs:
@@ -207,7 +207,7 @@ evenements:
       interdites: []
     periode_eligibilite:
       debut: 480
-      fin: 25200
+      fin: 2147483647
     priorite: 90
     epuisement: unique
     acteurs:
@@ -288,7 +288,7 @@ evenements:
       interdites: []
     periode_eligibilite:
       debut: 480
-      fin: 25800
+      fin: 2147483647
     priorite: 80
     epuisement: unique
     acteurs:

@@ -270,7 +270,7 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
     page.getByRole("button", {
       name: "Étudier l’Engagement vers Les Vanniers",
     }),
-  ).toBeVisible();
+  ).toHaveCount(0);
   await expect(
     page.getByRole("region", { name: "Haut-Puits" }),
   ).toContainText("Marché de l’eau");
@@ -290,6 +290,114 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
     type: "image/webp",
     octets: expect.any(Number),
   });
+
+  const halteDeHautPuits = [
+    ["Le pacte des citernes", "Garantir le partage de l’Eau"],
+    [
+      "Les Vanniers sous le panache",
+      "Confiner les boues avec les équipes du convoi",
+    ],
+    [
+      "Ce que retient le Décanteur",
+      "Consigner le procédé du Décanteur itinérant",
+    ],
+    ["Ilyana devant la dernière vanne", "Lui confier le registre de partage"],
+  ] as const;
+  await activerAuClavier(
+    page,
+    page.getByRole("button", { name: "Vitesse 1×" }),
+  );
+  await page.clock.fastForward(1_000);
+  for (const [titre, choix] of halteDeHautPuits) {
+    const evenement = page.getByRole("region", { name: titre });
+    await expect(evenement.getByRole("img")).toBeVisible();
+    await activerAuClavier(
+      page,
+      evenement.getByRole("button", { name: choix }),
+    );
+    await page.clock.fastForward(1_000);
+  }
+
+  await activerAuClavier(
+    page,
+    page.getByRole("button", {
+      name: "Étudier l’Engagement vers Les Vanniers",
+    }),
+  );
+  await activerAuClavier(
+    page,
+    page
+      .getByRole("dialog", { name: "Engagement vers Les Vanniers" })
+      .getByRole("button", {
+        name: "Confirmer l’Engagement sans retour vers Les Vanniers",
+      }),
+  );
+  await activerAuClavier(
+    page,
+    page.getByRole("button", { name: "Vitesse 4×" }),
+  );
+  await page.clock.fastForward(105_000);
+
+  const atlas = page.getByRole("region", {
+    name: "Atlas d’exploitation",
+  });
+  await expect(atlas).toContainText("Relevé transmis par la branche d’approche");
+  await expect(atlas).toContainText("4 L de Combustible · 6 L d’Eau");
+  await activerAuClavier(
+    page,
+    atlas.getByRole("button", {
+      name: "Étudier l’Engagement vers Relais des Vannes",
+    }),
+  );
+  await activerAuClavier(
+    page,
+    page
+      .getByRole("dialog", { name: "Engagement vers Relais des Vannes" })
+      .getByRole("button", {
+        name: "Confirmer l’Engagement sans retour vers Relais des Vannes",
+      }),
+  );
+  await activerAuClavier(
+    page,
+    page.getByRole("button", { name: "Vitesse 4×" }),
+  );
+  await page.clock.fastForward(75_000);
+  await expect(
+    atlas.getByRole("button", {
+      name: /Étudier l’Engagement vers (Les Vanniers|Veille-Basse)/,
+    }),
+  ).toHaveCount(0);
+
+  const passageDesNacelles = [
+    [
+      "Le poids des deux rives",
+      "Répartir les contrepoids entre les deux rives",
+    ],
+    ["Le frein sous la cendre", "Baliser le boîtier et ses témoins"],
+    [
+      "La main sur le frein",
+      "Transformer clandestinement le frein révélé",
+    ],
+    [
+      "Deux voix dans le câble",
+      "Porter le passage partagé au Conseil des Vannes",
+    ],
+  ] as const;
+  for (const [titre, choix] of passageDesNacelles) {
+    const evenement = page.getByRole("region", { name: titre });
+    await expect(evenement.getByRole("img")).toBeVisible();
+    await activerAuClavier(
+      page,
+      evenement.getByRole("button", { name: choix }),
+    );
+    await page.clock.fastForward(1_000);
+  }
+  const journalCausal = page.locator("details.journal-causal");
+  await journalCausal.locator("summary").click();
+  await expect(
+    journalCausal.getByText("Trace de limaille de laiton persistante"),
+  ).toBeVisible();
+
   await expect(expedition).toContainText("Bilan de retour");
   const exportApresAchat = page.waitForEvent("download");
   await page
@@ -304,6 +412,24 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
   expect(contenuApresAchat).not.toMatch(
     /identiteId|preuveLocale|acces-premium/i,
   );
+  expect(contenuApresAchat).toContain(
+    "bassins.nacelles.trace-laiton-persistante",
+  );
+  const importApresAchat = page.waitForEvent("filechooser");
+  await activerAuClavier(
+    page,
+    sauvegarde.getByRole("button", { name: "Importer", exact: true }),
+  );
+  await (await importApresAchat).setFiles(cheminApresAchat!);
+  await expect(
+    sauvegarde.getByText("Sauvegarde importée et reprise."),
+  ).toBeVisible();
+  if (!(await journalCausal.evaluate((journal) => journal.hasAttribute("open")))) {
+    await journalCausal.locator("summary").click();
+  }
+  await expect(
+    journalCausal.getByText("Trace de limaille de laiton persistante"),
+  ).toBeVisible();
 
   const navigateurVierge = await page.context().browser()!.newContext();
   const autrePage = await navigateurVierge.newPage();

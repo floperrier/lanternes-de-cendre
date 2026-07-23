@@ -154,5 +154,45 @@ describe("Engagement de route", () => {
         tronconId: "chenal-des-vannes",
       },
     ]);
+
+    const versLeRelais = confirmerEngagementDeRoute(
+      auxVanniers,
+      "chenal-des-vannes",
+      840,
+    ).etat;
+    const auRelais = traiterJalonsDeRoute(
+      versLeRelais,
+      840,
+      1_140,
+    ).etat;
+    expect(auRelais.position).toBe("relais-des-vannes");
+    expect(listerTronconsEngageables(auRelais)).toEqual([]);
+  });
+
+  it("ouvre la branche basse des Nacelles depuis Veille-Basse dans un seul sens", () => {
+    const engagement = confirmerEngagementDeRoute(
+      creerEtatDesRoutesInitial(),
+      "chaussee-de-veille-basse",
+      0,
+    ).etat;
+    const aVeilleBasse = traiterJalonsDeRoute(
+      engagement,
+      0,
+      480,
+    ).etat;
+
+    expect(
+      listerTronconsEngageables(aVeilleBasse).map(
+        ({ troncon, destination }) => ({
+          tronconId: troncon.id,
+          destination,
+        }),
+      ),
+    ).toEqual([
+      {
+        tronconId: "nacelles-de-veille-basse",
+        destination: "relais-des-vannes",
+      },
+    ]);
   });
 });

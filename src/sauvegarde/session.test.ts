@@ -479,14 +479,14 @@ describe("session de Campagne persistante", () => {
       JSON.stringify({
         format: "lanternes-de-cendre.sauvegarde",
         id: "meme-id",
-        version: 2,
+        version: 99,
         versions: { simulation: 7 },
         padding,
       });
-    const archiveA = creerArchiveCollision("1bruu081hk06bd");
-    const archiveB = creerArchiveCollision("1bh1z42g9k6qm");
-    expect(formaterEmpreinteFnv1a32V1(archiveA)).toBe("af884841");
-    expect(formaterEmpreinteFnv1a32V1(archiveB)).toBe("af884841");
+    const archiveA = creerArchiveCollision("s2f4u01pnlstk16tf11t");
+    const archiveB = creerArchiveCollision("e118n8qo1ztft07ov8");
+    expect(formaterEmpreinteFnv1a32V1(archiveA)).toBe("15dddfc6");
+    expect(formaterEmpreinteFnv1a32V1(archiveB)).toBe("15dddfc6");
     expect(importerSauvegarde(archiveA).statut).toBe("incompatible");
     expect(importerSauvegarde(archiveB).statut).toBe("incompatible");
 
@@ -498,7 +498,7 @@ describe("session de Campagne persistante", () => {
     await importerCampagne(port, archiveA);
     expect(
       (await port.lister()).filter(
-        (archive) => archive.id === "meme-id" && archive.version === 2,
+        (archive) => archive.id === "meme-id" && archive.version === 99,
       ),
     ).toEqual([
       expect.objectContaining({ contenu: archiveB }),
@@ -521,7 +521,7 @@ describe("session de Campagne persistante", () => {
 
     await ouvrirCampagne(port, "CENDRE-01");
     const collisionsApresReouverture = (await port.lister()).filter(
-      (archive) => archive.id === "meme-id" && archive.version === 2,
+      (archive) => archive.id === "meme-id" && archive.version === 99,
     );
     expect(collisionsApresReouverture).toHaveLength(2);
     expect(collisionsApresReouverture.map((archive) => archive.contenu)).toEqual(

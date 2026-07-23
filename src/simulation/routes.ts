@@ -15,7 +15,8 @@ export type IdentifiantDeTroncon =
   | "digue-des-puits"
   | "chaussee-de-veille-basse"
   | "chemin-des-vanniers"
-  | "chenal-des-vannes";
+  | "chenal-des-vannes"
+  | "nacelles-de-veille-basse";
 
 export interface DefinitionDeLieu {
   readonly id: IdentifiantDeLieu;
@@ -44,6 +45,10 @@ export interface TronconDeRoute {
     readonly renseignementId: string;
   };
   readonly renseignements: readonly RenseignementDeRoute[];
+  readonly originesAutorisees?: readonly IdentifiantDeLieu[];
+  readonly libellesDOptions?: Readonly<
+    Record<"fr" | "en", Readonly<Record<string, string>>>
+  >;
   readonly consequenceDuHalo?: {
     readonly fr: string;
     readonly en: string;
@@ -127,17 +132,24 @@ export interface RenseignementDeRoute {
     | "vigie-du-phare"
     | "messagers-de-haut-puits"
     | "relais-des-pelerins"
-    | "eclaireurs-de-haut-puits";
+    | "eclaireurs-de-haut-puits"
+    | "nacelliers-des-vannes";
   readonly releveA: number;
   readonly fiabilite: "confirme" | "ancien" | "rapporte";
   readonly etatAnnonce: Exclude<EtatReelDeRoute, "coupe">;
   readonly meteo: "cendre-basse" | "rafales-de-cendre";
   readonly panache: "derive-vers-est" | "absent" | "incertain";
-  readonly danger: "saumure" | "orniere" | "visibilite";
+  readonly danger:
+    | "saumure"
+    | "orniere"
+    | "visibilite"
+    | "cables-fatigues";
   readonly controlePolitique:
     | "puits-libres"
     | "pelerins-de-cendre"
-    | "sans-controle-etabli";
+    | "sans-controle-etabli"
+    | "accord-des-bassins"
+    | "passage-conteste";
   readonly libelles?: Readonly<
     Record<
       "fr" | "en",
@@ -158,6 +170,12 @@ export interface EngagementDeRoute {
   readonly engageA: number;
   readonly arriveeA: number;
   readonly statut: "en-cours" | "termine";
+  readonly consommationsAppliquees?: ConsommationsDeRoute;
+}
+
+export interface ConsommationsDeRoute {
+  readonly combustible: number;
+  readonly eau: number;
 }
 
 export interface JalonDeRoute {
@@ -262,6 +280,7 @@ const IDENTIFIANTS_DE_TRONCONS = new Set<IdentifiantDeTroncon>([
   "chaussee-de-veille-basse",
   "chemin-des-vanniers",
   "chenal-des-vannes",
+  "nacelles-de-veille-basse",
 ]);
 
 export function installerContenuPremiumDesRoutes(
@@ -296,6 +315,21 @@ export function installerContenuPremiumDesRoutes(
       !Number.isSafeInteger(troncon.dureeSecondes) ||
       troncon.dureeSecondes <= 0 ||
       !Array.isArray(troncon.renseignements) ||
+      (troncon.originesAutorisees !== undefined &&
+        (!Array.isArray(troncon.originesAutorisees) ||
+          troncon.originesAutorisees.length === 0 ||
+          !troncon.originesAutorisees.every(
+            (id) =>
+              IDENTIFIANTS_DE_LIEUX.has(id) &&
+              troncon.extremites.includes(id),
+          ))) ||
+      (troncon.libellesDOptions !== undefined &&
+        (!troncon.libellesDOptions.fr ||
+          !troncon.libellesDOptions.en ||
+          [...Object.values(troncon.libellesDOptions.fr),
+          ...Object.values(troncon.libellesDOptions.en)].some(
+            (libelle) => typeof libelle !== "string" || libelle.length === 0,
+          ))) ||
       (troncon.consequenceDuHalo !== undefined &&
         (typeof troncon.consequenceDuHalo.fr !== "string" ||
           typeof troncon.consequenceDuHalo.en !== "string"))
@@ -320,6 +354,32 @@ export function installerContenuPremiumDesRoutes(
   return contenu as ContenuPremiumDesRoutes;
 }
 
+export function executerAvecTronconsTemporaires<T>(
+  troncons: readonly TronconDeRoute[],
+  action: () => T,
+): T {
+  const tronconsInitiaux = [...TRONCONS_DE_ROUTE];
+  for (const troncon of troncons) {
+    const index = TRONCONS_DE_ROUTE.findIndex(
+      (existant) => existant.id === troncon.id,
+    );
+    if (index === -1) {
+      TRONCONS_DE_ROUTE.push(troncon);
+    } else {
+      TRONCONS_DE_ROUTE[index] = troncon;
+    }
+  }
+  try {
+    return action();
+  } finally {
+    TRONCONS_DE_ROUTE.splice(
+      0,
+      TRONCONS_DE_ROUTE.length,
+      ...tronconsInitiaux,
+    );
+  }
+}
+
 export function creerEtatDesRoutesInitial(): EtatDesRoutes {
   return {
     position: "halte-du-puits-sec",
@@ -339,6 +399,12 @@ function trouverAutreExtremite(
   troncon: TronconDeRoute,
   origine: IdentifiantDeLieu,
 ): IdentifiantDeLieu | undefined {
+  if (
+    troncon.originesAutorisees !== undefined &&
+    !troncon.originesAutorisees.includes(origine)
+  ) {
+    return undefined;
+  }
   if (troncon.extremites[0] === origine) {
     return troncon.extremites[1];
   }
@@ -362,12 +428,15 @@ export function appliquerConsommationDeRouteAUnStock(
   stockId: IdentifiantDeStock,
   stock: StockDuConvoi,
   troncon: TronconDeRoute,
+  consommations?: ConsommationsDeRoute,
 ): StockDuConvoi {
   const quantite =
     stockId === "combustible"
-      ? troncon.consommationConnue.quantite
+      ? (consommations?.combustible ??
+        troncon.consommationConnue.quantite)
       : stockId === "eau"
-        ? troncon.consommationIncertaine.quantiteReelle
+        ? (consommations?.eau ??
+          troncon.consommationIncertaine.quantiteReelle)
         : 0;
   return quantite === 0
     ? stock
@@ -403,6 +472,7 @@ export function confirmerEngagementDeRoute(
   etat: EtatDesRoutes,
   tronconId: IdentifiantDeTroncon,
   secondeCourante: number,
+  consommations?: ConsommationsDeRoute,
 ): TransitionDeRoute {
   if (trouverEngagementDeRouteActif(etat) !== undefined) {
     throw new Error("Un Engagement de route est déjà en cours.");
@@ -431,6 +501,9 @@ export function confirmerEngagementDeRoute(
     engageA: secondeCourante,
     arriveeA: secondeCourante + possibilite.troncon.dureeSecondes,
     statut: "en-cours",
+    ...(consommations === undefined
+      ? {}
+      : { consommationsAppliquees: consommations }),
   };
   return {
     etat: {
@@ -446,8 +519,12 @@ export function confirmerEngagementDeRoute(
         destination: engagement.destination,
         arriveeA: engagement.arriveeA,
         consommationsAppliquees: {
-          combustible: possibilite.troncon.consommationConnue.quantite,
-          eau: possibilite.troncon.consommationIncertaine.quantiteReelle,
+          combustible:
+            consommations?.combustible ??
+            possibilite.troncon.consommationConnue.quantite,
+          eau:
+            consommations?.eau ??
+            possibilite.troncon.consommationIncertaine.quantiteReelle,
         },
       },
     ],

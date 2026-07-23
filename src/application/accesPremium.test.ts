@@ -25,8 +25,8 @@ describe("politique d’Accès premium vivante", () => {
     });
     const etatAvantAchat = application.lireEtat();
     const suite = {
-      type: "engagement-de-route.confirmer" as const,
-      tronconId: "chemin-des-vanniers" as const,
+      type: "haut-puits.marche.echanger" as const,
+      offreId: "eau-contre-materiaux" as const,
     };
 
     expect(application.commandeEstAutorisee(suite)).toBe(false);

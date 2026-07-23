@@ -22,7 +22,7 @@ export default {
       },
       "periodeEligibilite": {
         "debut": 480,
-        "fin": 24000
+        "fin": 2147483647
       },
       "priorite": 110,
       "epuisement": "unique",
@@ -336,7 +336,7 @@ export default {
       },
       "periodeEligibilite": {
         "debut": 480,
-        "fin": 24600
+        "fin": 2147483647
       },
       "priorite": 100,
       "epuisement": "unique",
@@ -639,7 +639,7 @@ export default {
       },
       "periodeEligibilite": {
         "debut": 480,
-        "fin": 25200
+        "fin": 2147483647
       },
       "priorite": 90,
       "epuisement": "unique",
@@ -897,7 +897,7 @@ export default {
       },
       "periodeEligibilite": {
         "debut": 480,
-        "fin": 25800
+        "fin": 2147483647
       },
       "priorite": 80,
       "epuisement": "unique",
@@ -1156,7 +1156,7 @@ export default {
       },
       "periodeEligibilite": {
         "debut": 360,
-        "fin": 24000
+        "fin": 2147483647
       },
       "priorite": 100,
       "epuisement": "unique",
@@ -1417,7 +1417,7 @@ export default {
       },
       "periodeEligibilite": {
         "debut": 360,
-        "fin": 24000
+        "fin": 2147483647
       },
       "priorite": 90,
       "epuisement": "unique",
@@ -1672,7 +1672,7 @@ export default {
       },
       "periodeEligibilite": {
         "debut": 360,
-        "fin": 24000
+        "fin": 2147483647
       },
       "priorite": 80,
       "epuisement": "unique",
@@ -1927,7 +1927,7 @@ export default {
       },
       "periodeEligibilite": {
         "debut": 360,
-        "fin": 24000
+        "fin": 2147483647
       },
       "priorite": 70,
       "epuisement": "unique",
@@ -2158,6 +2158,1181 @@ export default {
           }
         }
       }
+    },
+    {
+      "id": "bassins.nacelles.le-poids-des-deux-rives",
+      "famille": "conflits-regionaux",
+      "themes": [
+        "eau",
+        "accueil",
+        "factions"
+      ],
+      "fonction": "confronter-les-decisions-des-deux-branches",
+      "fenetre": "relais-des-nacelles",
+      "conditions": {
+        "requises": [
+          {
+            "type": "lieu-present",
+            "lieu": "relais-des-vannes"
+          }
+        ],
+        "interdites": []
+      },
+      "periodeEligibilite": {
+        "debut": 780,
+        "fin": 2147483647
+      },
+      "priorite": 120,
+      "epuisement": "unique",
+      "acteurs": [
+        "porte-lanterne",
+        "nacelliers-des-vannes",
+        "puits-libres",
+        "pelerins-de-cendre",
+        "cohorte-du-sillon"
+      ],
+      "sourcesInformations": [
+        "nacelliers-des-vannes"
+      ],
+      "faitsLus": [
+        "bassins.haut-puits.ilyana-garante",
+        "bassins.haut-puits.ilyana-contredite",
+        "veille-basse.maelys-mission-confiee",
+        "veille-basse.maelys-equipes-prioritaires",
+        "veille-basse.intervention-refusee"
+      ],
+      "choix": [
+        {
+          "id": "partager-contrepoids",
+          "effets": [
+            {
+              "type": "stock.modifier",
+              "stock": "materiaux",
+              "valeur": -4
+            }
+          ],
+          "faitsProduits": [
+            {
+              "id": "bassins.nacelles.accord-regional",
+              "cible": "nacelliers-des-vannes"
+            }
+          ]
+        },
+        {
+          "id": "reserver-passage",
+          "effets": [
+            {
+              "type": "stock.modifier",
+              "stock": "eau",
+              "valeur": -8
+            }
+          ],
+          "faitsProduits": [
+            {
+              "id": "bassins.nacelles.passage-restreint",
+              "cible": "cohorte-du-sillon"
+            }
+          ]
+        }
+      ],
+      "consequenceDifferee": {
+        "type": "conseil-des-vannes",
+        "cible": "nacelliers-des-vannes"
+      },
+      "recuperation": {
+        "type": "accord-regional-couteux"
+      },
+      "variantes": [
+        {
+          "id": "echo-ilyana-garante",
+          "condition": {
+            "type": "fait-present",
+            "fait": "bassins.haut-puits.ilyana-garante"
+          }
+        },
+        {
+          "id": "echo-ilyana-contredite",
+          "condition": {
+            "type": "fait-present",
+            "fait": "bassins.haut-puits.ilyana-contredite"
+          }
+        },
+        {
+          "id": "echo-maelys-mission",
+          "condition": {
+            "type": "fait-present",
+            "fait": "veille-basse.maelys-mission-confiee"
+          }
+        },
+        {
+          "id": "echo-maelys-equipes",
+          "condition": {
+            "type": "fait-present",
+            "fait": "veille-basse.maelys-equipes-prioritaires"
+          }
+        },
+        {
+          "id": "echo-veille-abandonnee",
+          "condition": {
+            "type": "fait-present",
+            "fait": "veille-basse.intervention-refusee"
+          }
+        },
+        {
+          "id": "standard",
+          "condition": {
+            "type": "toujours"
+          }
+        }
+      ],
+      "destinationEcho": "journal-de-campagne",
+      "asset": {
+        "id": "bassins.nacelles.le-poids-des-deux-rives",
+        "fichier": "/api/commercial/assets/nacelles-deux-rives.webp",
+        "octetsTransferes": 141660,
+        "contientTexte": false,
+        "alternatives": {
+          "fr": "Deux nacelles suspendues se font face au-dessus d’un bassin de cendre, entourées de voyageurs de Haut-Puits et de Veille-Basse qui répartissent les contrepoids.",
+          "en": "Two suspended cable cages face one another above an ash basin while travellers from High Well and Lower Watch distribute counterweights."
+        },
+        "provenance": {
+          "fiche": "docs/assets/nacelles-deux-rives.provenance.json",
+          "creeLe": "2026-07-23",
+          "outil": "Codex built-in image_gen",
+          "modele": "built-in model (identifier not exposed)",
+          "usage": "illustration-story",
+          "entree": "No external input image; generated from the written Nacelles regional-conflict brief.",
+          "prompt": "Create a single 16:9 narrative event illustration for the French dieselpunk survival management game “Les Lanternes de Cendre”. Scene: two suspended industrial cable-car cages face each other above a vast cracked ash-settling basin; travellers from a deep-well settlement and refugees from a sealed lighthouse settlement visibly cooperate to redistribute heavy counterweights. A mobile lighthouse-convoy glows faintly in the distant haze. Art direction: painterly editorial concept art, muted charcoal, ash beige, oxidized copper and restrained amber light; human-scale, materially plausible machinery, weathered cables and pulleys; sober, tense, compassionate, no heroic pose. Wide composition with clear silhouettes and accessibility-friendly value contrast. No text, no letters, no logos, no UI, no watermark.",
+          "droits": "OpenAI Terms of Use — output assigned to the user",
+          "empreinteSha256": "e0ef9c1eae5553779db0e9aed19590ebb84debf0657409eb1b3e5fea50b295c0",
+          "statutApprobation": "pending-pull-request-review",
+          "reviseur": null
+        }
+      },
+      "textes": {
+        "fr": {
+          "origine": {
+            "cle": "evenement.nacelles.conflit.origine",
+            "modele": "Relais des Nacelles",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.nacelles.conflit.titre",
+            "modele": "Le poids des deux rives",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.nacelles.conflit.presentation",
+            "modele": "Les nacelles ne peuvent porter à la fois les réserves de Haut-Puits et toutes les familles venues de Veille-Basse. Les Puits Libres et les Pèlerins réclament chacun la priorité promise en amont.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.nacelles.conflit.information",
+              "modele": "Le coût réellement payé pour atteindre le Relais porte déjà la marque des deux Colonies, de la Cohorte, du panache et de leurs Factions.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "echo-ilyana-garante": {
+              "cle": "evenement.nacelles.conflit.variante.ilyana-garante",
+              "modele": "Le registre confié à Ilyana précède le convoi sur le câble : les Nacelliers traitent la garantie de partage de Haut-Puits comme une parole opposable.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "echo-ilyana-contredite": {
+              "cle": "evenement.nacelles.conflit.variante.ilyana-contredite",
+              "modele": "Le registre resté collectif arrive sans garante désignée : les Nacelliers exigent que chaque priorité de Haut-Puits soit renégociée au Relais.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "echo-maelys-mission": {
+              "cle": "evenement.nacelles.conflit.variante.maelys-mission",
+              "modele": "Le coffret confié à Maëlys documente les charges de la rive basse : sa mission donne aux techniciens de Veille-Basse une voix dans la répartition.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "echo-maelys-equipes": {
+              "cle": "evenement.nacelles.conflit.variante.maelys-equipes",
+              "modele": "Les équipes gardées à Veille-Basse ne peuvent renforcer les câbles : leur absence rend visible le prix de la priorité donnée à la Colonie.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "echo-veille-abandonnee": {
+              "cle": "evenement.nacelles.conflit.variante.veille-abandonnee",
+              "modele": "La rive basse n’envoie ni coffret ni équipe : le refus d’intervenir à Veille-Basse revient comme une place vide dans chaque cage.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.nacelles.conflit.variante.standard",
+              "modele": "Les registres d’approche restent ouverts côte à côte : aucun délégué ne peut effacer la rive opposée.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "partager-contrepoids": {
+              "intention": {
+                "cle": "evenement.nacelles.conflit.choix.partager",
+                "modele": "Répartir les contrepoids entre les deux rives",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.nacelles.conflit.choix.partager.cout",
+                  "modele": "Coût connu : 4 Matériaux renforcent les cages communes ; aucun choix antérieur n’est annulé.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "reserver-passage": {
+              "intention": {
+                "cle": "evenement.nacelles.conflit.choix.reserver",
+                "modele": "Réserver la prochaine cage au convoi",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.nacelles.conflit.choix.reserver.cout",
+                  "modele": "Coût connu : 8 L d’Eau compensent l’attente imposée aux voyageurs des deux rives.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        },
+        "en": {
+          "origine": {
+            "cle": "evenement.nacelles.conflit.origine",
+            "modele": "Cableway Relay",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.nacelles.conflit.titre",
+            "modele": "The weight of both banks",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.nacelles.conflit.presentation",
+            "modele": "The cableways cannot carry both High Well’s reserves and every family arriving from Lower Watch. The Free Wells and Ash Pilgrims each demand the priority promised upstream.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.nacelles.conflit.information",
+              "modele": "The cost already paid to reach the Relay bears the mark of both Colonies, the Cohort, the plume and their Factions.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "echo-ilyana-garante": {
+              "cle": "evenement.nacelles.conflit.variante.ilyana-garante",
+              "modele": "The register entrusted to Ilyana reaches the cable crews first: they treat High Well’s sharing guarantee as a commitment that can be challenged.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "echo-ilyana-contredite": {
+              "cle": "evenement.nacelles.conflit.variante.ilyana-contredite",
+              "modele": "The collective register arrives without a named guarantor: the cable crews require every High Well priority to be renegotiated at the Relay.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "echo-maelys-mission": {
+              "cle": "evenement.nacelles.conflit.variante.maelys-mission",
+              "modele": "The case entrusted to Maëlys documents loads from the lower bank: her mission gives Lower Watch technicians a voice in the allocation.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "echo-maelys-equipes": {
+              "cle": "evenement.nacelles.conflit.variante.maelys-equipes",
+              "modele": "The teams kept at Lower Watch cannot reinforce the cables: their absence exposes the cost of prioritizing the Colony.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "echo-veille-abandonnee": {
+              "cle": "evenement.nacelles.conflit.variante.veille-abandonnee",
+              "modele": "The lower bank sends neither case nor crew: refusing to intervene at Lower Watch returns as an empty place in every cage.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.nacelles.conflit.variante.standard",
+              "modele": "Both approach registers remain open side by side: no delegate can erase the opposite bank.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "partager-contrepoids": {
+              "intention": {
+                "cle": "evenement.nacelles.conflit.choix.partager",
+                "modele": "Distribute the counterweights between both banks",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.nacelles.conflit.choix.partager.cout",
+                  "modele": "Known cost: 4 Materials reinforce the shared cages; no earlier choice is undone.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "reserver-passage": {
+              "intention": {
+                "cle": "evenement.nacelles.conflit.choix.reserver",
+                "modele": "Reserve the next cage for the convoy",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.nacelles.conflit.choix.reserver.cout",
+                  "modele": "Known cost: 8 L of Water offset the wait imposed on travellers from both banks.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "bassins.nacelles.le-frein-sous-la-cendre",
+      "famille": "mystere-des-phares",
+      "themes": [
+        "reseau-ancien",
+        "cible-clandestine"
+      ],
+      "fonction": "reveler-la-cible-du-frein-magnetique",
+      "fenetre": "relais-des-nacelles",
+      "conditions": {
+        "requises": [
+          {
+            "type": "lieu-present",
+            "lieu": "relais-des-vannes"
+          },
+          {
+            "type": "un-des-faits-present",
+            "faits": [
+              "bassins.nacelles.accord-regional",
+              "bassins.nacelles.passage-restreint"
+            ]
+          }
+        ],
+        "interdites": []
+      },
+      "periodeEligibilite": {
+        "debut": 780,
+        "fin": 2147483647
+      },
+      "priorite": 110,
+      "epuisement": "unique",
+      "acteurs": [
+        "porte-lanterne",
+        "nacelliers-des-vannes",
+        "frein-magnetique-des-nacelles"
+      ],
+      "sourcesInformations": [
+        "nacelliers-des-vannes"
+      ],
+      "faitsLus": [
+        "bassins.nacelles.accord-regional",
+        "bassins.nacelles.passage-restreint"
+      ],
+      "choix": [
+        {
+          "id": "baliser-frein",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "bassins.nacelles.cible-frein-balisee",
+              "cible": "frein-magnetique-des-nacelles"
+            }
+          ]
+        },
+        {
+          "id": "consigner-frein",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "bassins.nacelles.cible-frein-consignee",
+              "cible": "frein-magnetique-des-nacelles"
+            }
+          ]
+        }
+      ],
+      "consequenceDifferee": {
+        "type": "cible-clandestine-revelee",
+        "cible": "frein-magnetique-des-nacelles"
+      },
+      "recuperation": {
+        "type": "renseignement-concret"
+      },
+      "variantes": [
+        {
+          "id": "standard",
+          "condition": {
+            "type": "toujours"
+          }
+        }
+      ],
+      "destinationEcho": "journal-de-campagne",
+      "asset": {
+        "id": "bassins.nacelles.le-frein-sous-la-cendre",
+        "fichier": "/api/commercial/assets/nacelles-frein.webp",
+        "octetsTransferes": 153966,
+        "contientTexte": false,
+        "alternatives": {
+          "fr": "Sous le tambour d’une nacelle, des techniciens découvrent un frein magnétique ancien relié à une plaque de laiton et le balisent sans le toucher.",
+          "en": "Beneath a cable drum, technicians discover an old magnetic brake connected to a brass plate and mark it without touching it."
+        },
+        "provenance": {
+          "fiche": "docs/assets/nacelles-frein.provenance.json",
+          "creeLe": "2026-07-23",
+          "outil": "Codex built-in image_gen",
+          "modele": "built-in model (identifier not exposed)",
+          "usage": "illustration-story",
+          "entree": "No external input image; generated from the written Nacelles mystery brief.",
+          "prompt": "Create a single 16:9 narrative event illustration matching the established “Les Lanternes de Cendre” painterly dieselpunk concept-art style. Scene: beneath the main drum of an old industrial cableway relay, technicians discover a precise ancient magnetic brake connected to a patterned brass plate; they mark and measure the housing without touching it. Massive pulleys and worn steel cables frame the machinery, ash dust hangs in the air, dim amber work lamps reveal the concrete target. Palette: muted charcoal, ash beige, oxidized copper, restrained amber; sober archaeological-industrial mystery, materially plausible, strong readable silhouettes and value contrast. No text, no letters, no logos, no UI, no watermark.",
+          "droits": "OpenAI Terms of Use — output assigned to the user",
+          "empreinteSha256": "4869a9a069f961680a2745fa67b58d6b4c8c8723728aacd5ee2c9b717f20e0ae",
+          "statutApprobation": "pending-pull-request-review",
+          "reviseur": null
+        }
+      },
+      "textes": {
+        "fr": {
+          "origine": {
+            "cle": "evenement.nacelles.mystere.origine",
+            "modele": "Machinerie sous le Relais",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.nacelles.mystere.titre",
+            "modele": "Le frein sous la cendre",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.nacelles.mystere.presentation",
+            "modele": "Sous le tambour principal, un frein magnétique du Réseau ancien module encore chaque charge. Ses impulsions concordent avec les registres montrant le déplacement historique de la cendre vers les périphéries.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.nacelles.mystere.information",
+              "modele": "Le boîtier, son alimentation et sa transmission sont localisés : le frein magnétique est désormais une Cible clandestine concrète, limitée à ce passage.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "standard": {
+              "cle": "evenement.nacelles.mystere.variante.standard",
+              "modele": "La plaque de laiton porte le même motif que les courbes de reflux copiées à Veille-Basse.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "baliser-frein": {
+              "intention": {
+                "cle": "evenement.nacelles.mystere.choix.baliser",
+                "modele": "Baliser le boîtier et ses témoins",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.nacelles.mystere.choix.baliser.cout",
+                  "modele": "Coût connu : les Nacelliers sauront exactement quelle infrastructure a été désignée.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "consigner-frein": {
+              "intention": {
+                "cle": "evenement.nacelles.mystere.choix.consigner",
+                "modele": "Consigner le frein dans le Journal causal",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.nacelles.mystere.choix.consigner.cout",
+                  "modele": "Coût connu : le renseignement quitte le cercle des seuls techniciens, sans déclencher d’opération.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        },
+        "en": {
+          "origine": {
+            "cle": "evenement.nacelles.mystere.origine",
+            "modele": "Machinery beneath the Relay",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.nacelles.mystere.titre",
+            "modele": "The brake beneath the ash",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.nacelles.mystere.presentation",
+            "modele": "Beneath the main drum, an Ancient Network magnetic brake still modulates every load. Its pulses match the registers showing ash historically displaced toward the outskirts.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.nacelles.mystere.information",
+              "modele": "The housing, power feed and transmission are located: the magnetic brake is now a concrete Covert Target limited to this crossing.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "standard": {
+              "cle": "evenement.nacelles.mystere.variante.standard",
+              "modele": "The brass plate bears the same pattern as the reflux curves copied at Lower Watch.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "baliser-frein": {
+              "intention": {
+                "cle": "evenement.nacelles.mystere.choix.baliser",
+                "modele": "Mark the housing and its telltales",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.nacelles.mystere.choix.baliser.cout",
+                  "modele": "Known cost: the Cable Crews will know exactly which infrastructure was designated.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "consigner-frein": {
+              "intention": {
+                "cle": "evenement.nacelles.mystere.choix.consigner",
+                "modele": "Record the brake in the causal Journal",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.nacelles.mystere.choix.consigner.cout",
+                  "modele": "Known cost: the intelligence leaves the technicians’ circle without launching an operation.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "bassins.nacelles.la-main-sur-le-frein",
+      "famille": "consequences-systemiques",
+      "themes": [
+        "intervention-clandestine",
+        "trace-clandestine"
+      ],
+      "fonction": "transformer-le-frein-revele",
+      "fenetre": "relais-des-nacelles",
+      "conditions": {
+        "requises": [
+          {
+            "type": "lieu-present",
+            "lieu": "relais-des-vannes"
+          },
+          {
+            "type": "un-des-faits-present",
+            "faits": [
+              "bassins.nacelles.cible-frein-balisee",
+              "bassins.nacelles.cible-frein-consignee"
+            ]
+          }
+        ],
+        "interdites": []
+      },
+      "periodeEligibilite": {
+        "debut": 780,
+        "fin": 2147483647
+      },
+      "priorite": 100,
+      "epuisement": "unique",
+      "acteurs": [
+        "porte-lanterne",
+        "nacelliers-des-vannes",
+        "frein-magnetique-des-nacelles",
+        "puits-libres",
+        "pelerins-de-cendre"
+      ],
+      "sourcesInformations": [
+        "frein-magnetique-des-nacelles"
+      ],
+      "faitsLus": [
+        "bassins.nacelles.cible-frein-balisee",
+        "bassins.nacelles.cible-frein-consignee"
+      ],
+      "choix": [
+        {
+          "id": "reparer-publiquement",
+          "effets": [
+            {
+              "type": "stock.modifier",
+              "stock": "materiaux",
+              "valeur": -6
+            }
+          ],
+          "faitsProduits": [
+            {
+              "id": "bassins.nacelles.frein-reaccorde",
+              "cible": "nacelliers-des-vannes"
+            }
+          ]
+        },
+        {
+          "id": "intervenir-clandestinement",
+          "effets": [
+            {
+              "type": "stock.modifier",
+              "stock": "materiaux",
+              "valeur": -2
+            }
+          ],
+          "faitsProduits": [
+            {
+              "id": "bassins.nacelles.frein-transforme-clandestinement",
+              "cible": "frein-magnetique-des-nacelles"
+            },
+            {
+              "id": "bassins.nacelles.trace-laiton-persistante",
+              "cible": "nacelliers-des-vannes"
+            }
+          ]
+        }
+      ],
+      "consequenceDifferee": {
+        "type": "enquete-au-dela-de-la-region",
+        "cible": "nacelliers-des-vannes"
+      },
+      "recuperation": {
+        "type": "reparation-publique-toujours-disponible"
+      },
+      "variantes": [
+        {
+          "id": "standard",
+          "condition": {
+            "type": "toujours"
+          }
+        }
+      ],
+      "destinationEcho": "journal-de-campagne",
+      "asset": {
+        "id": "bassins.nacelles.la-main-sur-le-frein",
+        "fichier": "/api/commercial/assets/nacelles-trace.webp",
+        "octetsTransferes": 143524,
+        "contientTexte": false,
+        "alternatives": {
+          "fr": "Une main gantée hésite au-dessus du frein magnétique ouvert tandis que de la limaille de laiton brillante tombe sur un tissu de relevé.",
+          "en": "A gloved hand hesitates above the open magnetic brake while bright brass filings fall onto a survey cloth."
+        },
+        "provenance": {
+          "fiche": "docs/assets/nacelles-trace.provenance.json",
+          "creeLe": "2026-07-23",
+          "outil": "Codex built-in image_gen",
+          "modele": "built-in model (identifier not exposed)",
+          "usage": "illustration-story",
+          "entree": "No external input image; generated from the written Nacelles systemic-consequence brief.",
+          "prompt": "Create a single 16:9 narrative event illustration matching the established “Les Lanternes de Cendre” painterly dieselpunk concept-art style. Close narrative scene: an open ancient cableway magnetic brake inside a worn industrial relay; a gloved hand hesitates above the exact mechanism while bright brass filings fall onto a dark survey cloth, leaving an unmistakable persistent trace. In the background, two cable crews wait in tense silhouette, making the ethical choice between public repair and covert alteration legible without melodrama. Muted charcoal, ash beige, oxidized copper, controlled amber task light; materially plausible machinery, strong value contrast, sober and morally tense. No text, no letters, no logos, no UI, no watermark.",
+          "droits": "OpenAI Terms of Use — output assigned to the user",
+          "empreinteSha256": "c9b0b18fa91eb93a818c638e9648e47f4ebde3f6504f403c5b8cd4942b8afc32",
+          "statutApprobation": "pending-pull-request-review",
+          "reviseur": null
+        }
+      },
+      "textes": {
+        "fr": {
+          "origine": {
+            "cle": "evenement.nacelles.systeme.origine",
+            "modele": "Frein magnétique des Nacelles",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.nacelles.systeme.titre",
+            "modele": "La main sur le frein",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.nacelles.systeme.presentation",
+            "modele": "La Cible révélée peut être réparée au grand jour ou transformée sans consentement pour rendre les charges impossibles à discriminer. L’opération cachée toucherait une infrastructure précise et laisserait une enquête possible.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.nacelles.systeme.information",
+              "modele": "Toute ouverture du boîtier disperse une limaille de laiton identifiable ; elle survivra au changement de Région comme Trace clandestine.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "standard": {
+              "cle": "evenement.nacelles.systeme.variante.standard",
+              "modele": "Le capot reste ouvert devant vous ; la différence entre réparation et intervention cachée est explicite.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "reparer-publiquement": {
+              "intention": {
+                "cle": "evenement.nacelles.systeme.choix.reparer",
+                "modele": "Réaccorder publiquement le frein",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.nacelles.systeme.choix.reparer.cout",
+                  "modele": "Coût connu : 6 Matériaux et un accord public des Nacelliers.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "intervenir-clandestinement": {
+              "intention": {
+                "cle": "evenement.nacelles.systeme.choix.clandestin",
+                "modele": "Transformer clandestinement le frein révélé",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.nacelles.systeme.choix.clandestin.cout",
+                  "modele": "Coût connu : 2 Matériaux ; une Trace persistante pourra nourrir doute, accusation ou preuve.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        },
+        "en": {
+          "origine": {
+            "cle": "evenement.nacelles.systeme.origine",
+            "modele": "Cableway Magnetic Brake",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.nacelles.systeme.titre",
+            "modele": "A hand on the brake",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.nacelles.systeme.presentation",
+            "modele": "The revealed Target can be repaired openly or altered without consent so loads can no longer be discriminated. The hidden operation would affect a precise infrastructure and leave room for an investigation.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.nacelles.systeme.information",
+              "modele": "Opening the housing scatters identifiable brass filings; they will survive the regional transition as a Covert Trace.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "standard": {
+              "cle": "evenement.nacelles.systeme.variante.standard",
+              "modele": "The housing remains open before you; the difference between repair and hidden intervention is explicit.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "reparer-publiquement": {
+              "intention": {
+                "cle": "evenement.nacelles.systeme.choix.reparer",
+                "modele": "Retune the brake publicly",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.nacelles.systeme.choix.reparer.cout",
+                  "modele": "Known cost: 6 Materials and the Cable Crews’ public agreement.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "intervenir-clandestinement": {
+              "intention": {
+                "cle": "evenement.nacelles.systeme.choix.clandestin",
+                "modele": "Covertly alter the revealed brake",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.nacelles.systeme.choix.clandestin.cout",
+                  "modele": "Known cost: 2 Materials; a persistent Trace may later support doubt, accusation or proof.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "bassins.nacelles.deux-voix-dans-le-cable",
+      "famille": "histoires-de-compagnons",
+      "themes": [
+        "ilyana-voss",
+        "maelys-rive",
+        "conseil-des-vannes"
+      ],
+      "fonction": "preparer-une-option-du-conseil",
+      "fenetre": "relais-des-nacelles",
+      "conditions": {
+        "requises": [
+          {
+            "type": "lieu-present",
+            "lieu": "relais-des-vannes"
+          },
+          {
+            "type": "un-des-faits-present",
+            "faits": [
+              "bassins.nacelles.frein-reaccorde",
+              "bassins.nacelles.frein-transforme-clandestinement"
+            ]
+          }
+        ],
+        "interdites": []
+      },
+      "periodeEligibilite": {
+        "debut": 780,
+        "fin": 2147483647
+      },
+      "priorite": 90,
+      "epuisement": "unique",
+      "acteurs": [
+        "porte-lanterne",
+        "ilyana-voss",
+        "maelys-rive",
+        "nacelliers-des-vannes"
+      ],
+      "sourcesInformations": [
+        "ilyana-voss",
+        "maelys-rive"
+      ],
+      "faitsLus": [
+        "bassins.nacelles.frein-reaccorde",
+        "bassins.nacelles.frein-transforme-clandestinement"
+      ],
+      "choix": [
+        {
+          "id": "porter-passage-partage",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "bassins.nacelles.conseil-passage-partage",
+              "cible": "ilyana-voss"
+            }
+          ]
+        },
+        {
+          "id": "porter-maintenance-commune",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "bassins.nacelles.conseil-maintenance-commune",
+              "cible": "maelys-rive"
+            }
+          ]
+        }
+      ],
+      "consequenceDifferee": {
+        "type": "conseil-des-vannes",
+        "cible": "nacelliers-des-vannes"
+      },
+      "recuperation": {
+        "type": "deux-voix-non-obligatoires"
+      },
+      "variantes": [
+        {
+          "id": "standard",
+          "condition": {
+            "type": "toujours"
+          }
+        }
+      ],
+      "destinationEcho": "journal-de-campagne",
+      "asset": {
+        "id": "bassins.nacelles.deux-voix-dans-le-cable",
+        "fichier": "/api/commercial/assets/nacelles-compagnes.webp",
+        "octetsTransferes": 197294,
+        "contientTexte": false,
+        "alternatives": {
+          "fr": "Ilyana et Maëlys se tiennent sur une passerelle de nacelles, l’une avec un registre et l’autre avec un coffret de relevés, face aux câbles tendus vers les deux rives.",
+          "en": "Ilyana and Maëlys stand on a cableway footbridge, one holding a register and the other a survey case, facing cables stretched toward both banks."
+        },
+        "provenance": {
+          "fiche": "docs/assets/nacelles-compagnes.provenance.json",
+          "creeLe": "2026-07-23",
+          "outil": "Codex built-in image_gen",
+          "modele": "built-in model (identifier not exposed)",
+          "usage": "illustration-story",
+          "entree": "No external input image; generated from the written Ilyana Voss and Maëlys Rive companion-story brief.",
+          "prompt": "Create a single 16:9 narrative event illustration matching the established “Les Lanternes de Cendre” painterly dieselpunk concept-art style. Scene on a high cableway relay footbridge over ash basins: two competent women stand side by side but retain distinct roles—an older dark-haired steward named Ilyana holds an open water-sharing register, while a younger field engineer named Maëlys carries a compact weathered survey case. They face heavy cables stretching toward two different settlement banks and calmly compare proposals; cable crews work behind them. No heroic pose, no romance, no authority tableau: collaborative disagreement and practical trust. Muted charcoal, ash beige, oxidized copper, restrained amber beacon light; windblown ash, strong readable silhouettes and value contrast. No text, no legible writing, no letters, no logos, no UI, no watermark.",
+          "droits": "OpenAI Terms of Use — output assigned to the user",
+          "empreinteSha256": "0b2531363f5f561118a8a656ce36d331d960f204c0c7165ad83f61a7b6363d9b",
+          "statutApprobation": "pending-pull-request-review",
+          "reviseur": null
+        }
+      },
+      "textes": {
+        "fr": {
+          "origine": {
+            "cle": "evenement.nacelles.compagnons.origine",
+            "modele": "Passerelle du Relais",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.nacelles.compagnons.titre",
+            "modele": "Deux voix dans le câble",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.nacelles.compagnons.presentation",
+            "modele": "Ilyana Voss défend un registre commun des passages ; Maëlys Rive veut que les équipes capables d’entretenir les câbles circulent entre les Colonies. Elles formulent deux options compatibles avec les faits acquis, sans réclamer d’autorité personnelle.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.nacelles.compagnons.information.ilyana",
+              "modele": "Ilyana relie la proposition de passage partagé aux engagements hydriques pris à Haut-Puits.",
+              "variables": [],
+              "valeurs": {}
+            },
+            {
+              "cle": "evenement.nacelles.compagnons.information.maelys",
+              "modele": "Maëlys relie la maintenance commune au devenir de la Cohorte et aux techniciens de Veille-Basse.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "standard": {
+              "cle": "evenement.nacelles.compagnons.variante.standard",
+              "modele": "Les deux Compagnes parlent depuis des rives différentes, puis nouent leurs propositions au même câble.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "porter-passage-partage": {
+              "intention": {
+                "cle": "evenement.nacelles.compagnons.choix.partage",
+                "modele": "Porter le passage partagé au Conseil des Vannes",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.nacelles.compagnons.choix.partage.cout",
+                  "modele": "Coût connu : les priorités de passage devront rester publiques et contestables.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "porter-maintenance-commune": {
+              "intention": {
+                "cle": "evenement.nacelles.compagnons.choix.maintenance",
+                "modele": "Porter la maintenance commune au Conseil des Vannes",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.nacelles.compagnons.choix.maintenance.cout",
+                  "modele": "Coût connu : chaque Colonie cédera périodiquement une équipe au Relais.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        },
+        "en": {
+          "origine": {
+            "cle": "evenement.nacelles.compagnons.origine",
+            "modele": "Relay footbridge",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.nacelles.compagnons.titre",
+            "modele": "Two voices in the cable",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.nacelles.compagnons.presentation",
+            "modele": "Ilyana Voss argues for a shared crossing register; Maëlys Rive wants crews able to maintain the cables to move between Colonies. They frame two options compatible with established facts without claiming personal authority.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.nacelles.compagnons.information.ilyana",
+              "modele": "Ilyana links the shared-crossing proposal to the water commitments made at High Well.",
+              "variables": [],
+              "valeurs": {}
+            },
+            {
+              "cle": "evenement.nacelles.compagnons.information.maelys",
+              "modele": "Maëlys links common maintenance to the Cohort’s fate and Lower Watch’s technicians.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "standard": {
+              "cle": "evenement.nacelles.compagnons.variante.standard",
+              "modele": "The two Companions speak from different banks, then knot their proposals to the same cable.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "porter-passage-partage": {
+              "intention": {
+                "cle": "evenement.nacelles.compagnons.choix.partage",
+                "modele": "Bring shared passage before the Sluice Council",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.nacelles.compagnons.choix.partage.cout",
+                  "modele": "Known cost: crossing priorities must remain public and open to challenge.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "porter-maintenance-commune": {
+              "intention": {
+                "cle": "evenement.nacelles.compagnons.choix.maintenance",
+                "modele": "Bring common maintenance before the Sluice Council",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.nacelles.compagnons.choix.maintenance.cout",
+                  "modele": "Known cost: each Colony will periodically assign one crew to the Relay.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        }
+      }
     }
   ],
   "libellesTransversaux": {
@@ -2181,7 +3356,16 @@ export default {
           "veille-basse.registres-copies": "Registres du reflux copiés",
           "veille-basse.registres-laisses": "Registres confiés à Veille-Basse",
           "veille-basse.maelys-mission-confiee": "Coffret de Maëlys confié au convoi",
-          "veille-basse.maelys-equipes-prioritaires": "Équipes de Maëlys maintenues à Veille-Basse"
+          "veille-basse.maelys-equipes-prioritaires": "Équipes de Maëlys maintenues à Veille-Basse",
+          "bassins.nacelles.accord-regional": "Contrepoids partagés entre les deux rives",
+          "bassins.nacelles.passage-restreint": "Passage des Nacelles réservé",
+          "bassins.nacelles.cible-frein-balisee": "Frein magnétique balisé comme Cible clandestine",
+          "bassins.nacelles.cible-frein-consignee": "Frein magnétique consigné comme Cible clandestine",
+          "bassins.nacelles.frein-reaccorde": "Frein des Nacelles réaccordé publiquement",
+          "bassins.nacelles.frein-transforme-clandestinement": "Frein des Nacelles transformé clandestinement",
+          "bassins.nacelles.trace-laiton-persistante": "Trace de limaille de laiton persistante",
+          "bassins.nacelles.conseil-passage-partage": "Passage partagé préparé pour le Conseil",
+          "bassins.nacelles.conseil-maintenance-commune": "Maintenance commune préparée pour le Conseil"
         },
         "causes": {
           "bassins.haut-puits.pacte-des-citernes": "Le pacte des citernes",
@@ -2191,7 +3375,11 @@ export default {
           "veille-basse.la-place-sous-le-phare": "La place sous le Phare éteint",
           "veille-basse.la-porte-des-filtres": "La porte des filtres",
           "veille-basse.les-registres-du-reflux": "Les registres du reflux",
-          "veille-basse.maelys-et-le-coffret": "Maëlys et le coffret étanche"
+          "veille-basse.maelys-et-le-coffret": "Maëlys et le coffret étanche",
+          "bassins.nacelles.le-poids-des-deux-rives": "Le poids des deux rives",
+          "bassins.nacelles.le-frein-sous-la-cendre": "Le frein sous la cendre",
+          "bassins.nacelles.la-main-sur-le-frein": "La main sur le frein",
+          "bassins.nacelles.deux-voix-dans-le-cable": "Deux voix dans le câble"
         },
         "acteurs": {
           "ilyana-voss": "Ilyana Voss",
@@ -2203,7 +3391,9 @@ export default {
           "habitants-veille-basse": "Habitants de Veille-Basse",
           "techniciens-veille-basse": "Techniciens de Veille-Basse",
           "pelerins-de-cendre": "Pèlerins de Cendre",
-          "maelys-rive": "Maëlys Rive"
+          "maelys-rive": "Maëlys Rive",
+          "nacelliers-des-vannes": "Nacelliers des Vannes",
+          "frein-magnetique-des-nacelles": "Frein magnétique des Nacelles"
         },
         "cibles": {
           "equipes-entretien": "Équipes d’entretien",
@@ -2214,7 +3404,9 @@ export default {
           "habitants-veille-basse": "Habitants de Veille-Basse",
           "techniciens-veille-basse": "Techniciens de Veille-Basse",
           "hospice-du-sillon": "Hospice du Sillon",
-          "maelys-rive": "Maëlys Rive"
+          "maelys-rive": "Maëlys Rive",
+          "nacelliers-des-vannes": "Nacelliers des Vannes",
+          "frein-magnetique-des-nacelles": "Frein magnétique des Nacelles"
         }
       }
     },
@@ -2238,7 +3430,16 @@ export default {
           "veille-basse.registres-copies": "Backflow records copied",
           "veille-basse.registres-laisses": "Records entrusted to Lower Watch",
           "veille-basse.maelys-mission-confiee": "Maëlys’s survey case entrusted to the convoy",
-          "veille-basse.maelys-equipes-prioritaires": "Maëlys’s teams kept at Lower Watch"
+          "veille-basse.maelys-equipes-prioritaires": "Maëlys’s teams kept at Lower Watch",
+          "bassins.nacelles.accord-regional": "Counterweights shared between both banks",
+          "bassins.nacelles.passage-restreint": "Cable crossing reserved",
+          "bassins.nacelles.cible-frein-balisee": "Magnetic brake marked as a Covert Target",
+          "bassins.nacelles.cible-frein-consignee": "Magnetic brake recorded as a Covert Target",
+          "bassins.nacelles.frein-reaccorde": "Cable brake publicly retuned",
+          "bassins.nacelles.frein-transforme-clandestinement": "Cable brake covertly altered",
+          "bassins.nacelles.trace-laiton-persistante": "Persistent brass-filings Trace",
+          "bassins.nacelles.conseil-passage-partage": "Shared crossing prepared for the Council",
+          "bassins.nacelles.conseil-maintenance-commune": "Common maintenance prepared for the Council"
         },
         "causes": {
           "bassins.haut-puits.pacte-des-citernes": "The cistern pact",
@@ -2248,7 +3449,11 @@ export default {
           "veille-basse.la-place-sous-le-phare": "Room beneath the dead lighthouse",
           "veille-basse.la-porte-des-filtres": "The filter gate",
           "veille-basse.les-registres-du-reflux": "The backflow records",
-          "veille-basse.maelys-et-le-coffret": "Maëlys and the sealed case"
+          "veille-basse.maelys-et-le-coffret": "Maëlys and the sealed case",
+          "bassins.nacelles.le-poids-des-deux-rives": "The weight of both banks",
+          "bassins.nacelles.le-frein-sous-la-cendre": "The brake beneath the ash",
+          "bassins.nacelles.la-main-sur-le-frein": "A hand on the brake",
+          "bassins.nacelles.deux-voix-dans-le-cable": "Two voices in the cable"
         },
         "acteurs": {
           "ilyana-voss": "Ilyana Voss",
@@ -2260,7 +3465,9 @@ export default {
           "habitants-veille-basse": "Lower Watch residents",
           "techniciens-veille-basse": "Lower Watch technicians",
           "pelerins-de-cendre": "Ash Pilgrims",
-          "maelys-rive": "Maëlys Rive"
+          "maelys-rive": "Maëlys Rive",
+          "nacelliers-des-vannes": "Sluice Cable Crews",
+          "frein-magnetique-des-nacelles": "Cableway Magnetic Brake"
         },
         "cibles": {
           "equipes-entretien": "Maintenance crews",
@@ -2271,7 +3478,9 @@ export default {
           "habitants-veille-basse": "Lower Watch residents",
           "techniciens-veille-basse": "Lower Watch technicians",
           "hospice-du-sillon": "Sillon Hospice",
-          "maelys-rive": "Maëlys Rive"
+          "maelys-rive": "Maëlys Rive",
+          "nacelliers-des-vannes": "Sluice Cable Crews",
+          "frein-magnetique-des-nacelles": "Cableway Magnetic Brake"
         }
       }
     }

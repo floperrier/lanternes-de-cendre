@@ -264,9 +264,9 @@ describe("persistance de Veille-Basse", () => {
     expect(importation).toMatchObject({
       statut: "compatible",
       sauvegarde: {
-        version: 6,
+        version: 7,
         etat: {
-          version: 6,
+          version: 7,
           veilleBasse: {
             colonie: { statut: "fragile" },
             cohorte: {
@@ -279,7 +279,7 @@ describe("persistance de Veille-Basse", () => {
         },
         reproduction: {
           snapshot: {
-            version: 6,
+            version: 7,
             veilleBasse: {
               cohorte: { specialite: "charpente-etanche" },
             },
@@ -288,7 +288,7 @@ describe("persistance de Veille-Basse", () => {
       },
     });
     if (importation.statut !== "compatible") {
-      throw new Error("La sauvegarde v6 devrait être compatible.");
+      throw new Error("La sauvegarde v7 devrait être compatible.");
     }
     expect(
       rejouerReproduction(importation.sauvegarde.reproduction),
@@ -328,15 +328,15 @@ describe("persistance de Veille-Basse", () => {
     expect(importation).toMatchObject({
       statut: "migree",
       sauvegarde: {
-        version: 6,
+        version: 7,
         etat: {
-          version: 6,
+          version: 7,
           veilleBasse: etatCourant.veilleBasse,
           hautPuits: creerEtatDeHautPuitsInitial(),
         },
         reproduction: {
           snapshot: {
-            version: 6,
+            version: 7,
             veilleBasse: etatCourant.veilleBasse,
             hautPuits: creerEtatDeHautPuitsInitial(),
           },
@@ -404,15 +404,15 @@ describe("persistance de Veille-Basse", () => {
     expect(importation).toMatchObject({
       statut: "migree",
       sauvegarde: {
-        version: 6,
+        version: 7,
         etat: {
-          version: 6,
+          version: 7,
           tempsDuConvoi: { vitesse: 2 },
           veilleBasse: creerEtatInitialDeVeilleBasse(),
         },
         reproduction: {
           snapshot: {
-            version: 6,
+            version: 7,
             veilleBasse: creerEtatInitialDeVeilleBasse(),
           },
           commandes: [

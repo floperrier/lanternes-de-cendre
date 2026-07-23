@@ -12,6 +12,7 @@ import {
   VERSION_ALEATOIRE_COURANTE,
   VERSION_SIMULATION_AVANT_CRISES,
   VERSION_SIMULATION_AVANT_HAUT_PUITS,
+  VERSION_SIMULATION_AVANT_NACELLES,
   VERSION_SIMULATION_AVANT_ROUTES,
   VERSION_SIMULATION_AVANT_VEILLE_BASSE,
   VERSION_SIMULATION_COURANTE,
@@ -58,6 +59,7 @@ import {
 import {
   creerEtatInitialDeVeilleBasse,
   estEtatDeVeilleBasse,
+  type EtatDeVeilleBasse,
 } from "../simulation/veilleBasse";
 import { rejouerReproduction } from "./replay";
 import { estEtatDesRoutes } from "./validationRoutes";
@@ -100,6 +102,7 @@ import {
   activitesDeHautPuitsSontCausales,
   estEtatDeHautPuits,
 } from "./validationHautPuits";
+import { calculerOffreDesNacelles } from "../simulation/nacelles";
 
 const EMPREINTE = /^[0-9a-f]{8}$/;
 const IDENTIFIANTS_PLATEFORMES_LEGACY_V1 = [
@@ -211,6 +214,10 @@ export interface EtatCampagneV4
 export interface EtatCampagneV5
   extends Omit<EtatCampagne, "version" | "hautPuits"> {
   readonly version: typeof VERSION_SIMULATION_AVANT_HAUT_PUITS;
+}
+
+export interface EtatCampagneV6 extends Omit<EtatCampagne, "version"> {
+  readonly version: typeof VERSION_SIMULATION_AVANT_NACELLES;
 }
 
 export function estObjet(valeur: unknown): valeur is ObjetInconnu {
@@ -370,6 +377,23 @@ export function estCommandeV5(valeur: unknown): valeur is CommandeCampagne {
     valeur.type === "evenement-narratif.choisir" &&
     typeof valeur.evenementId === "string" &&
     valeur.evenementId.startsWith("bassins.haut-puits.")
+  );
+}
+
+export function estCommandeV6(valeur: unknown): valeur is CommandeCampagne {
+  if (!estCommande(valeur) || !estObjet(valeur)) {
+    return false;
+  }
+  if (
+    valeur.type === "engagement-de-route.confirmer" &&
+    valeur.tronconId === "nacelles-de-veille-basse"
+  ) {
+    return false;
+  }
+  return !(
+    valeur.type === "evenement-narratif.choisir" &&
+    typeof valeur.evenementId === "string" &&
+    valeur.evenementId.startsWith("bassins.nacelles.")
   );
 }
 
@@ -1154,7 +1178,9 @@ function calculerStockAttendu(
   routes: EtatDesRoutes,
   expeditions: EtatDesExpeditions,
   hautPuits: EtatDeHautPuits,
+  veilleBasse: EtatDeVeilleBasse,
   reinitialiserReliquatApresConsommationMateriaux = true,
+  utiliserCoutsHistoriquesDesNacelles = false,
 ): {
   readonly quantite: number;
   readonly reliquatDeFlux: number;
@@ -1250,8 +1276,21 @@ function calculerStockAttendu(
       };
     },
   );
+  const causesDEvenementsDejaComptabilisees = new Set<string>();
+  const faitsAvecEffetsUniques = faits.filter((fait) => {
+    const definition = definitionsDeFaitsDuCatalogue().get(String(fait.id));
+    if (definition === undefined) {
+      return true;
+    }
+    const cause = String(fait.cause);
+    if (causesDEvenementsDejaComptabilisees.has(cause)) {
+      return false;
+    }
+    causesDEvenementsDejaComptabilisees.add(cause);
+    return true;
+  });
   const occurrences = [
-    ...faits.map((fait, index) => ({
+    ...faitsAvecEffetsUniques.map((fait, index) => ({
       type: "fait" as const,
       moment: fait.moment as number,
       index,
@@ -1336,10 +1375,25 @@ function calculerStockAttendu(
         );
       }
     } else if (occurrence.type === "engagement") {
+      const offreDesNacelles =
+        occurrence.engagement.consommationsAppliquees === undefined &&
+        !utiliserCoutsHistoriquesDesNacelles
+          ? calculerOffreDesNacelles({
+              position: occurrence.engagement.origine,
+              hautPuits,
+              veilleBasse,
+              faits: faits.map((fait) => String(fait.id)),
+            })
+          : null;
       stock = appliquerConsommationDeRouteAUnStock(
         id,
         stock,
         trouverTronconDeRoute(occurrence.engagement.tronconId),
+        occurrence.engagement.consommationsAppliquees ??
+          (offreDesNacelles?.tronconId ===
+          occurrence.engagement.tronconId
+            ? offreDesNacelles.consommations
+            : undefined),
       );
     } else if (occurrence.mouvement.stock === id) {
       stock = appliquerVariationAUnStock(
@@ -1513,6 +1567,8 @@ function estEtatPilotage(
   routes: EtatDesRoutes,
   expeditions: EtatDesExpeditions,
   hautPuits: EtatDeHautPuits,
+  veilleBasse: EtatDeVeilleBasse,
+  utiliserCoutsHistoriquesDesNacelles = false,
 ): valeur is EtatPilotage {
   if (!estObjet(valeur)) {
     return false;
@@ -1553,6 +1609,9 @@ function estEtatPilotage(
       routes,
       expeditions,
       hautPuits,
+      veilleBasse,
+      true,
+      utiliserCoutsHistoriquesDesNacelles,
     );
     if (
       !calcule.possibilites.some(
@@ -1695,6 +1754,7 @@ function estCausaliteDeNarrationValide(
       faitsDeLEvenement.some(
         (fait) => fait.moment < evenement.periodeEligibilite.debut,
       ) ||
+      new Set(faitsDeLEvenement.map((fait) => fait.moment)).size > 1 ||
       (estJoue && choixCorrespondants.length !== 1) ||
       (!estJoue && faitsDeLEvenement.length !== 0)
     ) {
@@ -1792,6 +1852,7 @@ function estEtatDesCrises(
   routes: EtatDesRoutes,
   expeditions: EtatDesExpeditions,
   hautPuits: EtatDeHautPuits,
+  veilleBasse: EtatDeVeilleBasse,
   autoriserMarqueurHistoriqueSansFait = false,
 ): valeur is EtatDesCrises {
   const faitAnnonceur = faits.find(
@@ -1867,6 +1928,7 @@ function estEtatDesCrises(
       routes,
       expeditions,
       hautPuits,
+      veilleBasse,
     ).quantite;
     const effets = faitDeRupture.effets as ObjetInconnu;
     const effetDEau = (effets.materiels as ObjetInconnu[])[0];
@@ -2050,10 +2112,103 @@ export function lireEtatV1(valeur: unknown): EtatCampagneV1 | undefined {
   return { version: VERSION_SIMULATION_INITIALE, ...parties };
 }
 
+function faitExisteAuMoment(
+  faits: readonly FaitDeCampagne[],
+  id: string,
+  moment: number,
+): boolean {
+  return faits.some((fait) => fait.id === id && fait.moment <= moment);
+}
+
+function coutsPersistesDesNacellesSontCausaux(
+  routes: EtatDesRoutes,
+  hautPuits: EtatDeHautPuits,
+  veilleBasse: EtatDeVeilleBasse,
+  faits: readonly FaitDeCampagne[],
+): boolean {
+  const hautPuitsInitial = creerEtatDeHautPuitsInitial();
+  const veilleBasseInitiale = creerEtatInitialDeVeilleBasse();
+
+  return routes.engagements.every((engagement) => {
+    const consommations = engagement.consommationsAppliquees;
+    if (consommations === undefined) {
+      return true;
+    }
+
+    const faitsAuMoment = faits.filter(
+      (fait) => fait.moment <= engagement.engageA,
+    );
+    const relationPublique =
+      hautPuits.decisionPriseA !== null &&
+      hautPuits.decisionPriseA <= engagement.engageA
+        ? hautPuits.relationPublique
+        : hautPuitsInitial.relationPublique;
+    const memoireDeLaCohorte = faitExisteAuMoment(
+      faits,
+      "veille-basse.cohorte-accueillie",
+      engagement.engageA,
+    )
+      ? ("aidee" as const)
+      : faitExisteAuMoment(
+            faits,
+            "veille-basse.cohorte-refusee",
+            engagement.engageA,
+          )
+        ? ("refusee" as const)
+        : faitExisteAuMoment(
+              faits,
+              "veille-basse.cohorte-redirigee",
+              engagement.engageA,
+            )
+          ? ("redirigee" as const)
+          : veilleBasseInitiale.cohorte.memoire;
+    const perteDeVeilleBasseEstDejaManifestee =
+      veilleBasse.consequencesDifferees.some(
+        (consequence) =>
+          consequence.id ===
+            "veille-basse.perte-apres-intervention-refusee" &&
+          consequence.manifesteeA !== null &&
+          consequence.manifesteeA <= engagement.engageA,
+      );
+    const statutDeVeilleBasse = perteDeVeilleBasseEstDejaManifestee
+      ? ("perdue" as const)
+      : faitExisteAuMoment(
+            faits,
+            "veille-basse.sas-renforce",
+            engagement.engageA,
+          )
+        ? ("stable" as const)
+        : veilleBasseInitiale.colonie.statut;
+    const offre = calculerOffreDesNacelles({
+      position: engagement.origine,
+      hautPuits: { ...hautPuits, relationPublique },
+      veilleBasse: {
+        ...veilleBasse,
+        colonie: {
+          ...veilleBasse.colonie,
+          statut: statutDeVeilleBasse,
+        },
+        cohorte: {
+          ...veilleBasse.cohorte,
+          memoire: memoireDeLaCohorte,
+        },
+      },
+      faits: faitsAuMoment.map((fait) => fait.id),
+    });
+
+    return (
+      offre?.tronconId === engagement.tronconId &&
+      offre.consommations.combustible === consommations.combustible &&
+      offre.consommations.eau === consommations.eau
+    );
+  });
+}
+
 function lireEtatAvecSchemaCourant(
   valeur: unknown,
   validerCrises: boolean,
   autoriserMarqueurHistoriqueSansFait = false,
+  utiliserCoutsHistoriquesDesNacelles = false,
 ): EtatCampagne | undefined {
   if (
     !estObjet(valeur) ||
@@ -2075,6 +2230,21 @@ function lireEtatAvecSchemaCourant(
   const expeditions = valeur.expeditions;
   const veilleBasse = valeur.veilleBasse;
   const hautPuits = valeur.hautPuits;
+  const routeV7DesNacellesEstMarquee =
+    estObjet(routes) &&
+    estObjet(routes.etatsReels) &&
+    "nacelles-de-veille-basse" in routes.etatsReels;
+  const ancienChenalEstPresent =
+    estObjet(routes) &&
+    Array.isArray(routes.engagements) &&
+    routes.engagements.some(
+      (engagement) =>
+        estObjet(engagement) &&
+        engagement.tronconId === "chenal-des-vannes",
+    );
+  const coutsHistoriquesDesNacellesRequis =
+    utiliserCoutsHistoriquesDesNacelles ||
+    (!routeV7DesNacellesEstMarquee && ancienChenalEstPresent);
 
   if (
     parties === undefined ||
@@ -2105,6 +2275,13 @@ function lireEtatAvecSchemaCourant(
       parties.tempsDuConvoi.secondes,
       narration.faitsDeCampagne as unknown as readonly FaitDeCampagne[],
     ) ||
+    (!coutsHistoriquesDesNacellesRequis &&
+      !coutsPersistesDesNacellesSontCausaux(
+        routes as unknown as EtatDesRoutes,
+        hautPuits as unknown as EtatDeHautPuits,
+        veilleBasse as unknown as EtatDeVeilleBasse,
+        narration.faitsDeCampagne as unknown as readonly FaitDeCampagne[],
+      )) ||
     !estJournalDExpeditionCoherent(
       expeditions,
       narration.faitsDeCampagne as unknown as readonly FaitDeCampagne[],
@@ -2119,6 +2296,7 @@ function lireEtatAvecSchemaCourant(
         routes,
         expeditions,
         hautPuits,
+        veilleBasse,
         autoriserMarqueurHistoriqueSansFait,
       )) ||
     (trouverEngagementDeRouteActif(routes) !== undefined &&
@@ -2132,6 +2310,8 @@ function lireEtatAvecSchemaCourant(
       routes,
       expeditions,
       hautPuits,
+      veilleBasse,
+      coutsHistoriquesDesNacellesRequis,
     ) ||
     !estCausaliteDeNarrationValide(
       parties,
@@ -2171,6 +2351,73 @@ export function lireSnapshotCourant(
   valeur: unknown,
 ): EtatCampagne | undefined {
   return lireEtatAvecSchemaCourant(valeur, true, true);
+}
+
+function lireEtatAvecSchemaV6(
+  valeur: unknown,
+  autoriserMarqueurHistoriqueSansFait = false,
+): EtatCampagneV6 | undefined {
+  if (
+    !estObjet(valeur) ||
+    valeur.version !== VERSION_SIMULATION_AVANT_NACELLES ||
+    !estObjet(valeur.routes) ||
+    !estObjet(valeur.routes.etatsReels) ||
+    "nacelles-de-veille-basse" in valeur.routes.etatsReels ||
+    !Array.isArray(valeur.routes.engagements) ||
+    valeur.routes.engagements.some(
+      (engagement) =>
+        estObjet(engagement) &&
+        engagement.tronconId === "nacelles-de-veille-basse",
+    ) ||
+    !estObjet(valeur.narration) ||
+    !Array.isArray(valeur.narration.evenementsJoues) ||
+    valeur.narration.evenementsJoues.some(
+      (id) => typeof id === "string" && id.startsWith("bassins.nacelles."),
+    ) ||
+    (typeof valeur.narration.evenementActif === "string" &&
+      valeur.narration.evenementActif.startsWith("bassins.nacelles.")) ||
+    !Array.isArray(valeur.narration.faitsDeCampagne) ||
+    valeur.narration.faitsDeCampagne.some(
+      (fait) =>
+        estObjet(fait) &&
+        typeof fait.id === "string" &&
+        fait.id.startsWith("bassins.nacelles."),
+    ) ||
+    !estObjet(valeur.hautPuits) ||
+    !estObjet(valeur.veilleBasse) ||
+    !estObjet(valeur.pilotage) ||
+    !estObjet(valeur.pilotage.economie) ||
+    !estObjet(valeur.pilotage.economie.stocks) ||
+    !estObjet(valeur.pilotage.economie.stocks.combustible) ||
+    !estObjet(valeur.pilotage.economie.stocks.eau)
+  ) {
+    return undefined;
+  }
+
+  const etatCourant = lireEtatAvecSchemaCourant(
+    {
+      ...valeur,
+      version: VERSION_SIMULATION_COURANTE,
+    },
+    true,
+    autoriserMarqueurHistoriqueSansFait,
+    true,
+  );
+  return etatCourant === undefined
+    ? undefined
+    : (valeur as unknown as EtatCampagneV6);
+}
+
+export function lireEtatV6(
+  valeur: unknown,
+): EtatCampagneV6 | undefined {
+  return lireEtatAvecSchemaV6(valeur);
+}
+
+export function lireSnapshotV6(
+  valeur: unknown,
+): EtatCampagneV6 | undefined {
+  return lireEtatAvecSchemaV6(valeur, true);
 }
 
 function lireEtatAvecSchemaV5(
@@ -2307,6 +2554,7 @@ export function lireEtatAvantRoutes(
     routes,
     creerEtatDesExpeditionsInitial(),
     creerEtatDeHautPuitsInitial(),
+    creerEtatInitialDeVeilleBasse(),
     false,
   );
   return materiaux.quantite !== materiauxHistoriques.quantite ||
@@ -2326,6 +2574,7 @@ export function projeterEtatAvantRoutesHistorique(
     creerEtatDesRoutesInitial(),
     creerEtatDesExpeditionsInitial(),
     creerEtatDeHautPuitsInitial(),
+    creerEtatInitialDeVeilleBasse(),
     false,
   );
   return {

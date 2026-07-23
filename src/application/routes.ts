@@ -8,6 +8,10 @@ import {
   type IdentifiantDeTroncon,
   type RenseignementDeRoute,
 } from "../simulation/routes";
+import {
+  calculerOffreDesNacelles,
+  routeAvalDesBassinsEstPreparee,
+} from "../simulation/nacelles";
 
 export interface RenseignementDeRouteProjete {
   readonly source: string;
@@ -267,14 +271,26 @@ export function projeterAtlas(
     (candidat) => candidat.statut === "en-cours",
   );
   const dernierJalon = etat.routes.jalons.at(-1);
+  const offreDesNacelles = calculerOffreDesNacelles({
+    position: etat.routes.position,
+    hautPuits: etat.hautPuits,
+    veilleBasse: etat.veilleBasse,
+    faits: etat.narration.faitsDeCampagne.map((fait) => fait.id),
+  });
   const tronconsAffiches =
     engagement === undefined
       ? listerTronconsEngageables(etat.routes).map((possibilite) => ({
           ...possibilite,
-          engageable: commandeEstAutorisee({
-            type: "engagement-de-route.confirmer",
-            tronconId: possibilite.troncon.id,
-          }),
+          engageable:
+            routeAvalDesBassinsEstPreparee(
+              possibilite.troncon.id,
+              etat.narration.evenementActif,
+              etat.narration.faitsDeCampagne.map((fait) => fait.id),
+            ) &&
+            commandeEstAutorisee({
+              type: "engagement-de-route.confirmer",
+              tronconId: possibilite.troncon.id,
+            }),
         }))
       : [
           {
@@ -323,6 +339,10 @@ export function projeterAtlas(
           },
     troncons: tronconsAffiches.map(
       ({ troncon, destination, engageable }) => {
+        const offreContextuelle =
+          offreDesNacelles?.tronconId === troncon.id
+            ? offreDesNacelles
+            : null;
         const renseignementsPersistes = etat.routes.renseignements.filter(
           (renseignement) => renseignement.tronconId === troncon.id,
         );
@@ -330,6 +350,9 @@ export function projeterAtlas(
           ...renseignementsPersistes,
           ...troncon.renseignements.filter(
             (renseignement) =>
+              (offreContextuelle === null ||
+                renseignement.id ===
+                  offreContextuelle.renseignementId) &&
               !renseignementsPersistes.some(
                 (persistant) => persistant.id === renseignement.id,
               ),
@@ -339,7 +362,8 @@ export function projeterAtlas(
         const sourceDeLIncertitude = renseignements.find(
           (renseignement) =>
             renseignement.id ===
-            troncon.consommationIncertaine.renseignementId,
+            (offreContextuelle?.renseignementId ??
+              troncon.consommationIncertaine.renseignementId),
         );
         if (sourceDeLIncertitude === undefined) {
           throw new Error(
@@ -347,10 +371,30 @@ export function projeterAtlas(
           );
         }
         const duree = formaterDuree(troncon.dureeSecondes, langue);
-        const consommation = `${troncon.consommationConnue.quantite} L ${
-          langue === "fr" ? "de " : "of "
-        }${libelles.combustible}`;
+        const consommation =
+          offreContextuelle === null
+            ? `${troncon.consommationConnue.quantite} L ${
+                langue === "fr" ? "de " : "of "
+              }${libelles.combustible}`
+            : `${offreContextuelle.consommations.combustible} L ${
+                langue === "fr" ? "de " : "of "
+              }${libelles.combustible} · ${
+                offreContextuelle.consommations.eau
+              } L ${langue === "fr" ? "d’" : "of "}${libelles.eau}`;
         const eau = `${troncon.consommationIncertaine.minimum}–${troncon.consommationIncertaine.maximum} L`;
+        const optionsContextuelles =
+          offreContextuelle === null
+            ? []
+            : offreContextuelle.options.map((option) => {
+                const libelle =
+                  troncon.libellesDOptions?.[langue]?.[option];
+                if (libelle === undefined) {
+                  throw new Error(
+                    `Le libellé de l’option « ${option} » du Tronçon « ${troncon.id} » n’est pas chargé.`,
+                  );
+                }
+                return libelle;
+              });
         return {
           id: troncon.id,
           destination: nommerLieu(destination, langue),
@@ -378,24 +422,29 @@ export function projeterAtlas(
               ...(troncon.consequenceDuHalo === undefined
                 ? []
                 : [troncon.consequenceDuHalo[langue]]),
+              ...optionsContextuelles,
             ],
             incertitudes: [
-              {
-                valeur:
-                  langue === "fr"
-                    ? `${libelles.eau} estimée : ${eau}`
-                    : `Estimated ${libelles.eau.toLowerCase()}: ${eau}`,
-                source: projeterRenseignement(
-                  sourceDeLIncertitude,
-                  secondeCourante,
-                  langue,
-                ).source,
-                age: formaterAge(
-                  sourceDeLIncertitude.releveA,
-                  secondeCourante,
-                  langue,
-                ),
-              },
+              ...(offreContextuelle === null
+                ? [
+                    {
+                      valeur:
+                        langue === "fr"
+                          ? `${libelles.eau} estimée : ${eau}`
+                          : `Estimated ${libelles.eau.toLowerCase()}: ${eau}`,
+                      source: projeterRenseignement(
+                        sourceDeLIncertitude,
+                        secondeCourante,
+                        langue,
+                      ).source,
+                      age: formaterAge(
+                        sourceDeLIncertitude.releveA,
+                        secondeCourante,
+                        langue,
+                      ),
+                    },
+                  ]
+                : []),
             ],
           },
         };

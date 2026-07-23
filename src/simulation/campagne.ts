@@ -97,6 +97,10 @@ import {
   type EtatDeVeilleBasse,
   type EvenementDeVeilleBasse,
 } from "./veilleBasse";
+import {
+  calculerOffreDesNacelles,
+  routeAvalDesBassinsEstPreparee,
+} from "./nacelles";
 
 export type { GraineDeCampagne } from "./graine";
 export const IDENTIFIANTS_PLATEFORMES_MOBILES =
@@ -354,6 +358,12 @@ function declencherSuiteNarrativeDeLaDemonstration(
     if (premierJalon !== undefined) {
       return premierJalon;
     }
+  }
+  if (
+    etat.routes.position === "relais-des-vannes" &&
+    trouverEngagementDeRouteActif(etat.routes) === undefined
+  ) {
+    return declencherEvenement(etat, "relais-des-nacelles");
   }
   return etat.routes.position === "haut-puits" &&
     trouverEngagementDeRouteActif(etat.routes) === undefined
@@ -740,6 +750,9 @@ function choisirDansEvenement(
 export function appliquerCommande(
   etat: EtatCampagne,
   commande: CommandeCampagne,
+  options: {
+    readonly coutsDesNacelles?: "historiques-v6";
+  } = {},
 ): TransitionDeCampagne {
   const checkpointDeCriseRequis = criseAttendSonCheckpoint(
     etat.crises,
@@ -1165,17 +1178,56 @@ export function appliquerCommande(
         "La Halte doit être repliée et tout Chantier terminé avant une traversée.",
       );
     }
+    if (
+      options.coutsDesNacelles !== "historiques-v6" &&
+      !routeAvalDesBassinsEstPreparee(
+        commande.tronconId,
+        etat.narration.evenementActif,
+        etat.narration.faitsDeCampagne.map((fait) => fait.id),
+      )
+    ) {
+      throw new Error(
+        "Le récit de la branche doit être résolu avant cet Engagement irréversible.",
+      );
+    }
+    const offreDesNacelles =
+      options.coutsDesNacelles === "historiques-v6"
+        ? null
+        : calculerOffreDesNacelles({
+            position: etat.routes.position,
+            hautPuits: etat.hautPuits,
+            veilleBasse: etat.veilleBasse,
+            faits: etat.narration.faitsDeCampagne.map((fait) => fait.id),
+          });
+    const consommationsDesNacelles =
+      offreDesNacelles?.tronconId === commande.tronconId
+        ? offreDesNacelles.consommations
+        : undefined;
     const transition = confirmerEngagementDeRoute(
       etat.routes,
       commande.tronconId,
       etat.tempsDuConvoi.secondes,
+      consommationsDesNacelles,
     );
+    const routesApresEngagement =
+      consommationsDesNacelles === undefined
+        ? transition.etat
+        : {
+            ...transition.etat,
+            etatsReels: {
+              ...transition.etat.etatsReels,
+              "nacelles-de-veille-basse":
+                transition.etat.etatsReels[
+                  "nacelles-de-veille-basse"
+                ] ?? "degrade",
+            },
+          };
     const troncon = trouverTronconDeRoute(commande.tronconId);
     const stocks = etat.pilotage.economie.stocks;
     return {
       etat: {
         ...etat,
-        routes: transition.etat,
+        routes: routesApresEngagement,
         pilotage: {
           ...etat.pilotage,
           economie: {
@@ -1186,11 +1238,13 @@ export function appliquerCommande(
                 "combustible",
                 stocks.combustible,
                 troncon,
+                consommationsDesNacelles,
               ),
               eau: appliquerConsommationDeRouteAUnStock(
                 "eau",
                 stocks.eau,
                 troncon,
+                consommationsDesNacelles,
               ),
             },
           },

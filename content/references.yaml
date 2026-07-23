@@ -12,6 +12,8 @@ acteurs:
   - techniciens-veille-basse
   - pelerins-de-cendre
   - hospice-du-sillon
+  - nacelliers-des-vannes
+  - frein-magnetique-des-nacelles
 quartiers:
   - intendance
   - foyers
@@ -22,11 +24,13 @@ fenetres:
   - prologue-enchaine
   - premier-jalon-bassins-fendus
   - halte-haut-puits
+  - relais-des-nacelles
 lieux:
   - halte-du-puits-sec
   - haut-puits
   - veille-basse
   - hospice-du-sillon
+  - relais-des-vannes
 destinations_echo:
   - journal-de-campagne
 faits:
@@ -58,6 +62,15 @@ faits:
   - bassins.haut-puits.arche-documentee
   - bassins.haut-puits.ilyana-garante
   - bassins.haut-puits.ilyana-contredite
+  - bassins.nacelles.accord-regional
+  - bassins.nacelles.passage-restreint
+  - bassins.nacelles.cible-frein-balisee
+  - bassins.nacelles.cible-frein-consignee
+  - bassins.nacelles.frein-reaccorde
+  - bassins.nacelles.frein-transforme-clandestinement
+  - bassins.nacelles.trace-laiton-persistante
+  - bassins.nacelles.conseil-passage-partage
+  - bassins.nacelles.conseil-maintenance-commune
   - compagnon.ilyana-voss.affectee-intendance
   - conseil.premiere-veille.circuit-securise
   - conseil.premiere-veille.distribution-maintenue

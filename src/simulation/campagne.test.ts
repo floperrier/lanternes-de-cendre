@@ -15,7 +15,7 @@ describe("Graine de campagne", () => {
     const etat = creerCampagneInitiale("CENDRE-01");
 
     expect(JSON.parse(JSON.stringify(etat))).toEqual({
-      version: 6,
+      version: 7,
       graine: "CENDRE-01",
       tempsDuConvoi: {
         secondes: 0,
@@ -141,6 +141,7 @@ describe("Graine de campagne", () => {
           "chaussee-de-veille-basse": "degrade",
           "chemin-des-vanniers": "praticable",
           "chenal-des-vannes": "praticable",
+          "nacelles-de-veille-basse": "degrade",
         },
         engagements: [],
         jalons: [],
@@ -473,7 +474,7 @@ describe("parcours narratif de la Démonstration", () => {
     ]);
   });
 
-  it("laisse le noyau engager un deuxième Tronçon de route sans connaître l’offre commerciale", () => {
+  it("refuse le deuxième Tronçon tant que le récit irréversible de la branche reste actif", () => {
     let etat = creerCampagneInitiale("CENDRE-01");
     etat = appliquerCommande(etat, {
       type: "engagement-de-route.confirmer",
@@ -488,16 +489,13 @@ describe("parcours narratif de la Démonstration", () => {
       secondesReelles: 90,
     }).etat;
 
-    const transition = appliquerCommande(etat, {
-      type: "engagement-de-route.confirmer",
-      tronconId: "chemin-des-vanniers",
-    });
-
-    expect(transition.etat.routes.engagements.at(-1)).toMatchObject({
-      tronconId: "chemin-des-vanniers",
-      origine: "haut-puits",
-      destination: "les-vanniers",
-      statut: "en-cours",
-    });
+    expect(() =>
+      appliquerCommande(etat, {
+        type: "engagement-de-route.confirmer",
+        tronconId: "chemin-des-vanniers",
+      }),
+    ).toThrow(
+      "Le récit de la branche doit être résolu avant cet Engagement irréversible.",
+    );
   });
 });

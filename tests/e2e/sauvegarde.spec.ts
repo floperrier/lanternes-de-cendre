@@ -26,7 +26,7 @@ test("IndexedDB applique le même contrat tournant et protège les archives inco
       nomDeBase,
       nombreDeSnapshots: 2,
     });
-    const creerArchive = (id: string, version = 6) => ({
+    const creerArchive = (id: string, version = 7) => ({
       id,
       version,
       contenu: JSON.stringify({ id, version }),
@@ -50,12 +50,12 @@ test("IndexedDB applique le même contrat tournant et protège les archives inco
       JSON.stringify({
         format: "lanternes-de-cendre.sauvegarde",
         id: "meme-id",
-        version: 2,
+        version: 99,
         versions: { simulation: 7 },
         padding,
       });
-    const archiveA = creerArchiveCollision("16siydtuodeik");
-    const archiveB = creerArchiveCollision("1qk2bgrpzapgu");
+    const archiveA = creerArchiveCollision("s2f4u01pnlstk16tf11t");
+    const archiveB = creerArchiveCollision("e118n8qo1ztft07ov8");
     const importsConcurrents = await Promise.all([
       moduleSession.importerCampagne(port, archiveA),
       moduleSession.importerCampagne(port, archiveB),
@@ -93,39 +93,39 @@ test("IndexedDB applique le même contrat tournant et protège les archives inco
     "incompatible",
     "incompatible",
   ]);
-  expect(resultat.empreintes).toEqual(["4014d717", "4014d717"]);
+  expect(resultat.empreintes).toEqual(["15dddfc6", "15dddfc6"]);
   const archivesAttendues = [
     {
       id: "troisieme",
-      version: 6,
-      contenu: JSON.stringify({ id: "troisieme", version: 6 }),
+      version: 7,
+      contenu: JSON.stringify({ id: "troisieme", version: 7 }),
     },
     {
       id: "deuxieme",
-      version: 6,
-      contenu: JSON.stringify({ id: "deuxieme", version: 6 }),
+      version: 7,
+      contenu: JSON.stringify({ id: "deuxieme", version: 7 }),
     },
     {
       id: "meme-id",
-      version: 2,
+      version: 99,
       contenu: JSON.stringify({
         format: "lanternes-de-cendre.sauvegarde",
         id: "meme-id",
-        version: 2,
+        version: 99,
         versions: { simulation: 7 },
-        padding: "1qk2bgrpzapgu",
+        padding: "e118n8qo1ztft07ov8",
       }),
       protegeeDeLaRotation: true,
     },
     {
       id: "meme-id",
-      version: 2,
+      version: 99,
       contenu: JSON.stringify({
         format: "lanternes-de-cendre.sauvegarde",
         id: "meme-id",
-        version: 2,
+        version: 99,
         versions: { simulation: 7 },
-        padding: "16siydtuodeik",
+        padding: "s2f4u01pnlstk16tf11t",
       }),
       protegeeDeLaRotation: true,
     },

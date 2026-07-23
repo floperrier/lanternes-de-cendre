@@ -53,6 +53,28 @@ function atteindreHautPuitsAvecTroisLitresDEau() {
   }).etat;
 }
 
+function acheverLeRecitDeHautPuits(
+  etatInitial: ReturnType<typeof creerCampagneInitiale>,
+) {
+  let etat = etatInitial;
+  for (const [evenementId, choixId] of [
+    ["bassins.haut-puits.vanniers-du-panache", "confiner-boues"],
+    ["bassins.haut-puits.boues-du-decanteur", "consigner-decanteur"],
+    ["bassins.haut-puits.ilyana-et-la-vanne", "lui-confier-registre"],
+  ] as const) {
+    etat = appliquerCommande(etat, {
+      type: "temps-du-convoi.ecouler",
+      secondesReelles: 0,
+    }).etat;
+    etat = appliquerCommande(etat, {
+      type: "evenement-narratif.choisir",
+      evenementId,
+      choixId,
+    }).etat;
+  }
+  return etat;
+}
+
 describe("validation de Haut-Puits", () => {
   it("accepte les états initiaux et les transitions causales du Marché", () => {
     const initial = creerEtatDeHautPuitsInitial();
@@ -257,6 +279,7 @@ describe("validation de Haut-Puits", () => {
       evenementId: "bassins.haut-puits.pacte-des-citernes",
       choixId: "garantir-autonomie",
     }).etat;
+    etat = acheverLeRecitDeHautPuits(etat);
     etat = appliquerCommande(etat, {
       type: "temps-du-convoi.ecouler",
       secondesReelles: 17_760,

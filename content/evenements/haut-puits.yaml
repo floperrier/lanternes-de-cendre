@@ -14,7 +14,7 @@ evenements:
             - bassins.haut-puits.partage-promis
             - bassins.haut-puits.reserves-protegees
       interdites: []
-    periode_eligibilite: { debut: 360, fin: 24000 }
+    periode_eligibilite: { debut: 360, fin: 2147483647 }
     priorite: 100
     epuisement: unique
     acteurs: [porte-lanterne, puits-libres, habitants-haut-puits]
@@ -77,7 +77,7 @@ evenements:
             - bassins.haut-puits.pacte-partage
             - bassins.haut-puits.pacte-autonomie
       interdites: []
-    periode_eligibilite: { debut: 360, fin: 24000 }
+    periode_eligibilite: { debut: 360, fin: 2147483647 }
     priorite: 90
     epuisement: unique
     acteurs: [porte-lanterne, puits-libres, habitants-haut-puits]
@@ -143,7 +143,7 @@ evenements:
             - bassins.haut-puits.panache-confine
             - bassins.haut-puits.panache-derive
       interdites: []
-    periode_eligibilite: { debut: 360, fin: 24000 }
+    periode_eligibilite: { debut: 360, fin: 2147483647 }
     priorite: 80
     epuisement: unique
     acteurs: [porte-lanterne, equipes-entretien, habitants-haut-puits]
@@ -203,7 +203,7 @@ evenements:
             - bassins.haut-puits.decanteur-documente
             - bassins.haut-puits.arche-documentee
       interdites: []
-    periode_eligibilite: { debut: 360, fin: 24000 }
+    periode_eligibilite: { debut: 360, fin: 2147483647 }
     priorite: 70
     epuisement: unique
     acteurs: [porte-lanterne, ilyana-voss, habitants-haut-puits]
