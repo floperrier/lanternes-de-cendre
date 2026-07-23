@@ -2961,7 +2961,6 @@ export default {
           "ilyana-voss": "Ilyana Voss",
           "puits-libres": "Puits Libres",
           "habitants-haut-puits": "Habitants de Haut-Puits",
-          "habitants-des-bassins": "Habitants des Bassins",
           "eclaireurs-puits-libres": "Éclaireurs des Puits Libres"
         }
       }
@@ -3002,7 +3001,6 @@ export default {
           "ilyana-voss": "Ilyana Voss",
           "puits-libres": "Free Wells",
           "habitants-haut-puits": "High Well inhabitants",
-          "habitants-des-bassins": "People of the Basins",
           "eclaireurs-puits-libres": "Free Wells Scouts"
         }
       }

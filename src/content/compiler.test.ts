@@ -30,6 +30,11 @@ import provenanceTramePompeFiltres from "../../docs/assets/trame-pompe-filtres.p
 import provenanceTrameTraverseReservoir from "../../docs/assets/trame-traverse-reservoir.provenance.json?raw";
 import provenanceTrameTraverseGalerie from "../../docs/assets/trame-traverse-galerie.provenance.json?raw";
 import provenanceTrameTraverseMaelys from "../../docs/assets/trame-traverse-maelys.provenance.json?raw";
+import provenanceTrameMarcheOfficiel from "../../docs/assets/trame-marche-officiel.provenance.json?raw";
+import provenanceTrameMarcheClandestin from "../../docs/assets/trame-marche-clandestin.provenance.json?raw";
+import provenanceTrameSignalInterface from "../../docs/assets/trame-signal-interface.provenance.json?raw";
+import provenanceTrameSignalEcho from "../../docs/assets/trame-signal-echo.provenance.json?raw";
+import provenanceTrameSignalIlyana from "../../docs/assets/trame-signal-ilyana.provenance.json?raw";
 import provenanceFiltres from "../../docs/assets/prologue-filtres-de-la-veille.provenance.json?raw";
 import provenanceIlyana from "../../docs/assets/prologue-ilyana-au-clapet.provenance.json?raw";
 import provenanceReponse from "../../docs/assets/prologue-reponse-du-phare.provenance.json?raw";
@@ -108,6 +113,16 @@ const sourcesValides: SourcesDuCatalogue = {
       provenanceTrameTraverseGalerie,
     "docs/assets/trame-traverse-maelys.provenance.json":
       provenanceTrameTraverseMaelys,
+    "docs/assets/trame-marche-officiel.provenance.json":
+      provenanceTrameMarcheOfficiel,
+    "docs/assets/trame-marche-clandestin.provenance.json":
+      provenanceTrameMarcheClandestin,
+    "docs/assets/trame-signal-interface.provenance.json":
+      provenanceTrameSignalInterface,
+    "docs/assets/trame-signal-echo.provenance.json":
+      provenanceTrameSignalEcho,
+    "docs/assets/trame-signal-ilyana.provenance.json":
+      provenanceTrameSignalIlyana,
   },
   cheminDeProvenanceAsset: (chemin) =>
     chemin.startsWith("/api/commercial/assets/")
@@ -145,6 +160,11 @@ const sourcesValides: SourcesDuCatalogue = {
       "/api/commercial/assets/trame-traverse-reservoir.webp",
       "/api/commercial/assets/trame-traverse-galerie.webp",
       "/api/commercial/assets/trame-traverse-maelys.webp",
+      "/api/commercial/assets/trame-marche-officiel.webp",
+      "/api/commercial/assets/trame-marche-clandestin.webp",
+      "/api/commercial/assets/trame-signal-interface.webp",
+      "/api/commercial/assets/trame-signal-echo.webp",
+      "/api/commercial/assets/trame-signal-ilyana.webp",
     ].includes(chemin),
   empreinteAsset: (chemin) =>
     ({
@@ -208,6 +228,16 @@ const sourcesValides: SourcesDuCatalogue = {
         "388d4b27f7f16903ee66ba96bbf7a2c914a6124c5ad6c37578407e4ce8c7237d",
       "/api/commercial/assets/trame-traverse-maelys.webp":
         "9e3d5d12689026ca351135980f0ab7ff4f0f9d3d66a142a6b2b1dd8d05d7dbcb",
+      "/api/commercial/assets/trame-marche-officiel.webp":
+        "8c1895ebd7eab830471ee0563619413321d2409162abe0fe7c282eca9359b120",
+      "/api/commercial/assets/trame-marche-clandestin.webp":
+        "e09ff691de9ad52e14af96ef174355507cf7ab89a178d1018e31191e3fd316d2",
+      "/api/commercial/assets/trame-signal-interface.webp":
+        "2d726dbf3f1383f945f6041626255c6e437f65a86629fcbf0861670297832edd",
+      "/api/commercial/assets/trame-signal-echo.webp":
+        "bd84a33f788dd2378c92af72484a981709cbfa6757e8e8b5f4ffdf4e8832444e",
+      "/api/commercial/assets/trame-signal-ilyana.webp":
+        "e5bd7ec64459699fffc03747a5b06a1ab3829486c6b73697b7964f3acb7259a4",
     })[chemin] ?? "0".repeat(64),
   tailleAsset: () => 256_000,
 };

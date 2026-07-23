@@ -1861,6 +1861,13 @@ describe("sauvegarde portable", () => {
       };
       delete routes.etatsReels["embranchement-de-pompe-neuve"];
       delete routes.etatsReels["galerie-des-reservoirs"];
+      delete routes.etatsReels["rocade-du-marche"];
+      delete routes.etatsReels["voie-des-citernes"];
+      delete routes.etatsReels["ligne-du-signal-zero"];
+      delete routes.etatsReels["voie-des-contremaitres"];
+      delete routes.etatsReels["traverse-des-porteurs"];
+      delete routes.etatsReels["rocade-des-regulateurs"];
+      delete routes.etatsReels["derivation-des-puits"];
       historique.version = 3;
       return historique;
     };

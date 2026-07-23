@@ -829,6 +829,138 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
   await expect(
     pageTraverse.getByRole("region", { name: "Free Crossing" }),
   ).toContainText("Autonomous colony");
+
+  await activerAuClavier(
+    pageTraverse,
+    pageTraverse.getByRole("button", { name: "Français" }),
+  );
+  await activerAuClavier(
+    pageTraverse,
+    atlasTraverse.getByRole("button", {
+      name: "Étudier l’Engagement vers Voie des Citernes",
+    }),
+  );
+  await activerAuClavier(
+    pageTraverse,
+    pageTraverse
+      .getByRole("dialog", {
+        name: "Engagement vers Marché des Traverses",
+      })
+      .getByRole("button", {
+        name:
+          "Confirmer l’Engagement sans retour vers Marché des Traverses",
+      }),
+  );
+  await activerAuClavier(
+    pageTraverse,
+    pageTraverse.getByRole("button", { name: "Vitesse 4×" }),
+  );
+  await pageTraverse.clock.fastForward(165_000);
+
+  for (const [titre, choix] of [
+    [
+      "Les services de la voie principale",
+      "Céder une réserve d’Eau de refroidissement",
+    ],
+    [
+      "La bascule sans manifeste",
+      "Débrancher la transmission de la Bascule",
+    ],
+  ] as const) {
+    const evenement = pageTraverse.getByRole("region", { name: titre });
+    await expect(evenement.getByRole("img")).toBeVisible();
+    await activerAuClavier(
+      pageTraverse,
+      evenement.getByRole("button", { name: choix }),
+    );
+    await pageTraverse.clock.fastForward(1_000);
+  }
+
+  const marche = pageTraverse.getByRole("region", {
+    name: "Marché des Traverses",
+  });
+  await expect(marche).toContainText("Offre officielle épuisée");
+  await expect(marche).toContainText("Offre clandestine épuisée");
+  await expect(marche).toContainText(
+    "Bascule des manifestes · fil rompu et plombs déplacés",
+  );
+
+  await activerAuClavier(
+    pageTraverse,
+    atlasTraverse.getByRole("button", {
+      name: "Étudier l’Engagement vers Ligne de Signal-Zéro",
+    }),
+  );
+  await activerAuClavier(
+    pageTraverse,
+    pageTraverse
+      .getByRole("dialog", { name: "Engagement vers Signal-Zéro" })
+      .getByRole("button", {
+        name: "Confirmer l’Engagement sans retour vers Signal-Zéro",
+      }),
+  );
+  await activerAuClavier(
+    pageTraverse,
+    pageTraverse.getByRole("button", { name: "Vitesse 4×" }),
+  );
+  await pageTraverse.clock.fastForward(135_000);
+
+  for (const [titre, choix] of [
+    [
+      "L’interface aux deux fréquences",
+      "Lire la fréquence calibrée du Rail",
+    ],
+    [
+      "Les deux branches dans le verre",
+      "Graver les deux états sur une même plaque",
+    ],
+    [
+      "Ilyana et la Trace",
+      "Transmettre la Trace aux techniciens de Signal-Zéro",
+    ],
+  ] as const) {
+    const evenement = pageTraverse.getByRole("region", { name: titre });
+    await expect(evenement.getByRole("img")).toBeVisible();
+    await activerAuClavier(
+      pageTraverse,
+      evenement.getByRole("button", { name: choix }),
+    );
+    await pageTraverse.clock.fastForward(1_000);
+  }
+
+  const signalZero = pageTraverse.getByRole("region", {
+    name: "Signal-Zéro",
+  });
+  await expect(signalZero).toContainText(
+    "Fréquence du Rail lue · verrouillage lourd documenté",
+  );
+  await expect(signalZero).toContainText(
+    "Preuve transmise · attribution possible dès l’Aiguillage Zéro",
+  );
+  await expect(signalZero).toContainText(
+    "Charte de circulation partagée préparée",
+  );
+  await expect(signalZero).toContainText(
+    "Vol avec contournement préparé",
+  );
+  await pageTraverse.screenshot({
+    path: testInfo.outputPath("trame-signal-zero-mobile.png"),
+    fullPage: true,
+  });
+
+  await activerAuClavier(
+    pageTraverse,
+    pageTraverse.getByRole("button", { name: "English" }),
+  );
+  const zeroSignal = pageTraverse.getByRole("region", {
+    name: "Zero Signal",
+  });
+  await expect(zeroSignal).toContainText(
+    "Rail frequency read · heavy locking documented",
+  );
+  await expect(zeroSignal).toContainText(
+    "Evidence transmitted · attribution possible at Zero Junction",
+  );
   await navigateurTraverse.close();
 
   await page.screenshot({

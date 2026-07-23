@@ -16,7 +16,9 @@ export type IdentifiantDeLieu =
   | "barriere-neuve"
   | "grand-aiguillage"
   | "pompe-neuve"
-  | "traverse-libre";
+  | "traverse-libre"
+  | "marche-des-traverses"
+  | "signal-zero";
 
 export type IdentifiantDeTroncon =
   | "digue-des-puits"
@@ -32,7 +34,14 @@ export type IdentifiantDeTroncon =
   | "rampe-de-barriere-neuve"
   | "voie-des-ponts-lourds"
   | "embranchement-de-pompe-neuve"
-  | "galerie-des-reservoirs";
+  | "galerie-des-reservoirs"
+  | "rocade-du-marche"
+  | "voie-des-citernes"
+  | "ligne-du-signal-zero"
+  | "voie-des-contremaitres"
+  | "traverse-des-porteurs"
+  | "rocade-des-regulateurs"
+  | "derivation-des-puits";
 
 export interface DefinitionDeLieu {
   readonly id: IdentifiantDeLieu;
@@ -63,6 +72,10 @@ export interface TronconDeRoute {
   };
   readonly renseignements: readonly RenseignementDeRoute[];
   readonly originesAutorisees?: readonly IdentifiantDeLieu[];
+  readonly engagementsPrealables?: readonly {
+    readonly tronconId: IdentifiantDeTroncon;
+    readonly destination: IdentifiantDeLieu;
+  }[];
   readonly libellesDOptions?: Readonly<
     Record<"fr" | "en", Readonly<Record<string, string>>>
   >;
@@ -313,6 +326,8 @@ const IDENTIFIANTS_DE_LIEUX = new Set<IdentifiantDeLieu>([
   "grand-aiguillage",
   "pompe-neuve",
   "traverse-libre",
+  "marche-des-traverses",
+  "signal-zero",
 ]);
 const IDENTIFIANTS_DE_TRONCONS = new Set<IdentifiantDeTroncon>([
   "digue-des-puits",
@@ -329,6 +344,13 @@ const IDENTIFIANTS_DE_TRONCONS = new Set<IdentifiantDeTroncon>([
   "voie-des-ponts-lourds",
   "embranchement-de-pompe-neuve",
   "galerie-des-reservoirs",
+  "rocade-du-marche",
+  "voie-des-citernes",
+  "ligne-du-signal-zero",
+  "voie-des-contremaitres",
+  "traverse-des-porteurs",
+  "rocade-des-regulateurs",
+  "derivation-des-puits",
 ]);
 
 export function installerContenuPremiumDesRoutes(
@@ -370,6 +392,14 @@ export function installerContenuPremiumDesRoutes(
             (id) =>
               IDENTIFIANTS_DE_LIEUX.has(id) &&
               troncon.extremites.includes(id),
+          ))) ||
+      (troncon.engagementsPrealables !== undefined &&
+        (!Array.isArray(troncon.engagementsPrealables) ||
+          troncon.engagementsPrealables.length === 0 ||
+          !troncon.engagementsPrealables.every(
+            ({ tronconId, destination }) =>
+              IDENTIFIANTS_DE_TRONCONS.has(tronconId) &&
+              IDENTIFIANTS_DE_LIEUX.has(destination),
           ))) ||
       (troncon.libellesDOptions !== undefined &&
         (!troncon.libellesDOptions.fr ||
@@ -510,7 +540,18 @@ export function listerTronconsEngageables(etat: EtatDesRoutes): readonly {
     const condamneParLeFront = etat.jalons.some(
       (jalon) => jalon.tronconId === troncon.id,
     );
-    return destination === undefined || condamneParLeFront
+    const engagementsPrealablesSatisfaits =
+      troncon.engagementsPrealables?.every((requis) =>
+        etat.engagements.some(
+          (engagement) =>
+            engagement.statut === "termine" &&
+            engagement.tronconId === requis.tronconId &&
+            engagement.destination === requis.destination,
+        ),
+      ) ?? true;
+    return destination === undefined ||
+      condamneParLeFront ||
+      !engagementsPrealablesSatisfaits
       ? []
       : [{ troncon, destination }];
   });

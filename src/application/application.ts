@@ -342,11 +342,17 @@ function projeterEvenementNarratif(
     choix: evenement.choix
       .filter(
         (choix) =>
-          evenement.id !==
+          (evenement.id !==
             "bassins.deversoir.le-chassis-des-bassins" ||
-          choix.id !== "sceller-transformation" ||
-          (etat.hautPuits.projetRegional?.statut === "retenu" &&
-            etat.pilotage.economie.stocks.materiaux.quantite >= 12),
+            choix.id !== "sceller-transformation" ||
+            (etat.hautPuits.projetRegional?.statut === "retenu" &&
+              etat.pilotage.economie.stocks.materiaux.quantite >=
+                12)) &&
+          (!evenement.id.startsWith("trame.marche.") ||
+            choixNarratifEstDisponible(etat, evenement.id, {
+              id: choix.id,
+              effets: [],
+            })),
       )
       .map((choix) => {
         const textesDuChoix = textes.choix[choix.id];

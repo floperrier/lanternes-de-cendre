@@ -155,3 +155,28 @@ assets:
     alternative: evenement.traverse.maelys.asset.alt
     contient_texte: false
     provenance: docs/assets/trame-traverse-maelys.provenance.json
+  - id: trame.marche.les-services-de-la-voie-principale
+    fichier: /api/commercial/assets/trame-marche-officiel.webp
+    alternative: evenement.convergence.officiel.asset.alt
+    contient_texte: false
+    provenance: docs/assets/trame-marche-officiel.provenance.json
+  - id: trame.marche.la-bascule-sans-manifeste
+    fichier: /api/commercial/assets/trame-marche-clandestin.webp
+    alternative: evenement.convergence.clandestin.asset.alt
+    contient_texte: false
+    provenance: docs/assets/trame-marche-clandestin.provenance.json
+  - id: trame.signal-zero.l-interface-aux-deux-frequences
+    fichier: /api/commercial/assets/trame-signal-interface.webp
+    alternative: evenement.convergence.interface.asset.alt
+    contient_texte: false
+    provenance: docs/assets/trame-signal-interface.provenance.json
+  - id: trame.signal-zero.les-deux-branches-dans-le-verre
+    fichier: /api/commercial/assets/trame-signal-echo.webp
+    alternative: evenement.convergence.echos.asset.alt
+    contient_texte: false
+    provenance: docs/assets/trame-signal-echo.provenance.json
+  - id: trame.signal-zero.ilyana-et-la-trace
+    fichier: /api/commercial/assets/trame-signal-ilyana.webp
+    alternative: evenement.convergence.ilyana.asset.alt
+    contient_texte: false
+    provenance: docs/assets/trame-signal-ilyana.provenance.json

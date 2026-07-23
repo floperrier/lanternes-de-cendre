@@ -1,0 +1,322 @@
+version: 1
+evenements:
+  - id: trame.marche.les-services-de-la-voie-principale
+    famille: conflits-regionaux
+    themes: [marche-borne, republique-du-rail, piece-de-regulation]
+    fonction: confronter-l-offre-officielle-aux-etats-de-grand-aiguillage
+    fenetre: marche-des-traverses
+    conditions:
+      requises:
+        - type: lieu-present
+          lieu: marche-des-traverses
+      interdites: []
+    periode_eligibilite: { debut: 1200, fin: 2147483647 }
+    priorite: 150
+    epuisement: unique
+    acteurs: [porte-lanterne, commis-du-marche, republique-du-rail]
+    origine: { cle: evenement.convergence.officiel.origine, variables: [] }
+    libelle_intentions: { cle: evenement.ruban.intentions, variables: [] }
+    titre: { cle: evenement.convergence.officiel.titre, variables: [] }
+    presentation: { cle: evenement.convergence.officiel.presentation, variables: [] }
+    informations:
+      - source: commis-du-marche
+        texte: { cle: evenement.convergence.officiel.information, variables: [] }
+    faits_lus:
+      - trame.grand-aiguillage.train-outil-annonce
+      - trame.grand-aiguillage.reparation-locale-ouverte
+    choix:
+      - id: acheter-coupleur-officiel
+        intention: { cle: evenement.convergence.officiel.choix.coupleur, variables: [] }
+        couts_connus:
+          - { cle: evenement.convergence.officiel.choix.coupleur.cout, variables: [] }
+        effets:
+          - { type: stock.modifier, stock: materiaux, valeur: -6 }
+        faits_produits:
+          - id: trame.marche.coupleur-officiel-acquis
+            cible: piece-de-regulation
+      - id: ceder-reserve-refroidissement
+        intention: { cle: evenement.convergence.officiel.choix.reserve, variables: [] }
+        couts_connus:
+          - { cle: evenement.convergence.officiel.choix.reserve.cout, variables: [] }
+        effets:
+          - { type: stock.modifier, stock: eau, valeur: -8 }
+        faits_produits:
+          - id: trame.marche.reserve-echangee
+            cible: commis-du-marche
+    consequence_differee: { type: offre-officielle-epuisee, cible: marche-des-traverses }
+    recuperation: { type: deux-moyens-d-echange }
+    variantes:
+      - id: train-outil
+        condition: fait-present:trame.grand-aiguillage.train-outil-annonce
+        presentation: { cle: evenement.convergence.officiel.variante.train, variables: [] }
+      - id: ateliers
+        condition: fait-present:trame.grand-aiguillage.reparation-locale-ouverte
+        presentation: { cle: evenement.convergence.officiel.variante.ateliers, variables: [] }
+      - id: standard
+        condition: toujours
+        presentation: { cle: evenement.convergence.officiel.variante.standard, variables: [] }
+    destination_echo: journal-de-campagne
+    asset: trame.marche.les-services-de-la-voie-principale
+
+  - id: trame.marche.la-bascule-sans-manifeste
+    famille: conflits-regionaux
+    themes: [marche-borne, puits-libres, intervention-clandestine, trace]
+    fonction: rendre-la-clandestinite-concrete-et-attribuable
+    fenetre: marche-des-traverses
+    conditions:
+      requises:
+        - type: lieu-present
+          lieu: marche-des-traverses
+        - type: un-des-faits-present
+          faits:
+            - trame.marche.coupleur-officiel-acquis
+            - trame.marche.reserve-echangee
+      interdites: []
+    periode_eligibilite: { debut: 1200, fin: 2147483647 }
+    priorite: 140
+    epuisement: unique
+    acteurs: [porte-lanterne, porteurs-des-puits-libres, habitants-traverse-libre]
+    origine: { cle: evenement.convergence.clandestin.origine, variables: [] }
+    libelle_intentions: { cle: evenement.ruban.intentions, variables: [] }
+    titre: { cle: evenement.convergence.clandestin.titre, variables: [] }
+    presentation: { cle: evenement.convergence.clandestin.presentation, variables: [] }
+    informations:
+      - source: porteurs-des-puits-libres
+        texte: { cle: evenement.convergence.clandestin.information, variables: [] }
+    faits_lus:
+      - trame.marche.coupleur-officiel-acquis
+      - trame.marche.reserve-echangee
+      - trame.pompe-neuve.filtres-livres-discretement
+      - trame.pompe-neuve.livraison-inscrite
+    choix:
+      - id: acheter-filtres-sans-marque
+        intention: { cle: evenement.convergence.clandestin.choix.filtres, variables: [] }
+        couts_connus:
+          - { cle: evenement.convergence.clandestin.choix.filtres.cout, variables: [] }
+        effets:
+          - { type: stock.modifier, stock: remedes, valeur: -2 }
+        faits_produits:
+          - id: trame.marche.filtres-sans-marque-acquis
+            cible: traverse-libre
+      - id: intervenir-sur-bascule
+        intention: { cle: evenement.convergence.clandestin.choix.intervention, variables: [] }
+        couts_connus:
+          - { cle: evenement.convergence.clandestin.choix.intervention.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - id: trame.marche.trace-bascule-clandestine
+            cible: bascule-des-manifestes
+    consequence_differee: { type: trace-attribuable, cible: bascule-des-manifestes }
+    recuperation: { type: echange-ou-intervention }
+    variantes:
+      - id: traverse-aidee
+        condition: fait-present:trame.pompe-neuve.filtres-livres-discretement
+        presentation: { cle: evenement.convergence.clandestin.variante.aidee, variables: [] }
+      - id: traverse-publique
+        condition: fait-present:trame.pompe-neuve.livraison-inscrite
+        presentation: { cle: evenement.convergence.clandestin.variante.publique, variables: [] }
+      - id: standard
+        condition: toujours
+        presentation: { cle: evenement.convergence.clandestin.variante.standard, variables: [] }
+    destination_echo: journal-de-campagne
+    asset: trame.marche.la-bascule-sans-manifeste
+
+  - id: trame.signal-zero.l-interface-aux-deux-frequences
+    famille: mystere-des-phares
+    themes: [ligne-zero, piece-de-regulation, interface]
+    fonction: reveler-la-compatibilite-sans-imposer-d-itineraire
+    fenetre: signal-zero
+    conditions:
+      requises:
+        - type: lieu-present
+          lieu: signal-zero
+        - type: un-des-faits-present
+          faits:
+            - trame.marche.filtres-sans-marque-acquis
+            - trame.marche.trace-bascule-clandestine
+      interdites: []
+    periode_eligibilite: { debut: 1200, fin: 2147483647 }
+    priorite: 130
+    epuisement: unique
+    acteurs: [porte-lanterne, techniciens-signal-zero, ligne-zero]
+    origine: { cle: evenement.convergence.interface.origine, variables: [] }
+    libelle_intentions: { cle: evenement.ruban.intentions, variables: [] }
+    titre: { cle: evenement.convergence.interface.titre, variables: [] }
+    presentation: { cle: evenement.convergence.interface.presentation, variables: [] }
+    informations:
+      - source: techniciens-signal-zero
+        texte: { cle: evenement.convergence.interface.information, variables: [] }
+    faits_lus:
+      - trame.marche.filtres-sans-marque-acquis
+      - trame.marche.trace-bascule-clandestine
+      - bassins.deversoir.ligne-zero-relevee
+    choix:
+      - id: lire-frequence-du-rail
+        intention: { cle: evenement.convergence.interface.choix.rail, variables: [] }
+        couts_connus:
+          - { cle: evenement.convergence.interface.choix.rail.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - id: trame.signal-zero.interface-rail-lue
+            cible: interface-de-la-ligne-zero
+      - id: lire-frequence-des-puits
+        intention: { cle: evenement.convergence.interface.choix.puits, variables: [] }
+        couts_connus:
+          - { cle: evenement.convergence.interface.choix.puits.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - id: trame.signal-zero.interface-libre-lue
+            cible: interface-de-la-ligne-zero
+    consequence_differee: { type: informations-de-regulation, cible: piece-de-regulation }
+    recuperation: { type: deux-frequences-compatibles }
+    variantes:
+      - id: ligne-zero
+        condition: fait-present:bassins.deversoir.ligne-zero-relevee
+        presentation: { cle: evenement.convergence.interface.variante.ligne-zero, variables: [] }
+      - id: standard
+        condition: toujours
+        presentation: { cle: evenement.convergence.interface.variante.standard, variables: [] }
+    destination_echo: journal-de-campagne
+    asset: trame.signal-zero.l-interface-aux-deux-frequences
+
+  - id: trame.signal-zero.les-deux-branches-dans-le-verre
+    famille: consequences-systemiques
+    themes: [echos, grand-aiguillage, traverse-libre, climax]
+    fonction: convertir-les-etats-des-branches-en-options-du-climax
+    fenetre: signal-zero
+    conditions:
+      requises:
+        - type: lieu-present
+          lieu: signal-zero
+        - type: un-des-faits-present
+          faits:
+            - trame.signal-zero.interface-rail-lue
+            - trame.signal-zero.interface-libre-lue
+      interdites: []
+    periode_eligibilite: { debut: 1200, fin: 2147483647 }
+    priorite: 120
+    epuisement: unique
+    acteurs: [porte-lanterne, techniciens-signal-zero, commis-du-marche]
+    origine: { cle: evenement.convergence.echos.origine, variables: [] }
+    libelle_intentions: { cle: evenement.ruban.intentions, variables: [] }
+    titre: { cle: evenement.convergence.echos.titre, variables: [] }
+    presentation: { cle: evenement.convergence.echos.presentation, variables: [] }
+    informations:
+      - source: techniciens-signal-zero
+        texte: { cle: evenement.convergence.echos.information, variables: [] }
+    faits_lus:
+      - trame.signal-zero.interface-rail-lue
+      - trame.signal-zero.interface-libre-lue
+      - trame.grand-aiguillage.train-outil-annonce
+      - trame.grand-aiguillage.reparation-locale-ouverte
+      - trame.grand-aiguillage.attelage-federe-annonce
+      - trame.traverse-libre.galerie-etayee
+      - trame.traverse-libre.contournement-ouvert
+      - trame.traverse-libre.manifeste-public
+    choix:
+      - id: graver-les-deux-branches
+        intention: { cle: evenement.convergence.echos.choix.graver, variables: [] }
+        couts_connus:
+          - { cle: evenement.convergence.echos.choix.graver.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - id: trame.signal-zero.echos-conserves
+            cible: table-de-signal-zero
+      - id: isoler-les-frequences
+        intention: { cle: evenement.convergence.echos.choix.isoler, variables: [] }
+        couts_connus:
+          - { cle: evenement.convergence.echos.choix.isoler.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - id: trame.signal-zero.frequences-separees
+            cible: table-de-signal-zero
+    consequence_differee: { type: options-du-climax-modifiees, cible: aiguillage-zero }
+    recuperation: { type: memoire-ou-separation }
+    variantes:
+      - id: train-outil
+        condition: fait-present:trame.grand-aiguillage.train-outil-annonce
+        presentation: { cle: evenement.convergence.echos.variante.train, variables: [] }
+      - id: grand-aiguillage
+        condition: fait-present:trame.grand-aiguillage.reparation-locale-ouverte
+        presentation: { cle: evenement.convergence.echos.variante.grand, variables: [] }
+      - id: attelage-federe
+        condition: fait-present:trame.grand-aiguillage.attelage-federe-annonce
+        presentation: { cle: evenement.convergence.echos.variante.attelage, variables: [] }
+      - id: galerie-etayee
+        condition: fait-present:trame.traverse-libre.galerie-etayee
+        presentation: { cle: evenement.convergence.echos.variante.galerie, variables: [] }
+      - id: traverse-libre
+        condition: fait-present:trame.traverse-libre.contournement-ouvert
+        presentation: { cle: evenement.convergence.echos.variante.traverse, variables: [] }
+      - id: manifeste-public
+        condition: fait-present:trame.traverse-libre.manifeste-public
+        presentation: { cle: evenement.convergence.echos.variante.manifeste, variables: [] }
+      - id: standard
+        condition: toujours
+        presentation: { cle: evenement.convergence.echos.variante.standard, variables: [] }
+    destination_echo: journal-de-campagne
+    asset: trame.signal-zero.les-deux-branches-dans-le-verre
+
+  - id: trame.signal-zero.ilyana-et-la-trace
+    famille: histoires-de-compagnons
+    themes: [ilyana-voss, trace, transmission, attribution]
+    fonction: decider-qui-pourra-attribuer-l-intervention
+    fenetre: signal-zero
+    conditions:
+      requises:
+        - type: lieu-present
+          lieu: signal-zero
+        - type: un-des-faits-present
+          faits:
+            - trame.signal-zero.echos-conserves
+            - trame.signal-zero.frequences-separees
+        - type: fait-present
+          fait: trame.marche.trace-bascule-clandestine
+      interdites: []
+    periode_eligibilite: { debut: 1200, fin: 2147483647 }
+    priorite: 110
+    epuisement: unique
+    acteurs: [porte-lanterne, ilyana-voss, techniciens-signal-zero]
+    origine: { cle: evenement.convergence.ilyana.origine, variables: [] }
+    libelle_intentions: { cle: evenement.ruban.intentions, variables: [] }
+    titre: { cle: evenement.convergence.ilyana.titre, variables: [] }
+    presentation: { cle: evenement.convergence.ilyana.presentation, variables: [] }
+    informations:
+      - source: ilyana-voss
+        texte: { cle: evenement.convergence.ilyana.information, variables: [] }
+    faits_lus:
+      - trame.marche.trace-bascule-clandestine
+      - compagnon.ilyana-voss.affectee-intendance
+      - trame.signal-zero.echos-conserves
+      - trame.signal-zero.frequences-separees
+    choix:
+      - id: confier-trace-a-ilyana
+        intention: { cle: evenement.convergence.ilyana.choix.confier, variables: [] }
+        couts_connus:
+          - { cle: evenement.convergence.ilyana.choix.confier.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - id: trame.signal-zero.trace-sous-scelles
+            cible: ilyana-voss
+      - id: transmettre-trace-au-signal
+        intention: { cle: evenement.convergence.ilyana.choix.transmettre, variables: [] }
+        couts_connus:
+          - { cle: evenement.convergence.ilyana.choix.transmettre.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - id: trame.signal-zero.trace-transmise
+            cible: techniciens-signal-zero
+    consequence_differee: { type: attribution-future-de-la-trace, cible: bascule-des-manifestes }
+    recuperation: { type: preuve-sous-scelles-ou-transmise }
+    variantes:
+      - id: trace
+        condition: fait-present:trame.marche.trace-bascule-clandestine
+        presentation: { cle: evenement.convergence.ilyana.variante.trace, variables: [] }
+      - id: intendance
+        condition: fait-present:compagnon.ilyana-voss.affectee-intendance
+        presentation: { cle: evenement.convergence.ilyana.variante.intendance, variables: [] }
+      - id: standard
+        condition: toujours
+        presentation: { cle: evenement.convergence.ilyana.variante.standard, variables: [] }
+    destination_echo: journal-de-campagne
+    asset: trame.signal-zero.ilyana-et-la-trace

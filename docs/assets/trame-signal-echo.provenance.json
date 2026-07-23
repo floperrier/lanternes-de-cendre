@@ -1,0 +1,15 @@
+{
+  "asset": "serveur-commercial/assets/trame-signal-echo.webp",
+  "sha256": "bd84a33f788dd2378c92af72484a981709cbfa6757e8e8b5f4ffdf4e8832444e",
+  "createdAt": "2026-07-23",
+  "tool": "Codex built-in image_gen",
+  "model": "built-in model (identifier not exposed)",
+  "useCase": "stylized-concept",
+  "input": "No input image; generated from the project’s established industrial ash-world art direction.",
+  "prompt": "Analog glass plotting table overlays Grand Junction and Free Crossing with prepared and missing links converging toward a central switch; painterly 16:9 industrial concept art, no legible text or logos.",
+  "rights": "OpenAI Terms of Use — output assigned to the user",
+  "approval": {
+    "status": "pending-pull-request-review",
+    "reviewer": null
+  }
+}

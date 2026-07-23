@@ -25,10 +25,24 @@ function normaliserEnV9(etat: EtatCampagne) {
   const {
     "embranchement-de-pompe-neuve": embranchementDePompeNeuve,
     "galerie-des-reservoirs": galerieDesReservoirs,
+    "rocade-du-marche": rocadeDuMarche,
+    "voie-des-citernes": voieDesCiternes,
+    "ligne-du-signal-zero": ligneDuSignalZero,
+    "voie-des-contremaitres": voieDesContremaitres,
+    "traverse-des-porteurs": traverseDesPorteurs,
+    "rocade-des-regulateurs": rocadeDesRegulateurs,
+    "derivation-des-puits": derivationDesPuits,
     ...etatsReels
   } = sansTraverse.routes.etatsReels;
   void embranchementDePompeNeuve;
   void galerieDesReservoirs;
+  void rocadeDuMarche;
+  void voieDesCiternes;
+  void ligneDuSignalZero;
+  void voieDesContremaitres;
+  void traverseDesPorteurs;
+  void rocadeDesRegulateurs;
+  void derivationDesPuits;
   return {
     ...sansTraverse,
     version: VERSION_SIMULATION_AVANT_TRAVERSE_LIBRE,

@@ -16,6 +16,7 @@ import { projeterVeilleBasse } from "../application/veilleBasse";
 import { projeterHautPuits } from "../application/hautPuits";
 import { projeterTrameDeFer } from "../application/trameFer";
 import { projeterTraverseLibre } from "../application/traverseLibre";
+import { projeterConvergenceDeLaTrame } from "../application/convergenceTrame";
 import type { Langue } from "../content/types";
 import { criseAttendSonCheckpoint } from "../simulation/crise";
 import {
@@ -41,6 +42,7 @@ import { choisirSurfacePrioritaire } from "./ordreDesSurfaces";
 import { VeilleBasseEtCohorte } from "./VeilleBasseEtCohorte";
 import { TrameDeFer } from "./TrameDeFer";
 import { TraverseLibre } from "./TraverseLibre";
+import { ConvergenceTrame } from "./ConvergenceTrame";
 
 interface PropsCampagne {
   readonly etatDuControleur: Extract<
@@ -91,6 +93,10 @@ function CampagnePersistante({
   const projectionDeHautPuits = projeterHautPuits(etat, langue);
   const projectionDeLaTrame = projeterTrameDeFer(etat, langue);
   const projectionDeTraverseLibre = projeterTraverseLibre(etat, langue);
+  const projectionDeConvergence = projeterConvergenceDeLaTrame(
+    etat,
+    langue,
+  );
   const surfacePrioritaire = choisirSurfacePrioritaire({
     criseActive: projectionDesCrises.active !== null,
     checkpointDeCriseRequis,
@@ -234,6 +240,7 @@ function CampagnePersistante({
           ) : null}
           <TrameDeFer projection={projectionDeLaTrame} />
           <TraverseLibre projection={projectionDeTraverseLibre} />
+          <ConvergenceTrame projection={projectionDeConvergence} />
         </div>
       </div>
 

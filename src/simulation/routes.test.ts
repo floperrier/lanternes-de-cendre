@@ -366,6 +366,63 @@ describe("Engagement de route", () => {
       expect(routes.position).toBe("grand-aiguillage");
       expect(routes.engagements).toHaveLength(nombreAttendu);
       expect(routes.jalons).toHaveLength(nombreAttendu);
+      expect(
+        listerTronconsEngageables(routes).map(
+          ({ troncon, destination }) => ({
+            tronconId: troncon.id,
+            destination,
+          }),
+        ),
+      ).toEqual([
+        {
+          tronconId: "rocade-du-marche",
+          destination: "marche-des-traverses",
+        },
+      ]);
+    },
+  );
+
+  it.each([
+    [
+      "Grand-Aiguillage",
+      [
+        "digue-des-puits",
+        "chemin-des-vanniers",
+        "chenal-des-vannes",
+        "conduite-du-deversoir",
+        "passage-de-la-ligne-zero",
+        "rampe-de-barriere-neuve",
+        "voie-des-ponts-lourds",
+        "rocade-du-marche",
+        "traverse-des-porteurs",
+        "galerie-des-reservoirs",
+        "derivation-des-puits",
+      ],
+    ],
+    [
+      "Traverse-Libre",
+      [
+        "chaussee-de-veille-basse",
+        "chemin-de-l-hospice",
+        "chenal-de-l-hospice",
+        "conduite-du-deversoir",
+        "piste-des-levees",
+        "embranchement-de-pompe-neuve",
+        "galerie-des-reservoirs",
+        "voie-des-citernes",
+        "voie-des-contremaitres",
+        "voie-des-ponts-lourds",
+        "rocade-des-regulateurs",
+      ],
+    ],
+  ] as const)(
+    "rend la seconde Colonie accessible en aval après %s puis reconverge à Signal-Zéro",
+    (_premiereColonie, troncons) => {
+      const routes = parcourir(troncons);
+
+      expect(routes.position).toBe("signal-zero");
+      expect(routes.engagements).toHaveLength(troncons.length);
+      expect(routes.jalons).toHaveLength(troncons.length);
       expect(listerTronconsEngageables(routes)).toEqual([]);
     },
   );

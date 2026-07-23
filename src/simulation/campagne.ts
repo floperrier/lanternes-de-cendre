@@ -420,6 +420,18 @@ function declencherSuiteNarrativeDeLaDemonstration(
   ) {
     return declencherEvenement(etat, "traverse-libre");
   }
+  if (
+    etat.routes.position === "marche-des-traverses" &&
+    trouverEngagementDeRouteActif(etat.routes) === undefined
+  ) {
+    return declencherEvenement(etat, "marche-des-traverses");
+  }
+  if (
+    etat.routes.position === "signal-zero" &&
+    trouverEngagementDeRouteActif(etat.routes) === undefined
+  ) {
+    return declencherEvenement(etat, "signal-zero");
+  }
   return etat.routes.position === "haut-puits" &&
     trouverEngagementDeRouteActif(etat.routes) === undefined
     ? declencherEvenement(etat, "halte-haut-puits")
@@ -473,10 +485,40 @@ function appliquerEffets(
 export function choixNarratifEstDisponible(
   etat: EtatCampagne,
   evenementId: string,
-  choix: Pick<ChoixDEvenement, "effets">,
+  choix: Pick<ChoixDEvenement, "id" | "effets">,
 ): boolean {
   if (!evenementId.startsWith("trame.")) {
     return true;
+  }
+  if (
+    evenementId ===
+    "trame.marche.les-services-de-la-voie-principale"
+  ) {
+    const servicesDisponibles =
+      etat.trameDeFer.grandAiguillage.marche
+        .servicesLourdsRestants > 0;
+    if (
+      (choix.id === "acheter-coupleur-officiel" &&
+        servicesDisponibles) ||
+      (choix.id === "ceder-reserve-refroidissement" &&
+        !servicesDisponibles)
+    ) {
+      return false;
+    }
+  }
+  if (
+    evenementId === "trame.marche.la-bascule-sans-manifeste"
+  ) {
+    const filtresEncoreNecessaires =
+      etat.traverseLibre.marche.lotsDeFiltresManquants > 0;
+    if (
+      (choix.id === "acheter-filtres-sans-marque" &&
+        !filtresEncoreNecessaires) ||
+      (choix.id === "intervenir-sur-bascule" &&
+        filtresEncoreNecessaires)
+    ) {
+      return false;
+    }
   }
 
   const coutsParStock = new Map<

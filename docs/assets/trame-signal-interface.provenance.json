@@ -1,0 +1,15 @@
+{
+  "asset": "serveur-commercial/assets/trame-signal-interface.webp",
+  "sha256": "2d726dbf3f1383f945f6041626255c6e437f65a86629fcbf0861670297832edd",
+  "createdAt": "2026-07-23",
+  "tool": "Codex built-in image_gen",
+  "model": "built-in model (identifier not exposed)",
+  "useCase": "stylized-concept",
+  "input": "No input image; generated from the project’s established industrial ash-world art direction.",
+  "prompt": "Ancient Zero Line console displays two compatible physical signal rhythms to Rail and Free Wells technicians without privileging a route; painterly 16:9 industrial concept art, no legible text or logos.",
+  "rights": "OpenAI Terms of Use — output assigned to the user",
+  "approval": {
+    "status": "pending-pull-request-review",
+    "reviewer": null
+  }
+}

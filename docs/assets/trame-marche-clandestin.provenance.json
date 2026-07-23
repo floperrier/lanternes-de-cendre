@@ -1,0 +1,15 @@
+{
+  "asset": "serveur-commercial/assets/trame-marche-clandestin.webp",
+  "sha256": "e09ff691de9ad52e14af96ef174355507cf7ab89a178d1018e31191e3fd316d2",
+  "createdAt": "2026-07-23",
+  "tool": "Codex built-in image_gen",
+  "model": "built-in model (identifier not exposed)",
+  "useCase": "stylized-concept",
+  "input": "No input image; generated from the project’s established industrial ash-world art direction.",
+  "prompt": "Free Wells carriers move unmarked filters behind manifest scales whose sealed copper-wire transmission can be disconnected; painterly 16:9 industrial concept art, no legible text or logos.",
+  "rights": "OpenAI Terms of Use — output assigned to the user",
+  "approval": {
+    "status": "pending-pull-request-review",
+    "reviewer": null
+  }
+}

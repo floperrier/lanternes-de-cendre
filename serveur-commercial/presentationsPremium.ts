@@ -384,6 +384,161 @@ export const PRESENTATIONS_PREMIUM = {
       },
     },
   },
+  convergence: {
+    fr: {
+      titres: {
+        marche: "Marché des Traverses",
+        signal: "Signal-Zéro",
+      },
+      offresOfficielles: {
+        ouverte_services:
+          "1 échange · service lourd issu de Grand-Aiguillage",
+        ouverte_coupleur:
+          "1 échange · coupleur garanti par le registre républicain",
+        epuisee: "Offre officielle épuisée",
+      },
+      offresClandestines: {
+        ouverte_besoin:
+          "1 échange · dernier lot de filtres destiné à Traverse-Libre",
+        ouverte_surplus:
+          "1 échange · filtres sans marque ou accès à la transmission",
+        epuisee: "Offre clandestine épuisée",
+      },
+      interfaces: {
+        inconnue: "Interface non relevée",
+        rail: "Fréquence du Rail lue · verrouillage lourd documenté",
+        puits:
+          "Fréquence des Puits Libres lue · dégagement manuel documenté",
+      },
+      traces: {
+        aucune: "Aucune rupture clandestine relevée",
+        latente:
+          "Bascule des manifestes · fil rompu et plombs déplacés",
+        scellee: "Preuve complète conservée sous les scellés d’Ilyana",
+        transmise:
+          "Preuve transmise · attribution possible dès l’Aiguillage Zéro",
+      },
+      echosDeGrandAiguillage: {
+        monopole: "Coupleur et Train-outil sous contrôle républicain",
+        monopole_attelage:
+          "Train-outil sous contrôle républicain · Attelage fédéré disponible en recours",
+        ateliers: "Cote locale et ateliers négociés",
+        ateliers_attelage:
+          "Ateliers négociés · Attelage fédéré préparé pour le transport",
+        attelage: "Attelage fédéré préparé pour le transport",
+        absent: "Aucune préparation visitée · services initiaux seulement",
+      },
+      echosDeTraverseLibre: {
+        contournement: "Contournement praticable et débouchés autonomes",
+        contournement_public:
+          "Contournement praticable · aide publique opposable au Rail",
+        galerie: "Galerie étayée, liaison ferroviaire précaire",
+        galerie_publique:
+          "Galerie étayée · aide publique opposable au Rail",
+        filtres: "Filtres reçus, dépendance partiellement desserrée",
+        absent: "Colonie non visitée · besoins critiques encore visibles",
+      },
+      optionsDuClimax: {
+        monopole: "Monopole républicain préparé",
+        charte: "Charte de circulation partagée préparée",
+        vol: "Vol avec contournement préparé",
+        transport: "Transport autonome coûteux toujours disponible",
+        transport_attelage:
+          "Transport autonome fiabilisé par l’Attelage fédéré",
+        transport_galerie:
+          "Transport autonome par Galerie étayée · risque réduit",
+        transport_attelage_galerie:
+          "Transport autonome par Attelage fédéré et Galerie étayée",
+      },
+      libelles: {
+        eyebrowMarche: "Jonction · Échanges finis",
+        eyebrowSignal: "Enclave · Ligne Zéro",
+        offreOfficielle: "Comptoir officiel",
+        offreClandestine: "Bascule clandestine",
+        interface: "Interface de la Ligne Zéro",
+        trace: "Trace attribuable",
+        echoGrandAiguillage: "Écho de Grand-Aiguillage",
+        echoTraverseLibre: "Écho de Traverse-Libre",
+        options: "Options préparées pour l’Aiguillage Zéro",
+      },
+    },
+    en: {
+      titres: {
+        marche: "Sleeper Market",
+        signal: "Zero Signal",
+      },
+      offresOfficielles: {
+        ouverte_services:
+          "1 trade · heavy service preserved from Grand Junction",
+        ouverte_coupleur:
+          "1 trade · coupler guaranteed by the republican register",
+        epuisee: "Official offer exhausted",
+      },
+      offresClandestines: {
+        ouverte_besoin:
+          "1 trade · final filter lot intended for Free Crossing",
+        ouverte_surplus:
+          "1 trade · unmarked filters or access to the transmission",
+        epuisee: "Clandestine offer exhausted",
+      },
+      interfaces: {
+        inconnue: "Interface not surveyed",
+        rail: "Rail frequency read · heavy locking documented",
+        puits:
+          "Free Wells frequency read · manual release documented",
+      },
+      traces: {
+        aucune: "No clandestine break recorded",
+        latente: "Manifest scales · broken wire and displaced seals",
+        scellee: "Complete evidence held under Ilyana’s seals",
+        transmise:
+          "Evidence transmitted · attribution possible at Zero Junction",
+      },
+      echosDeGrandAiguillage: {
+        monopole: "Coupler and Tool Train under republican control",
+        monopole_attelage:
+          "Tool Train under republican control · Federated Hauler available as fallback",
+        ateliers: "Local dimension and negotiated workshops",
+        ateliers_attelage:
+          "Negotiated workshops · Federated Hauler prepared for transport",
+        attelage: "Federated Hauler prepared for transport",
+        absent: "No visited preparation · only initial services remain",
+      },
+      echosDeTraverseLibre: {
+        contournement: "Passable bypass and autonomous outlets",
+        contournement_public:
+          "Passable bypass · public aid enforceable against the Rail",
+        galerie: "Shored Gallery with a precarious railway link",
+        galerie_publique:
+          "Shored Gallery · public aid enforceable against the Rail",
+        filtres: "Filters received, dependency partly loosened",
+        absent: "Unvisited colony · critical needs remain visible",
+      },
+      optionsDuClimax: {
+        monopole: "Republican monopoly prepared",
+        charte: "Shared circulation charter prepared",
+        vol: "Theft with bypass prepared",
+        transport: "Costly autonomous transport always available",
+        transport_attelage:
+          "Autonomous transport secured by the Federated Hauler",
+        transport_galerie:
+          "Autonomous transport through the Shored Gallery · reduced risk",
+        transport_attelage_galerie:
+          "Autonomous transport through the Federated Hauler and Shored Gallery",
+      },
+      libelles: {
+        eyebrowMarche: "Junction · Finite trades",
+        eyebrowSignal: "Enclave · Zero Line",
+        offreOfficielle: "Official counter",
+        offreClandestine: "Clandestine scales",
+        interface: "Zero Line interface",
+        trace: "Attributable Trace",
+        echoGrandAiguillage: "Grand Junction echo",
+        echoTraverseLibre: "Free Crossing echo",
+        options: "Options prepared for Zero Junction",
+      },
+    },
+  },
   veilleBasse: {
     fr: {
       titre: "Veille-Basse et l’Hospice du Sillon",

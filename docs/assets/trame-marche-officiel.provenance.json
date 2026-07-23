@@ -1,0 +1,15 @@
+{
+  "asset": "serveur-commercial/assets/trame-marche-officiel.webp",
+  "sha256": "8c1895ebd7eab830471ee0563619413321d2409162abe0fe7c282eca9359b120",
+  "createdAt": "2026-07-23",
+  "tool": "Codex built-in image_gen",
+  "model": "built-in model (identifier not exposed)",
+  "useCase": "stylized-concept",
+  "input": "No input image; generated from the project’s established industrial ash-world art direction.",
+  "prompt": "Official Sleeper Market counter weighing a regulation coupler between an open register and cooling-water tanks; painterly 16:9 industrial survival concept art, no legible text or logos.",
+  "rights": "OpenAI Terms of Use — output assigned to the user",
+  "approval": {
+    "status": "pending-pull-request-review",
+    "reviewer": null
+  }
+}

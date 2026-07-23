@@ -39,6 +39,16 @@ acteurs:
   - traverse-libre
   - contournement-traverse-libre
   - galerie-des-reservoirs
+  - commis-du-marche
+  - porteurs-des-puits-libres
+  - techniciens-signal-zero
+  - ligne-zero
+  - marche-des-traverses
+  - signal-zero
+  - bascule-des-manifestes
+  - interface-de-la-ligne-zero
+  - table-de-signal-zero
+  - aiguillage-zero
 quartiers:
   - intendance
   - foyers
@@ -55,6 +65,8 @@ fenetres:
   - grand-aiguillage
   - pompe-neuve
   - traverse-libre
+  - marche-des-traverses
+  - signal-zero
 lieux:
   - halte-du-puits-sec
   - haut-puits
@@ -67,6 +79,8 @@ lieux:
   - grand-aiguillage
   - pompe-neuve
   - traverse-libre
+  - marche-des-traverses
+  - signal-zero
 destinations_echo:
   - journal-de-campagne
 faits:
@@ -142,3 +156,13 @@ faits:
   - trame.traverse-libre.contournement-ouvert
   - trame.traverse-libre.manifeste-public
   - trame.traverse-libre.registre-scelle
+  - trame.marche.coupleur-officiel-acquis
+  - trame.marche.reserve-echangee
+  - trame.marche.filtres-sans-marque-acquis
+  - trame.marche.trace-bascule-clandestine
+  - trame.signal-zero.interface-rail-lue
+  - trame.signal-zero.interface-libre-lue
+  - trame.signal-zero.echos-conserves
+  - trame.signal-zero.frequences-separees
+  - trame.signal-zero.trace-sous-scelles
+  - trame.signal-zero.trace-transmise

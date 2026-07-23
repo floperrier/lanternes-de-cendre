@@ -7368,6 +7368,1582 @@ export default {
           }
         }
       }
+    },
+    {
+      "id": "trame.marche.les-services-de-la-voie-principale",
+      "famille": "conflits-regionaux",
+      "themes": [
+        "marche-borne",
+        "republique-du-rail",
+        "piece-de-regulation"
+      ],
+      "fonction": "confronter-l-offre-officielle-aux-etats-de-grand-aiguillage",
+      "fenetre": "marche-des-traverses",
+      "conditions": {
+        "requises": [
+          {
+            "type": "lieu-present",
+            "lieu": "marche-des-traverses"
+          }
+        ],
+        "interdites": []
+      },
+      "periodeEligibilite": {
+        "debut": 1200,
+        "fin": 2147483647
+      },
+      "priorite": 150,
+      "epuisement": "unique",
+      "acteurs": [
+        "porte-lanterne",
+        "commis-du-marche",
+        "republique-du-rail"
+      ],
+      "sourcesInformations": [
+        "commis-du-marche"
+      ],
+      "faitsLus": [
+        "trame.grand-aiguillage.train-outil-annonce",
+        "trame.grand-aiguillage.reparation-locale-ouverte"
+      ],
+      "choix": [
+        {
+          "id": "acheter-coupleur-officiel",
+          "effets": [
+            {
+              "type": "stock.modifier",
+              "stock": "materiaux",
+              "valeur": -6
+            }
+          ],
+          "faitsProduits": [
+            {
+              "id": "trame.marche.coupleur-officiel-acquis",
+              "cible": "piece-de-regulation"
+            }
+          ]
+        },
+        {
+          "id": "ceder-reserve-refroidissement",
+          "effets": [
+            {
+              "type": "stock.modifier",
+              "stock": "eau",
+              "valeur": -8
+            }
+          ],
+          "faitsProduits": [
+            {
+              "id": "trame.marche.reserve-echangee",
+              "cible": "commis-du-marche"
+            }
+          ]
+        }
+      ],
+      "consequenceDifferee": {
+        "type": "offre-officielle-epuisee",
+        "cible": "marche-des-traverses"
+      },
+      "recuperation": {
+        "type": "deux-moyens-d-echange"
+      },
+      "variantes": [
+        {
+          "id": "train-outil",
+          "condition": {
+            "type": "fait-present",
+            "fait": "trame.grand-aiguillage.train-outil-annonce"
+          }
+        },
+        {
+          "id": "ateliers",
+          "condition": {
+            "type": "fait-present",
+            "fait": "trame.grand-aiguillage.reparation-locale-ouverte"
+          }
+        },
+        {
+          "id": "standard",
+          "condition": {
+            "type": "toujours"
+          }
+        }
+      ],
+      "destinationEcho": "journal-de-campagne",
+      "asset": {
+        "id": "trame.marche.les-services-de-la-voie-principale",
+        "fichier": "/api/commercial/assets/trame-marche-officiel.webp",
+        "octetsTransferes": 146290,
+        "contientTexte": false,
+        "alternatives": {
+          "fr": "Un comptoir ferroviaire pèse un coupleur de régulation entre registres officiels et réservoirs d’eau de refroidissement.",
+          "en": "A railway counter weighs a regulation coupler between official registers and cooling-water tanks."
+        },
+        "provenance": {
+          "fiche": "docs/assets/trame-marche-officiel.provenance.json",
+          "creeLe": "2026-07-23",
+          "outil": "Codex built-in image_gen",
+          "modele": "built-in model (identifier not exposed)",
+          "usage": "stylized-concept",
+          "entree": "No input image; generated from the project’s established industrial ash-world art direction.",
+          "prompt": "Official Sleeper Market counter weighing a regulation coupler between an open register and cooling-water tanks; painterly 16:9 industrial survival concept art, no legible text or logos.",
+          "droits": "OpenAI Terms of Use — output assigned to the user",
+          "empreinteSha256": "8c1895ebd7eab830471ee0563619413321d2409162abe0fe7c282eca9359b120",
+          "statutApprobation": "pending-pull-request-review",
+          "reviseur": null
+        }
+      },
+      "textes": {
+        "fr": {
+          "origine": {
+            "cle": "evenement.convergence.officiel.origine",
+            "modele": "Comptoir officiel du Marché des Traverses",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.convergence.officiel.titre",
+            "modele": "Les services de la voie principale",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.convergence.officiel.presentation",
+            "modele": "Le comptoir républicain n’ouvre qu’une fois son registre. Son offre dépend de ce que Grand-Aiguillage a conservé : un coupleur calibré ou une place de service lourd contre une réserve de refroidissement.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.convergence.officiel.information",
+              "modele": "Les deux moyens d’échange sont bornés et ferment le comptoir ; l’un prépare directement la Pièce, l’autre préserve une capacité d’atelier pour l’Aiguillage Zéro.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "train-outil": {
+              "cle": "evenement.convergence.officiel.variante.train",
+              "modele": "Le Train-outil annoncé garantit la cote du coupleur, mais lie sa traçabilité aux registres républicains.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "ateliers": {
+              "cle": "evenement.convergence.officiel.variante.ateliers",
+              "modele": "Les ateliers locaux ont transmis une cote compatible que les commis ne peuvent plus monopoliser.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.convergence.officiel.variante.standard",
+              "modele": "Sans préparation venue de Grand-Aiguillage, les commis facturent surtout leur garantie et leur registre.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "acheter-coupleur-officiel": {
+              "intention": {
+                "cle": "evenement.convergence.officiel.choix.coupleur",
+                "modele": "Acheter le coupleur officiel calibré",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.convergence.officiel.choix.coupleur.cout",
+                  "modele": "Coût connu : 6 Matériaux ; le coupleur devient une option documentée pour la Pièce de régulation.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "ceder-reserve-refroidissement": {
+              "intention": {
+                "cle": "evenement.convergence.officiel.choix.reserve",
+                "modele": "Céder une réserve d’Eau de refroidissement",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.convergence.officiel.choix.reserve.cout",
+                  "modele": "Coût connu : 8 Eau ; un service lourd reste mobilisable sans acheter le coupleur.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        },
+        "en": {
+          "origine": {
+            "cle": "evenement.convergence.officiel.origine",
+            "modele": "Sleeper Market official counter",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.convergence.officiel.titre",
+            "modele": "The main route services",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.convergence.officiel.presentation",
+            "modele": "The republican counter opens its register only once. Its offer depends on what Grand Junction preserved: a calibrated coupler or a heavy-service slot traded for a cooling reserve.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.convergence.officiel.information",
+              "modele": "Both means of exchange are finite and close the counter; one prepares the Part directly, while the other preserves workshop capacity for Zero Junction.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "train-outil": {
+              "cle": "evenement.convergence.officiel.variante.train",
+              "modele": "The announced Tool Train guarantees the coupler’s dimensions but ties its traceability to republican registers.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "ateliers": {
+              "cle": "evenement.convergence.officiel.variante.ateliers",
+              "modele": "The local workshops transmitted a compatible dimension that the clerks can no longer monopolize.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.convergence.officiel.variante.standard",
+              "modele": "Without preparation from Grand Junction, the clerks mostly charge for their guarantee and register.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "acheter-coupleur-officiel": {
+              "intention": {
+                "cle": "evenement.convergence.officiel.choix.coupleur",
+                "modele": "Buy the calibrated official coupler",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.convergence.officiel.choix.coupleur.cout",
+                  "modele": "Known cost: 6 Materials; the coupler becomes a documented option for the Regulation Part.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "ceder-reserve-refroidissement": {
+              "intention": {
+                "cle": "evenement.convergence.officiel.choix.reserve",
+                "modele": "Yield a cooling Water reserve",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.convergence.officiel.choix.reserve.cout",
+                  "modele": "Known cost: 8 Water; one heavy service remains available without buying the coupler.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "trame.marche.la-bascule-sans-manifeste",
+      "famille": "conflits-regionaux",
+      "themes": [
+        "marche-borne",
+        "puits-libres",
+        "intervention-clandestine",
+        "trace"
+      ],
+      "fonction": "rendre-la-clandestinite-concrete-et-attribuable",
+      "fenetre": "marche-des-traverses",
+      "conditions": {
+        "requises": [
+          {
+            "type": "lieu-present",
+            "lieu": "marche-des-traverses"
+          },
+          {
+            "type": "un-des-faits-present",
+            "faits": [
+              "trame.marche.coupleur-officiel-acquis",
+              "trame.marche.reserve-echangee"
+            ]
+          }
+        ],
+        "interdites": []
+      },
+      "periodeEligibilite": {
+        "debut": 1200,
+        "fin": 2147483647
+      },
+      "priorite": 140,
+      "epuisement": "unique",
+      "acteurs": [
+        "porte-lanterne",
+        "porteurs-des-puits-libres",
+        "habitants-traverse-libre"
+      ],
+      "sourcesInformations": [
+        "porteurs-des-puits-libres"
+      ],
+      "faitsLus": [
+        "trame.marche.coupleur-officiel-acquis",
+        "trame.marche.reserve-echangee",
+        "trame.pompe-neuve.filtres-livres-discretement",
+        "trame.pompe-neuve.livraison-inscrite"
+      ],
+      "choix": [
+        {
+          "id": "acheter-filtres-sans-marque",
+          "effets": [
+            {
+              "type": "stock.modifier",
+              "stock": "remedes",
+              "valeur": -2
+            }
+          ],
+          "faitsProduits": [
+            {
+              "id": "trame.marche.filtres-sans-marque-acquis",
+              "cible": "traverse-libre"
+            }
+          ]
+        },
+        {
+          "id": "intervenir-sur-bascule",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "trame.marche.trace-bascule-clandestine",
+              "cible": "bascule-des-manifestes"
+            }
+          ]
+        }
+      ],
+      "consequenceDifferee": {
+        "type": "trace-attribuable",
+        "cible": "bascule-des-manifestes"
+      },
+      "recuperation": {
+        "type": "echange-ou-intervention"
+      },
+      "variantes": [
+        {
+          "id": "traverse-aidee",
+          "condition": {
+            "type": "fait-present",
+            "fait": "trame.pompe-neuve.filtres-livres-discretement"
+          }
+        },
+        {
+          "id": "traverse-publique",
+          "condition": {
+            "type": "fait-present",
+            "fait": "trame.pompe-neuve.livraison-inscrite"
+          }
+        },
+        {
+          "id": "standard",
+          "condition": {
+            "type": "toujours"
+          }
+        }
+      ],
+      "destinationEcho": "journal-de-campagne",
+      "asset": {
+        "id": "trame.marche.la-bascule-sans-manifeste",
+        "fichier": "/api/commercial/assets/trame-marche-clandestin.webp",
+        "octetsTransferes": 127294,
+        "contientTexte": false,
+        "alternatives": {
+          "fr": "Des porteurs déplacent des filtres sans marque derrière une grande bascule dont la transmission plombée peut être débranchée.",
+          "en": "Carriers move unmarked filters behind great scales whose sealed transmission can be disconnected."
+        },
+        "provenance": {
+          "fiche": "docs/assets/trame-marche-clandestin.provenance.json",
+          "creeLe": "2026-07-23",
+          "outil": "Codex built-in image_gen",
+          "modele": "built-in model (identifier not exposed)",
+          "usage": "stylized-concept",
+          "entree": "No input image; generated from the project’s established industrial ash-world art direction.",
+          "prompt": "Free Wells carriers move unmarked filters behind manifest scales whose sealed copper-wire transmission can be disconnected; painterly 16:9 industrial concept art, no legible text or logos.",
+          "droits": "OpenAI Terms of Use — output assigned to the user",
+          "empreinteSha256": "e09ff691de9ad52e14af96ef174355507cf7ab89a178d1018e31191e3fd316d2",
+          "statutApprobation": "pending-pull-request-review",
+          "reviseur": null
+        }
+      },
+      "textes": {
+        "fr": {
+          "origine": {
+            "cle": "evenement.convergence.clandestin.origine",
+            "modele": "Bascule arrière du Marché des Traverses",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.convergence.clandestin.titre",
+            "modele": "La bascule sans manifeste",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.convergence.clandestin.presentation",
+            "modele": "Derrière les travées officielles, les Puits Libres proposent leur dernier lot de filtres sans marque. La Bascule des manifestes peut aussi être débranchée pour soustraire un chargement, mais ses plombs garderont une Trace.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.convergence.clandestin.information",
+              "modele": "L’Intervention vise la transmission de pesée elle-même : un fil rompu, un plomb déplacé et un horaire suffiront à l’attribuer plus tard.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "traverse-aidee": {
+              "cle": "evenement.convergence.clandestin.variante.aidee",
+              "modele": "Les bâches déjà passées à Pompe-Neuve donnent aux porteurs une filière discrète, mais pas une seconde offre.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "traverse-publique": {
+              "cle": "evenement.convergence.clandestin.variante.publique",
+              "modele": "Le manifeste public de Traverse-Libre oblige les porteurs à séparer strictement les caisses sans marque.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.convergence.clandestin.variante.standard",
+              "modele": "Les besoins critiques de Traverse-Libre fixent la valeur du dernier lot bien au-dessus de son poids.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "acheter-filtres-sans-marque": {
+              "intention": {
+                "cle": "evenement.convergence.clandestin.choix.filtres",
+                "modele": "Échanger deux doses de Remèdes contre les filtres",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.convergence.clandestin.choix.filtres.cout",
+                  "modele": "Coût connu : 2 Remèdes ; l’unique lot sans marque rejoint les réserves liées à Traverse-Libre.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "intervenir-sur-bascule": {
+              "intention": {
+                "cle": "evenement.convergence.clandestin.choix.intervention",
+                "modele": "Débrancher la transmission de la Bascule",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.convergence.clandestin.choix.intervention.cout",
+                  "modele": "Coût connu : aucun stock immédiat ; la transmission concrète est neutralisée et une Trace attribuable demeure sur ses plombs.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        },
+        "en": {
+          "origine": {
+            "cle": "evenement.convergence.clandestin.origine",
+            "modele": "Sleeper Market rear scales",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.convergence.clandestin.titre",
+            "modele": "The scales without a manifest",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.convergence.clandestin.presentation",
+            "modele": "Behind the official aisles, the Free Wells offer their last lot of unmarked filters. The manifest scales can also be disconnected to hide a load, but their seals will retain a Trace.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.convergence.clandestin.information",
+              "modele": "The Intervention targets the weighing transmission itself: a broken wire, a displaced seal and a timestamp will be enough to attribute it later.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "traverse-aidee": {
+              "cle": "evenement.convergence.clandestin.variante.aidee",
+              "modele": "The tarps already passed through New Pump give the carriers a discreet channel, but not a second offer.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "traverse-publique": {
+              "cle": "evenement.convergence.clandestin.variante.publique",
+              "modele": "Free Crossing’s public manifest forces the carriers to separate the unmarked crates strictly.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.convergence.clandestin.variante.standard",
+              "modele": "Free Crossing’s critical needs set the last lot’s value far above its weight.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "acheter-filtres-sans-marque": {
+              "intention": {
+                "cle": "evenement.convergence.clandestin.choix.filtres",
+                "modele": "Trade two Medicine doses for the filters",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.convergence.clandestin.choix.filtres.cout",
+                  "modele": "Known cost: 2 Medicine; the only unmarked lot joins the reserves linked to Free Crossing.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "intervenir-sur-bascule": {
+              "intention": {
+                "cle": "evenement.convergence.clandestin.choix.intervention",
+                "modele": "Disconnect the scales’ transmission",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.convergence.clandestin.choix.intervention.cout",
+                  "modele": "Known cost: no immediate stock; the concrete transmission is disabled and an attributable Trace remains on its seals.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "trame.signal-zero.l-interface-aux-deux-frequences",
+      "famille": "mystere-des-phares",
+      "themes": [
+        "ligne-zero",
+        "piece-de-regulation",
+        "interface"
+      ],
+      "fonction": "reveler-la-compatibilite-sans-imposer-d-itineraire",
+      "fenetre": "signal-zero",
+      "conditions": {
+        "requises": [
+          {
+            "type": "lieu-present",
+            "lieu": "signal-zero"
+          },
+          {
+            "type": "un-des-faits-present",
+            "faits": [
+              "trame.marche.filtres-sans-marque-acquis",
+              "trame.marche.trace-bascule-clandestine"
+            ]
+          }
+        ],
+        "interdites": []
+      },
+      "periodeEligibilite": {
+        "debut": 1200,
+        "fin": 2147483647
+      },
+      "priorite": 130,
+      "epuisement": "unique",
+      "acteurs": [
+        "porte-lanterne",
+        "techniciens-signal-zero",
+        "ligne-zero"
+      ],
+      "sourcesInformations": [
+        "techniciens-signal-zero"
+      ],
+      "faitsLus": [
+        "trame.marche.filtres-sans-marque-acquis",
+        "trame.marche.trace-bascule-clandestine",
+        "bassins.deversoir.ligne-zero-relevee"
+      ],
+      "choix": [
+        {
+          "id": "lire-frequence-du-rail",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "trame.signal-zero.interface-rail-lue",
+              "cible": "interface-de-la-ligne-zero"
+            }
+          ]
+        },
+        {
+          "id": "lire-frequence-des-puits",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "trame.signal-zero.interface-libre-lue",
+              "cible": "interface-de-la-ligne-zero"
+            }
+          ]
+        }
+      ],
+      "consequenceDifferee": {
+        "type": "informations-de-regulation",
+        "cible": "piece-de-regulation"
+      },
+      "recuperation": {
+        "type": "deux-frequences-compatibles"
+      },
+      "variantes": [
+        {
+          "id": "ligne-zero",
+          "condition": {
+            "type": "fait-present",
+            "fait": "bassins.deversoir.ligne-zero-relevee"
+          }
+        },
+        {
+          "id": "standard",
+          "condition": {
+            "type": "toujours"
+          }
+        }
+      ],
+      "destinationEcho": "journal-de-campagne",
+      "asset": {
+        "id": "trame.signal-zero.l-interface-aux-deux-frequences",
+        "fichier": "/api/commercial/assets/trame-signal-interface.webp",
+        "octetsTransferes": 94750,
+        "contientTexte": false,
+        "alternatives": {
+          "fr": "Une console ancienne de la Ligne Zéro affiche deux rythmes lumineux compatibles devant des techniciens du Rail et des Puits Libres.",
+          "en": "An ancient Zero Line console displays two compatible light rhythms before Rail and Free Wells technicians."
+        },
+        "provenance": {
+          "fiche": "docs/assets/trame-signal-interface.provenance.json",
+          "creeLe": "2026-07-23",
+          "outil": "Codex built-in image_gen",
+          "modele": "built-in model (identifier not exposed)",
+          "usage": "stylized-concept",
+          "entree": "No input image; generated from the project’s established industrial ash-world art direction.",
+          "prompt": "Ancient Zero Line console displays two compatible physical signal rhythms to Rail and Free Wells technicians without privileging a route; painterly 16:9 industrial concept art, no legible text or logos.",
+          "droits": "OpenAI Terms of Use — output assigned to the user",
+          "empreinteSha256": "2d726dbf3f1383f945f6041626255c6e437f65a86629fcbf0861670297832edd",
+          "statutApprobation": "pending-pull-request-review",
+          "reviseur": null
+        }
+      },
+      "textes": {
+        "fr": {
+          "origine": {
+            "cle": "evenement.convergence.interface.origine",
+            "modele": "Enclave technique de Signal-Zéro",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.convergence.interface.titre",
+            "modele": "L’interface aux deux fréquences",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.convergence.interface.presentation",
+            "modele": "L’interface de la Ligne Zéro accepte la cadence du Rail comme celle des balises libres. Les deux lectures révèlent les cotes de la Pièce de régulation ; aucune ne commande la route à prendre.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.convergence.interface.information",
+              "modele": "La fréquence républicaine documente le verrouillage lourd ; la fréquence des Puits Libres révèle le dégagement manuel et le contournement.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "ligne-zero": {
+              "cle": "evenement.convergence.interface.variante.ligne-zero",
+              "modele": "Le relevé du Déversoir confirme le même ordre d’impulsions sous une autre enveloppe mécanique.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.convergence.interface.variante.standard",
+              "modele": "Les techniciens reconnaissent la compatibilité, mais ignorent encore où la première interface fut relevée.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "lire-frequence-du-rail": {
+              "intention": {
+                "cle": "evenement.convergence.interface.choix.rail",
+                "modele": "Lire la fréquence calibrée du Rail",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.convergence.interface.choix.rail.cout",
+                  "modele": "Coût connu : la procédure lourde devient lisible sans accorder de monopole ni engager un itinéraire.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "lire-frequence-des-puits": {
+              "intention": {
+                "cle": "evenement.convergence.interface.choix.puits",
+                "modele": "Lire la fréquence reprise par les Puits Libres",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.convergence.interface.choix.puits.cout",
+                  "modele": "Coût connu : le dégagement manuel devient lisible sans condamner la voie principale.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        },
+        "en": {
+          "origine": {
+            "cle": "evenement.convergence.interface.origine",
+            "modele": "Zero Signal technical enclave",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.convergence.interface.titre",
+            "modele": "The two-frequency interface",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.convergence.interface.presentation",
+            "modele": "The Zero Line interface accepts both Rail cadence and free-marker cadence. Both readings reveal the Regulation Part’s dimensions; neither commands which route to take.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.convergence.interface.information",
+              "modele": "The republican frequency documents heavy locking; the Free Wells frequency reveals manual release and the bypass.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "ligne-zero": {
+              "cle": "evenement.convergence.interface.variante.ligne-zero",
+              "modele": "The Spillway survey confirms the same pulse order beneath a different mechanical casing.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.convergence.interface.variante.standard",
+              "modele": "The technicians recognize compatibility but do not yet know where the first interface was surveyed.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "lire-frequence-du-rail": {
+              "intention": {
+                "cle": "evenement.convergence.interface.choix.rail",
+                "modele": "Read the Rail’s calibrated frequency",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.convergence.interface.choix.rail.cout",
+                  "modele": "Known cost: the heavy procedure becomes legible without granting a monopoly or committing to a route.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "lire-frequence-des-puits": {
+              "intention": {
+                "cle": "evenement.convergence.interface.choix.puits",
+                "modele": "Read the frequency restored by the Free Wells",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.convergence.interface.choix.puits.cout",
+                  "modele": "Known cost: the manual release becomes legible without condemning the main route.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "trame.signal-zero.les-deux-branches-dans-le-verre",
+      "famille": "consequences-systemiques",
+      "themes": [
+        "echos",
+        "grand-aiguillage",
+        "traverse-libre",
+        "climax"
+      ],
+      "fonction": "convertir-les-etats-des-branches-en-options-du-climax",
+      "fenetre": "signal-zero",
+      "conditions": {
+        "requises": [
+          {
+            "type": "lieu-present",
+            "lieu": "signal-zero"
+          },
+          {
+            "type": "un-des-faits-present",
+            "faits": [
+              "trame.signal-zero.interface-rail-lue",
+              "trame.signal-zero.interface-libre-lue"
+            ]
+          }
+        ],
+        "interdites": []
+      },
+      "periodeEligibilite": {
+        "debut": 1200,
+        "fin": 2147483647
+      },
+      "priorite": 120,
+      "epuisement": "unique",
+      "acteurs": [
+        "porte-lanterne",
+        "techniciens-signal-zero",
+        "commis-du-marche"
+      ],
+      "sourcesInformations": [
+        "techniciens-signal-zero"
+      ],
+      "faitsLus": [
+        "trame.signal-zero.interface-rail-lue",
+        "trame.signal-zero.interface-libre-lue",
+        "trame.grand-aiguillage.train-outil-annonce",
+        "trame.grand-aiguillage.reparation-locale-ouverte",
+        "trame.grand-aiguillage.attelage-federe-annonce",
+        "trame.traverse-libre.galerie-etayee",
+        "trame.traverse-libre.contournement-ouvert",
+        "trame.traverse-libre.manifeste-public"
+      ],
+      "choix": [
+        {
+          "id": "graver-les-deux-branches",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "trame.signal-zero.echos-conserves",
+              "cible": "table-de-signal-zero"
+            }
+          ]
+        },
+        {
+          "id": "isoler-les-frequences",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "trame.signal-zero.frequences-separees",
+              "cible": "table-de-signal-zero"
+            }
+          ]
+        }
+      ],
+      "consequenceDifferee": {
+        "type": "options-du-climax-modifiees",
+        "cible": "aiguillage-zero"
+      },
+      "recuperation": {
+        "type": "memoire-ou-separation"
+      },
+      "variantes": [
+        {
+          "id": "train-outil",
+          "condition": {
+            "type": "fait-present",
+            "fait": "trame.grand-aiguillage.train-outil-annonce"
+          }
+        },
+        {
+          "id": "grand-aiguillage",
+          "condition": {
+            "type": "fait-present",
+            "fait": "trame.grand-aiguillage.reparation-locale-ouverte"
+          }
+        },
+        {
+          "id": "attelage-federe",
+          "condition": {
+            "type": "fait-present",
+            "fait": "trame.grand-aiguillage.attelage-federe-annonce"
+          }
+        },
+        {
+          "id": "galerie-etayee",
+          "condition": {
+            "type": "fait-present",
+            "fait": "trame.traverse-libre.galerie-etayee"
+          }
+        },
+        {
+          "id": "traverse-libre",
+          "condition": {
+            "type": "fait-present",
+            "fait": "trame.traverse-libre.contournement-ouvert"
+          }
+        },
+        {
+          "id": "manifeste-public",
+          "condition": {
+            "type": "fait-present",
+            "fait": "trame.traverse-libre.manifeste-public"
+          }
+        },
+        {
+          "id": "standard",
+          "condition": {
+            "type": "toujours"
+          }
+        }
+      ],
+      "destinationEcho": "journal-de-campagne",
+      "asset": {
+        "id": "trame.signal-zero.les-deux-branches-dans-le-verre",
+        "fichier": "/api/commercial/assets/trame-signal-echo.webp",
+        "octetsTransferes": 156238,
+        "contientTexte": false,
+        "alternatives": {
+          "fr": "Une table de verre technique superpose la gare-atelier de Grand-Aiguillage et les galeries de Traverse-Libre avec leurs routes possibles.",
+          "en": "A technical glass table overlays Grand Junction’s railway workshop and Free Crossing’s galleries with their possible routes."
+        },
+        "provenance": {
+          "fiche": "docs/assets/trame-signal-echo.provenance.json",
+          "creeLe": "2026-07-23",
+          "outil": "Codex built-in image_gen",
+          "modele": "built-in model (identifier not exposed)",
+          "usage": "stylized-concept",
+          "entree": "No input image; generated from the project’s established industrial ash-world art direction.",
+          "prompt": "Analog glass plotting table overlays Grand Junction and Free Crossing with prepared and missing links converging toward a central switch; painterly 16:9 industrial concept art, no legible text or logos.",
+          "droits": "OpenAI Terms of Use — output assigned to the user",
+          "empreinteSha256": "bd84a33f788dd2378c92af72484a981709cbfa6757e8e8b5f4ffdf4e8832444e",
+          "statutApprobation": "pending-pull-request-review",
+          "reviseur": null
+        }
+      },
+      "textes": {
+        "fr": {
+          "origine": {
+            "cle": "evenement.convergence.echos.origine",
+            "modele": "Table de verre de Signal-Zéro",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.convergence.echos.titre",
+            "modele": "Les deux branches dans le verre",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.convergence.echos.presentation",
+            "modele": "La table restitue Grand-Aiguillage et Traverse-Libre côte à côte : leurs préparatifs, leurs absences et leurs dettes ouvrent des moyens différents d’aborder l’Aiguillage Zéro.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.convergence.echos.information",
+              "modele": "Train-outil, réparation locale, Attelage fédéré, Galerie étayée, contournement et publicité de l’aide modifient les options ; aucun de ces échos ne choisit encore le climax.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "train-outil": {
+              "cle": "evenement.convergence.echos.variante.train",
+              "modele": "Le Train-outil apparaît comme une préparation républicaine de la Pièce, avec son monopole et sa dette de service.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "grand-aiguillage": {
+              "cle": "evenement.convergence.echos.variante.grand",
+              "modele": "La cote des ateliers locaux apparaît dans le verre à côté du canal officiel.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "attelage-federe": {
+              "cle": "evenement.convergence.echos.variante.attelage",
+              "modele": "L’Attelage fédéré inscrit dans le verre une variante de transport autonome et réparti.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "galerie-etayee": {
+              "cle": "evenement.convergence.echos.variante.galerie",
+              "modele": "La Galerie étayée réduit le risque du transport sans ouvrir le contournement clandestin.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "traverse-libre": {
+              "cle": "evenement.convergence.echos.variante.traverse",
+              "modele": "Le contournement de Traverse-Libre dessine une sortie que le registre républicain ne contient pas.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "manifeste-public": {
+              "cle": "evenement.convergence.echos.variante.manifeste",
+              "modele": "Le manifeste public de Traverse-Libre fournit une preuve opposable pour une charte partagée.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.convergence.echos.variante.standard",
+              "modele": "Les lacunes des branches non visitées restent visibles comme des options non préparées, jamais comme des faits inventés.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "graver-les-deux-branches": {
+              "intention": {
+                "cle": "evenement.convergence.echos.choix.graver",
+                "modele": "Graver les deux états sur une même plaque",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.convergence.echos.choix.graver.cout",
+                  "modele": "Coût connu : les deux Colonies pourront opposer leurs preuves lors du climax régional.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "isoler-les-frequences": {
+              "intention": {
+                "cle": "evenement.convergence.echos.choix.isoler",
+                "modele": "Isoler les fréquences sur deux plaques",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.convergence.echos.choix.isoler.cout",
+                  "modele": "Coût connu : chaque axe garde son autonomie, mais leurs preuves devront être rapprochées au Conseil.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        },
+        "en": {
+          "origine": {
+            "cle": "evenement.convergence.echos.origine",
+            "modele": "Zero Signal glass table",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.convergence.echos.titre",
+            "modele": "Both branches in the glass",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.convergence.echos.presentation",
+            "modele": "The table restores Grand Junction and Free Crossing side by side: their preparations, absences and debts open different means of approaching Zero Junction.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.convergence.echos.information",
+              "modele": "Tool Train, local repair, Federated Hauler, shored Gallery, bypass and aid publicity modify the options; none of these echoes chooses the climax yet.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "train-outil": {
+              "cle": "evenement.convergence.echos.variante.train",
+              "modele": "The Tool Train appears as a republican preparation of the Part, together with its monopoly and service debt.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "grand-aiguillage": {
+              "cle": "evenement.convergence.echos.variante.grand",
+              "modele": "The local workshops’ dimension appears in the glass beside the official channel.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "attelage-federe": {
+              "cle": "evenement.convergence.echos.variante.attelage",
+              "modele": "The Federated Hauler records an autonomous, distributed transport variant in the glass.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "galerie-etayee": {
+              "cle": "evenement.convergence.echos.variante.galerie",
+              "modele": "The Shored Gallery lowers transport risk without opening the clandestine bypass.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "traverse-libre": {
+              "cle": "evenement.convergence.echos.variante.traverse",
+              "modele": "Free Crossing’s bypass draws an exit that the republican register does not contain.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "manifeste-public": {
+              "cle": "evenement.convergence.echos.variante.manifeste",
+              "modele": "Free Crossing’s public manifest provides enforceable evidence for a shared charter.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.convergence.echos.variante.standard",
+              "modele": "Gaps from unvisited branches remain visible as unprepared options, never as invented facts.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "graver-les-deux-branches": {
+              "intention": {
+                "cle": "evenement.convergence.echos.choix.graver",
+                "modele": "Engrave both states on one plate",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.convergence.echos.choix.graver.cout",
+                  "modele": "Known cost: both Colonies will be able to present their evidence during the regional climax.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "isoler-les-frequences": {
+              "intention": {
+                "cle": "evenement.convergence.echos.choix.isoler",
+                "modele": "Isolate the frequencies on two plates",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.convergence.echos.choix.isoler.cout",
+                  "modele": "Known cost: each axis keeps its autonomy, but their evidence must be reconciled at the Council.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "trame.signal-zero.ilyana-et-la-trace",
+      "famille": "histoires-de-compagnons",
+      "themes": [
+        "ilyana-voss",
+        "trace",
+        "transmission",
+        "attribution"
+      ],
+      "fonction": "decider-qui-pourra-attribuer-l-intervention",
+      "fenetre": "signal-zero",
+      "conditions": {
+        "requises": [
+          {
+            "type": "lieu-present",
+            "lieu": "signal-zero"
+          },
+          {
+            "type": "un-des-faits-present",
+            "faits": [
+              "trame.signal-zero.echos-conserves",
+              "trame.signal-zero.frequences-separees"
+            ]
+          },
+          {
+            "type": "fait-present",
+            "fait": "trame.marche.trace-bascule-clandestine"
+          }
+        ],
+        "interdites": []
+      },
+      "periodeEligibilite": {
+        "debut": 1200,
+        "fin": 2147483647
+      },
+      "priorite": 110,
+      "epuisement": "unique",
+      "acteurs": [
+        "porte-lanterne",
+        "ilyana-voss",
+        "techniciens-signal-zero"
+      ],
+      "sourcesInformations": [
+        "ilyana-voss"
+      ],
+      "faitsLus": [
+        "trame.marche.trace-bascule-clandestine",
+        "compagnon.ilyana-voss.affectee-intendance",
+        "trame.signal-zero.echos-conserves",
+        "trame.signal-zero.frequences-separees"
+      ],
+      "choix": [
+        {
+          "id": "confier-trace-a-ilyana",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "trame.signal-zero.trace-sous-scelles",
+              "cible": "ilyana-voss"
+            }
+          ]
+        },
+        {
+          "id": "transmettre-trace-au-signal",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "trame.signal-zero.trace-transmise",
+              "cible": "techniciens-signal-zero"
+            }
+          ]
+        }
+      ],
+      "consequenceDifferee": {
+        "type": "attribution-future-de-la-trace",
+        "cible": "bascule-des-manifestes"
+      },
+      "recuperation": {
+        "type": "preuve-sous-scelles-ou-transmise"
+      },
+      "variantes": [
+        {
+          "id": "trace",
+          "condition": {
+            "type": "fait-present",
+            "fait": "trame.marche.trace-bascule-clandestine"
+          }
+        },
+        {
+          "id": "intendance",
+          "condition": {
+            "type": "fait-present",
+            "fait": "compagnon.ilyana-voss.affectee-intendance"
+          }
+        },
+        {
+          "id": "standard",
+          "condition": {
+            "type": "toujours"
+          }
+        }
+      ],
+      "destinationEcho": "journal-de-campagne",
+      "asset": {
+        "id": "trame.signal-zero.ilyana-et-la-trace",
+        "fichier": "/api/commercial/assets/trame-signal-ilyana.webp",
+        "octetsTransferes": 93826,
+        "contientTexte": false,
+        "alternatives": {
+          "fr": "Ilyana tient un fil de transmission rompu et des plombs de registre entre une boîte scellée et le pupitre de Signal-Zéro.",
+          "en": "Ilyana holds a broken transmission wire and register seals between a sealed box and the Zero Signal console."
+        },
+        "provenance": {
+          "fiche": "docs/assets/trame-signal-ilyana.provenance.json",
+          "creeLe": "2026-07-23",
+          "outil": "Codex built-in image_gen",
+          "modele": "built-in model (identifier not exposed)",
+          "usage": "stylized-concept",
+          "entree": "No input image; generated from the project’s established industrial ash-world art direction.",
+          "prompt": "Ilyana Voss compares a broken copper transmission wire and displaced seals between an evidence box and the Zero Signal console; painterly 16:9 industrial concept art, no legible text or logos.",
+          "droits": "OpenAI Terms of Use — output assigned to the user",
+          "empreinteSha256": "e5bd7ec64459699fffc03747a5b06a1ab3829486c6b73697b7964f3acb7259a4",
+          "statutApprobation": "pending-pull-request-review",
+          "reviseur": null
+        }
+      },
+      "textes": {
+        "fr": {
+          "origine": {
+            "cle": "evenement.convergence.ilyana.origine",
+            "modele": "Poste de consignation de Signal-Zéro",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.convergence.ilyana.titre",
+            "modele": "Ilyana et la Trace",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.convergence.ilyana.presentation",
+            "modele": "Ilyana peut conserver sous scellés les marques de la Bascule ou les transmettre aux techniciens. La Trace ne disparaît pas : seule change la personne capable de l’attribuer.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.convergence.ilyana.information",
+              "modele": "Sous scellés, la preuve reste différée ; transmise, elle pourra revenir dès l’Aiguillage Zéro avec son heure, sa cible et ses plombs.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "trace": {
+              "cle": "evenement.convergence.ilyana.variante.trace",
+              "modele": "Ilyana retrouve sur le fil rompu la même poussière de cuivre que sur les plombs déplacés de la Bascule.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "intendance": {
+              "cle": "evenement.convergence.ilyana.variante.intendance",
+              "modele": "Depuis l’Intendance, Ilyana dispose déjà du registre horaire nécessaire pour sceller la preuve.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.convergence.ilyana.variante.standard",
+              "modele": "Sans Trace clandestine, Ilyana consigne surtout l’absence de rupture afin d’empêcher une accusation fabriquée.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "confier-trace-a-ilyana": {
+              "intention": {
+                "cle": "evenement.convergence.ilyana.choix.confier",
+                "modele": "Confier les marques à Ilyana sous scellés",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.convergence.ilyana.choix.confier.cout",
+                  "modele": "Coût connu : l’attribution est différée, mais Ilyana conserve une preuve complète.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "transmettre-trace-au-signal": {
+              "intention": {
+                "cle": "evenement.convergence.ilyana.choix.transmettre",
+                "modele": "Transmettre la Trace aux techniciens de Signal-Zéro",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.convergence.ilyana.choix.transmettre.cout",
+                  "modele": "Coût connu : la Trace devient immédiatement attribuable par l’enclave technique.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        },
+        "en": {
+          "origine": {
+            "cle": "evenement.convergence.ilyana.origine",
+            "modele": "Zero Signal recording post",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.convergence.ilyana.titre",
+            "modele": "Ilyana and the Trace",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.convergence.ilyana.presentation",
+            "modele": "Ilyana can keep the scales’ marks under seal or transmit them to the technicians. The Trace does not disappear: only the person able to attribute it changes.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.convergence.ilyana.information",
+              "modele": "Under seal, the evidence remains deferred; once transmitted, it may return at Zero Junction with its time, target and seals.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "trace": {
+              "cle": "evenement.convergence.ilyana.variante.trace",
+              "modele": "Ilyana finds the same copper dust on the broken wire and the scales’ displaced seals.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "intendance": {
+              "cle": "evenement.convergence.ilyana.variante.intendance",
+              "modele": "From Stewardship, Ilyana already has the hourly register needed to seal the evidence.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.convergence.ilyana.variante.standard",
+              "modele": "Without a clandestine Trace, Ilyana mainly records the absence of damage to prevent a fabricated accusation.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "confier-trace-a-ilyana": {
+              "intention": {
+                "cle": "evenement.convergence.ilyana.choix.confier",
+                "modele": "Entrust the marks to Ilyana under seal",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.convergence.ilyana.choix.confier.cout",
+                  "modele": "Known cost: attribution is deferred, but Ilyana retains complete evidence.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "transmettre-trace-au-signal": {
+              "intention": {
+                "cle": "evenement.convergence.ilyana.choix.transmettre",
+                "modele": "Transmit the Trace to Zero Signal technicians",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.convergence.ilyana.choix.transmettre.cout",
+                  "modele": "Known cost: the Trace becomes immediately attributable by the technical enclave.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        }
+      }
     }
   ],
   "conseils": [
@@ -8362,7 +9938,17 @@ export default {
           "trame.traverse-libre.galerie-etayee": "Galerie des Réservoirs étayée",
           "trame.traverse-libre.contournement-ouvert": "Contournement de Traverse-Libre ouvert",
           "trame.traverse-libre.manifeste-public": "Aide à Traverse-Libre rendue publique",
-          "trame.traverse-libre.registre-scelle": "Registre d’aide scellé"
+          "trame.traverse-libre.registre-scelle": "Registre d’aide scellé",
+          "trame.marche.coupleur-officiel-acquis": "Coupleur officiel acquis au Marché",
+          "trame.marche.reserve-echangee": "Réserve de refroidissement échangée",
+          "trame.marche.filtres-sans-marque-acquis": "Filtres sans marque acquis",
+          "trame.marche.trace-bascule-clandestine": "Trace laissée sur la Bascule",
+          "trame.signal-zero.interface-rail-lue": "Fréquence républicaine de l’interface lue",
+          "trame.signal-zero.interface-libre-lue": "Fréquence libre de l’interface lue",
+          "trame.signal-zero.echos-conserves": "Échos des deux branches conservés",
+          "trame.signal-zero.frequences-separees": "Fréquences de Signal-Zéro séparées",
+          "trame.signal-zero.trace-sous-scelles": "Trace confiée à Ilyana sous scellés",
+          "trame.signal-zero.trace-transmise": "Trace transmise aux techniciens"
         },
         "causes": {
           "bassins.haut-puits.pacte-des-citernes": "Le pacte des citernes",
@@ -8390,7 +9976,12 @@ export default {
           "trame.pompe-neuve.les-filtres-du-rail": "Décision prise au dépôt de filtres de Pompe-Neuve.",
           "trame.traverse-libre.le-reservoir-sous-la-voie": "Décision prise sous la voie des réservoirs.",
           "trame.traverse-libre.la-galerie-qui-cede": "Décision prise face à l’affaissement de la Galerie.",
-          "trame.traverse-libre.maelys-et-le-manifeste": "Décision prise avec Maëlys devant le registre de Traverse-Libre."
+          "trame.traverse-libre.maelys-et-le-manifeste": "Décision prise avec Maëlys devant le registre de Traverse-Libre.",
+          "trame.marche.les-services-de-la-voie-principale": "Décision prise devant le comptoir officiel du Marché des Traverses.",
+          "trame.marche.la-bascule-sans-manifeste": "Décision prise à la Bascule clandestine du Marché.",
+          "trame.signal-zero.l-interface-aux-deux-frequences": "Décision prise devant l’interface de la Ligne Zéro.",
+          "trame.signal-zero.les-deux-branches-dans-le-verre": "Décision prise devant la table de verre de Signal-Zéro.",
+          "trame.signal-zero.ilyana-et-la-trace": "Décision prise avec Ilyana au poste de Signal-Zéro."
         },
         "acteurs": {
           "ilyana-voss": "Ilyana Voss",
@@ -8415,7 +10006,11 @@ export default {
           "mecaniciens-pompe-neuve": "Mécaniciens de Pompe-Neuve",
           "habitants-traverse-libre": "Habitants de Traverse-Libre",
           "reservoirs-traverse-libre": "Réservoirs de Traverse-Libre",
-          "delegues-puits-libres": "Délégués des Puits Libres"
+          "delegues-puits-libres": "Délégués des Puits Libres",
+          "commis-du-marche": "Commis du Marché des Traverses",
+          "porteurs-des-puits-libres": "Porteurs des Puits Libres",
+          "techniciens-signal-zero": "Techniciens de Signal-Zéro",
+          "ligne-zero": "Ligne Zéro"
         },
         "cibles": {
           "equipes-entretien": "Équipes d’entretien",
@@ -8433,9 +10028,9 @@ export default {
           "conseil-des-vannes": "Conseil des Vannes",
           "chassis-regional-des-bassins": "Châssis régional des Bassins",
           "passage-vers-la-trame": "Passage vers la Trame de Fer",
+          "habitants-des-bassins": "Habitants des Bassins",
           "barriere-neuve": "Barrière-Neuve",
           "republique-du-rail": "République du Rail",
-          "piece-de-regulation": "Pièce de régulation",
           "grand-aiguillage": "Grand-Aiguillage",
           "train-outil-ligne-zero": "Train-outil de la Ligne Zéro",
           "reservoirs-traverse-libre": "Réservoirs de Traverse-Libre",
@@ -8443,7 +10038,16 @@ export default {
           "pompe-neuve": "Pompe-Neuve",
           "traverse-libre": "Traverse-Libre",
           "contournement-traverse-libre": "Contournement de Traverse-Libre",
-          "galerie-des-reservoirs": "Galerie des Réservoirs"
+          "galerie-des-reservoirs": "Galerie des Réservoirs",
+          "commis-du-marche": "Commis du Marché des Traverses",
+          "techniciens-signal-zero": "Techniciens de Signal-Zéro",
+          "marche-des-traverses": "Marché des Traverses",
+          "signal-zero": "Signal-Zéro",
+          "piece-de-regulation": "Pièce de régulation",
+          "bascule-des-manifestes": "Bascule des manifestes",
+          "interface-de-la-ligne-zero": "Interface de la Ligne Zéro",
+          "table-de-signal-zero": "Table de Signal-Zéro",
+          "aiguillage-zero": "Aiguillage Zéro"
         }
       }
     },
@@ -8504,7 +10108,17 @@ export default {
           "trame.traverse-libre.galerie-etayee": "Reservoir Gallery shored up",
           "trame.traverse-libre.contournement-ouvert": "Free Crossing bypass opened",
           "trame.traverse-libre.manifeste-public": "Aid to Free Crossing made public",
-          "trame.traverse-libre.registre-scelle": "Aid register sealed"
+          "trame.traverse-libre.registre-scelle": "Aid register sealed",
+          "trame.marche.coupleur-officiel-acquis": "Official coupler acquired at the Market",
+          "trame.marche.reserve-echangee": "Cooling reserve traded",
+          "trame.marche.filtres-sans-marque-acquis": "Unmarked filters acquired",
+          "trame.marche.trace-bascule-clandestine": "Trace left on the scales",
+          "trame.signal-zero.interface-rail-lue": "Republican interface frequency read",
+          "trame.signal-zero.interface-libre-lue": "Free interface frequency read",
+          "trame.signal-zero.echos-conserves": "Both branches’ echoes preserved",
+          "trame.signal-zero.frequences-separees": "Zero Signal frequencies separated",
+          "trame.signal-zero.trace-sous-scelles": "Trace entrusted to Ilyana under seal",
+          "trame.signal-zero.trace-transmise": "Trace transmitted to the technicians"
         },
         "causes": {
           "bassins.haut-puits.pacte-des-citernes": "The cistern pact",
@@ -8532,7 +10146,12 @@ export default {
           "trame.pompe-neuve.les-filtres-du-rail": "Decision made at the New Pump filter depot.",
           "trame.traverse-libre.le-reservoir-sous-la-voie": "Decision made beneath the reservoir track.",
           "trame.traverse-libre.la-galerie-qui-cede": "Decision made at the Reservoir Gallery collapse.",
-          "trame.traverse-libre.maelys-et-le-manifeste": "Decision made with Maëlys before the Free Crossing register."
+          "trame.traverse-libre.maelys-et-le-manifeste": "Decision made with Maëlys before the Free Crossing register.",
+          "trame.marche.les-services-de-la-voie-principale": "Decision made at Sleeper Market’s official counter.",
+          "trame.marche.la-bascule-sans-manifeste": "Decision made at the Market’s clandestine scales.",
+          "trame.signal-zero.l-interface-aux-deux-frequences": "Decision made before the Zero Line interface.",
+          "trame.signal-zero.les-deux-branches-dans-le-verre": "Decision made before the Zero Signal glass table.",
+          "trame.signal-zero.ilyana-et-la-trace": "Decision made with Ilyana at the Zero Signal post."
         },
         "acteurs": {
           "ilyana-voss": "Ilyana Voss",
@@ -8557,7 +10176,11 @@ export default {
           "mecaniciens-pompe-neuve": "New Pump Mechanics",
           "habitants-traverse-libre": "Free Crossing Inhabitants",
           "reservoirs-traverse-libre": "Free Crossing Reservoirs",
-          "delegues-puits-libres": "Free Wells Delegates"
+          "delegues-puits-libres": "Free Wells Delegates",
+          "commis-du-marche": "Sleeper Market clerks",
+          "porteurs-des-puits-libres": "Free Wells carriers",
+          "techniciens-signal-zero": "Zero Signal technicians",
+          "ligne-zero": "Zero Line"
         },
         "cibles": {
           "equipes-entretien": "Maintenance crews",
@@ -8575,6 +10198,7 @@ export default {
           "conseil-des-vannes": "Sluice Council",
           "chassis-regional-des-bassins": "Basins Regional Frame",
           "passage-vers-la-trame": "Passage into the Iron Weave",
+          "habitants-des-bassins": "People of the Basins",
           "barriere-neuve": "New Barrier",
           "republique-du-rail": "Rail Republic",
           "piece-de-regulation": "Regulation Part",
@@ -8585,7 +10209,15 @@ export default {
           "pompe-neuve": "New Pump",
           "traverse-libre": "Free Crossing",
           "contournement-traverse-libre": "Free Crossing Bypass",
-          "galerie-des-reservoirs": "Reservoir Gallery"
+          "galerie-des-reservoirs": "Reservoir Gallery",
+          "commis-du-marche": "Sleeper Market clerks",
+          "techniciens-signal-zero": "Zero Signal technicians",
+          "marche-des-traverses": "Sleeper Market",
+          "signal-zero": "Zero Signal",
+          "bascule-des-manifestes": "Manifest scales",
+          "interface-de-la-ligne-zero": "Zero Line interface",
+          "table-de-signal-zero": "Zero Signal table",
+          "aiguillage-zero": "Zero Junction"
         }
       }
     }

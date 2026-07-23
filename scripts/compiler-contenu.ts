@@ -50,6 +50,7 @@ const CHEMINS_D_EVENEMENTS_PREMIUM = [
   "content/evenements/deversoir.yaml",
   "content/evenements/trame-fer.yaml",
   "content/evenements/traverse-libre.yaml",
+  "content/evenements/convergence-trame.yaml",
 ] as const;
 const provenances = {
   "docs/assets/cite-caravane.provenance.json": lire(
@@ -142,6 +143,21 @@ const provenances = {
   "docs/assets/trame-traverse-maelys.provenance.json": lire(
     "docs/assets/trame-traverse-maelys.provenance.json",
   ),
+  "docs/assets/trame-marche-officiel.provenance.json": lire(
+    "docs/assets/trame-marche-officiel.provenance.json",
+  ),
+  "docs/assets/trame-marche-clandestin.provenance.json": lire(
+    "docs/assets/trame-marche-clandestin.provenance.json",
+  ),
+  "docs/assets/trame-signal-interface.provenance.json": lire(
+    "docs/assets/trame-signal-interface.provenance.json",
+  ),
+  "docs/assets/trame-signal-echo.provenance.json": lire(
+    "docs/assets/trame-signal-echo.provenance.json",
+  ),
+  "docs/assets/trame-signal-ilyana.provenance.json": lire(
+    "docs/assets/trame-signal-ilyana.provenance.json",
+  ),
 };
 
 function cheminPhysiqueAsset(chemin: string): string {
@@ -211,11 +227,13 @@ function acteurs(evenements: readonly EvenementDuCatalogue[]): Set<string> {
 
 function cibles(evenements: readonly EvenementDuCatalogue[]): Set<string> {
   return new Set(
-    evenements.flatMap((evenement) =>
-      evenement.choix.flatMap((choix) =>
+    evenements.flatMap((evenement) => [
+      evenement.fenetre,
+      evenement.consequenceDifferee.cible,
+      ...evenement.choix.flatMap((choix) =>
         choix.faitsProduits.map(({ cible }) => cible),
       ),
-    ),
+    ]),
   );
 }
 

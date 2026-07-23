@@ -573,6 +573,13 @@ function normaliserEtatCourantEnV6(
     "voie-des-ponts-lourds": voieDesPontsLourds,
     "embranchement-de-pompe-neuve": embranchementDePompeNeuve,
     "galerie-des-reservoirs": galerieDesReservoirs,
+    "rocade-du-marche": rocadeDuMarche,
+    "voie-des-citernes": voieDesCiternes,
+    "ligne-du-signal-zero": ligneDuSignalZero,
+    "voie-des-contremaitres": voieDesContremaitres,
+    "traverse-des-porteurs": traverseDesPorteurs,
+    "rocade-des-regulateurs": rocadeDesRegulateurs,
+    "derivation-des-puits": derivationDesPuits,
     ...etatsReelsV6
   } = sansTrame.routes.etatsReels;
   void routeAjoutee;
@@ -585,6 +592,13 @@ function normaliserEtatCourantEnV6(
   void voieDesPontsLourds;
   void embranchementDePompeNeuve;
   void galerieDesReservoirs;
+  void rocadeDuMarche;
+  void voieDesCiternes;
+  void ligneDuSignalZero;
+  void voieDesContremaitres;
+  void traverseDesPorteurs;
+  void rocadeDesRegulateurs;
+  void derivationDesPuits;
   return {
     ...sansTrame,
     version: VERSION_SIMULATION_AVANT_NACELLES,
@@ -804,6 +818,13 @@ function normaliserEtatCourantEnV7(
     "voie-des-ponts-lourds": voieDesPontsLourds,
     "embranchement-de-pompe-neuve": embranchementDePompeNeuve,
     "galerie-des-reservoirs": galerieDesReservoirs,
+    "rocade-du-marche": rocadeDuMarche,
+    "voie-des-citernes": voieDesCiternes,
+    "ligne-du-signal-zero": ligneDuSignalZero,
+    "voie-des-contremaitres": voieDesContremaitres,
+    "traverse-des-porteurs": traverseDesPorteurs,
+    "rocade-des-regulateurs": rocadeDesRegulateurs,
+    "derivation-des-puits": derivationDesPuits,
     ...etatsReelsV7
   } = sansDevenirs.routes.etatsReels;
   void cheminDeLHospice;
@@ -815,6 +836,13 @@ function normaliserEtatCourantEnV7(
   void voieDesPontsLourds;
   void embranchementDePompeNeuve;
   void galerieDesReservoirs;
+  void rocadeDuMarche;
+  void voieDesCiternes;
+  void ligneDuSignalZero;
+  void voieDesContremaitres;
+  void traverseDesPorteurs;
+  void rocadeDesRegulateurs;
+  void derivationDesPuits;
   const { topologieHistorique, ...routesV7 } = sansDevenirs.routes;
   void topologieHistorique;
   return {
@@ -987,12 +1015,26 @@ function normaliserEtatCourantEnV8(
     "voie-des-ponts-lourds": voieDesPontsLourds,
     "embranchement-de-pompe-neuve": embranchementDePompeNeuve,
     "galerie-des-reservoirs": galerieDesReservoirs,
+    "rocade-du-marche": rocadeDuMarche,
+    "voie-des-citernes": voieDesCiternes,
+    "ligne-du-signal-zero": ligneDuSignalZero,
+    "voie-des-contremaitres": voieDesContremaitres,
+    "traverse-des-porteurs": traverseDesPorteurs,
+    "rocade-des-regulateurs": rocadeDesRegulateurs,
+    "derivation-des-puits": derivationDesPuits,
     ...etatsReelsV8
   } = sansTrame.routes.etatsReels;
   void rampeDeBarriereNeuve;
   void voieDesPontsLourds;
   void embranchementDePompeNeuve;
   void galerieDesReservoirs;
+  void rocadeDuMarche;
+  void voieDesCiternes;
+  void ligneDuSignalZero;
+  void voieDesContremaitres;
+  void traverseDesPorteurs;
+  void rocadeDesRegulateurs;
+  void derivationDesPuits;
   return {
     ...sansTrame,
     version: VERSION_SIMULATION_AVANT_TRAME_DE_FER,
@@ -1122,10 +1164,24 @@ function normaliserEtatCourantEnV9(
   const {
     "embranchement-de-pompe-neuve": embranchementDePompeNeuve,
     "galerie-des-reservoirs": galerieDesReservoirs,
+    "rocade-du-marche": rocadeDuMarche,
+    "voie-des-citernes": voieDesCiternes,
+    "ligne-du-signal-zero": ligneDuSignalZero,
+    "voie-des-contremaitres": voieDesContremaitres,
+    "traverse-des-porteurs": traverseDesPorteurs,
+    "rocade-des-regulateurs": rocadeDesRegulateurs,
+    "derivation-des-puits": derivationDesPuits,
     ...etatsReelsV9
   } = sansTraverse.routes.etatsReels;
   void embranchementDePompeNeuve;
   void galerieDesReservoirs;
+  void rocadeDuMarche;
+  void voieDesCiternes;
+  void ligneDuSignalZero;
+  void voieDesContremaitres;
+  void traverseDesPorteurs;
+  void rocadeDesRegulateurs;
+  void derivationDesPuits;
   return {
     ...sansTraverse,
     version: VERSION_SIMULATION_AVANT_TRAVERSE_LIBRE,

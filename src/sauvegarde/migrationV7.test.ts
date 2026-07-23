@@ -49,6 +49,13 @@ function normaliserEnV7(etat: EtatCampagne): Record<string, unknown> {
   delete historique.traverseLibre;
   delete historique.routes.etatsReels["embranchement-de-pompe-neuve"];
   delete historique.routes.etatsReels["galerie-des-reservoirs"];
+  delete historique.routes.etatsReels["rocade-du-marche"];
+  delete historique.routes.etatsReels["voie-des-citernes"];
+  delete historique.routes.etatsReels["ligne-du-signal-zero"];
+  delete historique.routes.etatsReels["voie-des-contremaitres"];
+  delete historique.routes.etatsReels["traverse-des-porteurs"];
+  delete historique.routes.etatsReels["rocade-des-regulateurs"];
+  delete historique.routes.etatsReels["derivation-des-puits"];
   delete historique.narration.causaliteHistorique;
   delete historique.hautPuits.projetRegional;
   delete historique.veilleBasse.cohorte.orientationRegionale;

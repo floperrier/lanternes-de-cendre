@@ -30,12 +30,26 @@ function normaliserEnV8(etat: EtatCampagne) {
     "voie-des-ponts-lourds": voieDesPontsLourds,
     "embranchement-de-pompe-neuve": embranchementDePompeNeuve,
     "galerie-des-reservoirs": galerieDesReservoirs,
+    "rocade-du-marche": rocadeDuMarche,
+    "voie-des-citernes": voieDesCiternes,
+    "ligne-du-signal-zero": ligneDuSignalZero,
+    "voie-des-contremaitres": voieDesContremaitres,
+    "traverse-des-porteurs": traverseDesPorteurs,
+    "rocade-des-regulateurs": rocadeDesRegulateurs,
+    "derivation-des-puits": derivationDesPuits,
     ...etatsReels
   } = sansTrame.routes.etatsReels;
   void rampeDeBarriereNeuve;
   void voieDesPontsLourds;
   void embranchementDePompeNeuve;
   void galerieDesReservoirs;
+  void rocadeDuMarche;
+  void voieDesCiternes;
+  void ligneDuSignalZero;
+  void voieDesContremaitres;
+  void traverseDesPorteurs;
+  void rocadeDesRegulateurs;
+  void derivationDesPuits;
   return {
     ...sansTrame,
     version: VERSION_SIMULATION_AVANT_TRAME_DE_FER,

@@ -24,6 +24,11 @@ export const NOMS_D_ASSETS_PREMIUM = [
   "trame-traverse-reservoir.webp",
   "trame-traverse-galerie.webp",
   "trame-traverse-maelys.webp",
+  "trame-marche-officiel.webp",
+  "trame-marche-clandestin.webp",
+  "trame-signal-interface.webp",
+  "trame-signal-echo.webp",
+  "trame-signal-ilyana.webp",
 ] as const;
 
 export const LIEUX_PREMIUM = [
@@ -62,6 +67,14 @@ export const LIEUX_PREMIUM = [
   {
     id: "traverse-libre",
     nom: { fr: "Traverse-Libre", en: "Free Crossing" },
+  },
+  {
+    id: "marche-des-traverses",
+    nom: { fr: "Marché des Traverses", en: "Sleeper Market" },
+  },
+  {
+    id: "signal-zero",
+    nom: { fr: "Signal-Zéro", en: "Zero Signal" },
   },
 ] as const;
 
@@ -683,6 +696,388 @@ export const TRONCONS_PREMIUM = [
             source: "Last survey shared by Free Wells scouts",
             danger: "Reported collapse, costly detour still passable",
             controlePolitique: "Collective passage without centralized guarantee",
+          },
+        },
+      },
+    ],
+  },
+  {
+    id: "rocade-du-marche",
+    nom: {
+      fr: "Rocade du Marché",
+      en: "Market Loop",
+    },
+    extremites: ["grand-aiguillage", "marche-des-traverses"],
+    originesAutorisees: ["grand-aiguillage"],
+    dureeSecondes: 540,
+    etatInitial: "praticable",
+    consommationConnue: {
+      stock: "combustible",
+      quantite: 5,
+      unite: "litres",
+    },
+    consommationIncertaine: {
+      stock: "eau",
+      minimum: 4,
+      maximum: 7,
+      quantiteReelle: 6,
+      unite: "litres",
+      renseignementId: "marche-controle-republicain",
+    },
+    renseignements: [
+      {
+        id: "marche-controle-republicain",
+        tronconId: "rocade-du-marche",
+        source: "commis-du-marche",
+        releveA: 0,
+        fiabilite: "confirme",
+        etatAnnonce: "praticable",
+        meteo: "cendre-basse",
+        panache: "absent",
+        danger: "pesage-obligatoire",
+        controlePolitique: "republique-du-rail",
+        libelles: {
+          fr: {
+            source: "Registre officiel des commis du Marché",
+            danger: "Pesage obligatoire des convois et des pièces",
+            controlePolitique: "Accès officiel garanti par la République du Rail",
+          },
+          en: {
+            source: "Sleeper Market clerks’ official register",
+            danger: "Mandatory weighing of convoys and parts",
+            controlePolitique: "Official access guaranteed by the Rail Republic",
+          },
+        },
+      },
+    ],
+  },
+  {
+    id: "voie-des-citernes",
+    nom: {
+      fr: "Voie des Citernes",
+      en: "Cistern Track",
+    },
+    extremites: ["traverse-libre", "marche-des-traverses"],
+    originesAutorisees: ["traverse-libre"],
+    dureeSecondes: 600,
+    etatInitial: "degrade",
+    consommationConnue: {
+      stock: "combustible",
+      quantite: 5,
+      unite: "litres",
+    },
+    consommationIncertaine: {
+      stock: "eau",
+      minimum: 5,
+      maximum: 9,
+      quantiteReelle: 7,
+      unite: "litres",
+      renseignementId: "marche-porteurs-libres",
+    },
+    renseignements: [
+      {
+        id: "marche-porteurs-libres",
+        tronconId: "voie-des-citernes",
+        source: "porteurs-des-puits-libres",
+        releveA: 0,
+        fiabilite: "rapporte",
+        etatAnnonce: "degrade",
+        meteo: "rafales-de-cendre",
+        panache: "incertain",
+        danger: "traverses-disjointes",
+        controlePolitique: "puits-libres",
+        libelles: {
+          fr: {
+            source: "Relevé des porteurs des Puits Libres",
+            danger: "Traverses disjointes et balises déplacées",
+            controlePolitique: "Accès autonome sans garantie de manifeste",
+          },
+          en: {
+            source: "Free Wells carriers’ survey",
+            danger: "Separated sleepers and displaced markers",
+            controlePolitique: "Autonomous access without manifest guarantee",
+          },
+        },
+      },
+    ],
+  },
+  {
+    id: "ligne-du-signal-zero",
+    nom: {
+      fr: "Ligne de Signal-Zéro",
+      en: "Zero Signal Line",
+    },
+    extremites: ["marche-des-traverses", "signal-zero"],
+    originesAutorisees: ["marche-des-traverses"],
+    dureeSecondes: 480,
+    etatInitial: "praticable",
+    consommationConnue: {
+      stock: "combustible",
+      quantite: 4,
+      unite: "litres",
+    },
+    consommationIncertaine: {
+      stock: "eau",
+      minimum: 3,
+      maximum: 6,
+      quantiteReelle: 5,
+      unite: "litres",
+      renseignementId: "signal-zero-techniciens",
+    },
+    renseignements: [
+      {
+        id: "signal-zero-techniciens",
+        tronconId: "ligne-du-signal-zero",
+        source: "techniciens-signal-zero",
+        releveA: 0,
+        fiabilite: "confirme",
+        etatAnnonce: "praticable",
+        meteo: "cendre-basse",
+        panache: "absent",
+        danger: "signaux-doubles",
+        controlePolitique: "enclave-technique",
+        libelles: {
+          fr: {
+            source: "Relève commune des techniciens de Signal-Zéro",
+            danger: "Signaux doubles, aucun itinéraire imposé",
+            controlePolitique: "Enclave technique ouverte aux deux axes",
+          },
+          en: {
+            source: "Joint survey by Zero Signal technicians",
+            danger: "Double signals with no mandated route",
+            controlePolitique: "Technical enclave open to both axes",
+          },
+        },
+      },
+    ],
+  },
+  {
+    id: "voie-des-contremaitres",
+    nom: {
+      fr: "Voie des Contremaîtres",
+      en: "Foremen’s Track",
+    },
+    extremites: ["marche-des-traverses", "barriere-neuve"],
+    originesAutorisees: ["marche-des-traverses"],
+    engagementsPrealables: [
+      {
+        tronconId: "voie-des-citernes",
+        destination: "marche-des-traverses",
+      },
+    ],
+    dureeSecondes: 540,
+    etatInitial: "degrade",
+    consommationConnue: {
+      stock: "combustible",
+      quantite: 5,
+      unite: "litres",
+    },
+    consommationIncertaine: {
+      stock: "eau",
+      minimum: 4,
+      maximum: 8,
+      quantiteReelle: 6,
+      unite: "litres",
+      renseignementId: "contremaitres-vers-barriere",
+    },
+    renseignements: [
+      {
+        id: "contremaitres-vers-barriere",
+        tronconId: "voie-des-contremaitres",
+        source: "commis-du-marche",
+        releveA: 0,
+        fiabilite: "rapporte",
+        etatAnnonce: "degrade",
+        meteo: "cendre-basse",
+        panache: "absent",
+        danger: "convois-de-service",
+        controlePolitique: "republique-du-rail",
+        libelles: {
+          fr: {
+            source: "Carnet aval des contremaîtres du Marché",
+            danger: "Convois de service et aiguilles à contretemps",
+            controlePolitique: "Retour aval vers Barrière-Neuve sous contrôle du Rail",
+          },
+          en: {
+            source: "Sleeper Market foremen’s downstream log",
+            danger: "Service trains and mistimed switches",
+            controlePolitique: "Downstream access to New Barrier under Rail control",
+          },
+        },
+      },
+    ],
+  },
+  {
+    id: "traverse-des-porteurs",
+    nom: {
+      fr: "Traverse des Porteurs",
+      en: "Carriers’ Crossing",
+    },
+    extremites: ["marche-des-traverses", "pompe-neuve"],
+    originesAutorisees: ["marche-des-traverses"],
+    engagementsPrealables: [
+      {
+        tronconId: "rocade-du-marche",
+        destination: "marche-des-traverses",
+      },
+    ],
+    dureeSecondes: 600,
+    etatInitial: "degrade",
+    consommationConnue: {
+      stock: "combustible",
+      quantite: 5,
+      unite: "litres",
+    },
+    consommationIncertaine: {
+      stock: "eau",
+      minimum: 5,
+      maximum: 9,
+      quantiteReelle: 7,
+      unite: "litres",
+      renseignementId: "porteurs-vers-pompe",
+    },
+    renseignements: [
+      {
+        id: "porteurs-vers-pompe",
+        tronconId: "traverse-des-porteurs",
+        source: "porteurs-des-puits-libres",
+        releveA: 0,
+        fiabilite: "rapporte",
+        etatAnnonce: "degrade",
+        meteo: "rafales-de-cendre",
+        panache: "incertain",
+        danger: "balises-mobiles",
+        controlePolitique: "puits-libres",
+        libelles: {
+          fr: {
+            source: "Relève aval des porteurs du Marché",
+            danger: "Balises mobiles et traverses couvertes de cendre",
+            controlePolitique: "Connexion aval autonome vers Pompe-Neuve",
+          },
+          en: {
+            source: "Sleeper Market carriers’ downstream survey",
+            danger: "Moving markers and ash-covered sleepers",
+            controlePolitique: "Autonomous downstream link to New Pump",
+          },
+        },
+      },
+    ],
+  },
+  {
+    id: "rocade-des-regulateurs",
+    nom: {
+      fr: "Rocade des Régulateurs",
+      en: "Regulators’ Loop",
+    },
+    extremites: ["grand-aiguillage", "signal-zero"],
+    originesAutorisees: ["grand-aiguillage"],
+    engagementsPrealables: [
+      {
+        tronconId: "voie-des-contremaitres",
+        destination: "barriere-neuve",
+      },
+      {
+        tronconId: "voie-des-ponts-lourds",
+        destination: "grand-aiguillage",
+      },
+    ],
+    dureeSecondes: 600,
+    etatInitial: "praticable",
+    consommationConnue: {
+      stock: "combustible",
+      quantite: 6,
+      unite: "litres",
+    },
+    consommationIncertaine: {
+      stock: "eau",
+      minimum: 5,
+      maximum: 8,
+      quantiteReelle: 7,
+      unite: "litres",
+      renseignementId: "regulateurs-vers-signal",
+    },
+    renseignements: [
+      {
+        id: "regulateurs-vers-signal",
+        tronconId: "rocade-des-regulateurs",
+        source: "aiguilleurs",
+        releveA: 0,
+        fiabilite: "confirme",
+        etatAnnonce: "praticable",
+        meteo: "cendre-basse",
+        panache: "absent",
+        danger: "gabarit-de-la-piece",
+        controlePolitique: "republique-du-rail",
+        libelles: {
+          fr: {
+            source: "Table de marche des aiguilleurs de Grand-Aiguillage",
+            danger: "Gabarit limité par le transport de la Pièce",
+            controlePolitique: "Sortie technique vers Signal-Zéro",
+          },
+          en: {
+            source: "Grand Junction switch crews’ running table",
+            danger: "Clearance limited by transport of the Part",
+            controlePolitique: "Technical exit toward Zero Signal",
+          },
+        },
+      },
+    ],
+  },
+  {
+    id: "derivation-des-puits",
+    nom: {
+      fr: "Dérivation des Puits",
+      en: "Wells Diversion",
+    },
+    extremites: ["traverse-libre", "signal-zero"],
+    originesAutorisees: ["traverse-libre"],
+    engagementsPrealables: [
+      {
+        tronconId: "traverse-des-porteurs",
+        destination: "pompe-neuve",
+      },
+      {
+        tronconId: "galerie-des-reservoirs",
+        destination: "traverse-libre",
+      },
+    ],
+    dureeSecondes: 660,
+    etatInitial: "degrade",
+    consommationConnue: {
+      stock: "combustible",
+      quantite: 6,
+      unite: "litres",
+    },
+    consommationIncertaine: {
+      stock: "eau",
+      minimum: 6,
+      maximum: 10,
+      quantiteReelle: 8,
+      unite: "litres",
+      renseignementId: "puits-vers-signal",
+    },
+    renseignements: [
+      {
+        id: "puits-vers-signal",
+        tronconId: "derivation-des-puits",
+        source: "eclaireurs-puits-libres",
+        releveA: 0,
+        fiabilite: "rapporte",
+        etatAnnonce: "degrade",
+        meteo: "rafales-de-cendre",
+        panache: "incertain",
+        danger: "galeries-sans-manifeste",
+        controlePolitique: "puits-libres",
+        libelles: {
+          fr: {
+            source: "Relevé des éclaireurs de Traverse-Libre",
+            danger: "Galeries sans manifeste et réserves éloignées",
+            controlePolitique: "Sortie autonome vers Signal-Zéro",
+          },
+          en: {
+            source: "Free Crossing scouts’ survey",
+            danger: "Unmanifested galleries and distant reserves",
+            controlePolitique: "Autonomous exit toward Zero Signal",
           },
         },
       },

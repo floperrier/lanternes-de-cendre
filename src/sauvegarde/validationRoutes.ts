@@ -107,6 +107,7 @@ function estEngagementAttendu(
   position: IdentifiantDeLieu,
   secondeMinimale: number,
   secondeCourante: number,
+  engagementsPrecedents: readonly EngagementDeRoute[],
   coutsV7DesNacelles: boolean,
   autoriserTopologieHistoriqueDesNacelles: boolean,
 ): valeur is EngagementDeRoute {
@@ -162,9 +163,19 @@ function estEngagementAttendu(
     : troncon === undefined
       ? undefined
       : trouverDestination(troncon, position);
+  const engagementsPrealablesSatisfaits =
+    troncon?.engagementsPrealables?.every((requis) =>
+      engagementsPrecedents.some(
+        (engagement) =>
+          engagement.statut === "termine" &&
+          engagement.tronconId === requis.tronconId &&
+          engagement.destination === requis.destination,
+      ),
+    ) ?? true;
   return (
     troncon !== undefined &&
     destination !== undefined &&
+    engagementsPrealablesSatisfaits &&
     valeur.id === `engagement-${index + 1}` &&
     valeur.origine === position &&
     valeur.destination === destination &&
@@ -240,6 +251,7 @@ export function estEtatDesRoutes(
   let prochaineSecondePossible = 0;
   let nombreDeJalons = 0;
   let topologieHistoriqueEstUtilisee = false;
+  const engagementsValides: EngagementDeRoute[] = [];
   const etatsAttendus: Partial<
     Record<IdentifiantDeTroncon, EtatReelDeRoute>
   > = { ...initial.etatsReels };
@@ -257,12 +269,14 @@ export function estEtatDesRoutes(
         position,
         prochaineSecondePossible,
         secondeCourante,
+        engagementsValides,
         coutsV7DesNacelles,
         topologieHistoriqueEstAutorisee,
       )
     ) {
       return false;
     }
+    engagementsValides.push(candidat);
     topologieHistoriqueEstUtilisee ||= candidatUtiliseLaTopologieHistorique;
     if (etatsAttendus[candidat.tronconId] === "coupe") {
       return false;

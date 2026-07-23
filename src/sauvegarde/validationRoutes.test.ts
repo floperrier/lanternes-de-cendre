@@ -48,6 +48,51 @@ describe("validation persistante des routes", () => {
     ).toBe(false);
   });
 
+  it("rejette un raccourci vers Signal-Zéro qui contourne la connexion aval", () => {
+    const troncons = [
+      "digue-des-puits",
+      "chemin-des-vanniers",
+      "chenal-des-vannes",
+      "conduite-du-deversoir",
+      "passage-de-la-ligne-zero",
+      "rampe-de-barriere-neuve",
+      "voie-des-ponts-lourds",
+    ] as const;
+    let routes = creerEtatDesRoutesInitial();
+    let seconde = 0;
+    for (const tronconId of troncons) {
+      const engagement = confirmerEngagementDeRoute(
+        routes,
+        tronconId,
+        seconde,
+      ).etat;
+      const arriveeA = engagement.engagements.at(-1)!.arriveeA;
+      routes = traiterJalonsDeRoute(
+        engagement,
+        seconde,
+        arriveeA,
+      ).etat;
+      seconde = arriveeA;
+    }
+    const raccourci = {
+      ...routes,
+      engagements: [
+        ...routes.engagements,
+        {
+          id: `engagement-${routes.engagements.length + 1}`,
+          tronconId: "rocade-des-regulateurs" as const,
+          origine: "grand-aiguillage" as const,
+          destination: "signal-zero" as const,
+          engageA: seconde,
+          arriveeA: seconde + 600,
+          statut: "en-cours" as const,
+        },
+      ],
+    };
+
+    expect(estEtatDesRoutes(raccourci, seconde)).toBe(false);
+  });
+
   it("rejette les états réels, sources et Jalons impossibles", () => {
     const initial = creerEtatDesRoutesInitial();
     const engagement = confirmerEngagementDeRoute(

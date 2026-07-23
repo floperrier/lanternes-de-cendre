@@ -112,6 +112,33 @@ export function appliquerDecisionDeTraverseLibre(
     };
   }
 
+  if (
+    evenementId === "trame.marche.la-bascule-sans-manifeste" &&
+    choixId === "acheter-filtres-sans-marque"
+  ) {
+    const lotsDeFiltresManquants = Math.max(
+      0,
+      etat.marche.lotsDeFiltresManquants - 1,
+    );
+    return {
+      ...etat,
+      statut: "stabilisee",
+      pressions: {
+        ...etat.pressions,
+        filtres:
+          lotsDeFiltresManquants === 0 ? "stabilises" : "rationnes",
+      },
+      marche: {
+        ...etat.marche,
+        lotsDeFiltresManquants,
+      },
+      dependancesAuRail: {
+        ...etat.dependancesAuRail,
+        filtres: "contournee",
+      },
+    };
+  }
+
   if (evenementId === "trame.traverse-libre.le-reservoir-sous-la-voie") {
     return choixId === "lever-vanne-du-contournement"
       ? {
@@ -208,6 +235,10 @@ const DECISION_PAR_FAIT = {
   "trame.traverse-libre.registre-scelle": [
     "trame.traverse-libre.maelys-et-le-manifeste",
     "sceller-registre",
+  ],
+  "trame.marche.filtres-sans-marque-acquis": [
+    "trame.marche.la-bascule-sans-manifeste",
+    "acheter-filtres-sans-marque",
   ],
 } as const;
 

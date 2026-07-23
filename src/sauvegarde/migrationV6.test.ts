@@ -34,6 +34,13 @@ function sansRouteBasse(etat: EtatCampagne) {
     "voie-des-ponts-lourds": voieDesPontsLourds,
     "embranchement-de-pompe-neuve": embranchementDePompeNeuve,
     "galerie-des-reservoirs": galerieDesReservoirs,
+    "rocade-du-marche": rocadeDuMarche,
+    "voie-des-citernes": voieDesCiternes,
+    "ligne-du-signal-zero": ligneDuSignalZero,
+    "voie-des-contremaitres": voieDesContremaitres,
+    "traverse-des-porteurs": traverseDesPorteurs,
+    "rocade-des-regulateurs": rocadeDesRegulateurs,
+    "derivation-des-puits": derivationDesPuits,
     ...etatsReelsV6
   } = sansTrame.routes.etatsReels;
   void routeBasse;
@@ -46,6 +53,13 @@ function sansRouteBasse(etat: EtatCampagne) {
   void voieDesPontsLourds;
   void embranchementDePompeNeuve;
   void galerieDesReservoirs;
+  void rocadeDuMarche;
+  void voieDesCiternes;
+  void ligneDuSignalZero;
+  void voieDesContremaitres;
+  void traverseDesPorteurs;
+  void rocadeDesRegulateurs;
+  void derivationDesPuits;
   return {
     ...sansTrame,
     version: VERSION_SIMULATION_AVANT_NACELLES,

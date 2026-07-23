@@ -525,6 +525,13 @@ export function estCommandeV9(valeur: unknown): valeur is CommandeCampagne {
     [
       "embranchement-de-pompe-neuve",
       "galerie-des-reservoirs",
+      "rocade-du-marche",
+      "voie-des-citernes",
+      "ligne-du-signal-zero",
+      "voie-des-contremaitres",
+      "traverse-des-porteurs",
+      "rocade-des-regulateurs",
+      "derivation-des-puits",
     ].includes(String(valeur.tronconId))
   ) {
     return false;
@@ -532,7 +539,9 @@ export function estCommandeV9(valeur: unknown): valeur is CommandeCampagne {
   return !(
     valeur.type === "evenement-narratif.choisir" &&
     (valeur.evenementId.startsWith("trame.pompe-neuve.") ||
-      valeur.evenementId.startsWith("trame.traverse-libre."))
+      valeur.evenementId.startsWith("trame.traverse-libre.") ||
+      valeur.evenementId.startsWith("trame.marche.") ||
+      valeur.evenementId.startsWith("trame.signal-zero."))
   );
 }
 
@@ -2841,6 +2850,8 @@ function lireEtatAvecSchemaV9(
   const nouveauxPrefixes = [
     "trame.pompe-neuve.",
     "trame.traverse-libre.",
+    "trame.marche.",
+    "trame.signal-zero.",
   ];
   if (
     !estObjet(valeur) ||
@@ -2848,7 +2859,17 @@ function lireEtatAvecSchemaV9(
     "traverseLibre" in valeur ||
     !estObjet(valeur.routes) ||
     !estObjet(valeur.routes.etatsReels) ||
-    ["embranchement-de-pompe-neuve", "galerie-des-reservoirs"].some(
+    [
+      "embranchement-de-pompe-neuve",
+      "galerie-des-reservoirs",
+      "rocade-du-marche",
+      "voie-des-citernes",
+      "ligne-du-signal-zero",
+      "voie-des-contremaitres",
+      "traverse-des-porteurs",
+      "rocade-des-regulateurs",
+      "derivation-des-puits",
+    ].some(
       (id) =>
         Object.prototype.hasOwnProperty.call(
           (valeur.routes as ObjetInconnu).etatsReels,
@@ -2930,6 +2951,13 @@ function lireEtatAvecSchemaV8(
       "voie-des-ponts-lourds",
       "embranchement-de-pompe-neuve",
       "galerie-des-reservoirs",
+      "rocade-du-marche",
+      "voie-des-citernes",
+      "ligne-du-signal-zero",
+      "voie-des-contremaitres",
+      "traverse-des-porteurs",
+      "rocade-des-regulateurs",
+      "derivation-des-puits",
     ].some((id) =>
       Object.prototype.hasOwnProperty.call(
         (valeur.routes as ObjetInconnu).etatsReels,

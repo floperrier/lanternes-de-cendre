@@ -139,11 +139,39 @@ export interface TextesDeTraverseLibre {
   };
 }
 
+export interface TextesDeConvergenceDeLaTrame {
+  readonly titres: {
+    readonly marche: string;
+    readonly signal: string;
+  };
+  readonly offresOfficielles: DictionnaireDeTextes;
+  readonly offresClandestines: DictionnaireDeTextes;
+  readonly interfaces: DictionnaireDeTextes;
+  readonly traces: DictionnaireDeTextes;
+  readonly echosDeGrandAiguillage: DictionnaireDeTextes;
+  readonly echosDeTraverseLibre: DictionnaireDeTextes;
+  readonly optionsDuClimax: DictionnaireDeTextes;
+  readonly libelles: {
+    readonly eyebrowMarche: string;
+    readonly eyebrowSignal: string;
+    readonly offreOfficielle: string;
+    readonly offreClandestine: string;
+    readonly interface: string;
+    readonly trace: string;
+    readonly echoGrandAiguillage: string;
+    readonly echoTraverseLibre: string;
+    readonly options: string;
+  };
+}
+
 export interface PresentationsPremium {
   readonly hautPuits: Readonly<Record<Langue, TextesDeHautPuits>>;
   readonly veilleBasse: Readonly<Record<Langue, TextesDeVeilleBasse>>;
   readonly trame?: Readonly<Record<Langue, TextesDeTrameDeFer>>;
   readonly traverse?: Readonly<Record<Langue, TextesDeTraverseLibre>>;
+  readonly convergence?: Readonly<
+    Record<Langue, TextesDeConvergenceDeLaTrame>
+  >;
   readonly deversoir?: Readonly<
     Record<
       Langue,
@@ -225,12 +253,22 @@ export function installerPresentationsPremium(valeur: unknown): void {
         (evenement.id.startsWith("trame.pompe-neuve.") ||
           evenement.id.startsWith("trame.traverse-libre.")),
     );
+  const inclutConvergence =
+    Array.isArray(evenements) &&
+    evenements.some(
+      (evenement) =>
+        estObjet(evenement) &&
+        typeof evenement.id === "string" &&
+        (evenement.id.startsWith("trame.marche.") ||
+          evenement.id.startsWith("trame.signal-zero.")),
+    );
   const surfacesAttendues = [
     "hautPuits",
     "veilleBasse",
     ...(inclutLeDeversoir ? ["deversoir"] : []),
     ...(inclutLaTrame ? ["trame"] : []),
     ...(inclutTraverse ? ["traverse"] : []),
+    ...(inclutConvergence ? ["convergence"] : []),
   ];
   if (
     !estObjet(presentations) ||
