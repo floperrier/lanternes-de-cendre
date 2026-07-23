@@ -45,3 +45,9 @@ export interface FaitDeCampagne {
   readonly moment: number;
   readonly effets: EffetsDeFait;
 }
+
+const FAITS_D_INCIDENT = new Set<string>(IDENTIFIANTS_DE_FAITS_D_INCIDENT);
+
+export function estFaitDIncidentOuDeCrise(fait: FaitDeCampagne): boolean {
+  return FAITS_D_INCIDENT.has(fait.id) || fait.id.startsWith("crise.");
+}

@@ -5,7 +5,7 @@ import {
   compagnonEstAffecte,
   conseilEstTermine,
 } from "../simulation/conseil";
-import { IDENTIFIANTS_DE_FAITS_D_INCIDENT } from "../simulation/faits";
+import { estFaitDIncidentOuDeCrise } from "../simulation/faits";
 
 export const EVENEMENTS_DE_LA_DEMONSTRATION = [
   "prologue.signaux-sous-la-cendre",
@@ -39,11 +39,7 @@ export function projeterDemonstration(
   const expeditionEstTerminee = etat.expeditions.operations.some(
     (expedition) => expedition.statut === "terminee",
   );
-  const incidentOuCriseEstTraverse = faits.some(
-    (fait) =>
-      IDENTIFIANTS_DE_FAITS_D_INCIDENT.includes(fait.id as never) ||
-      fait.id.startsWith("crise."),
-  );
+  const incidentOuCriseEstTraverse = faits.some(estFaitDIncidentOuDeCrise);
   const interventionDuCompagnonEstFaite =
     compagnonEstAffecte(faits) && conseilEstTermine(faits);
   const terminee =

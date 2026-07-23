@@ -1189,7 +1189,7 @@ export default {
           },
           "titre": {
             "cle": "evenement.bassins.haut-puits.titre",
-            "modele": "L’eau qui reste aux Bassins",
+            "modele": "L’eau qui reste dans les Bassins fendus",
             "variables": [],
             "valeurs": {}
           },
@@ -1277,7 +1277,7 @@ export default {
           },
           "titre": {
             "cle": "evenement.bassins.haut-puits.titre",
-            "modele": "The water left to the Basins",
+            "modele": "The water left in the Fractured Basins",
             "variables": [],
             "valeurs": {}
           },
@@ -2942,7 +2942,7 @@ export default {
           "prologue.reponse-du-phare": "Le Phare reçoit une réponse",
           "prologue.filtres-de-la-veille": "La cendre dans les filtres",
           "prologue.ilyana-au-clapet": "Ilyana tient le clapet",
-          "bassins-fendus.eau-de-haut-puits": "L’eau qui reste aux Bassins"
+          "bassins-fendus.eau-de-haut-puits": "L’eau qui reste dans les Bassins fendus"
         },
         "acteurs": {
           "ilyana-voss": "Ilyana Voss",
@@ -2979,7 +2979,7 @@ export default {
           "prologue.reponse-du-phare": "The Lighthouse receives an answer",
           "prologue.filtres-de-la-veille": "Ash in the filters",
           "prologue.ilyana-au-clapet": "Ilyana holds the valve",
-          "bassins-fendus.eau-de-haut-puits": "The water left to the Basins"
+          "bassins-fendus.eau-de-haut-puits": "The water left in the Fractured Basins"
         },
         "acteurs": {
           "ilyana-voss": "Ilyana Voss",

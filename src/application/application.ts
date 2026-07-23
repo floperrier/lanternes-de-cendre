@@ -63,7 +63,18 @@ export interface PolitiqueDAccesAuContenu {
   readonly verifierCommande: (
     etat: EtatCampagne,
     commande: CommandeCampagne,
-  ) => string | null;
+  ) => RefusDeCommande | null;
+}
+
+export interface RefusDeCommande {
+  readonly code: "acces-premium-requis";
+}
+
+export class ErreurDeCommandeRefusee extends Error {
+  constructor(readonly refus: RefusDeCommande) {
+    super(refus.code);
+    this.name = "ErreurDeCommandeRefusee";
+  }
 }
 
 export interface OptionsDApplicationCampagne {
@@ -74,7 +85,7 @@ const ACCES_AU_CONTENU_DE_LA_DEMONSTRATION: PolitiqueDAccesAuContenu = {
   verifierCommande: (etat, commande) =>
     commande.type === "engagement-de-route.confirmer" &&
     etat.routes.jalons.length > 0
-      ? "Le deuxième Tronçon de route exige l’Accès premium ; la Campagne sauvegardée reste poursuivable."
+      ? { code: "acces-premium-requis" }
       : null,
 };
 
@@ -237,7 +248,7 @@ function creerApplication(
     envoyerCommande: (commande) => {
       const refus = politiqueDAcces.verifierCommande(etat, commande);
       if (refus !== null) {
-        throw new Error(refus);
+        throw new ErreurDeCommandeRefusee(refus);
       }
       const transition = appliquerCommande(etat, commande);
       etat = transition.etat;

@@ -78,7 +78,7 @@ function CampagnePersistante({ etatDuControleur, controleur }: PropsCampagne) {
     surfacePrioritaire === "jalon-demonstration";
 
   useEffect(() => {
-    let dernierInstant = Date.now();
+    let dernierInstant = Math.floor(Date.now() / 1_000) * 1_000;
     let millisecondesResiduelle = 0;
     const horloge = window.setInterval(() => {
       const maintenant = Date.now();
@@ -90,14 +90,16 @@ function CampagnePersistante({ etatDuControleur, controleur }: PropsCampagne) {
       }
 
       millisecondesResiduelle += millisecondesEcoulees;
-      const secondesReelles = Math.floor(millisecondesResiduelle / 1_000);
-      if (secondesReelles > 0) {
-        millisecondesResiduelle -= secondesReelles * 1_000;
-        application.envoyerCommande({
-          type: "temps-du-convoi.ecouler",
-          secondesReelles,
-        });
-      }
+      const secondesMesurees = Math.floor(millisecondesResiduelle / 1_000);
+      const secondesReelles = Math.max(1, secondesMesurees);
+      millisecondesResiduelle =
+        secondesMesurees === 0
+          ? 0
+          : millisecondesResiduelle - secondesMesurees * 1_000;
+      application.envoyerCommande({
+        type: "temps-du-convoi.ecouler",
+        secondesReelles,
+      });
     }, 1_000);
 
     return () => window.clearInterval(horloge);

@@ -141,7 +141,7 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
   );
   await page.clock.fastForward(90_000);
   const conflit = page.getByRole("region", {
-    name: "L’eau qui reste aux Bassins",
+    name: "L’eau qui reste dans les Bassins fendus",
   });
   await expect(conflit).toContainText("Haut-Puits");
   await expect(conflit.getByRole("img")).toBeVisible();

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   ACCES_AU_CONTENU_COMPLET,
+  ErreurDeCommandeRefusee,
   creerApplicationCampagne,
   projeterCampagne,
   reprendreApplicationCampagne,
@@ -164,8 +165,15 @@ describe("application de Campagne", () => {
     };
     expect(application.commandeEstAutorisee(deuxiemeTroncon)).toBe(false);
     expect(() => application.envoyerCommande(deuxiemeTroncon)).toThrow(
-      "Le deuxième Tronçon de route exige l’Accès premium ; la Campagne sauvegardée reste poursuivable.",
+      ErreurDeCommandeRefusee,
     );
+    try {
+      application.envoyerCommande(deuxiemeTroncon);
+    } catch (erreur) {
+      expect(erreur).toMatchObject({
+        refus: { code: "acces-premium-requis" },
+      });
+    }
 
     const applicationComplete = reprendreApplicationCampagne(
       application.lireEtat(),
