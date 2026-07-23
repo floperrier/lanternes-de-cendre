@@ -10,6 +10,7 @@ import { projeterCompagnonEtConseil } from "../application/conseil";
 import { projeterAtlas } from "../application/routes";
 import { projeterCrises } from "../application/crise";
 import { projeterExpedition } from "../application/expeditions";
+import { projeterDemonstration } from "../application/demonstration";
 import type { Langue } from "../content/types";
 import { criseAttendSonCheckpoint } from "../simulation/crise";
 import {
@@ -28,6 +29,7 @@ import { RubanNarratif } from "./RubanNarratif";
 import { SelecteurDeLangue } from "./SelecteurDeLangue";
 import { CriseDuConvoi } from "./CriseDuConvoi";
 import { OrdreDistantDExpedition } from "./OrdreDistantDExpedition";
+import { JalonFinalDeLaDemonstration } from "./JalonFinalDeLaDemonstration";
 
 interface PropsCampagne {
   readonly etatDuControleur: Extract<
@@ -58,6 +60,7 @@ function CampagnePersistante({ etatDuControleur, controleur }: PropsCampagne) {
   const criseBloquante =
     checkpointDeCriseRequis || projectionDesCrises.active !== null;
   const projectionDExpedition = projeterExpedition(etat, langue);
+  const projectionDeDemonstration = projeterDemonstration(etat, langue);
 
   useEffect(() => {
     const horloge = window.setInterval(() => {
@@ -71,6 +74,18 @@ function CampagnePersistante({ etatDuControleur, controleur }: PropsCampagne) {
 
     return () => window.clearInterval(horloge);
   }, [application]);
+
+  useEffect(() => {
+    if (
+      projectionDeDemonstration.terminee &&
+      application.lireEtat().tempsDuConvoi.vitesse !== 0
+    ) {
+      application.envoyerCommande({
+        type: "temps-du-convoi.regler-vitesse",
+        vitesse: 0,
+      });
+    }
+  }, [application, projectionDeDemonstration.terminee]);
 
   return (
     <main className="app-shell">
@@ -131,7 +146,12 @@ function CampagnePersistante({ etatDuControleur, controleur }: PropsCampagne) {
         </div>
       </div>
 
-      {projectionDesCrises.active !== null ? (
+      {projectionDeDemonstration.terminee ? (
+        <JalonFinalDeLaDemonstration
+          projection={projectionDeDemonstration}
+          langue={langue}
+        />
+      ) : projectionDesCrises.active !== null ? (
         <CriseDuConvoi
           application={application}
           crise={projectionDesCrises.active}
@@ -161,7 +181,7 @@ function CampagnePersistante({ etatDuControleur, controleur }: PropsCampagne) {
       <CommandesDuTemps
         application={application}
         projection={projection}
-        bloque={criseBloquante}
+        bloque={criseBloquante || projectionDeDemonstration.terminee}
       />
     </main>
   );

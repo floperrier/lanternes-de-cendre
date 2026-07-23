@@ -1,0 +1,15 @@
+{
+  "asset": "public/assets/prologue-reponse-du-phare.webp",
+  "sha256": "f1a488452e4f59b21580975c129234e446c417570aec6a8090c001582ca3d216",
+  "createdAt": "2026-07-23",
+  "tool": "Codex built-in image_gen",
+  "model": "built-in model (identifier not exposed)",
+  "useCase": "illustration-story",
+  "input": "public/assets/cite-caravane.png used as the project art-direction reference.",
+  "prompt": "Depict the caravan-city lighthouse core answering a distant buried beacon with an unexpected harmonic pulse, in the established oblique industrial ash-world style. Wide 16:9, no text, logo or watermark.",
+  "rights": "OpenAI Terms of Use — output assigned to the user",
+  "approval": {
+    "status": "pending-pull-request-review",
+    "reviewer": null
+  }
+}

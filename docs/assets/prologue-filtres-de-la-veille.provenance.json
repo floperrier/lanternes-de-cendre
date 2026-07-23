@@ -1,0 +1,15 @@
+{
+  "asset": "public/assets/prologue-filtres-de-la-veille.webp",
+  "sha256": "2d0ce4d83e2ebe5175de64861ac56cc3138ee0935d02ab5c6a1fa8462a3ed461",
+  "createdAt": "2026-07-23",
+  "tool": "Codex built-in image_gen",
+  "model": "built-in model (identifier not exposed)",
+  "useCase": "illustration-story",
+  "input": "public/assets/cite-caravane.png used as the project art-direction reference.",
+  "prompt": "Depict maintenance crews comparing blackened ash filters between sealed Hearths and workshops, in the established oblique industrial ash-world style. Wide 16:9, no text, logo or watermark.",
+  "rights": "OpenAI Terms of Use — output assigned to the user",
+  "approval": {
+    "status": "pending-pull-request-review",
+    "reviewer": null
+  }
+}

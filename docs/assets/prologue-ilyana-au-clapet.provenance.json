@@ -1,0 +1,15 @@
+{
+  "asset": "public/assets/prologue-ilyana-au-clapet.webp",
+  "sha256": "e61f18f77e360e9fd454dad5e16536f18bbcdaa13ee1875cbcf65d4c598449b2",
+  "createdAt": "2026-07-23",
+  "tool": "Codex built-in image_gen",
+  "model": "built-in model (identifier not exposed)",
+  "useCase": "illustration-story",
+  "input": "public/assets/cite-caravane.png used as the project art-direction reference.",
+  "prompt": "Depict Ilyana Voss isolating a secondary valve and explaining pressure gauges in the filtration bay, in the established grounded industrial style. Wide 16:9, no text, logo or watermark.",
+  "rights": "OpenAI Terms of Use — output assigned to the user",
+  "approval": {
+    "status": "pending-pull-request-review",
+    "reviewer": null
+  }
+}

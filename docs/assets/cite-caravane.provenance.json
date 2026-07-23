@@ -7,7 +7,7 @@
   "useCase": "stylized-concept",
   "input": "A UI concept generated during the same implementation task, used only as an art-direction reference.",
   "prompt": "Create a fresh standalone wide production game environment plate for PixiJS, matching the approved interface concept's fixed oblique camera, painterly industrial 2D rendering, cold slate and warm amber palette. Show exactly seven mobile platforms: one central ancient Phare maintenance platform and six inhabited platforms in an irregular two-row cluster. Preserve the sense of one connected traveling community in cold ash wastes at blue-gray dawn. Keep all seven platforms fully visible with practical cover-fit cropping room. No UI, borders, panels, buttons, text, labels, logos, watermark, train-like formation, giant single vehicle, steampunk gears, glossy science fiction, neon or excessive bloom.",
-  "rights": "Original generated asset; no third-party artwork or named artist was supplied as a reference.",
+  "rights": "OpenAI Terms of Use — output assigned to the user",
   "approval": {
     "status": "pending-pull-request-review",
     "reviewer": null

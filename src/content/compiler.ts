@@ -50,6 +50,7 @@ export interface SourcesDuCatalogue {
   readonly provenances: Readonly<Record<string, string>>;
   readonly assetExiste: (chemin: string) => boolean;
   readonly empreinteAsset: (chemin: string) => string;
+  readonly tailleAsset: (chemin: string) => number;
 }
 
 type ObjetSource = Record<string, unknown>;
@@ -69,6 +70,7 @@ interface TraductionCompilee {
 interface AssetSource {
   readonly id: string;
   readonly fichier: string;
+  readonly octetsTransferes: number;
   readonly alternative: string;
   readonly contientTexte: false;
   readonly provenance: AssetCompile["provenance"];
@@ -221,6 +223,7 @@ function compilerAssets(
   provenances: Readonly<Record<string, string>>,
   assetExiste: (chemin: string) => boolean,
   empreinteAsset: (chemin: string) => string,
+  tailleAsset: (chemin: string) => number,
 ): ReadonlyMap<string, AssetSource> {
   const nom = "assets/manifest.yaml";
   const racine = objet(parserYaml(source, nom), nom);
@@ -327,6 +330,7 @@ function compilerAssets(
     resultat.set(id, {
       id,
       fichier,
+      octetsTransferes: tailleAsset(fichier),
       alternative: chaine(
         sourceAsset.alternative,
         `${chemin}/alternative`,
@@ -750,6 +754,7 @@ function compilerEvenement(
     return {
       id: sourceAsset.id,
       fichier: sourceAsset.fichier,
+      octetsTransferes: sourceAsset.octetsTransferes,
       contientTexte: false,
       alternatives,
       provenance: sourceAsset.provenance,
@@ -1338,6 +1343,7 @@ export function compilerCatalogue(
     sources.provenances,
     sources.assetExiste,
     sources.empreinteAsset,
+    sources.tailleAsset,
   );
   const installations = compilerInstallations(
     sources.infrastructure,

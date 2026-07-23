@@ -407,3 +407,89 @@ describe("Événement narratif de la première veille", () => {
     ]);
   });
 });
+
+describe("parcours narratif de la Démonstration", () => {
+  it("enchaîne quatre familles de prologue puis le conflit des Bassins au premier Jalon", () => {
+    let etat = appliquerCommande(creerCampagneInitiale("CENDRE-01"), {
+      type: "temps-du-convoi.ecouler",
+      secondesReelles: 60,
+    }).etat;
+
+    const choixDuPrologue = [
+      ["prologue.signaux-sous-la-cendre", "accueillir"],
+      ["prologue.reponse-du-phare", "consigner-harmonique"],
+      ["prologue.filtres-de-la-veille", "proteger-foyers"],
+      ["prologue.ilyana-au-clapet", "confier-clapet"],
+    ] as const;
+    for (const [evenementId, choixId] of choixDuPrologue) {
+      expect(etat.narration.evenementActif).toBe(evenementId);
+      etat = appliquerCommande(etat, {
+        type: "evenement-narratif.choisir",
+        evenementId,
+        choixId,
+      }).etat;
+      if (evenementId !== "prologue.ilyana-au-clapet") {
+        etat = appliquerCommande(etat, {
+          type: "temps-du-convoi.ecouler",
+          secondesReelles: 1,
+        }).etat;
+      }
+    }
+    expect(etat.narration.evenementActif).toBeNull();
+
+    etat = appliquerCommande(etat, {
+      type: "engagement-de-route.confirmer",
+      tronconId: "digue-des-puits",
+    }).etat;
+    etat = appliquerCommande(etat, {
+      type: "temps-du-convoi.regler-vitesse",
+      vitesse: 4,
+    }).etat;
+    etat = appliquerCommande(etat, {
+      type: "temps-du-convoi.ecouler",
+      secondesReelles: 90,
+    }).etat;
+
+    expect(etat.routes.position).toBe("haut-puits");
+    expect(etat.narration.evenementActif).toBe(
+      "bassins-fendus.eau-de-haut-puits",
+    );
+    etat = appliquerCommande(etat, {
+      type: "evenement-narratif.choisir",
+      evenementId: "bassins-fendus.eau-de-haut-puits",
+      choixId: "promettre-partage",
+    }).etat;
+    expect(etat.narration.evenementsJoues).toEqual([
+      "prologue.signaux-sous-la-cendre",
+      "prologue.reponse-du-phare",
+      "prologue.filtres-de-la-veille",
+      "prologue.ilyana-au-clapet",
+      "bassins-fendus.eau-de-haut-puits",
+    ]);
+  });
+
+  it("borne le contenu gratuit avant le deuxième Tronçon", () => {
+    let etat = creerCampagneInitiale("CENDRE-01");
+    etat = appliquerCommande(etat, {
+      type: "engagement-de-route.confirmer",
+      tronconId: "digue-des-puits",
+    }).etat;
+    etat = appliquerCommande(etat, {
+      type: "temps-du-convoi.regler-vitesse",
+      vitesse: 4,
+    }).etat;
+    etat = appliquerCommande(etat, {
+      type: "temps-du-convoi.ecouler",
+      secondesReelles: 90,
+    }).etat;
+
+    expect(() =>
+      appliquerCommande(etat, {
+        type: "engagement-de-route.confirmer",
+        tronconId: "chenal-des-vannes",
+      }),
+    ).toThrow(
+      "Le deuxième Tronçon exige l’Accès premium ; la Campagne sauvegardée reste poursuivable.",
+    );
+  });
+});

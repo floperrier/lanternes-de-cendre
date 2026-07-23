@@ -71,6 +71,7 @@ export interface TextesDUnEvenement {
 export interface AssetCompile {
   readonly id: string;
   readonly fichier: string;
+  readonly octetsTransferes: number;
   readonly contientTexte: false;
   readonly alternatives: Readonly<Record<Langue, string>>;
   readonly provenance: {

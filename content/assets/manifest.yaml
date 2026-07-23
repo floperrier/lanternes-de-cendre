@@ -5,3 +5,23 @@ assets:
     alternative: evenement.prologue.signaux.asset.alt
     contient_texte: false
     provenance: docs/assets/cite-caravane.provenance.json
+  - id: prologue.reponse-du-phare
+    fichier: /assets/prologue-reponse-du-phare.webp
+    alternative: evenement.prologue.reponse.asset.alt
+    contient_texte: false
+    provenance: docs/assets/prologue-reponse-du-phare.provenance.json
+  - id: prologue.filtres-de-la-veille
+    fichier: /assets/prologue-filtres-de-la-veille.webp
+    alternative: evenement.prologue.filtres.asset.alt
+    contient_texte: false
+    provenance: docs/assets/prologue-filtres-de-la-veille.provenance.json
+  - id: prologue.ilyana-au-clapet
+    fichier: /assets/prologue-ilyana-au-clapet.webp
+    alternative: evenement.prologue.ilyana.asset.alt
+    contient_texte: false
+    provenance: docs/assets/prologue-ilyana-au-clapet.provenance.json
+  - id: bassins-fendus.eau-de-haut-puits
+    fichier: /assets/bassins-haut-puits.webp
+    alternative: evenement.bassins.haut-puits.asset.alt
+    contient_texte: false
+    provenance: docs/assets/bassins-haut-puits.provenance.json

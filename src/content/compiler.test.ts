@@ -8,6 +8,10 @@ import traductionEn from "../../content/locales/en.yaml?raw";
 import traductionFr from "../../content/locales/fr.yaml?raw";
 import references from "../../content/references.yaml?raw";
 import provenanceCoupeHabitee from "../../docs/assets/cite-caravane.provenance.json?raw";
+import provenanceHautPuits from "../../docs/assets/bassins-haut-puits.provenance.json?raw";
+import provenanceFiltres from "../../docs/assets/prologue-filtres-de-la-veille.provenance.json?raw";
+import provenanceIlyana from "../../docs/assets/prologue-ilyana-au-clapet.provenance.json?raw";
+import provenanceReponse from "../../docs/assets/prologue-reponse-du-phare.provenance.json?raw";
 import {
   ErreurDeContenu,
   compilerCatalogue,
@@ -27,10 +31,35 @@ const sourcesValides: SourcesDuCatalogue = {
   assets,
   provenances: {
     "docs/assets/cite-caravane.provenance.json": provenanceCoupeHabitee,
+    "docs/assets/prologue-reponse-du-phare.provenance.json":
+      provenanceReponse,
+    "docs/assets/prologue-filtres-de-la-veille.provenance.json":
+      provenanceFiltres,
+    "docs/assets/prologue-ilyana-au-clapet.provenance.json": provenanceIlyana,
+    "docs/assets/bassins-haut-puits.provenance.json": provenanceHautPuits,
   },
-  assetExiste: (chemin) => chemin === "/assets/cite-caravane.png",
-  empreinteAsset: () =>
-    "adf24fde903c2af3c3e476fc4ed149260d58c146685078e3d97e0380cb337f34",
+  assetExiste: (chemin) =>
+    [
+      "/assets/cite-caravane.png",
+      "/assets/prologue-reponse-du-phare.webp",
+      "/assets/prologue-filtres-de-la-veille.webp",
+      "/assets/prologue-ilyana-au-clapet.webp",
+      "/assets/bassins-haut-puits.webp",
+    ].includes(chemin),
+  empreinteAsset: (chemin) =>
+    ({
+      "/assets/cite-caravane.png":
+        "adf24fde903c2af3c3e476fc4ed149260d58c146685078e3d97e0380cb337f34",
+      "/assets/prologue-reponse-du-phare.webp":
+        "f1a488452e4f59b21580975c129234e446c417570aec6a8090c001582ca3d216",
+      "/assets/prologue-filtres-de-la-veille.webp":
+        "2d0ce4d83e2ebe5175de64861ac56cc3138ee0935d02ab5c6a1fa8462a3ed461",
+      "/assets/prologue-ilyana-au-clapet.webp":
+        "e61f18f77e360e9fd454dad5e16536f18bbcdaa13ee1875cbcf65d4c598449b2",
+      "/assets/bassins-haut-puits.webp":
+        "1538d10da74331d41bfe2ddbe88198c96e796115eb10a02dbeb35155cab9b5a9",
+    })[chemin] ?? "0".repeat(64),
+  tailleAsset: () => 256_000,
 };
 
 function avecSource(
@@ -51,7 +80,7 @@ describe("compilateur du catalogue d’Événements narratifs", () => {
     const catalogue = compilerCatalogue(sourcesValides);
 
     expect(catalogue.version).toBe(1);
-    expect(catalogue.evenements).toHaveLength(1);
+    expect(catalogue.evenements).toHaveLength(5);
     expect(catalogue.installations).toHaveLength(9);
     expect(catalogue.conseils).toHaveLength(1);
     expect(catalogue.evenements[0]).toMatchObject({

@@ -296,6 +296,18 @@ function declencherEvenement(
   };
 }
 
+function declencherSuiteNarrativeDeLaDemonstration(
+  etat: EtatCampagne,
+): TransitionDeCampagne | undefined {
+  const prologue = declencherEvenement(etat, "prologue-enchaine");
+  if (prologue !== undefined) {
+    return prologue;
+  }
+  return etat.routes.jalons.length > 0
+    ? declencherEvenement(etat, "premier-jalon-bassins-fendus")
+    : undefined;
+}
+
 function appliquerEffets(
   etat: EtatCampagne,
   effets: readonly EffetDEvenement[],
@@ -635,6 +647,13 @@ export function appliquerCommande(
     nouvelEtat = { ...nouvelEtat, routes: jalonsDeRoute.etat };
     evenements.push(...jalonsDeRoute.evenements);
 
+    const suiteNarrative =
+      declencherSuiteNarrativeDeLaDemonstration(nouvelEtat);
+    if (suiteNarrative !== undefined) {
+      nouvelEtat = suiteNarrative.etat;
+      evenements.push(...suiteNarrative.evenements);
+    }
+
     const alerteDeCrise = nouvelEtat.crises.alerte;
     if (secondeDeCrise !== undefined && alerteDeCrise !== null) {
       nouvelEtat = {
@@ -901,6 +920,11 @@ export function appliquerCommande(
   }
 
   if (commande.type === "engagement-de-route.confirmer") {
+    if (etat.routes.jalons.length > 0) {
+      throw new Error(
+        "Le deuxième Tronçon exige l’Accès premium ; la Campagne sauvegardée reste poursuivable.",
+      );
+    }
     if (
       etat.infrastructure.deploiement === "halte" ||
       etat.infrastructure.chantierActif !== null

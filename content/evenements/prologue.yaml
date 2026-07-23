@@ -87,3 +87,300 @@ evenements:
           variables: []
     destination_echo: journal-de-campagne
     asset: prologue.signaux-sous-la-cendre
+  - id: prologue.reponse-du-phare
+    famille: mystere-des-phares
+    themes:
+      - reseau-ancien
+      - signal
+    fonction: premiere-revelation
+    fenetre: prologue-enchaine
+    conditions:
+      requises:
+        - type: temps-au-moins
+          secondes: 60
+      interdites: []
+    periode_eligibilite:
+      debut: 60
+      fin: 1200
+    priorite: 90
+    epuisement: unique
+    acteurs:
+      - porte-lanterne
+      - equipes-entretien
+    origine:
+      cle: evenement.prologue.reponse.origine
+      variables: []
+    libelle_intentions:
+      cle: evenement.ruban.intentions
+      variables: []
+    titre:
+      cle: evenement.prologue.reponse.titre
+      variables: []
+    presentation:
+      cle: evenement.prologue.reponse.presentation
+      variables: []
+    informations:
+      - source: equipes-entretien
+        texte:
+          cle: evenement.prologue.reponse.information
+          variables: []
+    faits_lus: []
+    choix:
+      - id: consigner-harmonique
+        intention:
+          cle: evenement.prologue.reponse.choix.consigner
+          variables: []
+        couts_connus:
+          - cle: evenement.prologue.reponse.choix.consigner.cout
+            variables: []
+        effets: []
+        faits_produits:
+          - id: prologue.harmonique-consignee
+            cible: equipes-entretien
+      - id: etouffer-signal
+        intention:
+          cle: evenement.prologue.reponse.choix.etouffer
+          variables: []
+        couts_connus:
+          - cle: evenement.prologue.reponse.choix.etouffer.cout
+            variables: []
+        effets: []
+        faits_produits:
+          - id: prologue.signal-etouffe
+            cible: equipes-entretien
+    consequence_differee:
+      type: revelation-regionale
+      cible: equipes-entretien
+    recuperation:
+      type: observation-au-jalon
+    variantes:
+      - id: standard
+        condition: toujours
+        presentation:
+          cle: evenement.prologue.reponse.variante.standard
+          variables: []
+    destination_echo: journal-de-campagne
+    asset: prologue.reponse-du-phare
+  - id: prologue.filtres-de-la-veille
+    famille: consequences-systemiques
+    themes:
+      - cendre-ambiante
+      - maintenance
+    fonction: exposer-consequence-systemique
+    fenetre: prologue-enchaine
+    conditions:
+      requises:
+        - type: temps-au-moins
+          secondes: 60
+      interdites: []
+    periode_eligibilite:
+      debut: 60
+      fin: 1200
+    priorite: 80
+    epuisement: unique
+    acteurs:
+      - porte-lanterne
+      - equipes-entretien
+    origine:
+      cle: evenement.prologue.filtres.origine
+      variables: []
+    libelle_intentions:
+      cle: evenement.ruban.intentions
+      variables: []
+    titre:
+      cle: evenement.prologue.filtres.titre
+      variables: []
+    presentation:
+      cle: evenement.prologue.filtres.presentation
+      variables: []
+    informations:
+      - source: equipes-entretien
+        texte:
+          cle: evenement.prologue.filtres.information
+          variables: []
+    faits_lus: []
+    choix:
+      - id: proteger-foyers
+        intention:
+          cle: evenement.prologue.filtres.choix.foyers
+          variables: []
+        couts_connus:
+          - cle: evenement.prologue.filtres.choix.foyers.cout
+            variables: []
+        effets: []
+        faits_produits:
+          - id: prologue.filtres-foyers-prioritaires
+            cible: cohorte-de-refugies
+      - id: maintenir-ateliers
+        intention:
+          cle: evenement.prologue.filtres.choix.ateliers
+          variables: []
+        couts_connus:
+          - cle: evenement.prologue.filtres.choix.ateliers.cout
+            variables: []
+        effets: []
+        faits_produits:
+          - id: prologue.filtres-ateliers-prioritaires
+            cible: equipes-entretien
+    consequence_differee:
+      type: prochain-incident
+      cible: equipes-entretien
+    recuperation:
+      type: filtres-renouvelables
+    variantes:
+      - id: standard
+        condition: toujours
+        presentation:
+          cle: evenement.prologue.filtres.variante.standard
+          variables: []
+    destination_echo: journal-de-campagne
+    asset: prologue.filtres-de-la-veille
+  - id: prologue.ilyana-au-clapet
+    famille: histoires-de-compagnons
+    themes:
+      - confiance
+      - eau
+    fonction: presenter-compagnon
+    fenetre: prologue-enchaine
+    conditions:
+      requises:
+        - type: temps-au-moins
+          secondes: 60
+      interdites: []
+    periode_eligibilite:
+      debut: 60
+      fin: 1200
+    priorite: 70
+    epuisement: unique
+    acteurs:
+      - porte-lanterne
+      - ilyana-voss
+    origine:
+      cle: evenement.prologue.ilyana.origine
+      variables: []
+    libelle_intentions:
+      cle: evenement.ruban.intentions
+      variables: []
+    titre:
+      cle: evenement.prologue.ilyana.titre
+      variables: []
+    presentation:
+      cle: evenement.prologue.ilyana.presentation
+      variables: []
+    informations:
+      - source: ilyana-voss
+        texte:
+          cle: evenement.prologue.ilyana.information
+          variables: []
+    faits_lus: []
+    choix:
+      - id: confier-clapet
+        intention:
+          cle: evenement.prologue.ilyana.choix.confier
+          variables: []
+        couts_connus:
+          - cle: evenement.prologue.ilyana.choix.confier.cout
+            variables: []
+        effets: []
+        faits_produits:
+          - id: prologue.ilyana-ecoutee
+            cible: ilyana-voss
+      - id: maintenir-protocole
+        intention:
+          cle: evenement.prologue.ilyana.choix.protocole
+          variables: []
+        couts_connus:
+          - cle: evenement.prologue.ilyana.choix.protocole.cout
+            variables: []
+        effets: []
+        faits_produits:
+          - id: prologue.ilyana-contredite
+            cible: ilyana-voss
+    consequence_differee:
+      type: premier-conseil
+      cible: ilyana-voss
+    recuperation:
+      type: affectation-possible
+    variantes:
+      - id: standard
+        condition: toujours
+        presentation:
+          cle: evenement.prologue.ilyana.variante.standard
+          variables: []
+    destination_echo: journal-de-campagne
+    asset: prologue.ilyana-au-clapet
+  - id: bassins-fendus.eau-de-haut-puits
+    famille: conflits-regionaux
+    themes:
+      - partage-de-leau
+      - autonomie-locale
+    fonction: premier-conflit-regional
+    fenetre: premier-jalon-bassins-fendus
+    conditions:
+      requises:
+        - type: temps-au-moins
+          secondes: 360
+      interdites: []
+    periode_eligibilite:
+      debut: 360
+      fin: 24000
+    priorite: 100
+    epuisement: unique
+    acteurs:
+      - porte-lanterne
+      - puits-libres
+      - habitants-haut-puits
+    origine:
+      cle: evenement.bassins.haut-puits.origine
+      variables: []
+    libelle_intentions:
+      cle: evenement.ruban.intentions
+      variables: []
+    titre:
+      cle: evenement.bassins.haut-puits.titre
+      variables: []
+    presentation:
+      cle: evenement.bassins.haut-puits.presentation
+      variables: []
+    informations:
+      - source: habitants-haut-puits
+        texte:
+          cle: evenement.bassins.haut-puits.information
+          variables: []
+    faits_lus: []
+    choix:
+      - id: promettre-partage
+        intention:
+          cle: evenement.bassins.haut-puits.choix.partage
+          variables: []
+        couts_connus:
+          - cle: evenement.bassins.haut-puits.choix.partage.cout
+            variables: []
+        effets: []
+        faits_produits:
+          - id: bassins.haut-puits.partage-promis
+            cible: habitants-haut-puits
+      - id: proteger-reserves
+        intention:
+          cle: evenement.bassins.haut-puits.choix.reserves
+          variables: []
+        couts_connus:
+          - cle: evenement.bassins.haut-puits.choix.reserves.cout
+            variables: []
+        effets: []
+        faits_produits:
+          - id: bassins.haut-puits.reserves-protegees
+            cible: puits-libres
+    consequence_differee:
+      type: conseil-des-vannes
+      cible: habitants-haut-puits
+    recuperation:
+      type: engagement-renegociable
+    variantes:
+      - id: standard
+        condition: toujours
+        presentation:
+          cle: evenement.bassins.haut-puits.variante.standard
+          variables: []
+    destination_echo: journal-de-campagne
+    asset: bassins-fendus.eau-de-haut-puits

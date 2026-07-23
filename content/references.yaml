@@ -3,6 +3,9 @@ acteurs:
   - porte-lanterne
   - cohorte-de-refugies
   - ilyana-voss
+  - equipes-entretien
+  - puits-libres
+  - habitants-haut-puits
 quartiers:
   - intendance
   - foyers
@@ -10,11 +13,21 @@ quartiers:
   - atelier-operations
 fenetres:
   - premiere-minute-atteinte
+  - prologue-enchaine
+  - premier-jalon-bassins-fendus
 destinations_echo:
   - journal-de-campagne
 faits:
   - prologue.cohorte-accueillie
   - prologue.cohorte-orientee
+  - prologue.harmonique-consignee
+  - prologue.signal-etouffe
+  - prologue.filtres-foyers-prioritaires
+  - prologue.filtres-ateliers-prioritaires
+  - prologue.ilyana-ecoutee
+  - prologue.ilyana-contredite
+  - bassins.haut-puits.partage-promis
+  - bassins.haut-puits.reserves-protegees
   - compagnon.ilyana-voss.affectee-intendance
   - conseil.premiere-veille.circuit-securise
   - conseil.premiere-veille.distribution-maintenue

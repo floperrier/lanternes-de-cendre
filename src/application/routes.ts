@@ -243,7 +243,7 @@ export function projeterAtlas(
     engagement === undefined
       ? listerTronconsEngageables(etat.routes).map((possibilite) => ({
           ...possibilite,
-          engageable: true,
+          engageable: etat.routes.jalons.length === 0,
         }))
       : [
           {

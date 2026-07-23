@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -21,6 +21,18 @@ const catalogue = compilerCatalogue({
     "docs/assets/cite-caravane.provenance.json": lire(
       "docs/assets/cite-caravane.provenance.json",
     ),
+    "docs/assets/prologue-reponse-du-phare.provenance.json": lire(
+      "docs/assets/prologue-reponse-du-phare.provenance.json",
+    ),
+    "docs/assets/prologue-filtres-de-la-veille.provenance.json": lire(
+      "docs/assets/prologue-filtres-de-la-veille.provenance.json",
+    ),
+    "docs/assets/prologue-ilyana-au-clapet.provenance.json": lire(
+      "docs/assets/prologue-ilyana-au-clapet.provenance.json",
+    ),
+    "docs/assets/bassins-haut-puits.provenance.json": lire(
+      "docs/assets/bassins-haut-puits.provenance.json",
+    ),
   },
   assetExiste: (chemin) =>
     existsSync(resolve(racine, "public", chemin.replace(/^\//, ""))),
@@ -28,6 +40,8 @@ const catalogue = compilerCatalogue({
     createHash("sha256")
       .update(readFileSync(resolve(racine, "public", chemin.replace(/^\//, ""))))
       .digest("hex"),
+  tailleAsset: (chemin) =>
+    statSync(resolve(racine, "public", chemin.replace(/^\//, ""))).size,
 });
 const destination = resolve(racine, "src/content/catalogue.generated.ts");
 const sortie = `// Ce fichier est généré par npm run content:compile.\nexport default ${JSON.stringify(catalogue, null, 2)} as const;\n`;

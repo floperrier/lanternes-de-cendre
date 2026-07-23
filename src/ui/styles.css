@@ -1308,6 +1308,41 @@ summary:focus-visible,
   line-height: 1.35;
 }
 
+.jalon-final-demonstration {
+  position: absolute;
+  z-index: 20;
+  right: clamp(1rem, 12vw, 14rem);
+  bottom: 10rem;
+  left: clamp(1rem, 12vw, 14rem);
+  padding: clamp(1.5rem, 4vw, 3rem);
+  background: rgba(8, 15, 18, 0.99);
+  border: 1px solid var(--ambre);
+  box-shadow: 0 1.25rem 4rem rgba(0, 0, 0, 0.6);
+}
+
+.jalon-final-demonstration > * {
+  max-width: 54rem;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.jalon-final-demonstration > p:first-child {
+  color: var(--ambre);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.jalon-final-demonstration h2 {
+  margin-top: 0.5rem;
+  margin-bottom: 0.75rem;
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: clamp(2.3rem, 5vw, 4.5rem);
+  font-weight: 500;
+  line-height: 1;
+}
+
 .commandes-du-temps {
   display: grid;
   grid-template-columns: 15rem 16rem minmax(29rem, 1fr);
