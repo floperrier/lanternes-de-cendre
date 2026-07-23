@@ -32,6 +32,24 @@ test("la Coupe habitée expose son état indispensable dans le DOM", async ({
   await expect(etatTextuel).toContainText("Habitants — 184");
 });
 
+test("les styles structurants de l’Atlas et du temps sont appliqués", async ({
+  page,
+}) => {
+  await page.goto("/");
+
+  const atlas = page.getByRole("region", { name: "Atlas d’exploitation" });
+  await expect(atlas).toHaveCSS("position", "relative");
+  await expect(atlas).toHaveCSS("overflow", "auto");
+
+  const expedition = atlas.getByRole("region", {
+    name: "Expédition — Station des Vannes Grises",
+  });
+  await expect(expedition).toHaveCSS("display", "grid");
+
+  const commandesDuTemps = page.locator(".commandes-du-temps");
+  await expect(commandesDuTemps).toHaveCSS("display", "grid");
+});
+
 test("le Temps du convoi se pilote à la souris et au clavier", async ({
   page,
 }) => {

@@ -269,6 +269,8 @@ summary:focus-visible,
 
 .panneau-veille-basse dd {
   margin: 0;
+}
+
 .haut-puits {
   display: grid;
   gap: 1rem;
