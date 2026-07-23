@@ -1,4 +1,5 @@
 import type { EtatCampagne } from "../simulation/campagne";
+import { catalogueDEvenements } from "../content/catalogue";
 import type { Langue } from "../content/types";
 import { PREMIER_CONSEIL } from "../simulation/conseil";
 import type {
@@ -246,18 +247,6 @@ const JOURNAL_GENERIQUE: Readonly<
         "Crise de purification — Foyers évacués",
       "prologue.cohorte-accueillie": "Cohorte accueillie",
       "prologue.cohorte-orientee": "Cohorte orientée vers Veille-Basse",
-      "prologue.harmonique-consignee": "Harmonique du Phare consignée",
-      "prologue.signal-etouffe": "Signal du Phare étouffé",
-      "prologue.filtres-foyers-prioritaires":
-        "Filtres propres réservés aux Foyers",
-      "prologue.filtres-ateliers-prioritaires":
-        "Filtration des ateliers maintenue",
-      "prologue.ilyana-ecoutee": "Ilyana chargée d’isoler le clapet",
-      "prologue.ilyana-contredite": "Protocole collectif maintenu",
-      "bassins.haut-puits.partage-promis":
-        "Haut-Puits — partage de l’Eau promis",
-      "bassins.haut-puits.reserves-protegees":
-        "Haut-Puits — réserves locales garanties",
     },
     causes: {
       [INCIDENT_INITIAL.id]: INCIDENT_INITIAL.cause,
@@ -265,10 +254,6 @@ const JOURNAL_GENERIQUE: Readonly<
         "Pompe maintenue en service malgré le joint dégradé",
       "penurie-eau.pompe-purification": "Crise de pénurie d’Eau",
       "prologue.signaux-sous-la-cendre": "Des signaux sous la cendre",
-      "prologue.reponse-du-phare": "Le Phare reçoit une réponse",
-      "prologue.filtres-de-la-veille": "La cendre dans les filtres",
-      "prologue.ilyana-au-clapet": "Ilyana tient le clapet",
-      "bassins-fendus.eau-de-haut-puits": "L’eau qui reste aux Bassins",
     },
     acteurs: {
       "porte-lanterne": "Porte-Lanterne",
@@ -279,9 +264,6 @@ const JOURNAL_GENERIQUE: Readonly<
       "foyers-exposes": "Foyers exposés",
       liora: "Liora",
       "equipe-vannes-grises": "Équipe des Vannes Grises",
-      "ilyana-voss": "Ilyana Voss",
-      "puits-libres": "Puits Libres",
-      "habitants-haut-puits": "Habitants de Haut-Puits",
     },
     cibles: {
       "pompe-purification": "Pompe de purification",
@@ -294,10 +276,6 @@ const JOURNAL_GENERIQUE: Readonly<
       "sas-contamine": "Sas contaminé",
       "salle-des-pompes": "Salle des pompes",
       "atelier-operations": "Atelier–Opérations",
-      "equipes-entretien": "Équipes d’entretien",
-      "ilyana-voss": "Ilyana Voss",
-      "puits-libres": "Puits Libres",
-      "habitants-haut-puits": "Habitants de Haut-Puits",
     },
   },
   en: {
@@ -318,18 +296,6 @@ const JOURNAL_GENERIQUE: Readonly<
         "Purification crisis — Hearths evacuated",
       "prologue.cohorte-accueillie": "Cohort welcomed",
       "prologue.cohorte-orientee": "Cohort directed to Veille-Basse",
-      "prologue.harmonique-consignee": "Lighthouse harmonic recorded",
-      "prologue.signal-etouffe": "Lighthouse signal muffled",
-      "prologue.filtres-foyers-prioritaires":
-        "Clean filters reserved for the Hearths",
-      "prologue.filtres-ateliers-prioritaires":
-        "Workshop filtration maintained",
-      "prologue.ilyana-ecoutee": "Ilyana assigned to isolate the valve",
-      "prologue.ilyana-contredite": "Collective protocol maintained",
-      "bassins.haut-puits.partage-promis":
-        "High Well — Water sharing promised",
-      "bassins.haut-puits.reserves-protegees":
-        "High Well — local reserves secured",
     },
     causes: {
       [INCIDENT_INITIAL.id]: "Purification pump instability",
@@ -337,11 +303,6 @@ const JOURNAL_GENERIQUE: Readonly<
         "Pump kept running despite the degraded seal",
       "penurie-eau.pompe-purification": "Water shortage crisis",
       "prologue.signaux-sous-la-cendre": "Signals beneath the ash",
-      "prologue.reponse-du-phare": "The Lighthouse receives an answer",
-      "prologue.filtres-de-la-veille": "Ash in the filters",
-      "prologue.ilyana-au-clapet": "Ilyana holds the valve",
-      "bassins-fendus.eau-de-haut-puits":
-        "The water left to the Basins",
     },
     acteurs: {
       "porte-lanterne": "Lantern-Bearer",
@@ -352,9 +313,6 @@ const JOURNAL_GENERIQUE: Readonly<
       "foyers-exposes": "Exposed Hearths",
       liora: "Liora",
       "equipe-vannes-grises": "Grey Sluices team",
-      "ilyana-voss": "Ilyana Voss",
-      "puits-libres": "Free Wells",
-      "habitants-haut-puits": "High Well inhabitants",
     },
     cibles: {
       "pompe-purification": "Purification pump",
@@ -367,10 +325,6 @@ const JOURNAL_GENERIQUE: Readonly<
       "sas-contamine": "Contaminated airlock",
       "salle-des-pompes": "Pump room",
       "atelier-operations": "Workshop–Operations",
-      "equipes-entretien": "Maintenance crews",
-      "ilyana-voss": "Ilyana Voss",
-      "puits-libres": "Free Wells",
-      "habitants-haut-puits": "High Well inhabitants",
     },
   },
 };
@@ -411,6 +365,10 @@ function textesDeJournalDuConseil(fait: FaitDeCampagne, langue: Langue) {
   return PREMIER_CONSEIL.textes[langue].journal[fait.id];
 }
 
+function libellesDuJournalDeContenu(langue: Langue) {
+  return catalogueDEvenements.libellesTransversaux[langue].journal;
+}
+
 function titrerFait(fait: FaitDeCampagne, langue: Langue): string {
   const titreDeRetour = fait.id.includes(".retour.")
     ? TITRES_DE_RETOUR_D_EXPEDITION[langue]
@@ -419,6 +377,7 @@ function titrerFait(fait: FaitDeCampagne, langue: Langue): string {
     textesDeJournalDuConseil(fait, langue)?.titre.modele ??
     titreDeRetour ??
     TITRES_DES_RAPPORTS_D_EXPEDITION[langue][fait.cause] ??
+    libellesDuJournalDeContenu(langue).titres[fait.id] ??
     JOURNAL_GENERIQUE[langue].titres[fait.id];
   if (titre === undefined) {
     throw new Error(
@@ -431,6 +390,7 @@ function titrerFait(fait: FaitDeCampagne, langue: Langue): string {
 function expliquerCause(fait: FaitDeCampagne, langue: Langue): string {
   return (
     textesDeJournalDuConseil(fait, langue)?.cause.modele ??
+    libellesDuJournalDeContenu(langue).causes[fait.cause] ??
     JOURNAL_GENERIQUE[langue].causes[fait.cause] ??
     fait.cause
   );
@@ -445,13 +405,17 @@ function libellerActeurs(
     return textes.acteurs.map((acteur) => acteur.modele);
   }
   return fait.acteurs.map(
-    (acteur) => JOURNAL_GENERIQUE[langue].acteurs[acteur] ?? acteur,
+    (acteur) =>
+      libellesDuJournalDeContenu(langue).acteurs[acteur] ??
+      JOURNAL_GENERIQUE[langue].acteurs[acteur] ??
+      acteur,
   );
 }
 
 function libellerCible(fait: FaitDeCampagne, langue: Langue): string {
   return (
     textesDeJournalDuConseil(fait, langue)?.cible.modele ??
+    libellesDuJournalDeContenu(langue).cibles[fait.cible] ??
     JOURNAL_GENERIQUE[langue].cibles[fait.cible] ??
     fait.cible
   );

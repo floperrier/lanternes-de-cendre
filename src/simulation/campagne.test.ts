@@ -468,7 +468,7 @@ describe("parcours narratif de la Démonstration", () => {
     ]);
   });
 
-  it("laisse le noyau engager un deuxième Tronçon sans connaître l’offre commerciale", () => {
+  it("laisse le noyau engager un deuxième Tronçon de route sans connaître l’offre commerciale", () => {
     let etat = creerCampagneInitiale("CENDRE-01");
     etat = appliquerCommande(etat, {
       type: "engagement-de-route.confirmer",

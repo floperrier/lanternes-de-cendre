@@ -64,13 +64,19 @@ describe("contenu de la Démonstration", () => {
     expect(evenements[4]?.variantes).toEqual([
       {
         id: "cohorte-accueillie",
-        condition: "fait-present:prologue.cohorte-accueillie",
+        condition: {
+          type: "fait-present",
+          fait: "prologue.cohorte-accueillie",
+        },
       },
       {
         id: "cohorte-orientee",
-        condition: "fait-present:prologue.cohorte-orientee",
+        condition: {
+          type: "fait-present",
+          fait: "prologue.cohorte-orientee",
+        },
       },
-      { id: "standard", condition: "toujours" },
+      { id: "standard", condition: { type: "toujours" } },
     ]);
   });
 });

@@ -83,7 +83,9 @@ export default {
       "variantes": [
         {
           "id": "standard",
-          "condition": "toujours"
+          "condition": {
+            "type": "toujours"
+          }
         }
       ],
       "destinationEcho": "journal-de-campagne",
@@ -351,7 +353,9 @@ export default {
       "variantes": [
         {
           "id": "standard",
-          "condition": "toujours"
+          "condition": {
+            "type": "toujours"
+          }
         }
       ],
       "destinationEcho": "journal-de-campagne",
@@ -407,7 +411,7 @@ export default {
           "informations": [
             {
               "cle": "evenement.prologue.reponse.information",
-              "modele": "Les aiguilles ont répété trois fois le même intervalle ; ce n’est ni une panne ni un écho du Halo.",
+              "modele": "Les aiguilles ont répété trois fois le même intervalle ; ce n’est ni une panne ni un écho du Halo de veille.",
               "variables": [],
               "valeurs": {}
             }
@@ -607,7 +611,9 @@ export default {
       "variantes": [
         {
           "id": "standard",
-          "condition": "toujours"
+          "condition": {
+            "type": "toujours"
+          }
         }
       ],
       "destinationEcho": "journal-de-campagne",
@@ -863,7 +869,9 @@ export default {
       "variantes": [
         {
           "id": "standard",
-          "condition": "toujours"
+          "condition": {
+            "type": "toujours"
+          }
         }
       ],
       "destinationEcho": "journal-de-campagne",
@@ -1122,15 +1130,23 @@ export default {
       "variantes": [
         {
           "id": "cohorte-accueillie",
-          "condition": "fait-present:prologue.cohorte-accueillie"
+          "condition": {
+            "type": "fait-present",
+            "fait": "prologue.cohorte-accueillie"
+          }
         },
         {
           "id": "cohorte-orientee",
-          "condition": "fait-present:prologue.cohorte-orientee"
+          "condition": {
+            "type": "fait-present",
+            "fait": "prologue.cohorte-orientee"
+          }
         },
         {
           "id": "standard",
-          "condition": "toujours"
+          "condition": {
+            "type": "toujours"
+          }
         }
       ],
       "destinationEcho": "journal-de-campagne",
@@ -1179,7 +1195,7 @@ export default {
           },
           "presentation": {
             "cle": "evenement.bassins.haut-puits.presentation",
-            "modele": "Au terme du premier Tronçon, Haut-Puits ouvre sa citerne profonde. Les Puits Libres veulent garantir l’autonomie de la colonie ; les familles déplacées réclament la part annoncée par les signaux du prologue.",
+            "modele": "Au terme du premier Tronçon de route, Haut-Puits ouvre sa citerne profonde. Les Puits Libres veulent garantir l’autonomie de la colonie ; les familles déplacées réclament la part annoncée par les signaux du prologue.",
             "variables": [],
             "valeurs": {}
           },
@@ -2903,5 +2919,81 @@ export default {
         }
       }
     }
-  ]
+  ],
+  "libellesTransversaux": {
+    "fr": {
+      "demonstration": {
+        "surtitre": "Jalon de la Démonstration",
+        "titre": "La route continue",
+        "explication": "La Démonstration s’achève avant le deuxième Tronçon de route. La même Campagne pourra continuer avec l’Accès premium, sans recommencer."
+      },
+      "journal": {
+        "titres": {
+          "prologue.harmonique-consignee": "Harmonique du Phare consignée",
+          "prologue.signal-etouffe": "Signal du Phare étouffé",
+          "prologue.filtres-foyers-prioritaires": "Filtres propres réservés aux Foyers",
+          "prologue.filtres-ateliers-prioritaires": "Filtration des ateliers maintenue",
+          "prologue.ilyana-ecoutee": "Ilyana chargée d’isoler le clapet",
+          "prologue.ilyana-contredite": "Protocole collectif maintenu",
+          "bassins.haut-puits.partage-promis": "Haut-Puits — partage de l’Eau promis",
+          "bassins.haut-puits.reserves-protegees": "Haut-Puits — réserves locales garanties"
+        },
+        "causes": {
+          "prologue.reponse-du-phare": "Le Phare reçoit une réponse",
+          "prologue.filtres-de-la-veille": "La cendre dans les filtres",
+          "prologue.ilyana-au-clapet": "Ilyana tient le clapet",
+          "bassins-fendus.eau-de-haut-puits": "L’eau qui reste aux Bassins"
+        },
+        "acteurs": {
+          "ilyana-voss": "Ilyana Voss",
+          "puits-libres": "Puits Libres",
+          "habitants-haut-puits": "Habitants de Haut-Puits",
+          "porte-lanterne": "Porte-Lanterne"
+        },
+        "cibles": {
+          "equipes-entretien": "Équipes d’entretien",
+          "ilyana-voss": "Ilyana Voss",
+          "puits-libres": "Puits Libres",
+          "habitants-haut-puits": "Habitants de Haut-Puits"
+        }
+      }
+    },
+    "en": {
+      "demonstration": {
+        "surtitre": "Demonstration milestone",
+        "titre": "The road continues",
+        "explication": "The Demonstration ends before the second Route Segment. The same Campaign can continue with Premium Access, without starting over."
+      },
+      "journal": {
+        "titres": {
+          "prologue.harmonique-consignee": "Lighthouse harmonic recorded",
+          "prologue.signal-etouffe": "Lighthouse signal muffled",
+          "prologue.filtres-foyers-prioritaires": "Clean filters reserved for the Hearths",
+          "prologue.filtres-ateliers-prioritaires": "Workshop filtration maintained",
+          "prologue.ilyana-ecoutee": "Ilyana assigned to isolate the valve",
+          "prologue.ilyana-contredite": "Collective protocol maintained",
+          "bassins.haut-puits.partage-promis": "High Well — Water sharing promised",
+          "bassins.haut-puits.reserves-protegees": "High Well — local reserves secured"
+        },
+        "causes": {
+          "prologue.reponse-du-phare": "The Lighthouse receives an answer",
+          "prologue.filtres-de-la-veille": "Ash in the filters",
+          "prologue.ilyana-au-clapet": "Ilyana holds the valve",
+          "bassins-fendus.eau-de-haut-puits": "The water left to the Basins"
+        },
+        "acteurs": {
+          "ilyana-voss": "Ilyana Voss",
+          "puits-libres": "Free Wells",
+          "habitants-haut-puits": "High Well inhabitants",
+          "porte-lanterne": "Lantern-Bearer"
+        },
+        "cibles": {
+          "equipes-entretien": "Maintenance crews",
+          "ilyana-voss": "Ilyana Voss",
+          "puits-libres": "Free Wells",
+          "habitants-haut-puits": "High Well inhabitants"
+        }
+      }
+    }
+  }
 } as const;

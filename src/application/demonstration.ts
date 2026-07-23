@@ -1,4 +1,5 @@
 import type { Langue } from "../content/types";
+import { catalogueDEvenements } from "../content/catalogue";
 import type { EtatCampagne } from "../simulation/campagne";
 import {
   compagnonEstAffecte,
@@ -14,23 +15,11 @@ export const EVENEMENTS_DE_LA_DEMONSTRATION = [
   "bassins-fendus.eau-de-haut-puits",
 ] as const;
 
-const TEXTES_DU_JALON_FINAL = {
-  fr: {
-    titre: "La route continue",
-    explication:
-      "La Démonstration s’achève avant le deuxième Tronçon. La même Campagne pourra continuer avec l’Accès premium, sans recommencer.",
-  },
-  en: {
-    titre: "The road continues",
-    explication:
-      "The Demonstration ends before the second Route Segment. The same Campaign can continue with Premium Access, without starting over.",
-  },
-} as const;
-
 export interface ProjectionDeDemonstration {
   readonly graineRepresentative: "CENDRE-01";
   readonly terminee: boolean;
   readonly jalonFinal: {
+    readonly surtitre: string;
     readonly titre: string;
     readonly explication: string;
   } | null;
@@ -67,6 +56,8 @@ export function projeterDemonstration(
   return {
     graineRepresentative: "CENDRE-01",
     terminee,
-    jalonFinal: terminee ? TEXTES_DU_JALON_FINAL[langue] : null,
+    jalonFinal: terminee
+      ? catalogueDEvenements.libellesTransversaux[langue].demonstration
+      : null,
   };
 }

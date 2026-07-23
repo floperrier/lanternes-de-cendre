@@ -74,7 +74,7 @@ const ACCES_AU_CONTENU_DE_LA_DEMONSTRATION: PolitiqueDAccesAuContenu = {
   verifierCommande: (etat, commande) =>
     commande.type === "engagement-de-route.confirmer" &&
     etat.routes.jalons.length > 0
-      ? "Le deuxième Tronçon exige l’Accès premium ; la Campagne sauvegardée reste poursuivable."
+      ? "Le deuxième Tronçon de route exige l’Accès premium ; la Campagne sauvegardée reste poursuivable."
       : null,
 };
 
@@ -144,12 +144,11 @@ function projeterEvenementNarratif(
   const textes = evenement.textes[langue];
   const contexte = { habitants: etat.citeCaravane.habitants };
   const idVariante = evenement.variantes.find(({ condition }) => {
-    if (condition === "toujours") {
+    if (condition.type === "toujours") {
       return true;
     }
-    const faitAttendu = condition.slice("fait-present:".length);
     return etat.narration.faitsDeCampagne.some(
-      (fait) => fait.id === faitAttendu,
+      (fait) => fait.id === condition.fait,
     );
   })?.id;
   const texteVariante =

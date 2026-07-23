@@ -11,6 +11,7 @@ import {
   type ChoixDEvenement,
   type ConseilDuCatalogue,
   type ConditionDEvenement,
+  type ConditionDeVariante,
   type EffetDEvenement,
   type EvenementDuCatalogue,
   type Langue,
@@ -216,6 +217,49 @@ function compilerTraduction(
   }
 
   return { textes };
+}
+
+function compilerLibellesTransversaux(
+  traductions: Readonly<Record<Langue, TraductionCompilee>>,
+): CatalogueDEvenements["libellesTransversaux"] {
+  const extraireDictionnaire = (
+    langue: Langue,
+    prefixe: string,
+  ): Readonly<Record<string, string>> =>
+    Object.fromEntries(
+      Object.entries(traductions[langue].textes)
+        .filter(([cle]) => cle.startsWith(prefixe))
+        .map(([cle, valeur]) => [cle.slice(prefixe.length), valeur]),
+    );
+  const traduire = (langue: Langue, cle: string): string => {
+    const valeur = traductions[langue].textes[cle];
+    if (valeur === undefined) {
+      return echouer("traduction", `${langue}.yaml/textes/${cle}`, "clé absente");
+    }
+    return valeur;
+  };
+
+  return Object.fromEntries(
+    LANGUES.map((langue) => [
+      langue,
+      {
+        demonstration: {
+          surtitre: traduire(langue, "interface.demonstration.surtitre"),
+          titre: traduire(langue, "interface.demonstration.titre"),
+          explication: traduire(
+            langue,
+            "interface.demonstration.explication",
+          ),
+        },
+        journal: {
+          titres: extraireDictionnaire(langue, "journal.titre."),
+          causes: extraireDictionnaire(langue, "journal.cause."),
+          acteurs: extraireDictionnaire(langue, "journal.acteur."),
+          cibles: extraireDictionnaire(langue, "journal.cible."),
+        },
+      },
+    ]),
+  ) as CatalogueDEvenements["libellesTransversaux"];
 }
 
 function compilerAssets(
@@ -592,24 +636,29 @@ function compilerEvenement(
   ).map((variante, varianteIndex) => {
     const cheminVariante = `${chemin}/variantes/${varianteIndex}`;
     const valeur = objet(variante, cheminVariante);
-    const condition = chaine(
+    const conditionSource = chaine(
       valeur.condition,
       `${cheminVariante}/condition`,
     );
-    if (condition !== "toujours") {
+    let condition: ConditionDeVariante;
+    if (conditionSource === "toujours") {
+      condition = { type: "toujours" };
+    } else {
       const prefixe = "fait-present:";
-      if (!condition.startsWith(prefixe)) {
+      if (!conditionSource.startsWith(prefixe)) {
         echouer(
           "reference",
           `${cheminVariante}/condition`,
-          `condition de variante inconnue « ${condition} »`,
+          `condition de variante inconnue « ${conditionSource} »`,
         );
       }
+      const fait = conditionSource.slice(prefixe.length);
       verifierReference(
         references.faits,
-        condition.slice(prefixe.length),
+        fait,
         `${cheminVariante}/condition`,
       );
+      condition = { type: "fait-present", fait };
     }
     return {
       id: chaine(valeur.id, `${cheminVariante}/id`),
@@ -639,8 +688,8 @@ function compilerEvenement(
         : [],
   );
   const faitsTestesParLesVariantes = variantesSource.flatMap((variante) =>
-    variante.condition.startsWith("fait-present:")
-      ? [variante.condition.slice("fait-present:".length)]
+    variante.condition.type === "fait-present"
+      ? [variante.condition.fait]
       : [],
   );
   if (!memesValeurs(faitsLus, [...faitsTestes, ...faitsTestesParLesVariantes])) {
@@ -1386,6 +1435,7 @@ export function compilerCatalogue(
     sources.empreinteAsset,
     sources.tailleAsset,
   );
+  const libellesTransversaux = compilerLibellesTransversaux(traductions);
   const installations = compilerInstallations(
     sources.infrastructure,
     traductions,
@@ -1457,5 +1507,6 @@ export function compilerCatalogue(
     evenements,
     installations,
     conseils,
+    libellesTransversaux,
   });
 }

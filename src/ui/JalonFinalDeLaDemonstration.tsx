@@ -30,7 +30,7 @@ export function JalonFinalDeLaDemonstration({
       aria-describedby="explication-jalon-final-demonstration"
       lang={langue}
     >
-      <p>{langue === "fr" ? "Jalon de la Démonstration" : "Demonstration milestone"}</p>
+      <p>{projection.jalonFinal.surtitre}</p>
       <h2
         ref={titre}
         id="titre-jalon-final-demonstration"

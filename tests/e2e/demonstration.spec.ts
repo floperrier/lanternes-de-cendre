@@ -1,141 +1,49 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 
-import { creerApplicationCampagne } from "../../src/application/application";
-import {
-  creerReproductionInitiale,
-  creerSauvegarde,
-  exporterSauvegarde,
-} from "../../src/sauvegarde/sauvegarde";
-import type { CommandeDeReproduction } from "../../src/sauvegarde/types";
-import { empreinteEtat } from "../../src/simulation/campagne";
+test.use({
+  viewport: { width: 640, height: 360 },
+  deviceScaleFactor: 2,
+});
 
-async function activerAuClavier(cible: Locator): Promise<void> {
-  await cible.focus();
-  await expect(cible).toBeFocused();
-  await cible.press("Enter");
-}
-
-function creerArchiveDeDemonstration(
-  statut: "conflit" | "ordre-requis" | "terminee",
-): string {
-  const application = creerApplicationCampagne("CENDRE-01");
-  const reproductionInitiale = creerReproductionInitiale(
-    application.lireEtat(),
-  );
-  const commandes: CommandeDeReproduction[] = [];
-  application.sabonnerAuxCommandes((commande, etat) => {
-    commandes.push({
-      sequence: commandes.length,
-      commande,
-      empreinteApres: empreinteEtat(etat),
-    });
-  });
-  const envoyer = application.envoyerCommande;
-  envoyer({ type: "temps-du-convoi.ecouler", secondesReelles: 60 });
-  for (const [evenementId, choixId] of [
-    ["prologue.signaux-sous-la-cendre", "accueillir"],
-    ["prologue.reponse-du-phare", "consigner-harmonique"],
-    ["prologue.filtres-de-la-veille", "proteger-foyers"],
-    ["prologue.ilyana-au-clapet", "confier-clapet"],
-  ] as const) {
-    envoyer({ type: "evenement-narratif.choisir", evenementId, choixId });
-    if (evenementId !== "prologue.ilyana-au-clapet") {
-      envoyer({ type: "temps-du-convoi.ecouler", secondesReelles: 1 });
-    }
-  }
-  envoyer({
-    type: "incident.ordonner",
-    incidentId: "purification.pompe-instable",
-    ordre: "securiser-pompe",
-  });
-  envoyer({
-    type: "compagnon.affecter",
-    compagnonId: "ilyana-voss",
-    quartierId: "intendance",
-  });
-  envoyer({
-    type: "conseil.decider",
-    conseilId: "conseil.premiere-veille",
-    sujetId: "purification-et-partage-de-l-eau",
-    decisionId: "securiser-circuit",
-  });
-  envoyer({ type: "expedition.lancer", expeditionId: "vannes-grises" });
-  envoyer({
-    type: "engagement-de-route.confirmer",
-    tronconId: "digue-des-puits",
-  });
-  envoyer({ type: "temps-du-convoi.regler-vitesse", vitesse: 4 });
-  envoyer({ type: "temps-du-convoi.ecouler", secondesReelles: 90 });
-  if (statut === "conflit") {
-    return exporterSauvegarde(
-      creerSauvegarde(application.lireEtat(), {
-        ...reproductionInitiale,
-        commandes,
-      }),
-    );
-  }
-  envoyer({
-    type: "evenement-narratif.choisir",
-    evenementId: "bassins-fendus.eau-de-haut-puits",
-    choixId: "promettre-partage",
-  });
-  envoyer({ type: "temps-du-convoi.ecouler", secondesReelles: 2_265 });
-  if (statut === "terminee") {
-    envoyer({
-      type: "expedition.ordonner",
-      expeditionId: "vannes-grises",
-      intention: "couper-contourner",
-    });
-    envoyer({ type: "temps-du-convoi.ecouler", secondesReelles: 2_250 });
-  }
-  return exporterSauvegarde(
-    creerSauvegarde(application.lireEtat(), {
-      ...reproductionInitiale,
-      commandes,
-    }),
-  );
-}
-
-/**
- * Les longues attentes de simulation sont remplacées par des archives de
- * checkpoint produites par le moteur et rejouables bit à bit. Le scénario
- * vérifie donc les frontières avant/après reprise ; il ne prétend pas simuler
- * une continuité murale de plusieurs heures dans le navigateur.
- */
-async function importerArchive(
+async function activerAuClavier(
   page: Page,
-  nom: string,
-  archive: string,
+  cible: Locator,
 ): Promise<void> {
-  await page.getByLabel("Choisir une sauvegarde à importer").setInputFiles({
-    name: nom,
-    mimeType: "application/json",
-    buffer: Buffer.from(archive),
-  });
+  await expect(cible).toBeVisible();
+  for (let tabulation = 0; tabulation < 200; tabulation += 1) {
+    if (
+      await cible.evaluate(
+        (element) => element === element.ownerDocument.activeElement,
+      )
+    ) {
+      break;
+    }
+    await page.keyboard.press("Tab");
+  }
+  await expect(cible).toBeFocused();
+  await page.keyboard.press("Enter");
 }
 
 test("la Démonstration complète atteint sa porte premium sans sollicitation anticipée", async ({
   page,
 }, testInfo) => {
-  test.setTimeout(60_000);
+  test.setTimeout(120_000);
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.clock.install();
   await page.goto("/");
-  const sessionCdp = await page.context().newCDPSession(page);
-  await sessionCdp.send("Emulation.setPageScaleFactor", {
-    pageScaleFactor: 2,
-  });
   const emulationNavigateur = await page.evaluate(() => ({
     mouvementReduit: window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches,
-    echelleVisuelle: window.visualViewport?.scale ?? 1,
-    zoomCss: getComputedStyle(document.documentElement).zoom,
+    largeurMiseEnPage: window.innerWidth,
+    pixelsParPixelCss: window.devicePixelRatio,
+    largeurPhysique: window.innerWidth * window.devicePixelRatio,
   }));
   expect(emulationNavigateur).toEqual({
     mouvementReduit: true,
-    echelleVisuelle: 2,
-    zoomCss: "1",
+    largeurMiseEnPage: 640,
+    pixelsParPixelCss: 2,
+    largeurPhysique: 1280,
   });
   const surfacesVisuelles = page.locator("canvas");
   await expect(surfacesVisuelles).toHaveCount(2);
@@ -144,7 +52,7 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
   }
   await expect(page.getByText(/Accès premium|Premium Access/)).toHaveCount(0);
 
-  await page.clock.runFor(60_000);
+  await page.clock.fastForward(60_000);
   const titresEtChoixDuPrologue = [
     ["Des signaux sous la cendre", "Ouvrir les Foyers"],
     ["Le Phare reçoit une réponse", "Consigner l’harmonique pour la route"],
@@ -155,9 +63,12 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
     const evenement = page.getByRole("region", { name: titre });
     await expect(evenement).toBeVisible();
     await expect(evenement.getByRole("img")).toBeVisible();
-    await activerAuClavier(evenement.getByRole("button", { name: choix }));
+    await activerAuClavier(
+      page,
+      evenement.getByRole("button", { name: choix }),
+    );
     if (titre !== "Ilyana tient le clapet") {
-      await page.clock.runFor(1_000);
+      await page.clock.fastForward(1_000);
     }
   }
   await expect(page.getByText(/Accès premium|Premium Access/)).toHaveCount(0);
@@ -166,6 +77,7 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
     name: "Pompe de purification instable",
   });
   await activerAuClavier(
+    page,
     incident.getByRole("button", { name: "Sécuriser la pompe" }),
   );
 
@@ -173,6 +85,7 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
     name: "Sauvegarde de Campagne",
   });
   await activerAuClavier(
+    page,
     sauvegarde.getByRole("button", { name: "Sauvegarder" }),
   );
   await expect(sauvegarde.getByText("Sauvegarde à jour.")).toBeVisible();
@@ -181,6 +94,7 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
     name: "Compagnon — Ilyana Voss",
   });
   await activerAuClavier(
+    page,
     compagnon.getByRole("button", { name: "Affecter à l’Intendance" }),
   );
   const conseil = page.getByRole("region", {
@@ -193,6 +107,7 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
     }),
   ).toBeFocused();
   await activerAuClavier(
+    page,
     conseil.getByRole("button", {
       name: "Prioriser la sécurisation du circuit",
     }),
@@ -202,6 +117,7 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
     name: "Expédition — Station des Vannes Grises",
   });
   await activerAuClavier(
+    page,
     expedition.getByRole("button", {
       name: "Confirmer le mandat et lancer",
     }),
@@ -209,7 +125,7 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
   const etudier = page
     .locator(".atlas__actions")
     .getByRole("button", { name: "Étudier l’Engagement vers Haut-Puits" });
-  await activerAuClavier(etudier);
+  await activerAuClavier(page, etudier);
   const engagement = page.getByRole("dialog", {
     name: "Engagement vers Haut-Puits",
   });
@@ -217,20 +133,20 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
     name: "Confirmer l’Engagement sans retour vers Haut-Puits",
   });
   await expect(confirmerEngagement).toBeFocused();
-  await activerAuClavier(confirmerEngagement);
+  await activerAuClavier(page, confirmerEngagement);
 
-  await activerAuClavier(page.getByRole("button", { name: "Vitesse 4×" }));
-  await importerArchive(
+  await activerAuClavier(
     page,
-    "demonstration-conflit.json",
-    creerArchiveDeDemonstration("conflit"),
+    page.getByRole("button", { name: "Vitesse 4×" }),
   );
+  await page.clock.fastForward(90_000);
   const conflit = page.getByRole("region", {
     name: "L’eau qui reste aux Bassins",
   });
   await expect(conflit).toContainText("Haut-Puits");
   await expect(conflit.getByRole("img")).toBeVisible();
   await activerAuClavier(
+    page,
     conflit.getByRole("button", { name: "Promettre un partage mesuré" }),
   );
   await expect(page.getByText(/Accès premium|Premium Access/)).toHaveCount(0);
@@ -240,22 +156,15 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
     }),
   ).toHaveCount(0);
 
-  await importerArchive(
-    page,
-    "demonstration-ordre-requis.json",
-    creerArchiveDeDemonstration("ordre-requis"),
-  );
+  await page.clock.fastForward(2_265_000);
   const ordre = page.getByRole("region", {
     name: "La salle des pompes est encore alimentée",
   });
   await activerAuClavier(
+    page,
     ordre.getByRole("button", { name: /Couper puis contourner/ }),
   );
-  await importerArchive(
-    page,
-    "demonstration-terminee.json",
-    creerArchiveDeDemonstration("terminee"),
-  );
+  await page.clock.fastForward(2_250_000);
 
   const jalon = page.getByRole("region", { name: "La route continue" });
   await expect(jalon.getByRole("heading")).toBeFocused();
@@ -268,19 +177,25 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
   await expect(page.getByText("En pause").first()).toBeVisible();
 
   await activerAuClavier(
+    page,
     sauvegarde.getByRole("button", { name: "Sauvegarder" }),
   );
   await expect(sauvegarde.getByText("Sauvegarde à jour.")).toBeVisible();
   const telechargement = page.waitForEvent("download");
   await activerAuClavier(
+    page,
     sauvegarde.getByRole("button", { name: "Exporter" }),
   );
   const archive = await telechargement;
   const cheminArchive = await archive.path();
   expect(cheminArchive).not.toBeNull();
-  await page.getByLabel("Choisir une sauvegarde à importer").setInputFiles(
-    cheminArchive!,
+  const ouvertureDeFichier = page.waitForEvent("filechooser");
+  await activerAuClavier(
+    page,
+    sauvegarde.getByRole("button", { name: "Importer", exact: true }),
   );
+  const importeur = await ouvertureDeFichier;
+  await importeur.setFiles(cheminArchive!);
   await expect(
     sauvegarde.getByText("Sauvegarde importée et reprise."),
   ).toBeVisible();
@@ -288,7 +203,10 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
 
   await page.reload();
   await expect(page.getByRole("region", { name: "La route continue" })).toBeVisible();
-  await activerAuClavier(page.getByRole("button", { name: "English" }));
+  await activerAuClavier(
+    page,
+    page.getByRole("button", { name: "English" }),
+  );
   await expect(
     page.getByRole("region", { name: "The road continues" }),
   ).toContainText("The same Campaign can continue with Premium Access");

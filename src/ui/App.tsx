@@ -78,11 +78,24 @@ function CampagnePersistante({ etatDuControleur, controleur }: PropsCampagne) {
     surfacePrioritaire === "jalon-demonstration";
 
   useEffect(() => {
+    let dernierInstant = Date.now();
+    let millisecondesResiduelle = 0;
     const horloge = window.setInterval(() => {
-      if (application.lireEtat().tempsDuConvoi.vitesse !== 0) {
+      const maintenant = Date.now();
+      const millisecondesEcoulees = Math.max(0, maintenant - dernierInstant);
+      dernierInstant = maintenant;
+      if (application.lireEtat().tempsDuConvoi.vitesse === 0) {
+        millisecondesResiduelle = 0;
+        return;
+      }
+
+      millisecondesResiduelle += millisecondesEcoulees;
+      const secondesReelles = Math.floor(millisecondesResiduelle / 1_000);
+      if (secondesReelles > 0) {
+        millisecondesResiduelle -= secondesReelles * 1_000;
         application.envoyerCommande({
           type: "temps-du-convoi.ecouler",
-          secondesReelles: 1,
+          secondesReelles,
         });
       }
     }, 1_000);

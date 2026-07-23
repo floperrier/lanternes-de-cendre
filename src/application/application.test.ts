@@ -164,7 +164,7 @@ describe("application de Campagne", () => {
     };
     expect(application.commandeEstAutorisee(deuxiemeTroncon)).toBe(false);
     expect(() => application.envoyerCommande(deuxiemeTroncon)).toThrow(
-      "Le deuxième Tronçon exige l’Accès premium ; la Campagne sauvegardée reste poursuivable.",
+      "Le deuxième Tronçon de route exige l’Accès premium ; la Campagne sauvegardée reste poursuivable.",
     );
 
     const applicationComplete = reprendreApplicationCampagne(

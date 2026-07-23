@@ -84,19 +84,21 @@ describe("Démonstration", () => {
     });
   });
 
-  it("explique au jalon final que le deuxième Tronçon exige l’Accès premium", () => {
+  it("explique au jalon final que le deuxième Tronçon de route exige l’Accès premium", () => {
     const etat = creerEtatAuJalonFinal();
 
     expect(projeterDemonstration(etat, "fr")).toEqual({
       graineRepresentative: "CENDRE-01",
       terminee: true,
       jalonFinal: {
+        surtitre: "Jalon de la Démonstration",
         titre: "La route continue",
         explication:
-          "La Démonstration s’achève avant le deuxième Tronçon. La même Campagne pourra continuer avec l’Accès premium, sans recommencer.",
+          "La Démonstration s’achève avant le deuxième Tronçon de route. La même Campagne pourra continuer avec l’Accès premium, sans recommencer.",
       },
     });
     expect(projeterDemonstration(etat, "en").jalonFinal).toEqual({
+      surtitre: "Demonstration milestone",
       titre: "The road continues",
       explication:
         "The Demonstration ends before the second Route Segment. The same Campaign can continue with Premium Access, without starting over.",

@@ -72,6 +72,10 @@ export interface TextesDUnEvenement {
   readonly choix: Readonly<Record<string, TextesDUnChoix>>;
 }
 
+export type ConditionDeVariante =
+  | { readonly type: "toujours" }
+  | { readonly type: "fait-present"; readonly fait: string };
+
 export interface AssetCompile {
   readonly id: string;
   readonly fichier: string;
@@ -122,7 +126,7 @@ export interface EvenementDuCatalogue {
   };
   readonly variantes: readonly {
     readonly id: string;
-    readonly condition: string;
+    readonly condition: ConditionDeVariante;
   }[];
   readonly destinationEcho: string;
   readonly asset: AssetCompile | null;
@@ -257,6 +261,24 @@ export interface CatalogueDEvenements {
   readonly evenements: readonly EvenementDuCatalogue[];
   readonly installations: readonly InstallationDuCatalogue[];
   readonly conseils: readonly ConseilDuCatalogue[];
+  readonly libellesTransversaux: Readonly<
+    Record<
+      Langue,
+      {
+        readonly demonstration: {
+          readonly surtitre: string;
+          readonly titre: string;
+          readonly explication: string;
+        };
+        readonly journal: {
+          readonly titres: Readonly<Record<string, string>>;
+          readonly causes: Readonly<Record<string, string>>;
+          readonly acteurs: Readonly<Record<string, string>>;
+          readonly cibles: Readonly<Record<string, string>>;
+        };
+      }
+    >
+  >;
 }
 
 export function figerProfondement<T>(valeur: T): T {
