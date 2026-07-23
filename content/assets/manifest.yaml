@@ -26,22 +26,42 @@ assets:
     contient_texte: false
     provenance: docs/assets/bassins-haut-puits.provenance.json
   - id: veille-basse.la-place-sous-le-phare
-    fichier: /assets/veille-basse-cohorte.webp
+    fichier: /api/commercial/assets/veille-basse-cohorte.webp
     alternative: evenement.veille-basse.cohorte.asset.alt
     contient_texte: false
     provenance: docs/assets/veille-basse-cohorte.provenance.json
   - id: veille-basse.la-porte-des-filtres
-    fichier: /assets/veille-basse-porte.webp
+    fichier: /api/commercial/assets/veille-basse-porte.webp
     alternative: evenement.veille-basse.porte.asset.alt
     contient_texte: false
     provenance: docs/assets/veille-basse-porte.provenance.json
   - id: veille-basse.les-registres-du-reflux
-    fichier: /assets/veille-basse-archives.webp
+    fichier: /api/commercial/assets/veille-basse-archives.webp
     alternative: evenement.veille-basse.archives.asset.alt
     contient_texte: false
     provenance: docs/assets/veille-basse-archives.provenance.json
   - id: veille-basse.maelys-et-le-coffret
-    fichier: /assets/veille-basse-maelys.webp
+    fichier: /api/commercial/assets/veille-basse-maelys.webp
     alternative: evenement.veille-basse.maelys.asset.alt
     contient_texte: false
     provenance: docs/assets/veille-basse-maelys.provenance.json
+  - id: bassins.haut-puits.pacte-des-citernes
+    fichier: /assets/bassins-haut-puits.webp
+    alternative: evenement.haut-puits.pacte.asset.alt
+    contient_texte: false
+    provenance: docs/assets/bassins-haut-puits.provenance.json
+  - id: bassins.haut-puits.vanniers-du-panache
+    fichier: /api/commercial/assets/haut-puits-vanniers.webp
+    alternative: evenement.haut-puits.vanniers.asset.alt
+    contient_texte: false
+    provenance: docs/assets/haut-puits-vanniers.provenance.json
+  - id: bassins.haut-puits.boues-du-decanteur
+    fichier: /api/commercial/assets/haut-puits-decanteur.webp
+    alternative: evenement.haut-puits.boues.asset.alt
+    contient_texte: false
+    provenance: docs/assets/haut-puits-decanteur.provenance.json
+  - id: bassins.haut-puits.ilyana-et-la-vanne
+    fichier: /api/commercial/assets/haut-puits-ilyana.webp
+    alternative: evenement.haut-puits.ilyana.asset.alt
+    contient_texte: false
+    provenance: docs/assets/haut-puits-ilyana.provenance.json

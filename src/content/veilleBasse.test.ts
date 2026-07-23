@@ -40,6 +40,9 @@ describe("lot éditorial de Veille-Basse", () => {
       expect(evenement?.asset?.alternatives.fr).not.toBe("");
       expect(evenement?.asset?.alternatives.en).not.toBe("");
       expect(evenement?.asset?.contientTexte).toBe(false);
+      expect(evenement?.asset?.fichier).toMatch(
+        /^\/api\/commercial\/assets\/.+\.webp$/,
+      );
       expect(evenement?.asset?.provenance).toMatchObject({
         droits: "OpenAI Terms of Use — output assigned to the user",
         statutApprobation: "pending-pull-request-review",

@@ -153,6 +153,7 @@ export function AtlasPixi({ projection }: AtlasPixiProps) {
     let detruite = false;
     let scene: Container | null = null;
     let observateur: ResizeObserver | null = null;
+    let redimensionnementProgramme: number | null = null;
 
     const detruireApplication = () => {
       if (initialisee && !detruite) {
@@ -246,7 +247,8 @@ export function AtlasPixi({ projection }: AtlasPixiProps) {
         autoStart: false,
         background: "#0b151a",
         resolution: Math.min(window.devicePixelRatio, 2),
-        resizeTo: conteneur,
+        width: Math.max(1, conteneur.clientWidth),
+        height: Math.max(1, conteneur.clientHeight),
       });
       initialisee = true;
       if (annule) {
@@ -254,21 +256,33 @@ export function AtlasPixi({ projection }: AtlasPixiProps) {
         return;
       }
       application.canvas.setAttribute("aria-hidden", "true");
+      application.canvas.style.width = "100%";
+      application.canvas.style.height = "100%";
       conteneur.append(application.canvas);
       dessiner();
       conteneur.dataset.ready = "true";
 
       observateur = new ResizeObserver(() => {
-        const largeur = conteneur.clientWidth;
-        const hauteur = conteneur.clientHeight;
-        if (
-          largeur > 0 &&
-          hauteur > 0 &&
-          (largeur !== application.screen.width ||
-            hauteur !== application.screen.height)
-        ) {
-          application.renderer.resize(largeur, hauteur);
-          dessiner();
+        if (redimensionnementProgramme === null) {
+          redimensionnementProgramme = window.requestAnimationFrame(() => {
+            redimensionnementProgramme = null;
+            if (annule || detruite) {
+              return;
+            }
+            const largeur = conteneur.clientWidth;
+            const hauteur = conteneur.clientHeight;
+            if (
+              largeur > 0 &&
+              hauteur > 0 &&
+              (largeur !== application.screen.width ||
+                hauteur !== application.screen.height)
+            ) {
+              application.renderer.resize(largeur, hauteur);
+              application.canvas.style.width = "100%";
+              application.canvas.style.height = "100%";
+              dessiner();
+            }
+          });
         }
       });
       observateur.observe(conteneur);
@@ -279,6 +293,9 @@ export function AtlasPixi({ projection }: AtlasPixiProps) {
       annule = true;
       redessinerRef.current = null;
       observateur?.disconnect();
+      if (redimensionnementProgramme !== null) {
+        window.cancelAnimationFrame(redimensionnementProgramme);
+      }
       if (conteneur !== null) {
         delete conteneur.dataset.ready;
       }

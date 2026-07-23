@@ -1,10 +1,12 @@
 import { expect, test } from "@playwright/test";
 
+import { installerHorlogeFixe } from "./horloge";
+
 test("la Crise suspend le convoi, expose ses coûts et persiste sa récupération", async ({
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.clock.install();
+  await installerHorlogeFixe(page);
   await page.goto("/");
 
   const incident = page.getByRole("region", {
@@ -23,12 +25,18 @@ test("la Crise suspend le convoi, expose ses coûts et persiste sa récupératio
 
   await page.getByRole("button", { name: "English" }).click();
   await page.getByRole("button", { name: "Vitesse 4×" }).click();
-  await page.clock.runFor(45_000);
+  await page.clock.fastForward(45_000);
 
   const crise = page.getByRole("alertdialog", {
     name: "Crisis — Purified water contaminated",
   });
   await expect(crise).toBeVisible();
+  const tempsLorsDeLaCrise = await page
+    .locator(".commandes-du-temps > time")
+    .textContent();
+  if (tempsLorsDeLaCrise === null) {
+    throw new Error("Le Temps du convoi n’est pas affiché.");
+  }
   await expect(crise).toContainText("16 L remain usable");
   await expect(crise).toContainText("4 Materials");
   await expect(crise).toContainText("5 Remedies");
@@ -59,7 +67,7 @@ test("la Crise suspend le convoi, expose ses coûts et persiste sa récupératio
   await page.keyboard.press("Tab");
   await expect(reponses.first()).toBeFocused();
   await expect(page.locator(".commandes-du-temps > time")).toHaveText(
-    "03:00",
+    tempsLorsDeLaCrise,
   );
   await expect(page.locator(".scene-layout")).toHaveAttribute("inert", "");
   await expect(page.getByText("En pause").first()).toBeVisible();

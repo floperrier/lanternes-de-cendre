@@ -53,7 +53,18 @@ export interface EffetHabitants {
   readonly valeur: number;
 }
 
-export type EffetDEvenement = EffetHabitants;
+export interface EffetStock {
+  readonly type: "stock.modifier";
+  readonly stock:
+    | "vivres"
+    | "eau"
+    | "combustible"
+    | "materiaux"
+    | "remedes";
+  readonly valeur: number;
+}
+
+export type EffetDEvenement = EffetHabitants | EffetStock;
 
 export interface ChoixDEvenement {
   readonly id: string;

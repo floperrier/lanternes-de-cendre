@@ -10,6 +10,9 @@ export function VeilleBasseEtCohorte({
   projection,
   langue,
 }: PropsVeilleBasseEtCohorte) {
+  if (!projection.visible) {
+    return null;
+  }
   return (
     <section
       className="panneau-veille-basse"
@@ -27,13 +30,13 @@ export function VeilleBasseEtCohorte({
         {projection.colonie.avertissement === null ? null : (
           <p role="alert">{projection.colonie.avertissement}</p>
         )}
-        <h4>{langue === "fr" ? "Pressions" : "Pressures"}</h4>
+        <h4>{projection.libelles.pressions}</h4>
         <ul>
           {projection.colonie.pressions.map((pression) => (
             <li key={pression}>{pression}</li>
           ))}
         </ul>
-        <h4>{langue === "fr" ? "Marché de besoins" : "Needs market"}</h4>
+        <h4>{projection.libelles.marche}</h4>
         <ul>
           {projection.colonie.marche.map((offre) => (
             <li key={offre}>{offre}</li>
@@ -48,7 +51,7 @@ export function VeilleBasseEtCohorte({
         <dl>
           <dt>{projection.hospice.type}</dt>
           <dd>{projection.hospice.besoin}</dd>
-          <dt>{langue === "fr" ? "Devenir" : "Fate"}</dt>
+          <dt>{projection.libelles.devenir}</dt>
           <dd>{projection.hospice.devenir}</dd>
         </dl>
       </article>
@@ -56,19 +59,19 @@ export function VeilleBasseEtCohorte({
       <article>
         <h3>{projection.cohorte.nom}</h3>
         <dl>
-          <dt>{langue === "fr" ? "Origine" : "Origin"}</dt>
+          <dt>{projection.libelles.origine}</dt>
           <dd>{projection.cohorte.origine}</dd>
-          <dt>{langue === "fr" ? "Destination" : "Destination"}</dt>
+          <dt>{projection.libelles.destination}</dt>
           <dd>{projection.cohorte.destination}</dd>
-          <dt>{langue === "fr" ? "Taille" : "Size"}</dt>
+          <dt>{projection.libelles.taille}</dt>
           <dd>{projection.cohorte.taille}</dd>
-          <dt>{langue === "fr" ? "État dominant" : "Dominant condition"}</dt>
+          <dt>{projection.libelles.etatDominant}</dt>
           <dd>{projection.cohorte.etatDominant}</dd>
-          <dt>{langue === "fr" ? "Spécialité" : "Specialty"}</dt>
+          <dt>{projection.libelles.specialite}</dt>
           <dd>{projection.cohorte.specialite}</dd>
-          <dt>{langue === "fr" ? "Mémoire" : "Memory"}</dt>
+          <dt>{projection.libelles.memoire}</dt>
           <dd>{projection.cohorte.memoire}</dd>
-          <dt>{langue === "fr" ? "Intégration" : "Integration"}</dt>
+          <dt>{projection.libelles.integration}</dt>
           <dd>{projection.cohorte.integration}</dd>
         </dl>
       </article>
@@ -76,22 +79,18 @@ export function VeilleBasseEtCohorte({
       <article>
         <h3>{projection.maelys.nom}</h3>
         <dl>
-          <dt>{langue === "fr" ? "Décision" : "Decision"}</dt>
+          <dt>{projection.libelles.decision}</dt>
           <dd>{projection.maelys.decision}</dd>
-          <dt>{langue === "fr" ? "Position" : "Location"}</dt>
+          <dt>{projection.libelles.position}</dt>
           <dd>{projection.maelys.position}</dd>
-          <dt>{langue === "fr" ? "Relevé" : "Survey"}</dt>
+          <dt>{projection.libelles.releve}</dt>
           <dd>{projection.maelys.releve}</dd>
         </dl>
       </article>
 
       {projection.revelationsEssentielles.length === 0 ? null : (
         <aside>
-          <h3>
-            {langue === "fr"
-              ? "Révélation essentielle"
-              : "Essential revelation"}
-          </h3>
+          <h3>{projection.libelles.revelation}</h3>
           <ul>
             {projection.revelationsEssentielles.map((revelation) => (
               <li key={revelation}>{revelation}</li>

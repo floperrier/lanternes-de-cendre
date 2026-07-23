@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 import { readFileSync } from "node:fs";
 
 import { TAILLE_MAX_ARCHIVE_SAUVEGARDE } from "../../src/sauvegarde/sauvegarde";
+import { installerHorlogeFixe } from "./horloge";
 
 const archiveV1 = readFileSync(
   new URL("../../src/sauvegarde/fixtures/sauvegarde-v1.json", import.meta.url),
@@ -25,7 +26,7 @@ test("IndexedDB applique le même contrat tournant et protège les archives inco
       nomDeBase,
       nombreDeSnapshots: 2,
     });
-    const creerArchive = (id: string, version = 5) => ({
+    const creerArchive = (id: string, version = 6) => ({
       id,
       version,
       contenu: JSON.stringify({ id, version }),
@@ -50,11 +51,11 @@ test("IndexedDB applique le même contrat tournant et protège les archives inco
         format: "lanternes-de-cendre.sauvegarde",
         id: "meme-id",
         version: 2,
-        versions: { simulation: 6 },
+        versions: { simulation: 7 },
         padding,
       });
-    const archiveA = creerArchiveCollision("kzyd4vmxkbi5");
-    const archiveB = creerArchiveCollision("kfel4rip8fmp");
+    const archiveA = creerArchiveCollision("16siydtuodeik");
+    const archiveB = creerArchiveCollision("1qk2bgrpzapgu");
     const importsConcurrents = await Promise.all([
       moduleSession.importerCampagne(port, archiveA),
       moduleSession.importerCampagne(port, archiveB),
@@ -92,17 +93,17 @@ test("IndexedDB applique le même contrat tournant et protège les archives inco
     "incompatible",
     "incompatible",
   ]);
-  expect(resultat.empreintes).toEqual(["e2065b81", "e2065b81"]);
+  expect(resultat.empreintes).toEqual(["4014d717", "4014d717"]);
   const archivesAttendues = [
     {
       id: "troisieme",
-      version: 5,
-      contenu: JSON.stringify({ id: "troisieme", version: 5 }),
+      version: 6,
+      contenu: JSON.stringify({ id: "troisieme", version: 6 }),
     },
     {
       id: "deuxieme",
-      version: 5,
-      contenu: JSON.stringify({ id: "deuxieme", version: 5 }),
+      version: 6,
+      contenu: JSON.stringify({ id: "deuxieme", version: 6 }),
     },
     {
       id: "meme-id",
@@ -111,8 +112,8 @@ test("IndexedDB applique le même contrat tournant et protège les archives inco
         format: "lanternes-de-cendre.sauvegarde",
         id: "meme-id",
         version: 2,
-        versions: { simulation: 6 },
-        padding: "kfel4rip8fmp",
+        versions: { simulation: 7 },
+        padding: "1qk2bgrpzapgu",
       }),
       protegeeDeLaRotation: true,
     },
@@ -123,8 +124,8 @@ test("IndexedDB applique le même contrat tournant et protège les archives inco
         format: "lanternes-de-cendre.sauvegarde",
         id: "meme-id",
         version: 2,
-        versions: { simulation: 6 },
-        padding: "kzyd4vmxkbi5",
+        versions: { simulation: 7 },
+        padding: "16siydtuodeik",
       }),
       protegeeDeLaRotation: true,
     },
@@ -286,18 +287,25 @@ test("le joueur reprend après fermeture puis importe son export dans un stockag
   browser,
   page,
 }) => {
-  await page.clock.install();
+  await installerHorlogeFixe(page);
   await page.goto("/");
   await expect(
     page.getByRole("region", { name: "Cité-caravane" }),
   ).toBeVisible();
 
   await page.getByRole("button", { name: "Vitesse 4×" }).click();
-  await page.clock.runFor(15_000);
+  await page.clock.fastForward(15_000);
   await expect(
     page.getByRole("region", { name: "Des signaux sous la cendre" }),
   ).toBeVisible();
   await page.getByRole("button", { name: "Pause" }).click();
+  const tempsSauvegarde = await page
+    .locator(".commandes-du-temps > time")
+    .textContent();
+  if (tempsSauvegarde === null) {
+    throw new Error("Le Temps du convoi n’est pas affiché.");
+  }
+  await page.getByRole("button", { name: "Sauvegarder" }).click();
   await expect(
     page
       .getByRole("region", { name: "Sauvegarde de Campagne" })
@@ -309,7 +317,7 @@ test("le joueur reprend après fermeture puis importe son export dans un stockag
     page.getByRole("region", { name: "Des signaux sous la cendre" }),
   ).toBeVisible();
   await expect(page.locator(".commandes-du-temps > time")).toHaveText(
-    "01:00",
+    tempsSauvegarde,
   );
 
   await page
@@ -319,6 +327,7 @@ test("le joueur reprend après fermeture puis importe son export dans un stockag
   await expect(
     page.getByRole("region", { name: "Cité-caravane" }),
   ).toContainText("Habitants — 190");
+  await page.clock.runFor(300);
   await expect(
     page
       .getByRole("region", { name: "Sauvegarde de Campagne" })

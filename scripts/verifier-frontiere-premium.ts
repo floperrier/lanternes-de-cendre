@@ -1,32 +1,92 @@
 import { readdir, readFile } from "node:fs/promises";
-import { join } from "node:path";
+import { basename, join, relative } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const dossier = new URL("../dist/assets/", import.meta.url);
-const fichiers = (await readdir(dossier)).filter((fichier) =>
-  fichier.endsWith(".js"),
+import inventaire from "../serveur-commercial/frontierePremium.generated";
+
+const dossierDeDistribution = fileURLToPath(
+  new URL("../dist/", import.meta.url),
 );
-const javascript = (
-  await Promise.all(
-    fichiers.map((fichier) =>
-      readFile(join(dossier.pathname, fichier), "utf8"),
-    ),
-  )
-).join("\n");
-const fragmentsProteges = [
-  "Relais des Vannes",
-  "Sluice Relay",
-  "vannes-haut-puits-0",
-  "Ornières profondes",
-  "Deep ruts",
-];
-const fragmentsTrouves = fragmentsProteges.filter((fragment) =>
-  javascript.includes(fragment),
+const extensionsTextuelles = new Set([
+  ".css",
+  ".html",
+  ".js",
+  ".map",
+]);
+
+function extensionDe(chemin: string): string {
+  const index = chemin.lastIndexOf(".");
+  return index === -1 ? "" : chemin.slice(index);
+}
+
+async function listerFichiers(dossier: string): Promise<string[]> {
+  const entrees = await readdir(dossier, { withFileTypes: true });
+  return (
+    await Promise.all(
+      entrees.map((entree) => {
+        const chemin = join(dossier, entree.name);
+        return entree.isDirectory() ? listerFichiers(chemin) : [chemin];
+      }),
+    )
+  ).flat();
+}
+
+const fichiersPublies = await listerFichiers(dossierDeDistribution);
+const fichiersTextuels = fichiersPublies.filter((fichier) =>
+  extensionsTextuelles.has(extensionDe(fichier)),
 );
+const contenus = await Promise.all(
+  fichiersTextuels.map(async (fichier) => ({
+    chemin: relative(dossierDeDistribution, fichier),
+    contenu: await readFile(fichier, "utf8"),
+  })),
+);
+
+const fragmentsTrouves = inventaire.fragments.flatMap((fragment) => {
+  const fichiers = contenus
+    .filter(({ contenu }) => contenu.includes(fragment))
+    .map(({ chemin }) => chemin);
+  return fichiers.length === 0 ? [] : [{ fragment, fichiers }];
+});
 
 if (fragmentsTrouves.length > 0) {
   throw new Error(
-    `Le bundle gratuit contient du contenu premium : ${fragmentsTrouves.join(", ")}`,
+    [
+      "La distribution gratuite contient du contenu premium :",
+      ...fragmentsTrouves.map(
+        ({ fragment, fichiers }) =>
+          `- ${JSON.stringify(fragment)} dans ${fichiers.join(", ")}`,
+      ),
+    ].join("\n"),
   );
 }
 
-console.log("Le bundle gratuit ne contient pas le catalogue premium.");
+const assetsPublies = fichiersPublies.flatMap((fichier) => {
+  const nomPublie = basename(fichier);
+  const nomsProteges = inventaire.nomsDAssets.filter((nomProtege) => {
+    const indexExtension = nomProtege.lastIndexOf(".");
+    const baseProtegee =
+      indexExtension === -1
+        ? nomProtege
+        : nomProtege.slice(0, indexExtension);
+    return (
+      nomPublie.includes(nomProtege) ||
+      nomPublie.includes(baseProtegee)
+    );
+  });
+  return nomsProteges.length === 0
+    ? []
+    : [
+        `${relative(dossierDeDistribution, fichier)} (${nomsProteges.join(", ")})`,
+      ];
+});
+
+if (assetsPublies.length > 0) {
+  throw new Error(
+    `La distribution gratuite publie des illustrations premium : ${assetsPublies.join(", ")}`,
+  );
+}
+
+console.log(
+  `${inventaire.fragments.length} fragments et ${inventaire.nomsDAssets.length} assets premium sont absents de la distribution gratuite.`,
+);

@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test";
 
+import { installerHorlogeFixe } from "./horloge";
+
 import {
   appliquerCommande,
   creerCampagneInitiale,
@@ -99,16 +101,16 @@ test("les mêmes commandes donnent le même état sous Node et Chromium", async 
     etat: etatNode,
     empreinte: empreinteEtat(etatNode),
   });
-  expect(resultatNavigateur.empreinte).toBe("56b9110a");
+  expect(resultatNavigateur.empreinte).toBe("d1b61ff3");
 });
 
 test("un Événement bilingue expose ses coûts et accepte une intention au clavier", async ({
   page,
 }) => {
-  await page.clock.install();
+  await installerHorlogeFixe(page);
   await page.goto("/");
   await page.getByRole("button", { name: "Vitesse 4×" }).click();
-  await page.clock.runFor(15_000);
+  await page.clock.fastForward(15_000);
 
   const evenement = page.getByRole("region", {
     name: "Des signaux sous la cendre",

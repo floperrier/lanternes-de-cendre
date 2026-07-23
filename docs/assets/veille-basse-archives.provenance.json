@@ -1,5 +1,5 @@
 {
-  "asset": "public/assets/veille-basse-archives.webp",
+  "asset": "serveur-commercial/assets/veille-basse-archives.webp",
   "sha256": "78c082dd0cae64868e0bac44a0dcabb4c626dba277d57f08280aa80032f89848",
   "createdAt": "2026-07-23",
   "tool": "Codex built-in image_gen",

@@ -105,14 +105,54 @@ describe("Engagement de route", () => {
       })),
     ).toEqual([
       {
-        destination: "relais-des-vannes",
-        tronconId: "chenal-des-vannes",
+        destination: "les-vanniers",
+        tronconId: "chemin-des-vanniers",
       },
     ]);
+    expect(
+      nouvellesDestinations.find(
+        ({ troncon }) => troncon.id === "chemin-des-vanniers",
+      )?.troncon,
+    ).toMatchObject({
+      consequenceDuHalo: {
+        fr: expect.stringContaining("panache"),
+        en: expect.stringContaining("plume"),
+      },
+      renseignements: [
+        expect.objectContaining({
+          releveA: 0,
+          source: "eclaireurs-de-haut-puits",
+        }),
+      ],
+    });
     expect(nouvellesDestinations).not.toEqual(
       expect.arrayContaining([
         expect.objectContaining({ destination: "halte-du-puits-sec" }),
       ]),
     );
+
+    const versLesVanniers = confirmerEngagementDeRoute(
+      auJalon.etat,
+      "chemin-des-vanniers",
+      420,
+    ).etat;
+    const auxVanniers = traiterJalonsDeRoute(
+      versLesVanniers,
+      420,
+      840,
+    ).etat;
+    expect(
+      listerTronconsEngageables(auxVanniers).map(
+        ({ destination, troncon }) => ({
+          destination,
+          tronconId: troncon.id,
+        }),
+      ),
+    ).toEqual([
+      {
+        destination: "relais-des-vannes",
+        tronconId: "chenal-des-vannes",
+      },
+    ]);
   });
 });

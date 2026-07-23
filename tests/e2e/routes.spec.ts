@@ -34,7 +34,6 @@ function creerArchiveAuJalonSuivant(): string {
     type: "temps-du-convoi.ecouler",
     secondesReelles: 90,
   });
-
   return exporterSauvegarde(
     creerSauvegarde(application.lireEtat(), {
       ...reproductionInitiale,
@@ -55,8 +54,8 @@ test("l’Atlas et sa liste DOM comparent les mêmes Renseignements sourcés", a
     "true",
   );
   await expect(atlas.locator("canvas")).toHaveAttribute("aria-hidden", "true");
-  await expect(atlas).toContainText("Halte du puits sec");
-  await expect(atlas).toContainText("Halte du puits sec → Haut-Puits");
+  await expect(atlas).toContainText("Maison des Filtres");
+  await expect(atlas).toContainText("Maison des Filtres → Haut-Puits");
   await expect(atlas).toContainText("Vigie du Phare");
   await expect(atlas).toContainText("Messagers de Haut-Puits");
   await expect(atlas).toContainText("Cendre basse");
@@ -69,7 +68,7 @@ test("l’Atlas et sa liste DOM comparent les mêmes Renseignements sourcés", a
   await vueListe.focus();
   await page.keyboard.press("Enter");
   const liste = atlas.locator(".atlas__liste-dom");
-  await expect(liste).toContainText("Halte du puits sec → Haut-Puits");
+  await expect(liste).toContainText("Maison des Filtres → Haut-Puits");
   await expect(liste).toContainText("Nappe de saumure");
   await expect(liste).toContainText("Vigie du Phare · relevé maintenant");
   await expect(
@@ -137,5 +136,9 @@ test("un Engagement confirmé suspend le Temps puis le Front condamne le retour"
   await expect(atlas).toContainText("PositionHaut-Puits");
   await expect(atlas).toContainText("Front de cendre — accès arrière condamné");
   await expect(atlas).not.toContainText("Haut-Puits → Relais des Vannes");
-  await expect(atlas).not.toContainText("Halte du puits sec → Haut-Puits");
+  await expect(atlas).not.toContainText("Maison des Filtres → Haut-Puits");
+  await expect(
+    page.getByRole("region", { name: "Haut-Puits" }),
+  ).toHaveCount(0);
+  await expect(page.getByText("Marché de l’eau")).toHaveCount(0);
 });

@@ -9,6 +9,9 @@ import traductionFr from "../../content/locales/fr.yaml?raw";
 import references from "../../content/references.yaml?raw";
 import provenanceCoupeHabitee from "../../docs/assets/cite-caravane.provenance.json?raw";
 import provenanceHautPuits from "../../docs/assets/bassins-haut-puits.provenance.json?raw";
+import provenanceDecanteur from "../../docs/assets/haut-puits-decanteur.provenance.json?raw";
+import provenanceIlyanaHautPuits from "../../docs/assets/haut-puits-ilyana.provenance.json?raw";
+import provenanceVanniers from "../../docs/assets/haut-puits-vanniers.provenance.json?raw";
 import provenanceFiltres from "../../docs/assets/prologue-filtres-de-la-veille.provenance.json?raw";
 import provenanceIlyana from "../../docs/assets/prologue-ilyana-au-clapet.provenance.json?raw";
 import provenanceReponse from "../../docs/assets/prologue-reponse-du-phare.provenance.json?raw";
@@ -49,7 +52,15 @@ const sourcesValides: SourcesDuCatalogue = {
       provenanceVeilleBasseArchives,
     "docs/assets/veille-basse-maelys.provenance.json":
       provenanceVeilleBasseMaelys,
+    "docs/assets/haut-puits-vanniers.provenance.json": provenanceVanniers,
+    "docs/assets/haut-puits-decanteur.provenance.json": provenanceDecanteur,
+    "docs/assets/haut-puits-ilyana.provenance.json":
+      provenanceIlyanaHautPuits,
   },
+  cheminDeProvenanceAsset: (chemin) =>
+    chemin.startsWith("/api/commercial/assets/")
+      ? `serveur-commercial/assets/${chemin.split("/").at(-1)}`
+      : `public${chemin}`,
   assetExiste: (chemin) =>
     [
       "/assets/cite-caravane.png",
@@ -57,10 +68,13 @@ const sourcesValides: SourcesDuCatalogue = {
       "/assets/prologue-filtres-de-la-veille.webp",
       "/assets/prologue-ilyana-au-clapet.webp",
       "/assets/bassins-haut-puits.webp",
-      "/assets/veille-basse-cohorte.webp",
-      "/assets/veille-basse-porte.webp",
-      "/assets/veille-basse-archives.webp",
-      "/assets/veille-basse-maelys.webp",
+      "/api/commercial/assets/veille-basse-cohorte.webp",
+      "/api/commercial/assets/veille-basse-porte.webp",
+      "/api/commercial/assets/veille-basse-archives.webp",
+      "/api/commercial/assets/veille-basse-maelys.webp",
+      "/api/commercial/assets/haut-puits-vanniers.webp",
+      "/api/commercial/assets/haut-puits-decanteur.webp",
+      "/api/commercial/assets/haut-puits-ilyana.webp",
     ].includes(chemin),
   empreinteAsset: (chemin) =>
     ({
@@ -74,14 +88,20 @@ const sourcesValides: SourcesDuCatalogue = {
         "e61f18f77e360e9fd454dad5e16536f18bbcdaa13ee1875cbcf65d4c598449b2",
       "/assets/bassins-haut-puits.webp":
         "1538d10da74331d41bfe2ddbe88198c96e796115eb10a02dbeb35155cab9b5a9",
-      "/assets/veille-basse-cohorte.webp":
+      "/api/commercial/assets/veille-basse-cohorte.webp":
         "f595550d62faa755e30250d9e2b52aaaa549ff8d9f17b44ee027e38f841bc8a6",
-      "/assets/veille-basse-porte.webp":
+      "/api/commercial/assets/veille-basse-porte.webp":
         "6005fd7eb2736df10bb68147c2ae1fac47bbc34eeccca7dcc6d841f9226944f2",
-      "/assets/veille-basse-archives.webp":
+      "/api/commercial/assets/veille-basse-archives.webp":
         "78c082dd0cae64868e0bac44a0dcabb4c626dba277d57f08280aa80032f89848",
-      "/assets/veille-basse-maelys.webp":
+      "/api/commercial/assets/veille-basse-maelys.webp":
         "3ad5cda3a39479cf5f9ceb03b75ae9ec7a3ce395c7a58fe68e6f92e3070886d8",
+      "/api/commercial/assets/haut-puits-vanniers.webp":
+        "788daf8b7565d4a79373816542b3cc9ff27a8bffa80a619fc9acbe711765ee57",
+      "/api/commercial/assets/haut-puits-decanteur.webp":
+        "9543f42946840cfa2ef894bce527d9c52db6a2fe6a026e90ca49145d539a9327",
+      "/api/commercial/assets/haut-puits-ilyana.webp":
+        "5b97d81678fa990d6289f36a79a4d34b24e7be92b0fc75fd43168eea6c9e5e4e",
     })[chemin] ?? "0".repeat(64),
   tailleAsset: () => 256_000,
 };

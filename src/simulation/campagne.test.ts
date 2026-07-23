@@ -8,13 +8,14 @@ import {
 import { creerInfrastructureInitiale } from "./infrastructure";
 import { creerEtatDesExpeditionsInitial } from "./expeditions";
 import { creerEtatInitialDeVeilleBasse } from "./veilleBasse";
+import { creerEtatDeHautPuitsInitial } from "./hautPuits";
 
 describe("Graine de campagne", () => {
   it("crée le même état initial sérialisable pour CENDRE-01", () => {
     const etat = creerCampagneInitiale("CENDRE-01");
 
     expect(JSON.parse(JSON.stringify(etat))).toEqual({
-      version: 5,
+      version: 6,
       graine: "CENDRE-01",
       tempsDuConvoi: {
         secondes: 0,
@@ -138,6 +139,7 @@ describe("Graine de campagne", () => {
         etatsReels: {
           "digue-des-puits": "praticable",
           "chaussee-de-veille-basse": "degrade",
+          "chemin-des-vanniers": "praticable",
           "chenal-des-vannes": "praticable",
         },
         engagements: [],
@@ -146,6 +148,7 @@ describe("Graine de campagne", () => {
       echeances: [],
       expeditions: creerEtatDesExpeditionsInitial(),
       veilleBasse: creerEtatInitialDeVeilleBasse(),
+      hautPuits: creerEtatDeHautPuitsInitial(),
       fluxPseudoAleatoires: {
         "evenements-narratifs": {
           algorithme: "xoshiro128**",
@@ -487,13 +490,13 @@ describe("parcours narratif de la Démonstration", () => {
 
     const transition = appliquerCommande(etat, {
       type: "engagement-de-route.confirmer",
-      tronconId: "chenal-des-vannes",
+      tronconId: "chemin-des-vanniers",
     });
 
     expect(transition.etat.routes.engagements.at(-1)).toMatchObject({
-      tronconId: "chenal-des-vannes",
+      tronconId: "chemin-des-vanniers",
       origine: "haut-puits",
-      destination: "relais-des-vannes",
+      destination: "les-vanniers",
       statut: "en-cours",
     });
   });

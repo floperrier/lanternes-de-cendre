@@ -1,5 +1,5 @@
 {
-  "asset": "public/assets/veille-basse-maelys.webp",
+  "asset": "serveur-commercial/assets/veille-basse-maelys.webp",
   "sha256": "3ad5cda3a39479cf5f9ceb03b75ae9ec7a3ce395c7a58fe68e6f92e3070886d8",
   "createdAt": "2026-07-23",
   "tool": "Codex built-in image_gen",

@@ -44,6 +44,7 @@ export function CoupeHabitee({
     let initialisee = false;
     let detruite = false;
     let observateur: ResizeObserver | null = null;
+    let redimensionnementProgramme: number | null = null;
 
     const detruireApplication = () => {
       if (initialisee && !detruite) {
@@ -61,7 +62,8 @@ export function CoupeHabitee({
         autoDensity: true,
         background: "#17242e",
         resolution: Math.min(window.devicePixelRatio, 2),
-        resizeTo: conteneur,
+        width: Math.max(1, conteneur.clientWidth),
+        height: Math.max(1, conteneur.clientHeight),
       });
       initialisee = true;
 
@@ -71,6 +73,8 @@ export function CoupeHabitee({
       }
 
       application.canvas.setAttribute("aria-hidden", "true");
+      application.canvas.style.width = "100%";
+      application.canvas.style.height = "100%";
       conteneur.append(application.canvas);
 
       const texture = await Assets.load<Texture>(SOURCE_COUPE_HABITEE);
@@ -140,27 +144,39 @@ export function CoupeHabitee({
       conteneur.dataset.ready = "true";
 
       observateur = new ResizeObserver(() => {
-        if (annule || detruite) {
+        if (
+          annule ||
+          detruite ||
+          redimensionnementProgramme !== null
+        ) {
           return;
         }
-        const largeur = conteneur.clientWidth;
-        const hauteur = conteneur.clientHeight;
-        if (largeur <= 0 || hauteur <= 0) {
-          return;
-        }
-        if (
-          largeur !== application.screen.width ||
-          hauteur !== application.screen.height
-        ) {
-          application.renderer.resize(largeur, hauteur);
-        }
-        if (
-          largeurPrecedente !== application.screen.width ||
-          hauteurPrecedente !== application.screen.height
-        ) {
-          ajusterScene();
-        }
-        application.renderer.render(application.stage);
+        redimensionnementProgramme = window.requestAnimationFrame(() => {
+          redimensionnementProgramme = null;
+          if (annule || detruite) {
+            return;
+          }
+          const largeur = conteneur.clientWidth;
+          const hauteur = conteneur.clientHeight;
+          if (largeur <= 0 || hauteur <= 0) {
+            return;
+          }
+          if (
+            largeur !== application.screen.width ||
+            hauteur !== application.screen.height
+          ) {
+            application.renderer.resize(largeur, hauteur);
+            application.canvas.style.width = "100%";
+            application.canvas.style.height = "100%";
+          }
+          if (
+            largeurPrecedente !== application.screen.width ||
+            hauteurPrecedente !== application.screen.height
+          ) {
+            ajusterScene();
+          }
+          application.renderer.render(application.stage);
+        });
       });
       observateur.observe(conteneur);
 
@@ -189,6 +205,9 @@ export function CoupeHabitee({
     return () => {
       annule = true;
       observateur?.disconnect();
+      if (redimensionnementProgramme !== null) {
+        window.cancelAnimationFrame(redimensionnementProgramme);
+      }
       if (conteneur !== null) {
         delete conteneur.dataset.ready;
       }

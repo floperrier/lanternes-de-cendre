@@ -10,7 +10,10 @@ import {
   creerPilotageInitial,
   traiterEcheancesDePilotage,
 } from "../simulation/pilotage";
-import { catalogueDEvenements } from "../content/catalogue";
+import {
+  catalogueDEvenements,
+  executerAvecEvenementsStructurelsTemporaires,
+} from "../content/catalogue";
 import type { EffetsDeFait } from "../simulation/faits";
 import { creerInfrastructureInitiale } from "../simulation/infrastructure";
 import { creerEtatDesRoutesInitial } from "../simulation/routes";
@@ -21,6 +24,8 @@ import {
 } from "../simulation/crise";
 import { creerEtatDesExpeditionsInitial } from "../simulation/expeditions";
 import { creerEtatInitialDeVeilleBasse } from "../simulation/veilleBasse";
+import { creerEtatDeHautPuitsInitial } from "../simulation/hautPuits";
+import { EVENEMENTS_HISTORIQUES_V5 } from "./catalogueHistoriqueV5";
 import { creerSauvegarde } from "./snapshot";
 import type {
   CommandeDeReproduction,
@@ -29,6 +34,7 @@ import type {
 } from "./types";
 import {
   VERSION_SIMULATION_AVANT_CRISES,
+  VERSION_SIMULATION_AVANT_HAUT_PUITS,
   VERSION_SIMULATION_AVANT_VEILLE_BASSE,
   VERSION_SIMULATION_COURANTE,
   VERSION_SIMULATION_INITIALE,
@@ -38,7 +44,9 @@ import {
   VERSION_CONTENU_COURANTE,
   VERSION_SAUVEGARDE_AVANT_ROUTES,
   VERSION_SAUVEGARDE_AVANT_CRISES,
+  VERSION_SAUVEGARDE_AVANT_HAUT_PUITS,
   VERSION_SAUVEGARDE_AVANT_VEILLE_BASSE,
+  VERSION_SAUVEGARDE_COURANTE,
   VERSION_SAUVEGARDE_INITIALE,
   VERSIONS_DU_SNAPSHOT_COURANT,
 } from "./version";
@@ -46,6 +54,7 @@ import {
   estCommandeAvantCrises,
   estCommandeAvantRoutes,
   estCommande,
+  estCommandeV5,
   estCommandeV2,
   estCommandeV1,
   estObjet,
@@ -56,13 +65,16 @@ import {
   lireEtatV1,
   lireEtatV2,
   lireEtatV4,
+  lireEtatV5,
   lireSnapshotV4,
+  lireSnapshotV5,
   projeterEtatAvantRoutesHistorique,
   type EtatCampagneAvantCrises,
   type EtatCampagneAvantRoutes,
   type EtatCampagneV1,
   type EtatCampagneV2,
   type EtatCampagneV4,
+  type EtatCampagneV5,
   type ObjetInconnu,
 } from "./validation";
 
@@ -123,11 +135,33 @@ const EFFETS_DES_FAITS_LEGACY = new Map(
       choix.faitsProduits.map((fait) => [
         fait.id,
         {
-          materiels: [],
-          humains: choix.effets.map((effet) => ({
-            type: "habitants.modifies" as const,
-            variation: effet.valeur,
-          })),
+          materiels: choix.effets
+            .filter(
+              (
+                effet,
+              ): effet is Extract<
+                (typeof choix.effets)[number],
+                { readonly type: "stock.modifier" }
+              > => effet.type === "stock.modifier",
+            )
+            .map((effet) => ({
+              type: "stock.modifie" as const,
+              stock: effet.stock,
+              variation: effet.valeur,
+            })),
+          humains: choix.effets
+            .filter(
+              (
+                effet,
+              ): effet is Extract<
+                (typeof choix.effets)[number],
+                { readonly type: "habitants.modifier" }
+              > => effet.type === "habitants.modifier",
+            )
+            .map((effet) => ({
+              type: "habitants.modifies" as const,
+              variation: effet.valeur,
+            })),
         } satisfies EffetsDeFait,
       ] as const),
     ),
@@ -174,6 +208,7 @@ function migrerEtatV1(etat: EtatCampagneV1): EtatCampagne {
     crises: creerEtatDesCrisesDepuisHistorique(etat.narration.faitsDeCampagne),
     expeditions: creerEtatDesExpeditionsInitial(),
     veilleBasse: creerEtatInitialDeVeilleBasse(),
+    hautPuits: creerEtatDeHautPuitsInitial(),
     citeCaravane: {
       ...etat.citeCaravane,
       formation: {
@@ -218,6 +253,7 @@ function migrerEtatV2(
     ),
     expeditions: creerEtatDesExpeditionsInitial(),
     veilleBasse: creerEtatInitialDeVeilleBasse(),
+    hautPuits: creerEtatDeHautPuitsInitial(),
   };
 }
 
@@ -267,6 +303,7 @@ function migrerEtatAvantRoutes(
     ),
     expeditions: creerEtatDesExpeditionsInitial(),
     veilleBasse: creerEtatInitialDeVeilleBasse(),
+    hautPuits: creerEtatDeHautPuitsInitial(),
   };
 }
 
@@ -283,6 +320,7 @@ function migrerEtatAvantCrises(
     ),
     expeditions: creerEtatDesExpeditionsInitial(),
     veilleBasse: creerEtatInitialDeVeilleBasse(),
+    hautPuits: creerEtatDeHautPuitsInitial(),
   };
 }
 
@@ -415,7 +453,7 @@ export function migrerSauvegardeV1(
   const sauvegarde = creerSauvegarde(etat, reproduction);
   return {
     ...sauvegarde,
-    id: `${valeur.id}-v5-${sauvegarde.empreinte}`,
+    id: `${valeur.id}-v${VERSION_SAUVEGARDE_COURANTE}-${sauvegarde.empreinte}`,
   };
 }
 
@@ -426,18 +464,162 @@ export function promouvoirEtatV4VersCourant(
     ...etat,
     version: VERSION_SIMULATION_COURANTE,
     veilleBasse: creerEtatInitialDeVeilleBasse(),
+    hautPuits: creerEtatDeHautPuitsInitial(),
   };
 }
 
 function normaliserEtatCourantEnV4(
   etat: EtatCampagne,
 ): EtatCampagneV4 {
-  const { veilleBasse, ...etatV4 } = etat;
+  const { veilleBasse, hautPuits, ...etatV4 } = etat;
   void veilleBasse;
+  void hautPuits;
   return {
     ...etatV4,
     version: VERSION_SIMULATION_AVANT_VEILLE_BASSE,
   };
+}
+
+export function promouvoirEtatV5VersCourant(
+  etat: EtatCampagneV5,
+): EtatCampagne {
+  return {
+    ...etat,
+    version: VERSION_SIMULATION_COURANTE,
+    hautPuits: creerEtatDeHautPuitsInitial(),
+  };
+}
+
+function normaliserEtatCourantEnV5(
+  etat: EtatCampagne,
+): EtatCampagneV5 {
+  const { hautPuits, ...etatV5 } = etat;
+  void hautPuits;
+  return {
+    ...etatV5,
+    version: VERSION_SIMULATION_AVANT_HAUT_PUITS,
+  };
+}
+
+function appliquerCommandeSelonCatalogueAvantHautPuits(
+  etat: EtatCampagne,
+  commande: Parameters<typeof appliquerCommande>[1],
+): EtatCampagne {
+  const evenementActifAvant = etat.narration.evenementActif;
+  const applique = appliquerCommande(etat, commande).etat;
+  const nouvelEvenement = applique.narration.evenementActif;
+  return evenementActifAvant === null &&
+    commande.type === "temps-du-convoi.ecouler" &&
+    nouvelEvenement?.startsWith("bassins.haut-puits.") === true
+    ? {
+        ...applique,
+        narration: {
+          ...applique.narration,
+          evenementActif: null,
+        },
+      }
+    : applique;
+}
+
+function migrerSauvegardeV5AvecCatalogueHistorique(
+  valeur: ObjetInconnu,
+): SauvegardeCampagne | undefined {
+  if (
+    valeur.format !== FORMAT_SAUVEGARDE ||
+    typeof valeur.id !== "string" ||
+    valeur.version !== VERSION_SAUVEGARDE_AVANT_HAUT_PUITS ||
+    !estObjet(valeur.versions) ||
+    valeur.versions.simulation !== VERSION_SIMULATION_AVANT_HAUT_PUITS ||
+    valeur.versions.contenu !== VERSIONS_DU_SNAPSHOT_COURANT.contenu ||
+    valeur.versions.aleatoire !== VERSIONS_DU_SNAPSHOT_COURANT.aleatoire ||
+    valeur.versions.empreinte !== VERSIONS_DU_SNAPSHOT_COURANT.empreinte ||
+    typeof valeur.graine !== "string" ||
+    !estObjet(valeur.horloge) ||
+    typeof valeur.horloge.secondes !== "number" ||
+    !Number.isFinite(valeur.horloge.secondes) ||
+    !estObjet(valeur.reproduction) ||
+    !Array.isArray(valeur.reproduction.commandes) ||
+    typeof valeur.reproduction.empreinteSnapshot !== "string" ||
+    !EMPREINTE.test(valeur.reproduction.empreinteSnapshot) ||
+    typeof valeur.empreinte !== "string" ||
+    !EMPREINTE.test(valeur.empreinte)
+  ) {
+    return undefined;
+  }
+
+  const snapshotV5 = lireSnapshotV5(valeur.reproduction.snapshot);
+  const etatDeclareV5 = lireEtatV5(valeur.etat);
+  if (
+    snapshotV5 === undefined ||
+    etatDeclareV5 === undefined ||
+    valeur.graine !== etatDeclareV5.graine ||
+    valeur.horloge.secondes !== etatDeclareV5.tempsDuConvoi.secondes ||
+    empreinteEtat(snapshotV5 as unknown as EtatCampagne) !==
+      valeur.reproduction.empreinteSnapshot ||
+    empreinteEtat(etatDeclareV5 as unknown as EtatCampagne) !== valeur.empreinte
+  ) {
+    return undefined;
+  }
+
+  const snapshot = promouvoirEtatV5VersCourant(snapshotV5);
+  let etat = snapshot;
+  try {
+    for (const [index, entree] of valeur.reproduction.commandes.entries()) {
+      if (
+        !estObjet(entree) ||
+        entree.sequence !== index ||
+        !estCommandeV5(entree.commande) ||
+        typeof entree.empreinteApres !== "string" ||
+        !EMPREINTE.test(entree.empreinteApres)
+      ) {
+        return undefined;
+      }
+      etat = appliquerCommandeSelonCatalogueAvantHautPuits(
+        etat,
+        entree.commande,
+      );
+      if (
+        empreinteEtat(
+          normaliserEtatCourantEnV5(etat) as unknown as EtatCampagne,
+        ) !== entree.empreinteApres
+      ) {
+        return undefined;
+      }
+    }
+  } catch {
+    return undefined;
+  }
+
+  if (
+    !sontStructurellementEgaux(
+      normaliserEtatCourantEnV5(etat),
+      etatDeclareV5,
+    ) ||
+    lireSnapshotCourant(snapshot) === undefined ||
+    lireEtatCourant(etat) === undefined
+  ) {
+    return undefined;
+  }
+
+  const reproduction: ReproductionDeCampagne = {
+    snapshot: etat,
+    empreinteSnapshot: empreinteEtat(etat),
+    commandes: [],
+  };
+  const sauvegarde = creerSauvegarde(etat, reproduction);
+  return {
+    ...sauvegarde,
+    id: `${valeur.id}-v${VERSION_SAUVEGARDE_COURANTE}-${sauvegarde.empreinte}`,
+  };
+}
+
+export function migrerSauvegardeV5(
+  valeur: ObjetInconnu,
+): SauvegardeCampagne | undefined {
+  return executerAvecEvenementsStructurelsTemporaires(
+    EVENEMENTS_HISTORIQUES_V5,
+    () => migrerSauvegardeV5AvecCatalogueHistorique(valeur),
+  );
 }
 
 function ancienConflitDeHautPuitsEstEligible(
@@ -465,16 +647,21 @@ function appliquerCommandeSelonCatalogueAvantVeilleBasse(
   const evenementActifAvant = etat.narration.evenementActif;
   const applique = appliquerCommande(etat, commande).etat;
   const nouvelEvenement = applique.narration.evenementActif;
+  const doitRetablirAncienConflit =
+    evenementActifAvant === null &&
+    commande.type === "temps-du-convoi.ecouler" &&
+    ancienConflitDeHautPuitsEstEligible(applique);
   if (
     evenementActifAvant === null &&
     commande.type === "temps-du-convoi.ecouler" &&
-    nouvelEvenement?.startsWith("veille-basse.") === true
+    (doitRetablirAncienConflit ||
+      nouvelEvenement?.startsWith("veille-basse.") === true)
   ) {
     return {
       ...applique,
       narration: {
         ...applique.narration,
-        evenementActif: ancienConflitDeHautPuitsEstEligible(applique)
+        evenementActif: doitRetablirAncienConflit
           ? "bassins-fendus.eau-de-haut-puits"
           : null,
       },
@@ -597,7 +784,7 @@ export function migrerSauvegardeV4(
   const sauvegarde = creerSauvegarde(etat, reproduction);
   return {
     ...sauvegarde,
-    id: `${valeur.id}-v5-${sauvegarde.empreinte}`,
+    id: `${valeur.id}-v${VERSION_SAUVEGARDE_COURANTE}-${sauvegarde.empreinte}`,
   };
 }
 
@@ -690,7 +877,7 @@ function migrerSauvegardeV2Legacy(
   const sauvegarde = creerSauvegarde(etat, reproduction);
   return {
     ...sauvegarde,
-    id: `${valeur.id}-v5-${sauvegarde.empreinte}`,
+    id: `${valeur.id}-v${VERSION_SAUVEGARDE_COURANTE}-${sauvegarde.empreinte}`,
   };
 }
 
@@ -798,7 +985,7 @@ function migrerSauvegardeAvantRoutes(
   const sauvegarde = creerSauvegarde(etat, reproduction);
   return {
     ...sauvegarde,
-    id: `${valeur.id}-v5-${sauvegarde.empreinte}`,
+    id: `${valeur.id}-v${VERSION_SAUVEGARDE_COURANTE}-${sauvegarde.empreinte}`,
   };
 }
 
@@ -906,6 +1093,6 @@ export function migrerSauvegardeV3(
   const sauvegarde = creerSauvegarde(etat, reproduction);
   return {
     ...sauvegarde,
-    id: `${valeur.id}-v5-${sauvegarde.empreinte}`,
+    id: `${valeur.id}-v${VERSION_SAUVEGARDE_COURANTE}-${sauvegarde.empreinte}`,
   };
 }

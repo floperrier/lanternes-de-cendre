@@ -1,5 +1,7 @@
 import { expect, test } from "@playwright/test";
 
+import { installerHorlogeFixe } from "./horloge";
+
 test("les Autonomies précèdent les détails économiques sourcés", async ({
   page,
 }) => {
@@ -27,7 +29,7 @@ test("la Doctrine pilote un Incident et le Journal causal au clavier", async ({
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.clock.install();
+  await installerHorlogeFixe(page);
   await page.goto("/");
 
   const doctrine = page.getByText("Doctrine du convoi");
@@ -41,7 +43,7 @@ test("la Doctrine pilote un Incident et le Journal causal au clavier", async ({
   await page.keyboard.press("Enter");
   await expect(page.getByText("Transition vers Préventif · 30 s")).toBeVisible();
 
-  await page.clock.runFor(30_000);
+  await page.clock.fastForward(30_000);
   await expect(entretienPreventif).toHaveAttribute("aria-pressed", "true");
 
   const incident = page.getByRole("region", {
@@ -68,10 +70,10 @@ test("la Doctrine pilote un Incident et le Journal causal au clavier", async ({
 test("le Journal rend la cohorte orientée sans identifiant technique", async ({
   page,
 }) => {
-  await page.clock.install();
+  await installerHorlogeFixe(page);
   await page.goto("/");
   await page.getByRole("button", { name: "Vitesse 4×" }).click();
-  await page.clock.runFor(15_000);
+  await page.clock.fastForward(15_000);
 
   const evenement = page.getByRole("region", {
     name: "Des signaux sous la cendre",

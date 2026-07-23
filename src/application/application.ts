@@ -83,8 +83,9 @@ export interface OptionsDApplicationCampagne {
 
 const ACCES_AU_CONTENU_DE_LA_DEMONSTRATION: PolitiqueDAccesAuContenu = {
   verifierCommande: (etat, commande) =>
-    commande.type === "engagement-de-route.confirmer" &&
-    etat.routes.jalons.length > 0
+    commande.type === "haut-puits.marche.echanger" ||
+    (commande.type === "engagement-de-route.confirmer" &&
+      etat.routes.jalons.length > 0)
       ? { code: "acces-premium-requis" }
       : null,
 };

@@ -161,7 +161,7 @@ describe("application de Campagne", () => {
 
     const deuxiemeTroncon = {
       type: "engagement-de-route.confirmer" as const,
-      tronconId: "chenal-des-vannes" as const,
+      tronconId: "chemin-des-vanniers" as const,
     };
     expect(application.commandeEstAutorisee(deuxiemeTroncon)).toBe(false);
     expect(() => application.envoyerCommande(deuxiemeTroncon)).toThrow(

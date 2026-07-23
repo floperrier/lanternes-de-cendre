@@ -1,0 +1,15 @@
+{
+  "asset": "serveur-commercial/assets/haut-puits-ilyana.webp",
+  "sha256": "5b97d81678fa990d6289f36a79a4d34b24e7be92b0fc75fd43168eea6c9e5e4e",
+  "createdAt": "2026-07-23",
+  "tool": "Codex built-in image_gen",
+  "model": "built-in model (identifier not exposed)",
+  "useCase": "illustration-story",
+  "input": "public/assets/cite-caravane.png used as the project art-direction reference.",
+  "prompt": "Use case: wide 16:9 story-event illustration for the premium narrative game “Lanternes de cendre”. Create one production-ready character-and-environment image. The attached Cité-Caravane image is a style and world reference only: match its elevated oblique industrial setting, painterly-realistic detail, charcoal/ash blue-black palette, restrained warm amber lantern light, and desolate ash-storm atmosphere. New scene: Ilyana Voss, a practical adult convoy companion in ash-dark work clothes, stands at High Well’s large water distribution valve, one hand near the brass control wheel. Beside her lies an open blank registry with visible ruled pages but absolutely no readable writing. Across the valve table, several local delegates and convoy witnesses face her, making the tension between entrusting her as guarantor and retaining collective arbitration visually clear. Include cistern pipes and the well infrastructure behind them. Respectful non-glamourized character depiction, cinematic wide composition, high environmental storytelling, no readable text, no typography, no logos, no watermark, no weapons, no UI. Do not copy the exact composition of the reference.",
+  "rights": "OpenAI Terms of Use — output assigned to the user",
+  "approval": {
+    "status": "pending-pull-request-review",
+    "reviewer": null
+  }
+}

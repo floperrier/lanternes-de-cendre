@@ -22,6 +22,29 @@ describe("validation persistante des routes", () => {
     expect(estEtatDesRoutes(arrivee, 390)).toBe(true);
   });
 
+  it("accepte une campagne gratuite antérieure au chargement du catalogue premium", () => {
+    const initial = creerEtatDesRoutesInitial();
+    const etatsGratuits = { ...initial.etatsReels };
+    delete etatsGratuits["chemin-des-vanniers"];
+    delete etatsGratuits["chenal-des-vannes"];
+
+    expect(
+      estEtatDesRoutes({ ...initial, etatsReels: etatsGratuits }, 0),
+    ).toBe(true);
+    expect(
+      estEtatDesRoutes(
+        {
+          ...initial,
+          etatsReels: {
+            ...etatsGratuits,
+            "route-inconnue": "praticable",
+          },
+        },
+        0,
+      ),
+    ).toBe(false);
+  });
+
   it("rejette les états réels, sources et Jalons impossibles", () => {
     const initial = creerEtatDesRoutesInitial();
     const engagement = confirmerEngagementDeRoute(

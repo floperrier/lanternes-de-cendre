@@ -49,6 +49,7 @@ export interface SourcesDuCatalogue {
   readonly traductions: Readonly<Record<Langue, string>>;
   readonly assets: string;
   readonly provenances: Readonly<Record<string, string>>;
+  readonly cheminDeProvenanceAsset?: (chemin: string) => string;
   readonly assetExiste: (chemin: string) => boolean;
   readonly empreinteAsset: (chemin: string) => string;
   readonly tailleAsset: (chemin: string) => number;
@@ -267,6 +268,7 @@ function compilerLibellesTransversaux(
 function compilerAssets(
   source: string,
   provenances: Readonly<Record<string, string>>,
+  cheminDeProvenanceAsset: (chemin: string) => string,
   assetExiste: (chemin: string) => boolean,
   empreinteAsset: (chemin: string) => string,
   tailleAsset: (chemin: string) => number,
@@ -293,11 +295,15 @@ function compilerAssets(
     }
 
     const fichier = chaine(sourceAsset.fichier, `${chemin}/fichier`);
-    if (!fichier.startsWith("/assets/") || fichier.includes("..")) {
+    if (
+      (!fichier.startsWith("/assets/") &&
+        !fichier.startsWith("/api/commercial/assets/")) ||
+      fichier.includes("..")
+    ) {
       echouer(
         "asset",
         `${chemin}/fichier`,
-        "le fichier doit rester sous /assets/",
+        "le fichier doit rester sous /assets/ ou /api/commercial/assets/",
       );
     }
 
@@ -317,11 +323,12 @@ function compilerAssets(
       parserProvenance(sourceProvenance, ficheProvenance),
       ficheProvenance,
     );
-    if (provenanceSource.asset !== `public${fichier}`) {
+    const cheminDeProvenance = cheminDeProvenanceAsset(fichier);
+    if (provenanceSource.asset !== cheminDeProvenance) {
       echouer(
         "asset",
         `${ficheProvenance}/asset`,
-        `la fiche ne décrit pas « public${fichier} »`,
+        `la fiche ne décrit pas « ${cheminDeProvenance} »`,
       );
     }
     const approbation = objet(
@@ -556,14 +563,32 @@ function compilerEffet(source: unknown, chemin: string): EffetDEvenement {
   const effet = objet(source, chemin);
   const type = chaine(effet.type, `${chemin}/type`);
 
-  if (type !== "habitants.modifier") {
-    echouer("effet", `${chemin}/type`, `effet inconnu « ${type} »`);
+  if (type === "habitants.modifier") {
+    return {
+      type,
+      valeur: nombre(effet.valeur, `${chemin}/valeur`),
+    };
+  }
+  if (type === "stock.modifier") {
+    const stock = chaine(effet.stock, `${chemin}/stock`);
+    if (
+      !["vivres", "eau", "combustible", "materiaux", "remedes"].includes(
+        stock,
+      )
+    ) {
+      echouer("effet", `${chemin}/stock`, `stock inconnu « ${stock} »`);
+    }
+    return {
+      type,
+      stock: stock as Extract<
+        EffetDEvenement,
+        { readonly type: "stock.modifier" }
+      >["stock"],
+      valeur: nombre(effet.valeur, `${chemin}/valeur`),
+    };
   }
 
-  return {
-    type,
-    valeur: nombre(effet.valeur, `${chemin}/valeur`),
-  };
+  return echouer("effet", `${chemin}/type`, `effet inconnu « ${type} »`);
 }
 
 function compilerEvenement(
@@ -1438,6 +1463,7 @@ export function compilerCatalogue(
   const assets = compilerAssets(
     sources.assets,
     sources.provenances,
+    sources.cheminDeProvenanceAsset ?? ((chemin) => `public${chemin}`),
     sources.assetExiste,
     sources.empreinteAsset,
     sources.tailleAsset,

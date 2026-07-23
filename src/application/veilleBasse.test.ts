@@ -11,7 +11,24 @@ describe("projection accessible de Veille-Basse", () => {
     );
 
     expect(projection).toEqual({
+      visible: false,
       titre: "Veille-Basse et l’Hospice du Sillon",
+      libelles: {
+        pressions: "Pressions",
+        marche: "Marché de besoins",
+        devenir: "Devenir",
+        origine: "Origine",
+        destination: "Destination",
+        taille: "Taille",
+        etatDominant: "État dominant",
+        specialite: "Spécialité",
+        memoire: "Mémoire",
+        integration: "Intégration",
+        decision: "Décision",
+        position: "Position",
+        releve: "Relevé",
+        revelation: "Révélation essentielle",
+      },
       colonie: {
         nom: "Veille-Basse",
         type: "Colonie",

@@ -208,9 +208,15 @@ export function estEtatDesRoutes(
   return (
     nombreDeJalons === valeur.jalons.length &&
     valeur.position === position &&
-    memesCles(etatsReels, TRONCONS_DE_ROUTE.map(({ id }) => id)) &&
+    ["digue-des-puits", "chaussee-de-veille-basse"].every(
+      (id) => id in etatsReels,
+    ) &&
+    Object.keys(etatsReels).every((id) =>
+      TRONCONS_DE_ROUTE.some((troncon) => troncon.id === id),
+    ) &&
     TRONCONS_DE_ROUTE.every(
-      ({ id }) => etatsReels[id] === etatsAttendus[id],
+      ({ id, etatInitial }) =>
+        (etatsReels[id] ?? etatInitial) === etatsAttendus[id],
     )
   );
 }

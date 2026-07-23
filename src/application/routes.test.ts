@@ -13,7 +13,7 @@ describe("projection de l’Atlas", () => {
     expect(digue).toEqual({
       id: "digue-des-puits",
       destination: "Haut-Puits",
-      connexion: "Halte du puits sec → Haut-Puits",
+      connexion: "Maison des Filtres → Haut-Puits",
       duree: "6 min",
       consommation: "3 L de Combustible",
       engageable: true,
@@ -65,7 +65,7 @@ describe("projection de l’Atlas", () => {
 
     expect(projeterAtlas(engagement, "en")).toMatchObject({
       titre: "Operations Atlas",
-      position: "Dry Well Halt",
+      position: "Filter House",
       engagement: {
         destination: "High Well",
         arrivee: "in 6 min",
@@ -98,19 +98,30 @@ describe("projection de l’Atlas", () => {
       dernierJalon: {
         cause: "Ash Front — rear access condemned",
       },
-      troncons: [
-        {
-          id: "chenal-des-vannes",
-          destination: "Sluice Relay",
-          connexion: "High Well → Sluice Relay",
+      troncons: expect.arrayContaining([
+        expect.objectContaining({
+          id: "chemin-des-vanniers",
+          destination: "The Basketmakers",
+          connexion: "High Well → The Basketmakers",
           engageable: false,
-        },
-      ],
+          renseignements: [
+            expect.objectContaining({
+              source: "High Well Scouts",
+              age: "observed 6 min ago",
+            }),
+          ],
+          bilan: expect.objectContaining({
+            consequencesConnues: expect.arrayContaining([
+              "The Lighthouse plume drifts east and reaches the Basketmakers.",
+            ]),
+          }),
+        }),
+      ]),
     });
 
     expect(projeterAtlas(arrivee, "en", () => true).troncons[0]).toMatchObject(
       {
-        id: "chenal-des-vannes",
+        id: "chemin-des-vanniers",
         engageable: true,
       },
     );

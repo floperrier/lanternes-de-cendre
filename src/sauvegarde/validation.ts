@@ -11,6 +11,7 @@ import {
 import {
   VERSION_ALEATOIRE_COURANTE,
   VERSION_SIMULATION_AVANT_CRISES,
+  VERSION_SIMULATION_AVANT_HAUT_PUITS,
   VERSION_SIMULATION_AVANT_ROUTES,
   VERSION_SIMULATION_AVANT_VEILLE_BASSE,
   VERSION_SIMULATION_COURANTE,
@@ -91,6 +92,14 @@ import {
   declencherCrise,
   type EtatDesCrises,
 } from "../simulation/crise";
+import {
+  creerEtatDeHautPuitsInitial,
+  type EtatDeHautPuits,
+} from "../simulation/hautPuits";
+import {
+  activitesDeHautPuitsSontCausales,
+  estEtatDeHautPuits,
+} from "./validationHautPuits";
 
 const EMPREINTE = /^[0-9a-f]{8}$/;
 const IDENTIFIANTS_PLATEFORMES_LEGACY_V1 = [
@@ -106,37 +115,35 @@ const VITESSES = new Set<number>(VITESSES_DU_CONVOI);
 const PILOTAGE_INITIAL = creerPilotageInitial();
 const ORDRES_D_INCIDENT = new Set(["securiser-pompe", "maintenir-debit"]);
 const PRIORITES_DE_CHANTIER = new Set(["basse", "normale", "haute"]);
-const IDENTIFIANTS_DE_FAITS_DU_CATALOGUE = new Set(
-  catalogueDEvenements.evenements.flatMap((evenement) =>
-    evenement.choix.flatMap((choix) =>
-      choix.faitsProduits.map((fait) => fait.id),
-    ),
-  ),
-);
-const IDENTIFIANTS_DE_FAITS_CONNUS = new Set([
-  ...IDENTIFIANTS_DE_FAITS_DU_CATALOGUE,
-  ...IDENTIFIANTS_DE_FAITS_D_INCIDENT,
-  ...IDENTIFIANTS_DE_FAITS_DU_CONSEIL,
-  ...IDENTIFIANTS_DE_FAITS_DE_CRISE,
-]);
-const DEFINITIONS_DE_FAITS_DU_CATALOGUE = new Map(
-  catalogueDEvenements.evenements.flatMap((evenement) =>
-    evenement.choix.flatMap((choix) =>
-      choix.faitsProduits.map(
-        (fait) =>
-          [
-            fait.id,
-            {
-              cause: evenement.id,
-              acteurs: evenement.acteurs,
-              cible: fait.cible,
-              effets: choix.effets,
-            },
-          ] as const,
+function definitionsDeFaitsDuCatalogue() {
+  return new Map(
+    catalogueDEvenements.evenements.flatMap((evenement) =>
+      evenement.choix.flatMap((choix) =>
+        choix.faitsProduits.map(
+          (fait) =>
+            [
+              fait.id,
+              {
+                cause: evenement.id,
+                acteurs: evenement.acteurs,
+                cible: fait.cible,
+                effets: choix.effets,
+              },
+            ] as const,
+        ),
       ),
     ),
-  ),
-);
+  );
+}
+
+function identifiantsDeFaitsConnus(): ReadonlySet<string> {
+  return new Set([
+    ...definitionsDeFaitsDuCatalogue().keys(),
+    ...IDENTIFIANTS_DE_FAITS_D_INCIDENT,
+    ...IDENTIFIANTS_DE_FAITS_DU_CONSEIL,
+    ...IDENTIFIANTS_DE_FAITS_DE_CRISE,
+  ]);
+}
 
 export type ObjetInconnu = Record<string, unknown>;
 
@@ -157,6 +164,7 @@ export interface EtatCampagneV2
     | "crises"
     | "expeditions"
     | "veilleBasse"
+    | "hautPuits"
     | "citeCaravane"
   > {
   readonly version: typeof VERSION_SIMULATION_AVANT_ROUTES;
@@ -171,7 +179,12 @@ export interface EtatCampagneV2
 export interface EtatCampagneAvantRoutes
   extends Omit<
     EtatCampagne,
-    "version" | "routes" | "crises" | "expeditions" | "veilleBasse"
+    | "version"
+    | "routes"
+    | "crises"
+    | "expeditions"
+    | "veilleBasse"
+    | "hautPuits"
   > {
   readonly version: typeof VERSION_SIMULATION_AVANT_CRISES;
 }
@@ -179,7 +192,11 @@ export interface EtatCampagneAvantRoutes
 export interface EtatCampagneAvantCrises
   extends Omit<
     EtatCampagne,
-    "version" | "crises" | "expeditions" | "veilleBasse"
+    | "version"
+    | "crises"
+    | "expeditions"
+    | "veilleBasse"
+    | "hautPuits"
   > {
   readonly version: typeof VERSION_SIMULATION_AVANT_CRISES;
 }
@@ -187,8 +204,13 @@ export interface EtatCampagneAvantCrises
 export type EtatCampagneV3 = EtatCampagneAvantCrises;
 
 export interface EtatCampagneV4
-  extends Omit<EtatCampagne, "version" | "veilleBasse"> {
+  extends Omit<EtatCampagne, "version" | "veilleBasse" | "hautPuits"> {
   readonly version: typeof VERSION_SIMULATION_AVANT_VEILLE_BASSE;
+}
+
+export interface EtatCampagneV5
+  extends Omit<EtatCampagne, "version" | "hautPuits"> {
+  readonly version: typeof VERSION_SIMULATION_AVANT_HAUT_PUITS;
 }
 
 export function estObjet(valeur: unknown): valeur is ObjetInconnu {
@@ -315,12 +337,39 @@ export function estCommande(valeur: unknown): valeur is CommandeCampagne {
       )
     );
   }
+  if (valeur.type === "haut-puits.marche.echanger") {
+    return (
+      valeur.offreId === "eau-contre-materiaux" ||
+      valeur.offreId === "eau-contre-remedes"
+    );
+  }
   return (
     valeur.type === "expedition.ordonner" &&
     valeur.expeditionId === "vannes-grises" &&
     ["couper-contourner", "forcer-galerie", "ordonner-repli"].includes(
       String(valeur.intention),
     )
+  );
+}
+
+export function estCommandeV5(valeur: unknown): valeur is CommandeCampagne {
+  if (!estCommande(valeur) || !estObjet(valeur)) {
+    return false;
+  }
+  if (valeur.type === "haut-puits.marche.echanger") {
+    return false;
+  }
+  if (
+    valeur.type === "engagement-de-route.confirmer" &&
+    (valeur.tronconId === "chemin-des-vanniers" ||
+      valeur.tronconId === "chenal-des-vannes")
+  ) {
+    return false;
+  }
+  return !(
+    valeur.type === "evenement-narratif.choisir" &&
+    typeof valeur.evenementId === "string" &&
+    valeur.evenementId.startsWith("bassins.haut-puits.")
   );
 }
 
@@ -383,7 +432,7 @@ function estFaitDeCampagneV1(
   if (!estFaitDeCampagne(valeur) || !estObjet(valeur)) {
     return false;
   }
-  const definition = DEFINITIONS_DE_FAITS_DU_CATALOGUE.get(String(valeur.id));
+  const definition = definitionsDeFaitsDuCatalogue().get(String(valeur.id));
   return (
     definition !== undefined &&
     valeur.cause === definition.cause &&
@@ -491,7 +540,7 @@ function estFaitDeCampagneV2(valeur: unknown): boolean {
   if (String(valeur.id).startsWith("expedition.vannes-grises.")) {
     return effets.materiels.length === 0 && effets.humains.length === 0;
   }
-  if (!IDENTIFIANTS_DE_FAITS_CONNUS.has(String(valeur.id))) {
+  if (!identifiantsDeFaitsConnus().has(String(valeur.id))) {
     return false;
   }
 
@@ -501,17 +550,35 @@ function estFaitDeCampagneV2(valeur: unknown): boolean {
   if (estIdentifiantDeFaitDuConseil(String(valeur.id))) {
     return estFaitDuConseil(valeur);
   }
-  const definitionDuCatalogue = DEFINITIONS_DE_FAITS_DU_CATALOGUE.get(
+  const definitionDuCatalogue = definitionsDeFaitsDuCatalogue().get(
     String(valeur.id),
   );
   if (definitionDuCatalogue !== undefined) {
+    const effetsMaterielsAttendus = definitionDuCatalogue.effets.filter(
+      (effet) => effet.type === "stock.modifier",
+    ) as readonly {
+      readonly type: "stock.modifier";
+      readonly stock: string;
+      readonly valeur: number;
+    }[];
+    const effetsHumainsAttendus = definitionDuCatalogue.effets.filter(
+      (
+        effet,
+      ): effet is Extract<
+        (typeof definitionDuCatalogue.effets)[number],
+        { readonly type: "habitants.modifier" }
+      > => effet.type === "habitants.modifier",
+    );
     return (
       valeur.cause === definitionDuCatalogue.cause &&
       memesChaines(acteurs, definitionDuCatalogue.acteurs) &&
       valeur.cible === definitionDuCatalogue.cible &&
-      materiels.length === 0 &&
-      humains.length === definitionDuCatalogue.effets.length &&
-      definitionDuCatalogue.effets.every((effet, index) =>
+      materiels.length === effetsMaterielsAttendus.length &&
+      effetsMaterielsAttendus.every((effet, index) =>
+        estEffetStock(materiels[index], effet.valeur, effet.stock),
+      ) &&
+      humains.length === effetsHumainsAttendus.length &&
+      effetsHumainsAttendus.every((effet, index) =>
         estEffetHumain(
           humains[index],
           "habitants.modifies",
@@ -1086,27 +1153,49 @@ function calculerStockAttendu(
   infrastructure: EtatInfrastructure,
   routes: EtatDesRoutes,
   expeditions: EtatDesExpeditions,
+  hautPuits: EtatDeHautPuits,
   reinitialiserReliquatApresConsommationMateriaux = true,
 ): {
   readonly quantite: number;
   readonly reliquatDeFlux: number;
   readonly coutsDeLancementDExpeditionApplicables: boolean;
+  readonly possibilites: readonly {
+    readonly quantite: number;
+    readonly reliquatDeFlux: number;
+    readonly coutsDeLancementDExpeditionApplicables: boolean;
+  }[];
 } {
   const initial = PILOTAGE_INITIAL.economie.stocks[id];
-  let stock = { ...initial };
+  type PossibiliteDeStock = {
+    readonly stock: typeof initial;
+    readonly coutsDeLancementDExpeditionApplicables: boolean;
+  };
+  let possibilites: PossibiliteDeStock[] = [
+    {
+      stock: { ...initial },
+      coutsDeLancementDExpeditionApplicables: true,
+    },
+  ];
+  let canonique = possibilites[0]!;
   let secondeCourante = 0;
   let fluxParHeure = initial.fluxParHeure;
-  let coutsDeLancementDExpeditionApplicables = true;
-  const appliquerFlux = (secondes: number) => {
+  const appliquerFlux = (
+    possibilite: PossibiliteDeStock,
+    secondes: number,
+  ): PossibiliteDeStock => {
+    const stock = possibilite.stock;
     const numerateur =
       stock.reliquatDeFlux + fluxParHeure * Math.max(0, secondes);
     const variation = Math.trunc(numerateur / 3_600);
     const quantite = Math.max(0, stock.quantite + variation);
-    stock = {
-      ...stock,
-      quantite,
-      reliquatDeFlux:
-        quantite === 0 ? 0 : numerateur - variation * 3_600,
+    return {
+      ...possibilite,
+      stock: {
+        ...stock,
+        quantite,
+        reliquatDeFlux:
+          quantite === 0 ? 0 : numerateur - variation * 3_600,
+      },
     };
   };
 
@@ -1185,6 +1274,16 @@ function calculerStockAttendu(
       index,
       engagement,
     })),
+    ...hautPuits.marche.offres.flatMap((offre, indexOffre) =>
+      offre.echangeA === null
+        ? []
+        : offre.mouvements.map((mouvement, indexMouvement) => ({
+            type: "haut-puits" as const,
+            moment: offre.echangeA as number,
+            index: indexOffre * 2 + indexMouvement,
+            mouvement,
+          })),
+    ),
   ]
     .filter((occurrence) => occurrence.moment <= secondesFinales)
     .sort((gauche, droite) => {
@@ -1196,6 +1295,7 @@ function calculerStockAttendu(
       infrastructure: 1,
       expedition: 2,
       engagement: 3,
+      "haut-puits": 4,
     } as const;
     return (
       priorite[gauche.type] - priorite[droite.type] ||
@@ -1203,9 +1303,14 @@ function calculerStockAttendu(
     );
     });
 
-  for (const occurrence of occurrences) {
-    appliquerFlux(occurrence.moment - secondeCourante);
-    secondeCourante = occurrence.moment;
+  type Occurrence = (typeof occurrences)[number];
+  const appliquerOccurrence = (
+    possibilite: PossibiliteDeStock,
+    occurrence: Exclude<Occurrence, { readonly type: "infrastructure" }>,
+  ): PossibiliteDeStock => {
+    let stock = possibilite.stock;
+    let coutsDeLancementDExpeditionApplicables =
+      possibilite.coutsDeLancementDExpeditionApplicables;
     if (occurrence.type === "fait") {
       const effets = occurrence.fait.effets as ObjetInconnu;
       for (const effet of effets.materiels as ObjetInconnu[]) {
@@ -1216,8 +1321,6 @@ function calculerStockAttendu(
           );
         }
       }
-    } else if (occurrence.type === "infrastructure") {
-      fluxParHeure += occurrence.variationDeFlux;
     } else if (occurrence.type === "expedition") {
       if (occurrence.mouvement.stock === id) {
         if (
@@ -1232,16 +1335,130 @@ function calculerStockAttendu(
           occurrence.mouvement.variation,
         );
       }
-    } else {
+    } else if (occurrence.type === "engagement") {
       stock = appliquerConsommationDeRouteAUnStock(
         id,
         stock,
         trouverTronconDeRoute(occurrence.engagement.tronconId),
       );
+    } else if (occurrence.mouvement.stock === id) {
+      stock = appliquerVariationAUnStock(
+        stock,
+        occurrence.mouvement.variation,
+      );
     }
+    return { stock, coutsDeLancementDExpeditionApplicables };
+  };
+  const dedupliquer = (
+    valeurs: readonly PossibiliteDeStock[],
+  ): PossibiliteDeStock[] => [
+    ...new Map(
+      valeurs.map((possibilite) => [
+        [
+          possibilite.stock.quantite,
+          possibilite.stock.reliquatDeFlux,
+          possibilite.coutsDeLancementDExpeditionApplicables ? 1 : 0,
+        ].join(":"),
+        possibilite,
+      ]),
+    ).values(),
+  ];
+  const ordresCompatibles = (
+    depart: PossibiliteDeStock,
+    groupe: readonly Exclude<
+      Occurrence,
+      { readonly type: "infrastructure" }
+    >[],
+  ): PossibiliteDeStock[] => {
+    if (groupe.length <= 1) {
+      return groupe.length === 0
+        ? [depart]
+        : [appliquerOccurrence(depart, groupe[0]!)];
+    }
+    if (groupe.length > 12) {
+      return [
+        groupe.reduce(
+          (courant, occurrence) =>
+            appliquerOccurrence(courant, occurrence),
+          depart,
+        ),
+      ];
+    }
+    const parSousEnsemble = Array.from(
+      { length: 1 << groupe.length },
+      () => new Map<string, PossibiliteDeStock>(),
+    );
+    parSousEnsemble[0]!.set(
+      `${depart.stock.quantite}:${depart.stock.reliquatDeFlux}:${
+        depart.coutsDeLancementDExpeditionApplicables ? 1 : 0
+      }`,
+      depart,
+    );
+    for (let masque = 0; masque < parSousEnsemble.length - 1; masque += 1) {
+      for (const possibilite of parSousEnsemble[masque]!.values()) {
+        for (let index = 0; index < groupe.length; index += 1) {
+          const bit = 1 << index;
+          if ((masque & bit) !== 0) {
+            continue;
+          }
+          const suivante = appliquerOccurrence(possibilite, groupe[index]!);
+          const cle = [
+            suivante.stock.quantite,
+            suivante.stock.reliquatDeFlux,
+            suivante.coutsDeLancementDExpeditionApplicables ? 1 : 0,
+          ].join(":");
+          parSousEnsemble[masque | bit]!.set(cle, suivante);
+        }
+      }
+    }
+    return [...parSousEnsemble.at(-1)!.values()];
+  };
+
+  for (let debut = 0; debut < occurrences.length; ) {
+    const moment = occurrences[debut]!.moment;
+    let fin = debut + 1;
+    while (fin < occurrences.length && occurrences[fin]!.moment === moment) {
+      fin += 1;
+    }
+    const groupe = occurrences.slice(debut, fin);
+    const secondes = moment - secondeCourante;
+    possibilites = possibilites.map((possibilite) =>
+      appliquerFlux(possibilite, secondes),
+    );
+    canonique = appliquerFlux(canonique, secondes);
+    const variations = groupe.filter(
+      (
+        occurrence,
+      ): occurrence is Exclude<
+        Occurrence,
+        { readonly type: "infrastructure" }
+      > => occurrence.type !== "infrastructure",
+    );
+    possibilites = dedupliquer(
+      possibilites.flatMap((possibilite) =>
+        ordresCompatibles(possibilite, variations),
+      ),
+    );
+    canonique = variations.reduce(
+      (courant, occurrence) => appliquerOccurrence(courant, occurrence),
+      canonique,
+    );
+    for (const occurrence of groupe) {
+      if (occurrence.type === "infrastructure") {
+        fluxParHeure += occurrence.variationDeFlux;
+      }
+    }
+    secondeCourante = moment;
+    debut = fin;
   }
 
-  appliquerFlux(secondesFinales - secondeCourante);
+  possibilites = possibilites.map((possibilite) =>
+    appliquerFlux(possibilite, secondesFinales - secondeCourante),
+  );
+  canonique = appliquerFlux(
+    canonique,
+    secondesFinales - secondeCourante,
+  );
   if (id === "materiaux") {
     const consommes =
       infrastructure.chantiersTermines.reduce(
@@ -1249,18 +1466,42 @@ function calculerStockAttendu(
         0,
       ) + (infrastructure.chantierActif?.materiauxConsommes ?? 0);
     if (reinitialiserReliquatApresConsommationMateriaux) {
-      stock = appliquerVariationAUnStock(stock, -consommes);
+      possibilites = possibilites.map((possibilite) => ({
+        ...possibilite,
+        stock: appliquerVariationAUnStock(possibilite.stock, -consommes),
+      }));
+      canonique = {
+        ...canonique,
+        stock: appliquerVariationAUnStock(canonique.stock, -consommes),
+      };
     } else {
-      stock = {
-        ...stock,
-        quantite: Math.max(0, stock.quantite - consommes),
+      possibilites = possibilites.map((possibilite) => ({
+        ...possibilite,
+        stock: {
+          ...possibilite.stock,
+          quantite: Math.max(0, possibilite.stock.quantite - consommes),
+        },
+      }));
+      canonique = {
+        ...canonique,
+        stock: {
+          ...canonique.stock,
+          quantite: Math.max(0, canonique.stock.quantite - consommes),
+        },
       };
     }
   }
   return {
-    quantite: stock.quantite,
-    reliquatDeFlux: stock.reliquatDeFlux,
-    coutsDeLancementDExpeditionApplicables,
+    quantite: canonique.stock.quantite,
+    reliquatDeFlux: canonique.stock.reliquatDeFlux,
+    coutsDeLancementDExpeditionApplicables:
+      canonique.coutsDeLancementDExpeditionApplicables,
+    possibilites: possibilites.map((possibilite) => ({
+      quantite: possibilite.stock.quantite,
+      reliquatDeFlux: possibilite.stock.reliquatDeFlux,
+      coutsDeLancementDExpeditionApplicables:
+        possibilite.coutsDeLancementDExpeditionApplicables,
+    })),
   };
 }
 
@@ -1271,6 +1512,7 @@ function estEtatPilotage(
   infrastructure: EtatInfrastructure,
   routes: EtatDesRoutes,
   expeditions: EtatDesExpeditions,
+  hautPuits: EtatDeHautPuits,
 ): valeur is EtatPilotage {
   if (!estObjet(valeur)) {
     return false;
@@ -1310,11 +1552,15 @@ function estEtatPilotage(
       infrastructure,
       routes,
       expeditions,
+      hautPuits,
     );
     if (
-      !calcule.coutsDeLancementDExpeditionApplicables ||
-      stock.quantite !== calcule.quantite ||
-      stock.reliquatDeFlux !== calcule.reliquatDeFlux
+      !calcule.possibilites.some(
+        (possible) =>
+          possible.coutsDeLancementDExpeditionApplicables &&
+          stock.quantite === possible.quantite &&
+          stock.reliquatDeFlux === possible.reliquatDeFlux,
+      )
     ) {
       return false;
     }
@@ -1456,7 +1702,10 @@ function estCausaliteDeNarrationValide(
     }
     if (estJoue) {
       habitantsAttendus += choixCorrespondants[0]!.effets.reduce(
-        (total, effet) => total + effet.valeur,
+        (total, effet) =>
+          effet.type === "habitants.modifier"
+            ? total + effet.valeur
+            : total,
         0,
       );
     }
@@ -1542,6 +1791,7 @@ function estEtatDesCrises(
   infrastructure: EtatInfrastructure,
   routes: EtatDesRoutes,
   expeditions: EtatDesExpeditions,
+  hautPuits: EtatDeHautPuits,
   autoriserMarqueurHistoriqueSansFait = false,
 ): valeur is EtatDesCrises {
   const faitAnnonceur = faits.find(
@@ -1616,6 +1866,7 @@ function estEtatDesCrises(
       infrastructure,
       routes,
       expeditions,
+      hautPuits,
     ).quantite;
     const effets = faitDeRupture.effets as ObjetInconnu;
     const effetDEau = (effets.materiels as ObjetInconnu[])[0];
@@ -1823,6 +2074,7 @@ function lireEtatAvecSchemaCourant(
   const crises = valeur.crises;
   const expeditions = valeur.expeditions;
   const veilleBasse = valeur.veilleBasse;
+  const hautPuits = valeur.hautPuits;
 
   if (
     parties === undefined ||
@@ -1846,6 +2098,13 @@ function lireEtatAvecSchemaCourant(
         readonly moment: number;
       }[],
     ) ||
+    !estEtatDeHautPuits(hautPuits, parties.tempsDuConvoi.secondes) ||
+    !activitesDeHautPuitsSontCausales(
+      hautPuits,
+      routes,
+      parties.tempsDuConvoi.secondes,
+      narration.faitsDeCampagne as unknown as readonly FaitDeCampagne[],
+    ) ||
     !estJournalDExpeditionCoherent(
       expeditions,
       narration.faitsDeCampagne as unknown as readonly FaitDeCampagne[],
@@ -1859,6 +2118,7 @@ function lireEtatAvecSchemaCourant(
         infrastructure,
         routes,
         expeditions,
+        hautPuits,
         autoriserMarqueurHistoriqueSansFait,
       )) ||
     (trouverEngagementDeRouteActif(routes) !== undefined &&
@@ -1871,6 +2131,7 @@ function lireEtatAvecSchemaCourant(
       infrastructure,
       routes,
       expeditions,
+      hautPuits,
     ) ||
     !estCausaliteDeNarrationValide(
       parties,
@@ -1912,6 +2173,43 @@ export function lireSnapshotCourant(
   return lireEtatAvecSchemaCourant(valeur, true, true);
 }
 
+function lireEtatAvecSchemaV5(
+  valeur: unknown,
+  autoriserMarqueurHistoriqueSansFait = false,
+): EtatCampagneV5 | undefined {
+  if (
+    !estObjet(valeur) ||
+    valeur.version !== VERSION_SIMULATION_AVANT_HAUT_PUITS ||
+    "hautPuits" in valeur
+  ) {
+    return undefined;
+  }
+  const etatCourant = lireEtatAvecSchemaCourant(
+    {
+      ...valeur,
+      version: VERSION_SIMULATION_COURANTE,
+      hautPuits: creerEtatDeHautPuitsInitial(),
+    },
+    true,
+    autoriserMarqueurHistoriqueSansFait,
+  );
+  return etatCourant === undefined
+    ? undefined
+    : (valeur as unknown as EtatCampagneV5);
+}
+
+export function lireEtatV5(
+  valeur: unknown,
+): EtatCampagneV5 | undefined {
+  return lireEtatAvecSchemaV5(valeur);
+}
+
+export function lireSnapshotV5(
+  valeur: unknown,
+): EtatCampagneV5 | undefined {
+  return lireEtatAvecSchemaV5(valeur, true);
+}
+
 function lireEtatAvecSchemaV4(
   valeur: unknown,
   autoriserMarqueurHistoriqueSansFait = false,
@@ -1919,7 +2217,8 @@ function lireEtatAvecSchemaV4(
   if (
     !estObjet(valeur) ||
     valeur.version !== VERSION_SIMULATION_AVANT_VEILLE_BASSE ||
-    "veilleBasse" in valeur
+    "veilleBasse" in valeur ||
+    "hautPuits" in valeur
   ) {
     return undefined;
   }
@@ -1928,6 +2227,7 @@ function lireEtatAvecSchemaV4(
       ...valeur,
       version: VERSION_SIMULATION_COURANTE,
       veilleBasse: creerEtatInitialDeVeilleBasse(),
+      hautPuits: creerEtatDeHautPuitsInitial(),
     },
     true,
     autoriserMarqueurHistoriqueSansFait,
@@ -1994,6 +2294,7 @@ export function lireEtatAvantRoutes(
     crises: creerEtatDesCrisesInitial(),
     expeditions: creerEtatDesExpeditionsInitial(),
     veilleBasse: creerEtatInitialDeVeilleBasse(),
+    hautPuits: creerEtatDeHautPuitsInitial(),
   }, false);
   if (etatNormalise === undefined) {
     return undefined;
@@ -2005,6 +2306,7 @@ export function lireEtatAvantRoutes(
     etatNormalise.infrastructure,
     routes,
     creerEtatDesExpeditionsInitial(),
+    creerEtatDeHautPuitsInitial(),
     false,
   );
   return materiaux.quantite !== materiauxHistoriques.quantite ||
@@ -2023,6 +2325,7 @@ export function projeterEtatAvantRoutesHistorique(
     etat.infrastructure,
     creerEtatDesRoutesInitial(),
     creerEtatDesExpeditionsInitial(),
+    creerEtatDeHautPuitsInitial(),
     false,
   );
   return {
@@ -2070,6 +2373,7 @@ export function lireEtatV3(valeur: unknown): EtatCampagneV3 | undefined {
     crises: creerEtatDesCrisesInitial(),
     expeditions: creerEtatDesExpeditionsInitial(),
     veilleBasse: creerEtatInitialDeVeilleBasse(),
+    hautPuits: creerEtatDeHautPuitsInitial(),
   }, false);
   return etatCourant === undefined
     ? undefined
@@ -2107,6 +2411,7 @@ export function lireEtatV2(valeur: unknown): EtatCampagneV2 | undefined {
     crises: creerEtatDesCrisesInitial(),
     expeditions: creerEtatDesExpeditionsInitial(),
     veilleBasse: creerEtatInitialDeVeilleBasse(),
+    hautPuits: creerEtatDeHautPuitsInitial(),
   }, false);
   return etatCourant === undefined
     ? undefined

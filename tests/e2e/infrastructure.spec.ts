@@ -1,11 +1,13 @@
 import { expect, test } from "@playwright/test";
 
+import { installerHorlogeFixe } from "./horloge";
+
 test("un Chantier de Halte survit à la reprise et transforme la silhouette", async ({
   page,
 }) => {
   test.setTimeout(90_000);
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.clock.install();
+  await installerHorlogeFixe(page);
   await page.goto("/");
 
   const infrastructure = page.getByRole("region", { name: "Infrastructure" });
@@ -19,7 +21,7 @@ test("un Chantier de Halte survit à la reprise et transforme la silhouette", as
   expect((await coupeHabitee.screenshot()).byteLength).toBeGreaterThan(5_000);
 
   const largeurInitiale = (await coupeHabitee.boundingBox())?.width;
-  await page.setViewportSize({ width: 900, height: 800 });
+  await page.setViewportSize({ width: 720, height: 800 });
   await expect
     .poll(async () => (await coupeHabitee.boundingBox())?.width)
     .not.toBe(largeurInitiale);
@@ -36,7 +38,7 @@ test("un Chantier de Halte survit à la reprise et transforme la silhouette", as
   await expect(infrastructure).toContainText("Construction — Condenseur thermique");
 
   await page.getByRole("button", { name: "Vitesse 1×" }).click();
-  await page.clock.runFor(30_000);
+  await page.clock.fastForward(30_000);
   await page.getByRole("button", { name: "Pause" }).click();
   await expect(infrastructure).toContainText("50 % · Matériaux 6/12 · 30 s restantes");
 
@@ -51,13 +53,17 @@ test("un Chantier de Halte survit à la reprise et transforme la silhouette", as
     "50 % · Matériaux 6/12 · 30 s restantes",
   );
   await page.getByRole("button", { name: "Vitesse 1×" }).click();
-  await page.clock.runFor(30_000);
+  await page.clock.fastForward(30_000);
 
   await expect(coupeHabitee).toHaveAttribute(
     "data-installations",
     "9",
   );
-  await infrastructureReprise.getByText("Fiches des installations").click();
+  const fichesDesInstallations = infrastructureReprise.getByText(
+    "Fiches des installations",
+  );
+  await fichesDesInstallations.focus();
+  await page.keyboard.press("Enter");
   await expect(
     infrastructureReprise.getByRole("heading", { name: "Condenseur thermique" }),
   ).toBeVisible();
@@ -70,7 +76,7 @@ test("les sélections suivent l’implantation après un déplacement", async ({
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.clock.install();
+  await installerHorlogeFixe(page);
   await page.goto("/");
   const infrastructure = page.getByRole("region", { name: "Infrastructure" });
 
@@ -80,7 +86,7 @@ test("les sélections suivent l’implantation après un déplacement", async ({
   await infrastructure.getByLabel("Priorité").selectOption("haute");
   await infrastructure.getByRole("button", { name: "Engager le Chantier" }).click();
   await page.getByRole("button", { name: "Vitesse 1×" }).click();
-  await page.clock.runFor(30_000);
+  await page.clock.fastForward(30_000);
   await page.getByRole("button", { name: "Pause" }).click();
 
   await infrastructure.getByLabel("Construction").check();

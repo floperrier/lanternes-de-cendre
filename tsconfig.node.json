@@ -15,6 +15,7 @@
     "scripts/**/*.ts",
     "serveur-commercial/**/*.ts",
     "src/content/compiler.ts",
+    "src/content/presentationsPremium.ts",
     "src/content/texte.ts",
     "src/content/types.ts",
     "src/commercial/recu.ts",

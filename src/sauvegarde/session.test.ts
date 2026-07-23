@@ -480,13 +480,13 @@ describe("session de Campagne persistante", () => {
         format: "lanternes-de-cendre.sauvegarde",
         id: "meme-id",
         version: 2,
-        versions: { simulation: 6 },
+        versions: { simulation: 7 },
         padding,
       });
-    const archiveA = creerArchiveCollision("kzyd4vmxkbi5");
-    const archiveB = creerArchiveCollision("kfel4rip8fmp");
-    expect(formaterEmpreinteFnv1a32V1(archiveA)).toBe("e2065b81");
-    expect(formaterEmpreinteFnv1a32V1(archiveB)).toBe("e2065b81");
+    const archiveA = creerArchiveCollision("1bruu081hk06bd");
+    const archiveB = creerArchiveCollision("1bh1z42g9k6qm");
+    expect(formaterEmpreinteFnv1a32V1(archiveA)).toBe("af884841");
+    expect(formaterEmpreinteFnv1a32V1(archiveB)).toBe("af884841");
     expect(importerSauvegarde(archiveA).statut).toBe("incompatible");
     expect(importerSauvegarde(archiveB).statut).toBe("incompatible");
 

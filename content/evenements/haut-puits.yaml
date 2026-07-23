@@ -1,0 +1,254 @@
+version: 1
+evenements:
+  - id: bassins.haut-puits.pacte-des-citernes
+    famille: conflits-regionaux
+    themes: [partage-de-leau, autonomie-locale]
+    fonction: negocier-pacte-des-citernes
+    fenetre: halte-haut-puits
+    conditions:
+      requises:
+        - type: temps-au-moins
+          secondes: 360
+        - type: un-des-faits-present
+          faits:
+            - bassins.haut-puits.partage-promis
+            - bassins.haut-puits.reserves-protegees
+      interdites: []
+    periode_eligibilite: { debut: 360, fin: 24000 }
+    priorite: 100
+    epuisement: unique
+    acteurs: [porte-lanterne, puits-libres, habitants-haut-puits]
+    origine: { cle: evenement.haut-puits.pacte.origine, variables: [] }
+    libelle_intentions: { cle: evenement.ruban.intentions, variables: [] }
+    titre: { cle: evenement.haut-puits.pacte.titre, variables: [] }
+    presentation:
+      { cle: evenement.haut-puits.pacte.presentation, variables: [] }
+    informations:
+      - source: habitants-haut-puits
+        texte: { cle: evenement.haut-puits.pacte.information, variables: [] }
+    faits_lus:
+      - bassins.haut-puits.partage-promis
+      - bassins.haut-puits.reserves-protegees
+    choix:
+      - id: ouvrir-citerne
+        intention:
+          { cle: evenement.haut-puits.pacte.choix.ouvrir, variables: [] }
+        couts_connus:
+          - { cle: evenement.haut-puits.pacte.choix.ouvrir.cout, variables: [] }
+        effets:
+          - type: stock.modifier
+            stock: eau
+            valeur: -30
+        faits_produits:
+          - id: bassins.haut-puits.pacte-partage
+            cible: habitants-haut-puits
+      - id: garantir-autonomie
+        intention:
+          { cle: evenement.haut-puits.pacte.choix.garantir, variables: [] }
+        couts_connus:
+          - {
+              cle: evenement.haut-puits.pacte.choix.garantir.cout,
+              variables: [],
+            }
+        effets: []
+        faits_produits:
+          - id: bassins.haut-puits.pacte-autonomie
+            cible: puits-libres
+    consequence_differee:
+      { type: conseil-des-vannes, cible: habitants-haut-puits }
+    recuperation: { type: marche-de-besoins-fini }
+    variantes:
+      - id: standard
+        condition: toujours
+        presentation:
+          { cle: evenement.haut-puits.pacte.variante.standard, variables: [] }
+    destination_echo: journal-de-campagne
+    asset: bassins.haut-puits.pacte-des-citernes
+
+  - id: bassins.haut-puits.vanniers-du-panache
+    famille: conflits-regionaux
+    themes: [panache-de-cendre, responsabilite-locale]
+    fonction: arbitrer-consequence-du-halo
+    fenetre: halte-haut-puits
+    conditions:
+      requises:
+        - type: un-des-faits-present
+          faits:
+            - bassins.haut-puits.pacte-partage
+            - bassins.haut-puits.pacte-autonomie
+      interdites: []
+    periode_eligibilite: { debut: 360, fin: 24000 }
+    priorite: 90
+    epuisement: unique
+    acteurs: [porte-lanterne, puits-libres, habitants-haut-puits]
+    origine: { cle: evenement.haut-puits.vanniers.origine, variables: [] }
+    libelle_intentions: { cle: evenement.ruban.intentions, variables: [] }
+    titre: { cle: evenement.haut-puits.vanniers.titre, variables: [] }
+    presentation:
+      { cle: evenement.haut-puits.vanniers.presentation, variables: [] }
+    informations:
+      - source: puits-libres
+        texte:
+          { cle: evenement.haut-puits.vanniers.information, variables: [] }
+    faits_lus:
+      - bassins.haut-puits.pacte-partage
+      - bassins.haut-puits.pacte-autonomie
+    choix:
+      - id: confiner-boues
+        intention:
+          { cle: evenement.haut-puits.vanniers.choix.confiner, variables: [] }
+        couts_connus:
+          - {
+              cle: evenement.haut-puits.vanniers.choix.confiner.cout,
+              variables: [],
+            }
+        effets: []
+        faits_produits:
+          - id: bassins.haut-puits.panache-confine
+            cible: habitants-haut-puits
+      - id: deriver-panache
+        intention:
+          { cle: evenement.haut-puits.vanniers.choix.deriver, variables: [] }
+        couts_connus:
+          - {
+              cle: evenement.haut-puits.vanniers.choix.deriver.cout,
+              variables: [],
+            }
+        effets: []
+        faits_produits:
+          - id: bassins.haut-puits.panache-derive
+            cible: puits-libres
+    consequence_differee: { type: conseil-des-vannes, cible: puits-libres }
+    recuperation: { type: liaison-des-vanniers }
+    variantes:
+      - id: standard
+        condition: toujours
+        presentation:
+          {
+            cle: evenement.haut-puits.vanniers.variante.standard,
+            variables: [],
+          }
+    destination_echo: journal-de-campagne
+    asset: bassins.haut-puits.vanniers-du-panache
+
+  - id: bassins.haut-puits.boues-du-decanteur
+    famille: consequences-systemiques
+    themes: [decantation, transformation-du-convoi]
+    fonction: exposer-dette-de-decantation
+    fenetre: halte-haut-puits
+    conditions:
+      requises:
+        - type: un-des-faits-present
+          faits:
+            - bassins.haut-puits.panache-confine
+            - bassins.haut-puits.panache-derive
+      interdites: []
+    periode_eligibilite: { debut: 360, fin: 24000 }
+    priorite: 80
+    epuisement: unique
+    acteurs: [porte-lanterne, equipes-entretien, habitants-haut-puits]
+    origine: { cle: evenement.haut-puits.boues.origine, variables: [] }
+    libelle_intentions: { cle: evenement.ruban.intentions, variables: [] }
+    titre: { cle: evenement.haut-puits.boues.titre, variables: [] }
+    presentation:
+      { cle: evenement.haut-puits.boues.presentation, variables: [] }
+    informations:
+      - source: equipes-entretien
+        texte: { cle: evenement.haut-puits.boues.information, variables: [] }
+    faits_lus:
+      - bassins.haut-puits.panache-confine
+      - bassins.haut-puits.panache-derive
+    choix:
+      - id: consigner-decanteur
+        intention:
+          { cle: evenement.haut-puits.boues.choix.decanteur, variables: [] }
+        couts_connus:
+          - {
+              cle: evenement.haut-puits.boues.choix.decanteur.cout,
+              variables: [],
+            }
+        effets: []
+        faits_produits:
+          - id: bassins.haut-puits.decanteur-documente
+            cible: equipes-entretien
+      - id: adapter-arche
+        intention:
+          { cle: evenement.haut-puits.boues.choix.arche, variables: [] }
+        couts_connus:
+          - { cle: evenement.haut-puits.boues.choix.arche.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - id: bassins.haut-puits.arche-documentee
+            cible: equipes-entretien
+    consequence_differee:
+      { type: transformation-regionale, cible: equipes-entretien }
+    recuperation: { type: projet-non-impose }
+    variantes:
+      - id: standard
+        condition: toujours
+        presentation:
+          { cle: evenement.haut-puits.boues.variante.standard, variables: [] }
+    destination_echo: journal-de-campagne
+    asset: bassins.haut-puits.boues-du-decanteur
+
+  - id: bassins.haut-puits.ilyana-et-la-vanne
+    famille: histoires-de-compagnons
+    themes: [conviction, partage-de-leau]
+    fonction: confronter-conviction-d-ilyana
+    fenetre: halte-haut-puits
+    conditions:
+      requises:
+        - type: un-des-faits-present
+          faits:
+            - bassins.haut-puits.decanteur-documente
+            - bassins.haut-puits.arche-documentee
+      interdites: []
+    periode_eligibilite: { debut: 360, fin: 24000 }
+    priorite: 70
+    epuisement: unique
+    acteurs: [porte-lanterne, ilyana-voss, habitants-haut-puits]
+    origine: { cle: evenement.haut-puits.ilyana.origine, variables: [] }
+    libelle_intentions: { cle: evenement.ruban.intentions, variables: [] }
+    titre: { cle: evenement.haut-puits.ilyana.titre, variables: [] }
+    presentation:
+      { cle: evenement.haut-puits.ilyana.presentation, variables: [] }
+    informations:
+      - source: ilyana-voss
+        texte: { cle: evenement.haut-puits.ilyana.information, variables: [] }
+    faits_lus:
+      - bassins.haut-puits.decanteur-documente
+      - bassins.haut-puits.arche-documentee
+    choix:
+      - id: lui-confier-registre
+        intention:
+          { cle: evenement.haut-puits.ilyana.choix.confier, variables: [] }
+        couts_connus:
+          - {
+              cle: evenement.haut-puits.ilyana.choix.confier.cout,
+              variables: [],
+            }
+        effets: []
+        faits_produits:
+          - id: bassins.haut-puits.ilyana-garante
+            cible: ilyana-voss
+      - id: garder-arbitrage-collectif
+        intention:
+          { cle: evenement.haut-puits.ilyana.choix.collectif, variables: [] }
+        couts_connus:
+          - {
+              cle: evenement.haut-puits.ilyana.choix.collectif.cout,
+              variables: [],
+            }
+        effets: []
+        faits_produits:
+          - id: bassins.haut-puits.ilyana-contredite
+            cible: ilyana-voss
+    consequence_differee: { type: conseil-des-vannes, cible: ilyana-voss }
+    recuperation: { type: lien-reparable-au-conseil }
+    variantes:
+      - id: standard
+        condition: toujours
+        presentation:
+          { cle: evenement.haut-puits.ilyana.variante.standard, variables: [] }
+    destination_echo: journal-de-campagne
+    asset: bassins.haut-puits.ilyana-et-la-vanne

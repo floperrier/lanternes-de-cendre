@@ -1,0 +1,135 @@
+import type { Langue } from "./types";
+
+type DictionnaireDeTextes = Readonly<Record<string, string>>;
+
+export interface TextesDeHautPuits {
+  readonly titre: string;
+  readonly colonie: string;
+  readonly statut: string;
+  readonly devenir: string;
+  readonly pressions: string;
+  readonly relation: string;
+  readonly engagements: string;
+  readonly projets: string;
+  readonly projetChoisi: string;
+  readonly aucunEngagement: string;
+  readonly aucunProjetChoisi: string;
+  readonly marche: string;
+  readonly echanger: string;
+  readonly epuisee: string;
+  readonly echangesRestants: string;
+  readonly negociation: string;
+  readonly tranchee: string;
+  readonly instruction: string;
+  readonly statuts: DictionnaireDeTextes;
+  readonly devenirs: DictionnaireDeTextes;
+  readonly pressionsLocales: DictionnaireDeTextes;
+  readonly relations: DictionnaireDeTextes;
+  readonly besoins: DictionnaireDeTextes;
+  readonly stocks: DictionnaireDeTextes;
+  readonly projetsPossibles: DictionnaireDeTextes;
+  readonly projetsChoisis: DictionnaireDeTextes;
+  readonly decisions: Readonly<
+    Record<
+      string,
+      {
+        readonly libelle: string;
+        readonly consequence: string;
+      }
+    >
+  >;
+  readonly engagement: string;
+}
+
+export interface TextesDeVeilleBasse {
+  readonly titre: string;
+  readonly veilleBasse: string;
+  readonly typeColonie: string;
+  readonly statuts: DictionnaireDeTextes;
+  readonly pressions: DictionnaireDeTextes;
+  readonly marche: DictionnaireDeTextes;
+  readonly archives: DictionnaireDeTextes;
+  readonly affectations: DictionnaireDeTextes;
+  readonly equipes: string;
+  readonly avertissement: string;
+  readonly hospice: string;
+  readonly typeHospice: string;
+  readonly besoin: string;
+  readonly devenirs: DictionnaireDeTextes;
+  readonly cohorte: string;
+  readonly destinations: DictionnaireDeTextes;
+  readonly origine: string;
+  readonly personnes: string;
+  readonly etatDominant: string;
+  readonly specialite: string;
+  readonly memoires: DictionnaireDeTextes;
+  readonly integrations: DictionnaireDeTextes;
+  readonly revelation: string;
+  readonly maelys: string;
+  readonly decisionsDeMaelys: DictionnaireDeTextes;
+  readonly positionsDeMaelys: DictionnaireDeTextes;
+  readonly relevesDeMaelys: DictionnaireDeTextes;
+  readonly libellePressions: string;
+  readonly libelleMarche: string;
+  readonly libelleDevenir: string;
+  readonly libelleOrigine: string;
+  readonly libelleDestination: string;
+  readonly libelleTaille: string;
+  readonly libelleEtatDominant: string;
+  readonly libelleSpecialite: string;
+  readonly libelleMemoire: string;
+  readonly libelleIntegration: string;
+  readonly libelleDecision: string;
+  readonly libellePosition: string;
+  readonly libelleReleve: string;
+  readonly libelleRevelation: string;
+}
+
+export interface PresentationsPremium {
+  readonly hautPuits: Readonly<Record<Langue, TextesDeHautPuits>>;
+  readonly veilleBasse: Readonly<Record<Langue, TextesDeVeilleBasse>>;
+}
+
+let presentationsInstallees: PresentationsPremium | null = null;
+
+function estObjet(valeur: unknown): valeur is Record<string, unknown> {
+  return valeur !== null && typeof valeur === "object" && !Array.isArray(valeur);
+}
+
+function estArbreDeTextes(valeur: unknown): boolean {
+  if (typeof valeur === "string") {
+    return valeur.length > 0;
+  }
+  return (
+    estObjet(valeur) &&
+    Object.keys(valeur).length > 0 &&
+    Object.values(valeur).every(estArbreDeTextes)
+  );
+}
+
+export function lirePresentationsPremium(): PresentationsPremium | null {
+  return presentationsInstallees;
+}
+
+export function installerPresentationsPremium(valeur: unknown): void {
+  const catalogue = estObjet(valeur) ? valeur.catalogue : undefined;
+  const presentations = estObjet(catalogue)
+    ? catalogue.presentations
+    : undefined;
+  if (
+    !estObjet(presentations) ||
+    !["hautPuits", "veilleBasse"].every((surface) => {
+      return (
+        estObjet(presentations[surface]) &&
+        ["fr", "en"].every((langue) =>
+          estArbreDeTextes(
+            (presentations[surface] as Record<string, unknown>)[langue],
+          ),
+        )
+      );
+    })
+  ) {
+    throw new Error("presentations-premium-invalides");
+  }
+  presentationsInstallees = presentations as unknown as PresentationsPremium;
+}

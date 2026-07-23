@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { mkdirSync } from "node:fs";
+import { readFile } from "node:fs/promises";
 import type {
   IncomingMessage,
   ServerResponse,
@@ -10,7 +11,10 @@ import { DatabaseSync } from "node:sqlite";
 import type { Plugin } from "vite";
 
 import { creerAuthentificationCommerciale } from "./authentification";
-import { CONTENU_PREMIUM_V1 } from "./contenuPremium";
+import {
+  CONTENU_PREMIUM_V1,
+  NOMS_D_ASSETS_PREMIUM,
+} from "./contenuPremium";
 import {
   creerCorpsDeWebhookPaddle,
   creerServiceCommercial,
@@ -398,6 +402,30 @@ function creerGestionnaire(
           return true;
         }
         envoyerJson(reponse, 200, CONTENU_PREMIUM_V1);
+        return true;
+      }
+
+      if (url.pathname.startsWith("/api/commercial/assets/")) {
+        if (requete.method !== "GET") {
+          refuserMethode(reponse);
+          return true;
+        }
+        const acces = service.lireAcces(await lireIdentite(requete));
+        if (!acces.premium) {
+          envoyerJson(reponse, 403, { erreur: "acces-premium-requis" });
+          return true;
+        }
+        const nom = url.pathname.slice("/api/commercial/assets/".length);
+        if (!NOMS_D_ASSETS_PREMIUM.has(nom)) {
+          envoyerJson(reponse, 404, { erreur: "introuvable" });
+          return true;
+        }
+        const image = await readFile(new URL(`./assets/${nom}`, import.meta.url));
+        reponse.statusCode = 200;
+        reponse.setHeader("Content-Type", "image/webp");
+        reponse.setHeader("Cache-Control", "private, max-age=86400");
+        reponse.setHeader("Content-Length", image.byteLength);
+        reponse.end(image);
         return true;
       }
 

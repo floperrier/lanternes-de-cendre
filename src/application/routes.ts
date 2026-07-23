@@ -365,8 +365,8 @@ export function projeterAtlas(
             projeterRenseignement(renseignement, secondeCourante, langue),
           ),
           bilan: {
-            consequencesConnues:
-              langue === "fr"
+            consequencesConnues: [
+              ...(langue === "fr"
                 ? [
                     `Durée exacte : ${duree}`,
                     `Consommation exacte : ${consommation}`,
@@ -374,7 +374,11 @@ export function projeterAtlas(
                 : [
                     `Exact duration: ${duree}`,
                     `Exact consumption: ${consommation}`,
-                  ],
+                  ]),
+              ...(troncon.consequenceDuHalo === undefined
+                ? []
+                : [troncon.consequenceDuHalo[langue]]),
+            ],
             incertitudes: [
               {
                 valeur:

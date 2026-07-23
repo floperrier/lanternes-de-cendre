@@ -8,6 +8,7 @@ import {
   type EtatCampagne,
 } from "../simulation/campagne";
 import { creerEtatInitialDeVeilleBasse } from "../simulation/veilleBasse";
+import { creerEtatDeHautPuitsInitial } from "../simulation/hautPuits";
 import {
   creerReproductionInitiale,
   creerSauvegarde,
@@ -21,6 +22,14 @@ function normaliserEnV4(etat: EtatCampagne): Record<string, unknown> {
   const ancien = { ...etat } as Record<string, unknown>;
   ancien.version = 4;
   delete ancien.veilleBasse;
+  delete ancien.hautPuits;
+  return ancien;
+}
+
+function normaliserEnV5(etat: EtatCampagne): Record<string, unknown> {
+  const ancien = { ...etat } as Record<string, unknown>;
+  ancien.version = 5;
+  delete ancien.hautPuits;
   return ancien;
 }
 
@@ -255,9 +264,9 @@ describe("persistance de Veille-Basse", () => {
     expect(importation).toMatchObject({
       statut: "compatible",
       sauvegarde: {
-        version: 5,
+        version: 6,
         etat: {
-          version: 5,
+          version: 6,
           veilleBasse: {
             colonie: { statut: "fragile" },
             cohorte: {
@@ -270,7 +279,7 @@ describe("persistance de Veille-Basse", () => {
         },
         reproduction: {
           snapshot: {
-            version: 5,
+            version: 6,
             veilleBasse: {
               cohorte: { specialite: "charpente-etanche" },
             },
@@ -279,7 +288,64 @@ describe("persistance de Veille-Basse", () => {
       },
     });
     if (importation.statut !== "compatible") {
-      throw new Error("La sauvegarde v5 devrait être compatible.");
+      throw new Error("La sauvegarde v6 devrait être compatible.");
+    }
+    expect(
+      rejouerReproduction(importation.sauvegarde.reproduction),
+    ).toMatchObject({
+      statut: "termine",
+      etat: importation.sauvegarde.etat,
+    });
+  });
+
+  it("promeut une sauvegarde v5 de Veille-Basse sans perdre sa Cohorte", () => {
+    const etatCourant = arriverAVeilleBasseEtRediriger();
+    const etatV5 = normaliserEnV5(etatCourant);
+    const empreinteV5 = empreinteEtat(etatV5 as unknown as EtatCampagne);
+    const archiveV5 = {
+      format: "lanternes-de-cendre.sauvegarde",
+      id: `CENDRE-01-${etatCourant.tempsDuConvoi.secondes}-${empreinteV5}`,
+      version: 5,
+      versions: {
+        simulation: 5,
+        contenu: 1,
+        aleatoire: 1,
+        empreinte: 1,
+      },
+      graine: "CENDRE-01",
+      horloge: { secondes: etatCourant.tempsDuConvoi.secondes },
+      etat: etatV5,
+      reproduction: {
+        snapshot: etatV5,
+        empreinteSnapshot: empreinteV5,
+        commandes: [],
+      },
+      empreinte: empreinteV5,
+    };
+
+    const importation = importerSauvegarde(JSON.stringify(archiveV5));
+
+    expect(importation).toMatchObject({
+      statut: "migree",
+      sauvegarde: {
+        version: 6,
+        etat: {
+          version: 6,
+          veilleBasse: etatCourant.veilleBasse,
+          hautPuits: creerEtatDeHautPuitsInitial(),
+        },
+        reproduction: {
+          snapshot: {
+            version: 6,
+            veilleBasse: etatCourant.veilleBasse,
+            hautPuits: creerEtatDeHautPuitsInitial(),
+          },
+          commandes: [],
+        },
+      },
+    });
+    if (importation.statut !== "migree") {
+      throw new Error("La sauvegarde v5 devrait être migrée.");
     }
     expect(
       rejouerReproduction(importation.sauvegarde.reproduction),
@@ -338,15 +404,15 @@ describe("persistance de Veille-Basse", () => {
     expect(importation).toMatchObject({
       statut: "migree",
       sauvegarde: {
-        version: 5,
+        version: 6,
         etat: {
-          version: 5,
+          version: 6,
           tempsDuConvoi: { vitesse: 2 },
           veilleBasse: creerEtatInitialDeVeilleBasse(),
         },
         reproduction: {
           snapshot: {
-            version: 5,
+            version: 6,
             veilleBasse: creerEtatInitialDeVeilleBasse(),
           },
           commandes: [

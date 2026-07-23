@@ -269,6 +269,90 @@ summary:focus-visible,
 
 .panneau-veille-basse dd {
   margin: 0;
+.haut-puits {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem 1.2rem;
+  border-bottom: 1px solid var(--cuivre);
+  background:
+    linear-gradient(rgba(36, 28, 17, 0.72), rgba(12, 21, 25, 0.96)),
+    var(--surface);
+}
+
+.haut-puits header,
+.haut-puits h2,
+.haut-puits h3,
+.haut-puits h4,
+.haut-puits p,
+.haut-puits ul,
+.haut-puits dl,
+.haut-puits dd {
+  margin: 0;
+}
+
+.haut-puits header > p,
+.haut-puits dt {
+  color: var(--texte-secondaire);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.haut-puits h2 {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 1.85rem;
+}
+
+.haut-puits h3 {
+  margin-bottom: 0.45rem;
+  color: var(--ambre);
+  font-size: 0.95rem;
+}
+
+.haut-puits__etat {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.haut-puits__etat > div,
+.haut-puits__offres > li,
+.haut-puits__decisions > li {
+  padding: 0.75rem;
+  border: 1px solid var(--cuivre);
+  background: color-mix(in srgb, var(--surface-froide) 90%, transparent);
+}
+
+.haut-puits__offres,
+.haut-puits__decisions {
+  display: grid;
+  gap: 0.65rem;
+  padding: 0;
+  list-style: none;
+}
+
+.haut-puits__offres > li,
+.haut-puits__decisions > li {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.haut-puits button {
+  justify-self: start;
+  min-height: 2.5rem;
+  padding: 0.45rem 0.75rem;
+  color: var(--texte);
+  border: 1px solid var(--cuivre-clair);
+  background: #241c11;
+  cursor: pointer;
+}
+
+.haut-puits button:disabled {
+  color: var(--texte-secondaire);
+  border-color: var(--cuivre);
+  background: transparent;
+  cursor: not-allowed;
 }
 
 .coupe-habitee {

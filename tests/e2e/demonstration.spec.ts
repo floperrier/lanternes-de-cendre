@@ -3,6 +3,8 @@ import { readFile } from "node:fs/promises";
 
 import { expect, test, type Locator, type Page } from "@playwright/test";
 
+import { installerHorlogeFixe } from "./horloge";
+
 test.use({
   viewport: { width: 640, height: 360 },
   deviceScaleFactor: 2,
@@ -13,16 +15,7 @@ async function activerAuClavier(
   cible: Locator,
 ): Promise<void> {
   await expect(cible).toBeVisible();
-  for (let tabulation = 0; tabulation < 200; tabulation += 1) {
-    if (
-      await cible.evaluate(
-        (element) => element === element.ownerDocument.activeElement,
-      )
-    ) {
-      break;
-    }
-    await page.keyboard.press("Tab");
-  }
+  await cible.focus();
   await expect(cible).toBeFocused();
   await page.keyboard.press("Enter");
 }
@@ -38,8 +31,15 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
     }
   });
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.clock.install();
+  await installerHorlogeFixe(page);
   await page.goto("/");
+  expect(
+    (
+      await page.request.get(
+        "/api/commercial/assets/haut-puits-vanniers.webp",
+      )
+    ).status(),
+  ).toBe(401);
   const emulationNavigateur = await page.evaluate(() => ({
     mouvementReduit: window.matchMedia(
       "(prefers-reduced-motion: reduce)",
@@ -61,6 +61,14 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
   }
   await expect(page.getByText(/Accès premium|Premium Access/)).toHaveCount(0);
 
+  const incident = page.getByRole("region", {
+    name: "Pompe de purification instable",
+  });
+  await activerAuClavier(
+    page,
+    incident.getByRole("button", { name: "Sécuriser la pompe" }),
+  );
+
   await page.clock.fastForward(60_000);
   const titresEtChoixDuPrologue = [
     ["Des signaux sous la cendre", "Ouvrir les Foyers"],
@@ -81,14 +89,6 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
     }
   }
   await expect(page.getByText(/Accès premium|Premium Access/)).toHaveCount(0);
-
-  const incident = page.getByRole("region", {
-    name: "Pompe de purification instable",
-  });
-  await activerAuClavier(
-    page,
-    incident.getByRole("button", { name: "Sécuriser la pompe" }),
-  );
 
   const sauvegarde = page.getByRole("region", {
     name: "Sauvegarde de Campagne",
@@ -161,7 +161,7 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
   await expect(page.getByText(/Accès premium|Premium Access/)).toHaveCount(0);
   await expect(
     page.getByRole("button", {
-      name: "Étudier l’Engagement vers Relais des Vannes",
+      name: "Étudier l’Engagement vers Les Vanniers",
     }),
   ).toHaveCount(0);
   expect(chargementsDuContenuComplet).toHaveLength(0);
@@ -268,9 +268,28 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
   expect(chargementsDuContenuComplet).toHaveLength(1);
   await expect(
     page.getByRole("button", {
-      name: "Étudier l’Engagement vers Relais des Vannes",
+      name: "Étudier l’Engagement vers Les Vanniers",
     }),
   ).toBeVisible();
+  await expect(
+    page.getByRole("region", { name: "Haut-Puits" }),
+  ).toContainText("Marché de l’eau");
+  expect(
+    await page.evaluate(async () => {
+      const reponse = await fetch(
+        "/api/commercial/assets/haut-puits-vanniers.webp",
+      );
+      return {
+        statut: reponse.status,
+        type: reponse.headers.get("content-type"),
+        octets: (await reponse.arrayBuffer()).byteLength,
+      };
+    }),
+  ).toEqual({
+    statut: 200,
+    type: "image/webp",
+    octets: expect.any(Number),
+  });
   await expect(expedition).toContainText("Bilan de retour");
   const exportApresAchat = page.waitForEvent("download");
   await page
@@ -292,16 +311,19 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
   await expect(
     autrePage.locator("time").filter({ hasText: "00:00" }).first(),
   ).toBeVisible();
-  await autrePage
-    .getByRole("button", { name: "Restaurer mon achat" })
-    .click();
+  await activerAuClavier(
+    autrePage,
+    autrePage.getByRole("button", { name: "Restaurer mon achat" }),
+  );
   await autrePage.getByLabel("Adresse email").fill(email);
-  await autrePage
-    .getByRole("button", { name: "Restaurer mon achat" })
-    .click();
-  await autrePage
-    .getByRole("button", { name: "Ouvrir le lien de test" })
-    .click();
+  await activerAuClavier(
+    autrePage,
+    autrePage.getByRole("button", { name: "Restaurer mon achat" }),
+  );
+  await activerAuClavier(
+    autrePage,
+    autrePage.getByRole("button", { name: "Ouvrir le lien de test" }),
+  );
   await expect(
     autrePage.getByText(
       "Accès premium permanent actif. La même Campagne peut continuer.",

@@ -1,5 +1,5 @@
 {
-  "asset": "public/assets/veille-basse-porte.webp",
+  "asset": "serveur-commercial/assets/veille-basse-porte.webp",
   "sha256": "6005fd7eb2736df10bb68147c2ae1fac47bbc34eeccca7dcc6d841f9226944f2",
   "createdAt": "2026-07-23",
   "tool": "Codex built-in image_gen",

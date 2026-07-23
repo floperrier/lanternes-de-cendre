@@ -8,11 +8,13 @@ export type IdentifiantDeLieu =
   | "halte-du-puits-sec"
   | "haut-puits"
   | "veille-basse"
+  | "les-vanniers"
   | "relais-des-vannes";
 
 export type IdentifiantDeTroncon =
   | "digue-des-puits"
   | "chaussee-de-veille-basse"
+  | "chemin-des-vanniers"
   | "chenal-des-vannes";
 
 export interface DefinitionDeLieu {
@@ -42,6 +44,10 @@ export interface TronconDeRoute {
     readonly renseignementId: string;
   };
   readonly renseignements: readonly RenseignementDeRoute[];
+  readonly consequenceDuHalo?: {
+    readonly fr: string;
+    readonly en: string;
+  };
 }
 
 export interface ContenuPremiumDesRoutes {
@@ -57,7 +63,7 @@ export const LIEUX_DE_ROUTE: Partial<
 > = {
   "halte-du-puits-sec": {
     id: "halte-du-puits-sec",
-    nom: { fr: "Halte du puits sec", en: "Dry Well Halt" },
+    nom: { fr: "Maison des Filtres", en: "Filter House" },
   },
   "haut-puits": {
     id: "haut-puits",
@@ -248,11 +254,13 @@ const IDENTIFIANTS_DE_LIEUX = new Set<IdentifiantDeLieu>([
   "halte-du-puits-sec",
   "haut-puits",
   "veille-basse",
+  "les-vanniers",
   "relais-des-vannes",
 ]);
 const IDENTIFIANTS_DE_TRONCONS = new Set<IdentifiantDeTroncon>([
   "digue-des-puits",
   "chaussee-de-veille-basse",
+  "chemin-des-vanniers",
   "chenal-des-vannes",
 ]);
 
@@ -287,7 +295,10 @@ export function installerContenuPremiumDesRoutes(
       ) ||
       !Number.isSafeInteger(troncon.dureeSecondes) ||
       troncon.dureeSecondes <= 0 ||
-      !Array.isArray(troncon.renseignements)
+      !Array.isArray(troncon.renseignements) ||
+      (troncon.consequenceDuHalo !== undefined &&
+        (typeof troncon.consequenceDuHalo.fr !== "string" ||
+          typeof troncon.consequenceDuHalo.en !== "string"))
     ) {
       throw new Error("troncon-premium-invalide");
     }

@@ -1,5 +1,5 @@
 {
-  "asset": "public/assets/veille-basse-cohorte.webp",
+  "asset": "serveur-commercial/assets/veille-basse-cohorte.webp",
   "sha256": "f595550d62faa755e30250d9e2b52aaaa549ff8d9f17b44ee027e38f841bc8a6",
   "createdAt": "2026-07-23",
   "tool": "Codex built-in image_gen",

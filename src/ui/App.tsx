@@ -13,6 +13,7 @@ import { projeterCrises } from "../application/crise";
 import { projeterExpedition } from "../application/expeditions";
 import { projeterDemonstration } from "../application/demonstration";
 import { projeterVeilleBasse } from "../application/veilleBasse";
+import { projeterHautPuits } from "../application/hautPuits";
 import type { Langue } from "../content/types";
 import { criseAttendSonCheckpoint } from "../simulation/crise";
 import {
@@ -32,6 +33,7 @@ import { SelecteurDeLangue } from "./SelecteurDeLangue";
 import { CriseDuConvoi } from "./CriseDuConvoi";
 import { OrdreDistantDExpedition } from "./OrdreDistantDExpedition";
 import { JalonFinalDeLaDemonstration } from "./JalonFinalDeLaDemonstration";
+import { HautPuits } from "./HautPuits";
 import { PanneauAccesPremium } from "./PanneauAccesPremium";
 import { choisirSurfacePrioritaire } from "./ordreDesSurfaces";
 import { VeilleBasseEtCohorte } from "./VeilleBasseEtCohorte";
@@ -82,6 +84,7 @@ function CampagnePersistante({
   const projectionDExpedition = projeterExpedition(etat, langue);
   const projectionDeDemonstration = projeterDemonstration(etat, langue);
   const projectionDeVeilleBasse = projeterVeilleBasse(etat, langue);
+  const projectionDeHautPuits = projeterHautPuits(etat, langue);
   const surfacePrioritaire = choisirSurfacePrioritaire({
     criseActive: projectionDesCrises.active !== null,
     checkpointDeCriseRequis,
@@ -174,7 +177,9 @@ function CampagnePersistante({
       <div
         className="scene-layout"
         inert={
-          criseBloquante || jalonDeDemonstrationAffiche ? true : undefined
+          criseBloquante || jalonDeDemonstrationAffiche
+            ? true
+            : undefined
         }
       >
         <div className="surface-du-monde">
@@ -191,6 +196,10 @@ function CampagnePersistante({
         </div>
         <div className="colonne-de-pilotage">
           <EtatTextuel projection={projection} />
+          <HautPuits
+            application={application}
+            projection={projectionDeHautPuits}
+          />
           <InfrastructureDuConvoi
             application={application}
             langue={langue}
@@ -203,7 +212,7 @@ function CampagnePersistante({
             langue={langue}
             crises={projectionDesCrises}
           />
-          {etat.routes.position === "veille-basse" ? (
+          {projectionDeVeilleBasse.visible ? (
             <VeilleBasseEtCohorte
               projection={projectionDeVeilleBasse}
               langue={langue}

@@ -221,7 +221,7 @@ export function accueillirOuOrienterLaCohorte(
   moment: number,
 ): TransitionDeVeilleBasse {
   if (etat.cohorte.memoire !== "aucune") {
-    throw new Error("La Cohorte du Sillon a déjà reçu une réponse.");
+    throw new Error("La décision d’accueil a déjà été prise.");
   }
 
   if (decision === "accueillir") {
@@ -433,7 +433,7 @@ export function deciderPourMaelys(
   moment: number,
 ): EtatDeVeilleBasse {
   if (etat.maelysRive.decision !== null) {
-    throw new Error("L’histoire de Maëlys Rive a déjà été tranchée.");
+    throw new Error("La décision de mission a déjà été prise.");
   }
   const confierLeCoffret = decision === "confier-coffret";
   const consequence: ConsequenceDiffereeDeVeilleBasse = confierLeCoffret

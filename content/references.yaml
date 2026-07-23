@@ -21,6 +21,7 @@ fenetres:
   - premiere-minute-atteinte
   - prologue-enchaine
   - premier-jalon-bassins-fendus
+  - halte-haut-puits
 lieux:
   - halte-du-puits-sec
   - haut-puits
@@ -49,6 +50,14 @@ faits:
   - veille-basse.registres-laisses
   - veille-basse.maelys-mission-confiee
   - veille-basse.maelys-equipes-prioritaires
+  - bassins.haut-puits.pacte-partage
+  - bassins.haut-puits.pacte-autonomie
+  - bassins.haut-puits.panache-confine
+  - bassins.haut-puits.panache-derive
+  - bassins.haut-puits.decanteur-documente
+  - bassins.haut-puits.arche-documentee
+  - bassins.haut-puits.ilyana-garante
+  - bassins.haut-puits.ilyana-contredite
   - compagnon.ilyana-voss.affectee-intendance
   - conseil.premiere-veille.circuit-securise
   - conseil.premiere-veille.distribution-maintenue

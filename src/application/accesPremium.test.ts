@@ -26,7 +26,7 @@ describe("politique d’Accès premium vivante", () => {
     const etatAvantAchat = application.lireEtat();
     const suite = {
       type: "engagement-de-route.confirmer" as const,
-      tronconId: "chenal-des-vannes" as const,
+      tronconId: "chemin-des-vanniers" as const,
     };
 
     expect(application.commandeEstAutorisee(suite)).toBe(false);
@@ -35,5 +35,20 @@ describe("politique d’Accès premium vivante", () => {
     expect(application.lireEtat()).toBe(etatAvantAchat);
     expect(application.commandeEstAutorisee(suite)).toBe(true);
     expect(() => application.envoyerCommande(suite)).not.toThrow();
+  });
+
+  it("refuse les commandes mécaniques locales tant que le droit manque", () => {
+    let premium = false;
+    const application = creerApplicationCampagne("CENDRE-01", {
+      politiqueDAcces: creerPolitiqueDAccesPremium(() => premium),
+    });
+    const echange = {
+      type: "haut-puits.marche.echanger" as const,
+      offreId: "eau-contre-materiaux" as const,
+    };
+
+    expect(application.commandeEstAutorisee(echange)).toBe(false);
+    premium = true;
+    expect(application.commandeEstAutorisee(echange)).toBe(true);
   });
 });

@@ -66,6 +66,13 @@ import {
   type EvenementDeCrise,
 } from "./crise";
 import {
+  appliquerCommandeAHautPuits,
+  creerEtatDeHautPuitsInitial,
+  type CommandeDeMarcheDeHautPuits,
+  type EtatDeHautPuits,
+  type EvenementDeHautPuits,
+} from "./hautPuits";
+import {
   creerFaitPourRapportDExpedition,
   creerEtatDesExpeditionsInitial,
   lancerExpedition,
@@ -134,6 +141,7 @@ export interface EtatCampagne {
   readonly crises: EtatDesCrises;
   readonly expeditions: EtatDesExpeditions;
   readonly veilleBasse: EtatDeVeilleBasse;
+  readonly hautPuits: EtatDeHautPuits;
   readonly echeances: readonly EcheanceDeCampagne[];
   readonly fluxPseudoAleatoires: Readonly<{
     "evenements-narratifs": FluxPseudoAleatoire;
@@ -165,7 +173,8 @@ export type CommandeCampagne =
   | CommandeDInfrastructure
   | CommandeDeDeclenchementDeCrise
   | CommandeDeResolutionDeCrise
-  | CommandeDExpedition;
+  | CommandeDExpedition
+  | CommandeDeMarcheDeHautPuits;
 
 export type EvenementDeDomaine =
   | {
@@ -202,7 +211,8 @@ export type EvenementDeDomaine =
   | EvenementDeRoute
   | EvenementDeCrise
   | EvenementDExpedition
-  | EvenementDeVeilleBasse;
+  | EvenementDeVeilleBasse
+  | EvenementDeHautPuits;
 
 export interface TransitionDeCampagne {
   readonly etat: EtatCampagne;
@@ -236,6 +246,7 @@ export function creerCampagneInitiale(graine: GraineDeCampagne): EtatCampagne {
     crises: creerEtatDesCrisesInitial(),
     expeditions: creerEtatDesExpeditionsInitial(),
     veilleBasse: creerEtatInitialDeVeilleBasse(),
+    hautPuits: creerEtatDeHautPuitsInitial(),
     echeances: [],
     fluxPseudoAleatoires: {
       "evenements-narratifs": creerFluxPseudoAleatoire(
@@ -335,8 +346,18 @@ function declencherSuiteNarrativeDeLaDemonstration(
   if (prologue !== undefined) {
     return prologue;
   }
-  return etat.routes.jalons.length > 0
-    ? declencherEvenement(etat, "premier-jalon-bassins-fendus")
+  if (etat.routes.jalons.length > 0) {
+    const premierJalon = declencherEvenement(
+      etat,
+      "premier-jalon-bassins-fendus",
+    );
+    if (premierJalon !== undefined) {
+      return premierJalon;
+    }
+  }
+  return etat.routes.position === "haut-puits" &&
+    trouverEngagementDeRouteActif(etat.routes) === undefined
+    ? declencherEvenement(etat, "halte-haut-puits")
     : undefined;
 }
 
@@ -350,9 +371,14 @@ function appliquerEffets(
     0,
   );
 
-  if (variationHabitants === 0) {
-    return etat;
-  }
+  const variationsDeStocks = effets.filter(
+    (
+      effet,
+    ): effet is Extract<
+      EffetDEvenement,
+      { readonly type: "stock.modifier" }
+    > => effet.type === "stock.modifier",
+  );
 
   return {
     ...etat,
@@ -360,16 +386,54 @@ function appliquerEffets(
       ...etat.citeCaravane,
       habitants: etat.citeCaravane.habitants + variationHabitants,
     },
+    pilotage: {
+      ...etat.pilotage,
+      economie: {
+        ...etat.pilotage.economie,
+        stocks: variationsDeStocks.reduce(
+          (stocks, effet) => ({
+            ...stocks,
+            [effet.stock]: appliquerVariationAUnStock(
+              stocks[effet.stock],
+              effet.valeur,
+            ),
+          }),
+          etat.pilotage.economie.stocks,
+        ),
+      },
+    },
   };
 }
 
 function decrireEffetsDeFait(effets: readonly EffetDEvenement[]): EffetsDeFait {
   return {
-    materiels: [],
-    humains: effets.map((effet) => ({
-      type: "habitants.modifies" as const,
-      variation: effet.valeur,
-    })),
+    materiels: effets
+      .filter(
+        (
+          effet,
+        ): effet is Extract<
+          EffetDEvenement,
+          { readonly type: "stock.modifier" }
+        > => effet.type === "stock.modifier",
+      )
+      .map((effet) => ({
+        type: "stock.modifie" as const,
+        stock: effet.stock,
+        variation: effet.valeur,
+      })),
+    humains: effets
+      .filter(
+        (
+          effet,
+        ): effet is Extract<
+          EffetDEvenement,
+          { readonly type: "habitants.modifier" }
+        > => effet.type === "habitants.modifier",
+      )
+      .map((effet) => ({
+        type: "habitants.modifies" as const,
+        variation: effet.valeur,
+      })),
   };
 }
 
@@ -600,6 +664,47 @@ function choisirDansEvenement(
     etatApresDecisionDeVeilleBasse,
     choix.effets,
   );
+  let etatApresDecision = etatApresEffets;
+  const evenementsDeHautPuits: readonly EvenementDeHautPuits[] =
+    evenement.id === "bassins.haut-puits.pacte-des-citernes"
+      ? (() => {
+          const decision =
+            choix.id === "ouvrir-citerne"
+              ? ("partager-eau" as const)
+              : ("proteger-reserves" as const);
+          if (
+            etatApresEffets.hautPuits.colonie.devenir !==
+            "negociation-ouverte"
+          ) {
+            const devenirAttendu =
+              decision === "partager-eau"
+                ? "partage-organise"
+                : "reserves-protegees";
+            if (
+              etatApresEffets.hautPuits.colonie.devenir !== devenirAttendu
+            ) {
+              throw new Error(
+                "Le choix narratif contredit la négociation déjà tranchée à Haut-Puits.",
+              );
+            }
+            return [];
+          }
+          const transition = appliquerCommandeAHautPuits(
+            etatApresEffets.hautPuits,
+            etat.pilotage.economie.stocks,
+            {
+              type: "haut-puits.negociation.decider",
+              decision,
+            },
+            etatApresEffets.tempsDuConvoi.secondes,
+          );
+          etatApresDecision = {
+            ...etatApresEffets,
+            hautPuits: transition.etat,
+          };
+          return transition.evenements;
+        })()
+      : [];
   const effetsDeFait = decrireEffetsDeFait(choix.effets);
   const faitsProduits = choix.faitsProduits.map((fait) => ({
     id: fait.id,
@@ -612,7 +717,7 @@ function choisirDansEvenement(
 
   return {
     etat: {
-      ...etatApresEffets,
+      ...etatApresDecision,
       narration: {
         evenementActif: null,
         evenementsJoues: [...etat.narration.evenementsJoues, evenement.id],
@@ -627,6 +732,7 @@ function choisirDansEvenement(
         effets: choix.effets,
         faitsProduits: faitsProduits.map((fait) => fait.id),
       },
+      ...evenementsDeHautPuits,
     ],
   };
 }
@@ -1106,6 +1212,37 @@ export function appliquerCommande(
               },
             ]),
       ],
+    };
+  }
+
+  if (commande.type === "haut-puits.marche.echanger") {
+    if (
+      etat.routes.position !== "haut-puits" ||
+      trouverEngagementDeRouteActif(etat.routes) !== undefined
+    ) {
+      throw new Error(
+        "Le convoi doit être présent à Haut-Puits pour négocier.",
+      );
+    }
+    const transition = appliquerCommandeAHautPuits(
+      etat.hautPuits,
+      etat.pilotage.economie.stocks,
+      commande,
+      etat.tempsDuConvoi.secondes,
+    );
+    return {
+      etat: {
+        ...etat,
+        hautPuits: transition.etat,
+        pilotage: {
+          ...etat.pilotage,
+          economie: {
+            ...etat.pilotage.economie,
+            stocks: transition.stocks,
+          },
+        },
+      },
+      evenements: transition.evenements,
     };
   }
 
