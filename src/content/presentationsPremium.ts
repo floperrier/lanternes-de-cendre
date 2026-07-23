@@ -109,10 +109,41 @@ export interface TextesDeTrameDeFer {
   };
 }
 
+export interface TextesDeTraverseLibre {
+  readonly titre: string;
+  readonly statuts: DictionnaireDeTextes;
+  readonly relationsPuits: DictionnaireDeTextes;
+  readonly relationsRepublique: DictionnaireDeTextes;
+  readonly filtres: DictionnaireDeTextes;
+  readonly isolement: DictionnaireDeTextes;
+  readonly contournements: DictionnaireDeTextes;
+  readonly routes: DictionnaireDeTextes;
+  readonly aides: DictionnaireDeTextes;
+  readonly dependances: DictionnaireDeTextes;
+  readonly lotsDeFiltres: string;
+  readonly lotsDeRemedes: string;
+  readonly reservesDEau: string;
+  readonly libelles: {
+    readonly eyebrow: string;
+    readonly pressions: string;
+    readonly marche: string;
+    readonly dependances: string;
+    readonly contournement: string;
+    readonly route: string;
+    readonly aide: string;
+    readonly puitsLibres: string;
+    readonly republique: string;
+    readonly filtres: string;
+    readonly remedes: string;
+    readonly debouches: string;
+  };
+}
+
 export interface PresentationsPremium {
   readonly hautPuits: Readonly<Record<Langue, TextesDeHautPuits>>;
   readonly veilleBasse: Readonly<Record<Langue, TextesDeVeilleBasse>>;
   readonly trame?: Readonly<Record<Langue, TextesDeTrameDeFer>>;
+  readonly traverse?: Readonly<Record<Langue, TextesDeTraverseLibre>>;
   readonly deversoir?: Readonly<
     Record<
       Langue,
@@ -185,11 +216,21 @@ export function installerPresentationsPremium(valeur: unknown): void {
         typeof evenement.id === "string" &&
         evenement.id.startsWith("trame."),
     );
+  const inclutTraverse =
+    Array.isArray(evenements) &&
+    evenements.some(
+      (evenement) =>
+        estObjet(evenement) &&
+        typeof evenement.id === "string" &&
+        (evenement.id.startsWith("trame.pompe-neuve.") ||
+          evenement.id.startsWith("trame.traverse-libre.")),
+    );
   const surfacesAttendues = [
     "hautPuits",
     "veilleBasse",
     ...(inclutLeDeversoir ? ["deversoir"] : []),
     ...(inclutLaTrame ? ["trame"] : []),
+    ...(inclutTraverse ? ["traverse"] : []),
   ];
   if (
     !estObjet(presentations) ||

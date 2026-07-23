@@ -1,0 +1,15 @@
+{
+  "asset": "serveur-commercial/assets/trame-pompe-renseignement.webp",
+  "sha256": "a366d3b2b91475c334045a329aecab0e623aa70f40e9b004c95b864f44f82536",
+  "createdAt": "2026-07-23",
+  "tool": "Codex built-in image_gen",
+  "model": "built-in model (identifier not exposed)",
+  "useCase": "stylized-concept",
+  "input": "No input image; generated from the project’s established industrial ash-world art direction.",
+  "prompt": "New Pump mechanics replace amber markers around unattended rusted switches while a guarded Rail Republic main line shines in the distance; painterly 16:9 industrial concept art, no text or logos.",
+  "rights": "OpenAI Terms of Use — output assigned to the user",
+  "approval": {
+    "status": "pending-pull-request-review",
+    "reviewer": null
+  }
+}

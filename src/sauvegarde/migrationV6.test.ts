@@ -9,6 +9,7 @@ import {
 } from "../simulation/campagne";
 import { VERSION_SIMULATION_AVANT_NACELLES } from "../simulation/versions";
 import { creerEtatInitialDeLaTrameDeFer } from "../simulation/trameFer";
+import { creerEtatInitialDeTraverseLibre } from "../simulation/traverseLibre";
 import { importerSauvegarde } from "./portable";
 import { lireEtatCourant } from "./validation";
 import {
@@ -19,8 +20,9 @@ import {
 } from "./version";
 
 function sansRouteBasse(etat: EtatCampagne) {
-  const { trameDeFer, ...sansTrame } = etat;
+  const { trameDeFer, traverseLibre, ...sansTrame } = etat;
   void trameDeFer;
+  void traverseLibre;
   const {
     "nacelles-de-veille-basse": routeBasse,
     "chemin-de-l-hospice": cheminDeLHospice,
@@ -30,6 +32,8 @@ function sansRouteBasse(etat: EtatCampagne) {
     "piste-des-levees": pisteDesLevees,
     "rampe-de-barriere-neuve": rampeDeBarriereNeuve,
     "voie-des-ponts-lourds": voieDesPontsLourds,
+    "embranchement-de-pompe-neuve": embranchementDePompeNeuve,
+    "galerie-des-reservoirs": galerieDesReservoirs,
     ...etatsReelsV6
   } = sansTrame.routes.etatsReels;
   void routeBasse;
@@ -40,6 +44,8 @@ function sansRouteBasse(etat: EtatCampagne) {
   void pisteDesLevees;
   void rampeDeBarriereNeuve;
   void voieDesPontsLourds;
+  void embranchementDePompeNeuve;
+  void galerieDesReservoirs;
   return {
     ...sansTrame,
     version: VERSION_SIMULATION_AVANT_NACELLES,
@@ -61,6 +67,7 @@ function creerArchiveV6() {
         ...snapshot,
         version: VERSIONS_DU_SNAPSHOT_COURANT.simulation,
         trameDeFer: creerEtatInitialDeLaTrameDeFer(),
+        traverseLibre: creerEtatInitialDeTraverseLibre(),
       },
       commande,
     ).etat,

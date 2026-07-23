@@ -33,7 +33,9 @@ describe("voie principale de la Trame de Fer", () => {
     ]);
     expect(
       catalogueDEvenements.evenements.filter((evenement) =>
-        evenement.id.startsWith("trame."),
+        IDS_DU_LOT_DE_LA_VOIE_PRINCIPALE.includes(
+          evenement.id as (typeof IDS_DU_LOT_DE_LA_VOIE_PRINCIPALE)[number],
+        ),
       ),
     ).toHaveLength(5);
   });

@@ -41,6 +41,7 @@ interface EtatV2HistoriqueMutable {
   hautPuits?: unknown;
   devenirsDesSites?: unknown;
   trameDeFer?: unknown;
+  traverseLibre?: unknown;
   citeCaravane: { formation: { plateformes: string[] } };
 }
 
@@ -80,6 +81,7 @@ function retirerRoutes(etat: EtatCampagne): Record<string, unknown> {
   delete sansRoutes.hautPuits;
   delete sansRoutes.devenirsDesSites;
   delete sansRoutes.trameDeFer;
+  delete sansRoutes.traverseLibre;
   sansRoutes.citeCaravane = {
     ...etat.citeCaravane,
     formation: {
@@ -107,6 +109,7 @@ function retirerSeulementRoutes(etat: EtatCampagne): Record<string, unknown> {
   delete sansRoutes.hautPuits;
   delete sansRoutes.devenirsDesSites;
   delete sansRoutes.trameDeFer;
+  delete sansRoutes.traverseLibre;
   sansRoutes.version = 3;
   return sansRoutes;
 }
@@ -119,6 +122,7 @@ function retirerCrises(etat: EtatCampagne): Record<string, unknown> {
   delete avantCrises.hautPuits;
   delete avantCrises.devenirsDesSites;
   delete avantCrises.trameDeFer;
+  delete avantCrises.traverseLibre;
   avantCrises.version = 3;
   return avantCrises;
 }
@@ -314,6 +318,7 @@ describe("sauvegarde portable", () => {
       delete etat.hautPuits;
       delete etat.devenirsDesSites;
       delete etat.trameDeFer;
+      delete etat.traverseLibre;
       etat.version = 2;
       etat.citeCaravane.formation.plateformes = plateformesLegacy;
     }
@@ -559,10 +564,10 @@ describe("sauvegarde portable", () => {
       throw new Error("La sauvegarde v2 devrait migrer vers l’Atlas v3.");
     }
     expect(importation.sauvegarde).toMatchObject({
-      version: 9,
-      versions: { simulation: 9 },
+      version: 10,
+      versions: { simulation: 10 },
       etat: {
-        version: 9,
+        version: 10,
         routes: {
           position: "halte-du-puits-sec",
           engagements: [],
@@ -570,7 +575,7 @@ describe("sauvegarde portable", () => {
         },
       },
       reproduction: {
-        snapshot: { version: 9, routes: { position: "halte-du-puits-sec" } },
+        snapshot: { version: 10, routes: { position: "halte-du-puits-sec" } },
         commandes: [
           { sequence: 0, commande: { type: "temps-du-convoi.regler-vitesse" } },
           { sequence: 1, commande: { type: "temps-du-convoi.ecouler" } },
@@ -714,10 +719,10 @@ describe("sauvegarde portable", () => {
       throw new Error("La sauvegarde antérieure aux Crises devrait être migrée.");
     }
     expect(importation.sauvegarde).toMatchObject({
-      version: 9,
-      versions: { simulation: 9 },
+      version: 10,
+      versions: { simulation: 10 },
       etat: {
-        version: 9,
+        version: 10,
         crises: {
           approvisionnementEau: "assure",
           faitAnnonceurHistoriqueIgnore: true,
@@ -728,7 +733,7 @@ describe("sauvegarde portable", () => {
         },
       },
       reproduction: {
-        snapshot: { version: 9, crises: { approvisionnementEau: "assure" } },
+        snapshot: { version: 10, crises: { approvisionnementEau: "assure" } },
       },
     });
     expect(
@@ -827,9 +832,9 @@ describe("sauvegarde portable", () => {
 
     expect(sauvegarde).toMatchObject({
       format: "lanternes-de-cendre.sauvegarde",
-      version: 9,
+      version: 10,
       versions: {
-        simulation: 9,
+        simulation: 10,
         contenu: 1,
         aleatoire: 1,
         empreinte: 1,
@@ -837,7 +842,7 @@ describe("sauvegarde portable", () => {
       graine: "CENDRE-01",
       horloge: { secondes: 60 },
       etat: {
-        version: 9,
+        version: 10,
         echeances: [],
         fluxPseudoAleatoires: {
           "evenements-narratifs": {
@@ -1353,9 +1358,9 @@ describe("sauvegarde portable", () => {
       throw new Error("La fixture v1 devrait être migrée.");
     }
     expect(importation.sauvegarde).toMatchObject({
-      version: 9,
+      version: 10,
       etat: {
-        version: 9,
+        version: 10,
         tempsDuConvoi: { vitesse: 4 },
         echeances: [],
         fluxPseudoAleatoires: {
@@ -1374,7 +1379,7 @@ describe("sauvegarde portable", () => {
         },
       },
       reproduction: {
-        snapshot: { version: 9 },
+        snapshot: { version: 10 },
         commandes: [
           {
             sequence: 0,
@@ -1691,12 +1696,12 @@ describe("sauvegarde portable", () => {
       version: 99,
       archiveOriginale,
       explication:
-        "Cette sauvegarde utilise la version 99, plus récente que la version 9 prise en charge. L’original est conservé et peut être réexporté.",
+        "Cette sauvegarde utilise la version 99, plus récente que la version 10 prise en charge. L’original est conservé et peut être réexporté.",
     });
   });
 
   it.each([
-    ["simulation", 10],
+    ["simulation", 11],
     ["contenu", 2],
     ["aleatoire", 2],
     ["empreinte", 2],
@@ -1813,7 +1818,7 @@ describe("sauvegarde portable", () => {
     if (importation.statut !== "compatible") {
       throw new Error("L’Expédition terminée devrait être compatible.");
     }
-    expect(importation.sauvegarde.version).toBe(9);
+    expect(importation.sauvegarde.version).toBe(10);
     expect(importation.sauvegarde.etat.expeditions.operations[0]).toMatchObject({
       statut: "terminee",
       ordresDistants: [{ intention: "forcer-galerie", moment: 9_420 }],
@@ -1850,6 +1855,12 @@ describe("sauvegarde portable", () => {
       delete historique.hautPuits;
       delete historique.devenirsDesSites;
       delete historique.trameDeFer;
+      delete historique.traverseLibre;
+      const routes = historique.routes as {
+        etatsReels: Record<string, unknown>;
+      };
+      delete routes.etatsReels["embranchement-de-pompe-neuve"];
+      delete routes.etatsReels["galerie-des-reservoirs"];
       historique.version = 3;
       return historique;
     };
@@ -1884,7 +1895,7 @@ describe("sauvegarde portable", () => {
     if (importation.statut !== "migree") {
       throw new Error("La sauvegarde v3 devrait être migrée.");
     }
-    expect(importation.sauvegarde.version).toBe(9);
+    expect(importation.sauvegarde.version).toBe(10);
     expect(importation.sauvegarde.etat.expeditions.operations[0]).toMatchObject({
       id: "vannes-grises",
       statut: "prete",

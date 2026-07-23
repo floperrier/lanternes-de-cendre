@@ -32,6 +32,7 @@ function normaliserEnV7(etat: EtatCampagne): Record<string, unknown> {
     version: number;
     devenirsDesSites?: unknown;
     trameDeFer?: unknown;
+    traverseLibre?: unknown;
     narration: { causaliteHistorique?: unknown };
     hautPuits: { projetRegional?: unknown };
     veilleBasse: {
@@ -45,6 +46,9 @@ function normaliserEnV7(etat: EtatCampagne): Record<string, unknown> {
   historique.version = VERSION_SIMULATION_AVANT_DEVERSOIR;
   delete historique.devenirsDesSites;
   delete historique.trameDeFer;
+  delete historique.traverseLibre;
+  delete historique.routes.etatsReels["embranchement-de-pompe-neuve"];
+  delete historique.routes.etatsReels["galerie-des-reservoirs"];
   delete historique.narration.causaliteHistorique;
   delete historique.hautPuits.projetRegional;
   delete historique.veilleBasse.cohorte.orientationRegionale;
@@ -364,9 +368,9 @@ describe("migration v7 avant le Déversoir Noir", () => {
     }
     expect(importation.sauvegarde).toMatchObject({
       version: VERSION_SAUVEGARDE_COURANTE,
-      versions: { simulation: 9 },
+      versions: { simulation: 10 },
       etat: {
-        version: 9,
+        version: 10,
         devenirsDesSites: null,
         hautPuits: { projetRegional: null },
         routes: {
@@ -379,7 +383,7 @@ describe("migration v7 avant le Déversoir Noir", () => {
       },
       reproduction: {
         commandes: [],
-        snapshot: { version: 9 },
+        snapshot: { version: 10 },
       },
     });
   });

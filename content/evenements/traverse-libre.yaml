@@ -1,0 +1,284 @@
+version: 1
+evenements:
+  - id: trame.pompe-neuve.l-embranchement-sans-garde
+    famille: conflits-regionaux
+    themes: [renseignements, autonomie, securite-ferroviaire]
+    fonction: opposer-securite-et-autonomie
+    fenetre: pompe-neuve
+    conditions:
+      requises:
+        - type: lieu-present
+          lieu: pompe-neuve
+      interdites: []
+    periode_eligibilite: { debut: 1200, fin: 2147483647 }
+    priorite: 150
+    epuisement: unique
+    acteurs: [porte-lanterne, mecaniciens-pompe-neuve, puits-libres]
+    origine: { cle: evenement.traverse.renseignement.origine, variables: [] }
+    libelle_intentions: { cle: evenement.ruban.intentions, variables: [] }
+    titre: { cle: evenement.traverse.renseignement.titre, variables: [] }
+    presentation: { cle: evenement.traverse.renseignement.presentation, variables: [] }
+    informations:
+      - source: mecaniciens-pompe-neuve
+        texte: { cle: evenement.traverse.renseignement.information, variables: [] }
+    faits_lus: [bassins.deversoir.ligne-zero-relevee]
+    choix:
+      - id: suivre-balises-libres
+        intention: { cle: evenement.traverse.renseignement.choix.libres, variables: [] }
+        couts_connus:
+          - { cle: evenement.traverse.renseignement.choix.libres.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - id: trame.pompe-neuve.balises-libres-suivies
+            cible: pompe-neuve
+      - id: faire-verifier-aiguillage
+        intention: { cle: evenement.traverse.renseignement.choix.republique, variables: [] }
+        couts_connus:
+          - { cle: evenement.traverse.renseignement.choix.republique.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - id: trame.pompe-neuve.aiguillage-signale
+            cible: republique-du-rail
+    consequence_differee: { type: connaissance-de-la-branche, cible: traverse-libre }
+    recuperation: { type: balises-ou-signalement }
+    variantes:
+      - id: ligne-zero
+        condition: fait-present:bassins.deversoir.ligne-zero-relevee
+        presentation: { cle: evenement.traverse.renseignement.variante.ligne-zero, variables: [] }
+      - id: standard
+        condition: toujours
+        presentation: { cle: evenement.traverse.renseignement.variante.standard, variables: [] }
+    destination_echo: journal-de-campagne
+    asset: trame.pompe-neuve.l-embranchement-sans-garde
+
+  - id: trame.pompe-neuve.les-filtres-du-rail
+    famille: conflits-regionaux
+    themes: [filtres, dependance-au-rail, aide]
+    fonction: rendre-visible-la-connaissance-de-l-aide
+    fenetre: pompe-neuve
+    conditions:
+      requises:
+        - type: lieu-present
+          lieu: pompe-neuve
+        - type: un-des-faits-present
+          faits:
+            - trame.pompe-neuve.balises-libres-suivies
+            - trame.pompe-neuve.aiguillage-signale
+      interdites: []
+    periode_eligibilite: { debut: 1200, fin: 2147483647 }
+    priorite: 140
+    epuisement: unique
+    acteurs: [porte-lanterne, mecaniciens-pompe-neuve, habitants-traverse-libre]
+    origine: { cle: evenement.traverse.filtres.origine, variables: [] }
+    libelle_intentions: { cle: evenement.ruban.intentions, variables: [] }
+    titre: { cle: evenement.traverse.filtres.titre, variables: [] }
+    presentation: { cle: evenement.traverse.filtres.presentation, variables: [] }
+    informations:
+      - source: mecaniciens-pompe-neuve
+        texte: { cle: evenement.traverse.filtres.information, variables: [] }
+    faits_lus:
+      - trame.pompe-neuve.balises-libres-suivies
+      - trame.pompe-neuve.aiguillage-signale
+    choix:
+      - id: livrer-discretement
+        intention: { cle: evenement.traverse.filtres.choix.discret, variables: [] }
+        couts_connus:
+          - { cle: evenement.traverse.filtres.choix.discret.cout, variables: [] }
+        effets:
+          - { type: stock.modifier, stock: materiaux, valeur: -4 }
+        faits_produits:
+          - id: trame.pompe-neuve.filtres-livres-discretement
+            cible: traverse-libre
+      - id: inscrire-livraison
+        intention: { cle: evenement.traverse.filtres.choix.public, variables: [] }
+        couts_connus:
+          - { cle: evenement.traverse.filtres.choix.public.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - id: trame.pompe-neuve.livraison-inscrite
+            cible: republique-du-rail
+    consequence_differee: { type: aide-connue-ou-discrete, cible: traverse-libre }
+    recuperation: { type: livraison-publique-sans-stock }
+    variantes:
+      - id: engagement
+        condition: fait-present:trame.pompe-neuve.aiguillage-signale
+        presentation: { cle: evenement.traverse.filtres.variante.engagement, variables: [] }
+      - id: standard
+        condition: toujours
+        presentation: { cle: evenement.traverse.filtres.variante.standard, variables: [] }
+    destination_echo: journal-de-campagne
+    asset: trame.pompe-neuve.les-filtres-du-rail
+
+  - id: trame.traverse-libre.le-reservoir-sous-la-voie
+    famille: mystere-des-phares
+    themes: [ligne-zero, reservoirs, contournement]
+    fonction: reveler-le-contournement-hydraulique
+    fenetre: pompe-neuve
+    conditions:
+      requises:
+        - type: lieu-present
+          lieu: pompe-neuve
+        - type: un-des-faits-present
+          faits:
+            - trame.pompe-neuve.filtres-livres-discretement
+            - trame.pompe-neuve.livraison-inscrite
+      interdites: []
+    periode_eligibilite: { debut: 1200, fin: 2147483647 }
+    priorite: 130
+    epuisement: unique
+    acteurs: [porte-lanterne, habitants-traverse-libre, reservoirs-traverse-libre]
+    origine: { cle: evenement.traverse.reservoir.origine, variables: [] }
+    libelle_intentions: { cle: evenement.ruban.intentions, variables: [] }
+    titre: { cle: evenement.traverse.reservoir.titre, variables: [] }
+    presentation: { cle: evenement.traverse.reservoir.presentation, variables: [] }
+    informations:
+      - source: habitants-traverse-libre
+        texte: { cle: evenement.traverse.reservoir.information, variables: [] }
+    faits_lus:
+      - bassins.deversoir.ligne-zero-relevee
+      - trame.pompe-neuve.filtres-livres-discretement
+      - trame.pompe-neuve.livraison-inscrite
+    choix:
+      - id: lever-vanne-du-contournement
+        intention: { cle: evenement.traverse.reservoir.choix.lever, variables: [] }
+        couts_connus:
+          - { cle: evenement.traverse.reservoir.choix.lever.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - id: trame.traverse-libre.contournement-releve
+            cible: contournement-traverse-libre
+      - id: preserver-vanne
+        intention: { cle: evenement.traverse.reservoir.choix.preserve, variables: [] }
+        couts_connus:
+          - { cle: evenement.traverse.reservoir.choix.preserve.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - id: trame.traverse-libre.vanne-preservee
+            cible: reservoirs-traverse-libre
+    consequence_differee: { type: contournement-revele, cible: traverse-libre }
+    recuperation: { type: vanne-reversible }
+    variantes:
+      - id: ligne-zero
+        condition: fait-present:bassins.deversoir.ligne-zero-relevee
+        presentation: { cle: evenement.traverse.reservoir.variante.ligne-zero, variables: [] }
+      - id: standard
+        condition: toujours
+        presentation: { cle: evenement.traverse.reservoir.variante.standard, variables: [] }
+    destination_echo: journal-de-campagne
+    asset: trame.traverse-libre.le-reservoir-sous-la-voie
+
+  - id: trame.traverse-libre.la-galerie-qui-cede
+    famille: consequences-systemiques
+    themes: [route-degradee, dependances, recuperation]
+    fonction: garantir-une-issue-couteuse
+    fenetre: pompe-neuve
+    conditions:
+      requises:
+        - type: lieu-present
+          lieu: pompe-neuve
+        - type: un-des-faits-present
+          faits:
+            - trame.traverse-libre.contournement-releve
+            - trame.traverse-libre.vanne-preservee
+      interdites: []
+    periode_eligibilite: { debut: 1200, fin: 2147483647 }
+    priorite: 120
+    epuisement: unique
+    acteurs: [porte-lanterne, habitants-traverse-libre, puits-libres]
+    origine: { cle: evenement.traverse.galerie.origine, variables: [] }
+    libelle_intentions: { cle: evenement.ruban.intentions, variables: [] }
+    titre: { cle: evenement.traverse.galerie.titre, variables: [] }
+    presentation: { cle: evenement.traverse.galerie.presentation, variables: [] }
+    informations:
+      - source: eclaireurs-puits-libres
+        texte: { cle: evenement.traverse.galerie.information, variables: [] }
+    faits_lus:
+      - trame.traverse-libre.contournement-releve
+      - trame.traverse-libre.vanne-preservee
+    choix:
+      - id: etayer-galerie
+        intention: { cle: evenement.traverse.galerie.choix.etayer, variables: [] }
+        couts_connus:
+          - { cle: evenement.traverse.galerie.choix.etayer.cout, variables: [] }
+        effets:
+          - { type: stock.modifier, stock: materiaux, valeur: -10 }
+        faits_produits:
+          - id: trame.traverse-libre.galerie-etayee
+            cible: galerie-des-reservoirs
+      - id: ouvrir-contournement
+        intention: { cle: evenement.traverse.galerie.choix.contourner, variables: [] }
+        couts_connus:
+          - { cle: evenement.traverse.galerie.choix.contourner.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - id: trame.traverse-libre.contournement-ouvert
+            cible: contournement-traverse-libre
+    consequence_differee: { type: route-reparee-ou-contournee, cible: traverse-libre }
+    recuperation: { type: dette-de-filtres-sans-stock }
+    variantes:
+      - id: vanne
+        condition: fait-present:trame.traverse-libre.contournement-releve
+        presentation: { cle: evenement.traverse.galerie.variante.vanne, variables: [] }
+      - id: standard
+        condition: toujours
+        presentation: { cle: evenement.traverse.galerie.variante.standard, variables: [] }
+    destination_echo: journal-de-campagne
+    asset: trame.traverse-libre.la-galerie-qui-cede
+
+  - id: trame.traverse-libre.maelys-et-le-manifeste
+    famille: histoires-de-compagnons
+    themes: [maelys-rive, registre, connaissance]
+    fonction: choisir-la-trace-politique-de-l-aide
+    fenetre: traverse-libre
+    conditions:
+      requises:
+        - type: lieu-present
+          lieu: traverse-libre
+        - type: un-des-faits-present
+          faits:
+            - trame.traverse-libre.galerie-etayee
+            - trame.traverse-libre.contournement-ouvert
+      interdites: []
+    periode_eligibilite: { debut: 1200, fin: 2147483647 }
+    priorite: 110
+    epuisement: unique
+    acteurs: [porte-lanterne, maelys-rive, delegues-puits-libres]
+    origine: { cle: evenement.traverse.maelys.origine, variables: [] }
+    libelle_intentions: { cle: evenement.ruban.intentions, variables: [] }
+    titre: { cle: evenement.traverse.maelys.titre, variables: [] }
+    presentation: { cle: evenement.traverse.maelys.presentation, variables: [] }
+    informations:
+      - source: maelys-rive
+        texte: { cle: evenement.traverse.maelys.information, variables: [] }
+    faits_lus:
+      - veille-basse.maelys-mission-confiee
+      - trame.traverse-libre.galerie-etayee
+      - trame.traverse-libre.contournement-ouvert
+    choix:
+      - id: publier-manifeste
+        intention: { cle: evenement.traverse.maelys.choix.public, variables: [] }
+        couts_connus:
+          - { cle: evenement.traverse.maelys.choix.public.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - id: trame.traverse-libre.manifeste-public
+            cible: republique-du-rail
+      - id: sceller-registre
+        intention: { cle: evenement.traverse.maelys.choix.sceller, variables: [] }
+        couts_connus:
+          - { cle: evenement.traverse.maelys.choix.sceller.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - id: trame.traverse-libre.registre-scelle
+            cible: delegues-puits-libres
+    consequence_differee: { type: aide-attribuable-ou-discrete, cible: traverse-libre }
+    recuperation: { type: registre-conserve }
+    variantes:
+      - id: maelys
+        condition: fait-present:veille-basse.maelys-mission-confiee
+        presentation: { cle: evenement.traverse.maelys.variante.maelys, variables: [] }
+      - id: standard
+        condition: toujours
+        presentation: { cle: evenement.traverse.maelys.variante.standard, variables: [] }
+    destination_echo: journal-de-campagne
+    asset: trame.traverse-libre.maelys-et-le-manifeste

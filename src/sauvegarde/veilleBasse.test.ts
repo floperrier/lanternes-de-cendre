@@ -24,6 +24,7 @@ function normaliserEnV4(etat: EtatCampagne): Record<string, unknown> {
   delete ancien.veilleBasse;
   delete ancien.hautPuits;
   delete ancien.trameDeFer;
+  delete ancien.traverseLibre;
   ancien.routes = sansRoutesDeLaTrame(etat);
   return ancien;
 }
@@ -33,6 +34,7 @@ function normaliserEnV5(etat: EtatCampagne): Record<string, unknown> {
   ancien.version = 5;
   delete ancien.hautPuits;
   delete ancien.trameDeFer;
+  delete ancien.traverseLibre;
   ancien.routes = sansRoutesDeLaTrame(etat);
   return ancien;
 }
@@ -41,10 +43,14 @@ function sansRoutesDeLaTrame(etat: EtatCampagne): EtatCampagne["routes"] {
   const {
     "rampe-de-barriere-neuve": rampeDeBarriereNeuve,
     "voie-des-ponts-lourds": voieDesPontsLourds,
+    "embranchement-de-pompe-neuve": embranchementDePompeNeuve,
+    "galerie-des-reservoirs": galerieDesReservoirs,
     ...etatsReels
   } = etat.routes.etatsReels;
   void rampeDeBarriereNeuve;
   void voieDesPontsLourds;
+  void embranchementDePompeNeuve;
+  void galerieDesReservoirs;
   return { ...etat.routes, etatsReels };
 }
 
@@ -279,9 +285,9 @@ describe("persistance de Veille-Basse", () => {
     expect(importation).toMatchObject({
       statut: "compatible",
       sauvegarde: {
-        version: 9,
+        version: 10,
         etat: {
-          version: 9,
+          version: 10,
           veilleBasse: {
             colonie: { statut: "fragile" },
             cohorte: {
@@ -294,7 +300,7 @@ describe("persistance de Veille-Basse", () => {
         },
         reproduction: {
           snapshot: {
-            version: 9,
+            version: 10,
             veilleBasse: {
               cohorte: { specialite: "charpente-etanche" },
             },
@@ -343,15 +349,15 @@ describe("persistance de Veille-Basse", () => {
     expect(importation).toMatchObject({
       statut: "migree",
       sauvegarde: {
-        version: 9,
+        version: 10,
         etat: {
-          version: 9,
+          version: 10,
           veilleBasse: etatCourant.veilleBasse,
           hautPuits: creerEtatDeHautPuitsInitial(),
         },
         reproduction: {
           snapshot: {
-            version: 9,
+            version: 10,
             veilleBasse: etatCourant.veilleBasse,
             hautPuits: creerEtatDeHautPuitsInitial(),
           },
@@ -419,15 +425,15 @@ describe("persistance de Veille-Basse", () => {
     expect(importation).toMatchObject({
       statut: "migree",
       sauvegarde: {
-        version: 9,
+        version: 10,
         etat: {
-          version: 9,
+          version: 10,
           tempsDuConvoi: { vitesse: 2 },
           veilleBasse: creerEtatInitialDeVeilleBasse(),
         },
         reproduction: {
           snapshot: {
-            version: 9,
+            version: 10,
             veilleBasse: creerEtatInitialDeVeilleBasse(),
           },
           commandes: [

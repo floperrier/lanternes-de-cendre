@@ -19,6 +19,11 @@ export const NOMS_D_ASSETS_PREMIUM = [
   "trame-piece-regulation.webp",
   "trame-eau-machines.webp",
   "trame-attelage-federe.webp",
+  "trame-pompe-renseignement.webp",
+  "trame-pompe-filtres.webp",
+  "trame-traverse-reservoir.webp",
+  "trame-traverse-galerie.webp",
+  "trame-traverse-maelys.webp",
 ] as const;
 
 export const LIEUX_PREMIUM = [
@@ -49,6 +54,14 @@ export const LIEUX_PREMIUM = [
   {
     id: "grand-aiguillage",
     nom: { fr: "Grand-Aiguillage", en: "Grand Junction" },
+  },
+  {
+    id: "pompe-neuve",
+    nom: { fr: "Pompe-Neuve", en: "New Pump" },
+  },
+  {
+    id: "traverse-libre",
+    nom: { fr: "Traverse-Libre", en: "Free Crossing" },
   },
 ] as const;
 
@@ -570,6 +583,106 @@ export const TRONCONS_PREMIUM = [
             source: "Grand Junction switch crews",
             danger: "Worn but maintained heavy bridges",
             controlePolitique: "Rail Republic services and requisitions",
+          },
+        },
+      },
+    ],
+  },
+  {
+    id: "embranchement-de-pompe-neuve",
+    nom: {
+      fr: "Embranchement de Pompe-Neuve",
+      en: "New Pump Branch",
+    },
+    extremites: ["lisiere-trame-de-fer", "pompe-neuve"],
+    originesAutorisees: ["lisiere-trame-de-fer"],
+    dureeSecondes: 510,
+    etatInitial: "degrade",
+    consommationConnue: {
+      stock: "combustible",
+      quantite: 5,
+      unite: "litres",
+    },
+    consommationIncertaine: {
+      stock: "eau",
+      minimum: 5,
+      maximum: 9,
+      quantiteReelle: 7,
+      unite: "litres",
+      renseignementId: "pompe-neuve-balises-libres",
+    },
+    renseignements: [
+      {
+        id: "pompe-neuve-balises-libres",
+        tronconId: "embranchement-de-pompe-neuve",
+        source: "mecaniciens-pompe-neuve",
+        releveA: 0,
+        fiabilite: "rapporte",
+        etatAnnonce: "degrade",
+        meteo: "cendre-basse",
+        panache: "incertain",
+        danger: "aiguilles-sans-garde",
+        controlePolitique: "puits-libres",
+        libelles: {
+          fr: {
+            source: "Balises reprises par les mécaniciens de Pompe-Neuve",
+            danger: "Aiguilles sans garde, état variable après chaque convoi",
+            controlePolitique: "Embranchement autonome soutenu par les Puits Libres",
+          },
+          en: {
+            source: "Markers restored by New Pump mechanics",
+            danger: "Unattended switches, condition varies after each convoy",
+            controlePolitique: "Autonomous branch supported by the Free Wells",
+          },
+        },
+      },
+    ],
+  },
+  {
+    id: "galerie-des-reservoirs",
+    nom: {
+      fr: "Galerie des Réservoirs",
+      en: "Reservoir Gallery",
+    },
+    extremites: ["pompe-neuve", "traverse-libre"],
+    originesAutorisees: ["pompe-neuve"],
+    dureeSecondes: 660,
+    etatInitial: "degrade",
+    consommationConnue: {
+      stock: "combustible",
+      quantite: 6,
+      unite: "litres",
+    },
+    consommationIncertaine: {
+      stock: "eau",
+      minimum: 7,
+      maximum: 11,
+      quantiteReelle: 9,
+      unite: "litres",
+      renseignementId: "traverse-libre-affaissement",
+    },
+    renseignements: [
+      {
+        id: "traverse-libre-affaissement",
+        tronconId: "galerie-des-reservoirs",
+        source: "eclaireurs-puits-libres",
+        releveA: 0,
+        fiabilite: "ancien",
+        etatAnnonce: "degrade",
+        meteo: "rafales-de-cendre",
+        panache: "incertain",
+        danger: "galerie-affaissee",
+        controlePolitique: "puits-libres",
+        libelles: {
+          fr: {
+            source: "Dernier relevé partagé par les éclaireurs des Puits Libres",
+            danger: "Affaissement signalé, détour coûteux encore praticable",
+            controlePolitique: "Passage collectif sans garantie centralisée",
+          },
+          en: {
+            source: "Last survey shared by Free Wells scouts",
+            danger: "Reported collapse, costly detour still passable",
+            controlePolitique: "Collective passage without centralized guarantee",
           },
         },
       },

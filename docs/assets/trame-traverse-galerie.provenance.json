@@ -1,0 +1,15 @@
+{
+  "asset": "serveur-commercial/assets/trame-traverse-galerie.webp",
+  "sha256": "388d4b27f7f16903ee66ba96bbf7a2c914a6124c5ad6c37578407e4ce8c7237d",
+  "createdAt": "2026-07-23",
+  "tool": "Codex built-in image_gen",
+  "model": "built-in model (identifier not exposed)",
+  "useCase": "stylized-concept",
+  "input": "No input image; generated from the project’s established industrial ash-world art direction.",
+  "prompt": "A railway gallery begins to collapse while one crew prepares braces and another opens a dry piped bypass, showing two costly recovery options; painterly 16:9 industrial concept art, no text or logos.",
+  "rights": "OpenAI Terms of Use — output assigned to the user",
+  "approval": {
+    "status": "pending-pull-request-review",
+    "reviewer": null
+  }
+}

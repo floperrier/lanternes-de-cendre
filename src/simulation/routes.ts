@@ -14,7 +14,9 @@ export type IdentifiantDeLieu =
   | "deversoir-noir"
   | "lisiere-trame-de-fer"
   | "barriere-neuve"
-  | "grand-aiguillage";
+  | "grand-aiguillage"
+  | "pompe-neuve"
+  | "traverse-libre";
 
 export type IdentifiantDeTroncon =
   | "digue-des-puits"
@@ -28,7 +30,9 @@ export type IdentifiantDeTroncon =
   | "passage-de-la-ligne-zero"
   | "piste-des-levees"
   | "rampe-de-barriere-neuve"
-  | "voie-des-ponts-lourds";
+  | "voie-des-ponts-lourds"
+  | "embranchement-de-pompe-neuve"
+  | "galerie-des-reservoirs";
 
 export interface DefinitionDeLieu {
   readonly id: IdentifiantDeLieu;
@@ -151,7 +155,9 @@ export interface RenseignementDeRoute {
     | "nacelliers-des-vannes"
     | "techniciens-du-deversoir"
     | "douaniers-du-rail"
-    | "aiguilleurs";
+    | "aiguilleurs"
+    | "mecaniciens-pompe-neuve"
+    | "eclaireurs-puits-libres";
   readonly releveA: number;
   readonly fiabilite: "confirme" | "ancien" | "rapporte";
   readonly etatAnnonce: Exclude<EtatReelDeRoute, "coupe">;
@@ -164,7 +170,9 @@ export interface RenseignementDeRoute {
     | "cables-fatigues"
     | "conduit-effondrable"
     | "controle-des-essieux"
-    | "ponts-fatigues";
+    | "ponts-fatigues"
+    | "aiguilles-sans-garde"
+    | "galerie-affaissee";
   readonly controlePolitique:
     | "puits-libres"
     | "pelerins-de-cendre"
@@ -303,6 +311,8 @@ const IDENTIFIANTS_DE_LIEUX = new Set<IdentifiantDeLieu>([
   "lisiere-trame-de-fer",
   "barriere-neuve",
   "grand-aiguillage",
+  "pompe-neuve",
+  "traverse-libre",
 ]);
 const IDENTIFIANTS_DE_TRONCONS = new Set<IdentifiantDeTroncon>([
   "digue-des-puits",
@@ -317,6 +327,8 @@ const IDENTIFIANTS_DE_TRONCONS = new Set<IdentifiantDeTroncon>([
   "piste-des-levees",
   "rampe-de-barriere-neuve",
   "voie-des-ponts-lourds",
+  "embranchement-de-pompe-neuve",
+  "galerie-des-reservoirs",
 ]);
 
 export function installerContenuPremiumDesRoutes(

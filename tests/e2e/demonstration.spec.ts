@@ -498,6 +498,18 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
   );
   await page.clock.fastForward(121_000);
   await expect(atlas).toContainText("Lisière de la Trame de Fer");
+  await activerAuClavier(
+    page,
+    sauvegarde.getByRole("button", { name: "Sauvegarder" }),
+  );
+  const exportALaLisiere = page.waitForEvent("download");
+  await activerAuClavier(
+    page,
+    sauvegarde.getByRole("button", { name: "Exporter" }),
+  );
+  const archiveALaLisiere = await exportALaLisiere;
+  const cheminArchiveALaLisiere = await archiveALaLisiere.path();
+  expect(cheminArchiveALaLisiere).not.toBeNull();
 
   await activerAuClavier(
     page,
@@ -680,6 +692,144 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
   await expect(autrePage.getByText("CENDRE-01").first()).toBeVisible();
   await expect(autrePage.getByText("Bilan de retour")).toHaveCount(0);
   await navigateurVierge.close();
+
+  const navigateurTraverse = await page.context().browser()!.newContext({
+    viewport: { width: 640, height: 360 },
+    deviceScaleFactor: 2,
+  });
+  const pageTraverse = await navigateurTraverse.newPage();
+  await installerHorlogeFixe(pageTraverse);
+  await pageTraverse.goto("/");
+  await activerAuClavier(
+    pageTraverse,
+    pageTraverse.getByRole("button", { name: "Restaurer mon achat" }),
+  );
+  await pageTraverse.getByLabel("Adresse email").fill(email);
+  await activerAuClavier(
+    pageTraverse,
+    pageTraverse.getByRole("button", { name: "Restaurer mon achat" }),
+  );
+  await activerAuClavier(
+    pageTraverse,
+    pageTraverse.getByRole("button", { name: "Ouvrir le lien de test" }),
+  );
+  const sauvegardeTraverse = pageTraverse.getByRole("region", {
+    name: "Sauvegarde de Campagne",
+  });
+  const importALaLisiere = pageTraverse.waitForEvent("filechooser");
+  await activerAuClavier(
+    pageTraverse,
+    sauvegardeTraverse.getByRole("button", {
+      name: "Importer",
+      exact: true,
+    }),
+  );
+  await (await importALaLisiere).setFiles(cheminArchiveALaLisiere!);
+  await expect(
+    sauvegardeTraverse.getByText("Sauvegarde importée et reprise."),
+  ).toBeVisible();
+
+  const atlasTraverse = pageTraverse.getByRole("region", {
+    name: "Atlas d’exploitation",
+  });
+  await expect(atlasTraverse).toContainText(
+    "Embranchement autonome soutenu par les Puits Libres",
+  );
+  await expect(atlasTraverse).toContainText(
+    "Voie principale tenue par la République du Rail",
+  );
+  await activerAuClavier(
+    pageTraverse,
+    atlasTraverse.getByRole("button", {
+      name: "Étudier l’Engagement vers Embranchement de Pompe-Neuve",
+    }),
+  );
+  await activerAuClavier(
+    pageTraverse,
+    pageTraverse
+      .getByRole("dialog", { name: "Engagement vers Pompe-Neuve" })
+      .getByRole("button", {
+        name: "Confirmer l’Engagement sans retour vers Pompe-Neuve",
+      }),
+  );
+  await activerAuClavier(
+    pageTraverse,
+    pageTraverse.getByRole("button", { name: "Vitesse 4×" }),
+  );
+  await pageTraverse.clock.fastForward(128_000);
+
+  for (const [titre, choix] of [
+    ["L’embranchement sans garde", "Suivre les balises des Puits Libres"],
+    ["Les filtres du rail", "Inscrire la livraison au manifeste du Rail"],
+    [
+      "Le réservoir sous la voie",
+      "Lever la vanne et relever le passage sec",
+    ],
+    ["La galerie qui cède", "Ouvrir le contournement des réservoirs"],
+  ] as const) {
+    const evenement = pageTraverse.getByRole("region", { name: titre });
+    await expect(evenement.getByRole("img")).toBeVisible();
+    await activerAuClavier(
+      pageTraverse,
+      evenement.getByRole("button", { name: choix }),
+    );
+    await pageTraverse.clock.fastForward(1_000);
+  }
+  await activerAuClavier(
+    pageTraverse,
+    atlasTraverse.getByRole("button", {
+      name: "Étudier l’Engagement vers Galerie des Réservoirs",
+    }),
+  );
+  await activerAuClavier(
+    pageTraverse,
+    pageTraverse
+      .getByRole("dialog", { name: "Engagement vers Traverse-Libre" })
+      .getByRole("button", {
+        name: "Confirmer l’Engagement sans retour vers Traverse-Libre",
+      }),
+  );
+  await activerAuClavier(
+    pageTraverse,
+    pageTraverse.getByRole("button", { name: "Vitesse 4×" }),
+  );
+  await pageTraverse.clock.fastForward(165_000);
+
+  const manifeste = pageTraverse.getByRole("region", {
+    name: "Maëlys et le manifeste",
+  });
+  await expect(manifeste.getByRole("img")).toBeVisible();
+  await activerAuClavier(
+    pageTraverse,
+    manifeste.getByRole("button", {
+      name: "Publier le manifeste de Traverse-Libre",
+    }),
+  );
+  await pageTraverse.clock.fastForward(1_000);
+
+  const traverseLibre = pageTraverse.getByRole("region", {
+    name: "Traverse-Libre",
+  });
+  await expect(traverseLibre).toContainText("Colonie autonome");
+  await expect(traverseLibre).toContainText("Contournement");
+  await expect(traverseLibre).toContainText("Praticable");
+  await expect(traverseLibre).toContainText("Aide reçue");
+  await expect(traverseLibre).toContainText("Publique");
+  await pageTraverse.screenshot({
+    path: testInfo.outputPath("trame-traverse-libre-mobile.png"),
+    fullPage: true,
+  });
+  await activerAuClavier(
+    pageTraverse,
+    pageTraverse.getByRole("button", { name: "English" }),
+  );
+  await expect(
+    pageTraverse.getByRole("region", { name: "Free Crossing" }),
+  ).toContainText("Rail dependencies");
+  await expect(
+    pageTraverse.getByRole("region", { name: "Free Crossing" }),
+  ).toContainText("Autonomous colony");
+  await navigateurTraverse.close();
 
   await page.screenshot({
     path: testInfo.outputPath("demonstration-final.png"),

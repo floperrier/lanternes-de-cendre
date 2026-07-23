@@ -5967,6 +5967,1407 @@ export default {
           }
         }
       }
+    },
+    {
+      "id": "trame.pompe-neuve.l-embranchement-sans-garde",
+      "famille": "conflits-regionaux",
+      "themes": [
+        "renseignements",
+        "autonomie",
+        "securite-ferroviaire"
+      ],
+      "fonction": "opposer-securite-et-autonomie",
+      "fenetre": "pompe-neuve",
+      "conditions": {
+        "requises": [
+          {
+            "type": "lieu-present",
+            "lieu": "pompe-neuve"
+          }
+        ],
+        "interdites": []
+      },
+      "periodeEligibilite": {
+        "debut": 1200,
+        "fin": 2147483647
+      },
+      "priorite": 150,
+      "epuisement": "unique",
+      "acteurs": [
+        "porte-lanterne",
+        "mecaniciens-pompe-neuve",
+        "puits-libres"
+      ],
+      "sourcesInformations": [
+        "mecaniciens-pompe-neuve"
+      ],
+      "faitsLus": [
+        "bassins.deversoir.ligne-zero-relevee"
+      ],
+      "choix": [
+        {
+          "id": "suivre-balises-libres",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "trame.pompe-neuve.balises-libres-suivies",
+              "cible": "pompe-neuve"
+            }
+          ]
+        },
+        {
+          "id": "faire-verifier-aiguillage",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "trame.pompe-neuve.aiguillage-signale",
+              "cible": "republique-du-rail"
+            }
+          ]
+        }
+      ],
+      "consequenceDifferee": {
+        "type": "connaissance-de-la-branche",
+        "cible": "traverse-libre"
+      },
+      "recuperation": {
+        "type": "balises-ou-signalement"
+      },
+      "variantes": [
+        {
+          "id": "ligne-zero",
+          "condition": {
+            "type": "fait-present",
+            "fait": "bassins.deversoir.ligne-zero-relevee"
+          }
+        },
+        {
+          "id": "standard",
+          "condition": {
+            "type": "toujours"
+          }
+        }
+      ],
+      "destinationEcho": "journal-de-campagne",
+      "asset": {
+        "id": "trame.pompe-neuve.l-embranchement-sans-garde",
+        "fichier": "/api/commercial/assets/trame-pompe-renseignement.webp",
+        "octetsTransferes": 150848,
+        "contientTexte": false,
+        "alternatives": {
+          "fr": "Des mécaniciens replacent des balises lumineuses autour d’aiguilles rouillées tandis que la voie principale gardée brille au loin.",
+          "en": "Mechanics replace luminous markers around rusted switches while the guarded main line glows in the distance."
+        },
+        "provenance": {
+          "fiche": "docs/assets/trame-pompe-renseignement.provenance.json",
+          "creeLe": "2026-07-23",
+          "outil": "Codex built-in image_gen",
+          "modele": "built-in model (identifier not exposed)",
+          "usage": "stylized-concept",
+          "entree": "No input image; generated from the project’s established industrial ash-world art direction.",
+          "prompt": "New Pump mechanics replace amber markers around unattended rusted switches while a guarded Rail Republic main line shines in the distance; painterly 16:9 industrial concept art, no text or logos.",
+          "droits": "OpenAI Terms of Use — output assigned to the user",
+          "empreinteSha256": "a366d3b2b91475c334045a329aecab0e623aa70f40e9b004c95b864f44f82536",
+          "statutApprobation": "pending-pull-request-review",
+          "reviseur": null
+        }
+      },
+      "textes": {
+        "fr": {
+          "origine": {
+            "cle": "evenement.traverse.renseignement.origine",
+            "modele": "Aiguilles sans garde de Pompe-Neuve",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.traverse.renseignement.titre",
+            "modele": "L’embranchement sans garde",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.traverse.renseignement.presentation",
+            "modele": "La voie républicaine promet des contrôles et des ponts entretenus. L’embranchement des Puits Libres n’offre que des balises reprises à la main, mais personne n’y exige de permis.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.traverse.renseignement.information",
+              "modele": "Le dernier relevé autonome confirme un passage dégradé et un détour coûteux ; demander une vérification républicaine rendra cette approche officiellement connue.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "ligne-zero": {
+              "cle": "evenement.traverse.renseignement.variante.ligne-zero",
+              "modele": "Les marques de la Ligne Zéro concordent avec les balises libres sans garantir l’état des rails.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.traverse.renseignement.variante.standard",
+              "modele": "Les mécaniciens refusent de promettre une sécurité qu’aucune équipe permanente ne peut assurer.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "suivre-balises-libres": {
+              "intention": {
+                "cle": "evenement.traverse.renseignement.choix.libres",
+                "modele": "Suivre les balises des Puits Libres",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.traverse.renseignement.choix.libres.cout",
+                  "modele": "Coût connu : autonomie préservée, avec une consommation d’Eau plus incertaine.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "faire-verifier-aiguillage": {
+              "intention": {
+                "cle": "evenement.traverse.renseignement.choix.republique",
+                "modele": "Faire vérifier l’aiguillage par un agent du Rail",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.traverse.renseignement.choix.republique.cout",
+                  "modele": "Coût connu : la République apprend que le convoi emprunte l’embranchement et exige que ses mouvements soient signalés.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        },
+        "en": {
+          "origine": {
+            "cle": "evenement.traverse.renseignement.origine",
+            "modele": "New Pump unattended switches",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.traverse.renseignement.titre",
+            "modele": "The unattended branch",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.traverse.renseignement.presentation",
+            "modele": "The republican route promises inspections and maintained bridges. The Free Wells branch offers only hand-restored markers, but no one demands a permit there.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.traverse.renseignement.information",
+              "modele": "The last autonomous survey confirms a degraded passage and a costly detour; requesting a republican inspection makes this approach officially known.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "ligne-zero": {
+              "cle": "evenement.traverse.renseignement.variante.ligne-zero",
+              "modele": "The Zero Line markings match the free markers without guaranteeing the rails’ condition.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.traverse.renseignement.variante.standard",
+              "modele": "The mechanics refuse to promise safety that no permanent crew can guarantee.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "suivre-balises-libres": {
+              "intention": {
+                "cle": "evenement.traverse.renseignement.choix.libres",
+                "modele": "Follow the Free Wells markers",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.traverse.renseignement.choix.libres.cout",
+                  "modele": "Known cost: autonomy is preserved, with less certain Water consumption.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "faire-verifier-aiguillage": {
+              "intention": {
+                "cle": "evenement.traverse.renseignement.choix.republique",
+                "modele": "Have a Rail agent inspect the switch",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.traverse.renseignement.choix.republique.cout",
+                  "modele": "Known cost: the Republic learns that the convoy is taking the branch and requires its movements to be reported.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "trame.pompe-neuve.les-filtres-du-rail",
+      "famille": "conflits-regionaux",
+      "themes": [
+        "filtres",
+        "dependance-au-rail",
+        "aide"
+      ],
+      "fonction": "rendre-visible-la-connaissance-de-l-aide",
+      "fenetre": "pompe-neuve",
+      "conditions": {
+        "requises": [
+          {
+            "type": "lieu-present",
+            "lieu": "pompe-neuve"
+          },
+          {
+            "type": "un-des-faits-present",
+            "faits": [
+              "trame.pompe-neuve.balises-libres-suivies",
+              "trame.pompe-neuve.aiguillage-signale"
+            ]
+          }
+        ],
+        "interdites": []
+      },
+      "periodeEligibilite": {
+        "debut": 1200,
+        "fin": 2147483647
+      },
+      "priorite": 140,
+      "epuisement": "unique",
+      "acteurs": [
+        "porte-lanterne",
+        "mecaniciens-pompe-neuve",
+        "habitants-traverse-libre"
+      ],
+      "sourcesInformations": [
+        "mecaniciens-pompe-neuve"
+      ],
+      "faitsLus": [
+        "trame.pompe-neuve.balises-libres-suivies",
+        "trame.pompe-neuve.aiguillage-signale"
+      ],
+      "choix": [
+        {
+          "id": "livrer-discretement",
+          "effets": [
+            {
+              "type": "stock.modifier",
+              "stock": "materiaux",
+              "valeur": -4
+            }
+          ],
+          "faitsProduits": [
+            {
+              "id": "trame.pompe-neuve.filtres-livres-discretement",
+              "cible": "traverse-libre"
+            }
+          ]
+        },
+        {
+          "id": "inscrire-livraison",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "trame.pompe-neuve.livraison-inscrite",
+              "cible": "republique-du-rail"
+            }
+          ]
+        }
+      ],
+      "consequenceDifferee": {
+        "type": "aide-connue-ou-discrete",
+        "cible": "traverse-libre"
+      },
+      "recuperation": {
+        "type": "livraison-publique-sans-stock"
+      },
+      "variantes": [
+        {
+          "id": "engagement",
+          "condition": {
+            "type": "fait-present",
+            "fait": "trame.pompe-neuve.aiguillage-signale"
+          }
+        },
+        {
+          "id": "standard",
+          "condition": {
+            "type": "toujours"
+          }
+        }
+      ],
+      "destinationEcho": "journal-de-campagne",
+      "asset": {
+        "id": "trame.pompe-neuve.les-filtres-du-rail",
+        "fichier": "/api/commercial/assets/trame-pompe-filtres.webp",
+        "octetsTransferes": 111958,
+        "contientTexte": false,
+        "alternatives": {
+          "fr": "Des filtres cylindriques sont répartis entre un wagon officiel et des chariots bâchés des Puits Libres.",
+          "en": "Cylindrical filters are split between an official railcar and tarped Free Wells carts."
+        },
+        "provenance": {
+          "fiche": "docs/assets/trame-pompe-filtres.provenance.json",
+          "creeLe": "2026-07-23",
+          "outil": "Codex built-in image_gen",
+          "modele": "built-in model (identifier not exposed)",
+          "usage": "stylized-concept",
+          "entree": "No input image; generated from the project’s established industrial ash-world art direction.",
+          "prompt": "At a soot-dark New Pump depot, cylindrical filters are divided between an official Rail wagon and tarped Free Wells hand carts; painterly 16:9 industrial concept art, no text or logos.",
+          "droits": "OpenAI Terms of Use — output assigned to the user",
+          "empreinteSha256": "cefb31052cbd41c234e2b1769dd651011f4f3f561d07f944d2476b0349ebdf3c",
+          "statutApprobation": "pending-pull-request-review",
+          "reviseur": null
+        }
+      },
+      "textes": {
+        "fr": {
+          "origine": {
+            "cle": "evenement.traverse.filtres.origine",
+            "modele": "Dépôt de Pompe-Neuve",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.traverse.filtres.titre",
+            "modele": "Les filtres du rail",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.traverse.filtres.presentation",
+            "modele": "Traverse-Libre possède l’Eau mais ses filtres et ses remèdes arrivent par des wagons républicains. Un lot bloqué à Pompe-Neuve peut partir sous bâche ou sous manifeste.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.traverse.filtres.information",
+              "modele": "Une livraison discrète n’altère la relation publique que si elle rompt un Engagement existant ; un manifeste rend l’aide immédiatement connue.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "engagement": {
+              "cle": "evenement.traverse.filtres.variante.engagement",
+              "modele": "Le contrôle déjà consigné oblige le convoi à signaler ses mouvements ; cacher la livraison romprait cet Engagement.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.traverse.filtres.variante.standard",
+              "modele": "Sans Engagement antérieur, les bâches peuvent encore passer pour un échange local.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "livrer-discretement": {
+              "intention": {
+                "cle": "evenement.traverse.filtres.choix.discret",
+                "modele": "Transférer les filtres sous les bâches des Puits Libres",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.traverse.filtres.choix.discret.cout",
+                  "modele": "Coût connu : 4 Matériaux pour reconditionner le lot ; toute clause républicaine existante serait rompue.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "inscrire-livraison": {
+              "intention": {
+                "cle": "evenement.traverse.filtres.choix.public",
+                "modele": "Inscrire la livraison au manifeste du Rail",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.traverse.filtres.choix.public.cout",
+                  "modele": "Coût connu : aucun stock immédiat, mais l’aide à Traverse-Libre devient publique.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        },
+        "en": {
+          "origine": {
+            "cle": "evenement.traverse.filtres.origine",
+            "modele": "New Pump depot",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.traverse.filtres.titre",
+            "modele": "The railway filters",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.traverse.filtres.presentation",
+            "modele": "Free Crossing holds Water, but its filters and medicine arrive on republican cars. A lot blocked at New Pump can leave under tarps or under a manifest.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.traverse.filtres.information",
+              "modele": "A discreet delivery changes the public relationship only if it breaks an existing Commitment; a manifest makes the aid immediately known.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "engagement": {
+              "cle": "evenement.traverse.filtres.variante.engagement",
+              "modele": "The recorded inspection commits the convoy to report its movements; hiding the delivery would break that Commitment.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.traverse.filtres.variante.standard",
+              "modele": "Without a prior Commitment, the tarps can still pass as a local exchange.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "livrer-discretement": {
+              "intention": {
+                "cle": "evenement.traverse.filtres.choix.discret",
+                "modele": "Move the filters under Free Wells tarps",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.traverse.filtres.choix.discret.cout",
+                  "modele": "Known cost: 4 Materials to repackage the lot; any existing republican clause would be broken.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "inscrire-livraison": {
+              "intention": {
+                "cle": "evenement.traverse.filtres.choix.public",
+                "modele": "Enter the delivery in the Rail manifest",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.traverse.filtres.choix.public.cout",
+                  "modele": "Known cost: no immediate stock, but aid to Free Crossing becomes public.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "trame.traverse-libre.le-reservoir-sous-la-voie",
+      "famille": "mystere-des-phares",
+      "themes": [
+        "ligne-zero",
+        "reservoirs",
+        "contournement"
+      ],
+      "fonction": "reveler-le-contournement-hydraulique",
+      "fenetre": "pompe-neuve",
+      "conditions": {
+        "requises": [
+          {
+            "type": "lieu-present",
+            "lieu": "pompe-neuve"
+          },
+          {
+            "type": "un-des-faits-present",
+            "faits": [
+              "trame.pompe-neuve.filtres-livres-discretement",
+              "trame.pompe-neuve.livraison-inscrite"
+            ]
+          }
+        ],
+        "interdites": []
+      },
+      "periodeEligibilite": {
+        "debut": 1200,
+        "fin": 2147483647
+      },
+      "priorite": 130,
+      "epuisement": "unique",
+      "acteurs": [
+        "porte-lanterne",
+        "habitants-traverse-libre",
+        "reservoirs-traverse-libre"
+      ],
+      "sourcesInformations": [
+        "habitants-traverse-libre"
+      ],
+      "faitsLus": [
+        "bassins.deversoir.ligne-zero-relevee",
+        "trame.pompe-neuve.filtres-livres-discretement",
+        "trame.pompe-neuve.livraison-inscrite"
+      ],
+      "choix": [
+        {
+          "id": "lever-vanne-du-contournement",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "trame.traverse-libre.contournement-releve",
+              "cible": "contournement-traverse-libre"
+            }
+          ]
+        },
+        {
+          "id": "preserver-vanne",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "trame.traverse-libre.vanne-preservee",
+              "cible": "reservoirs-traverse-libre"
+            }
+          ]
+        }
+      ],
+      "consequenceDifferee": {
+        "type": "contournement-revele",
+        "cible": "traverse-libre"
+      },
+      "recuperation": {
+        "type": "vanne-reversible"
+      },
+      "variantes": [
+        {
+          "id": "ligne-zero",
+          "condition": {
+            "type": "fait-present",
+            "fait": "bassins.deversoir.ligne-zero-relevee"
+          }
+        },
+        {
+          "id": "standard",
+          "condition": {
+            "type": "toujours"
+          }
+        }
+      ],
+      "destinationEcho": "journal-de-campagne",
+      "asset": {
+        "id": "trame.traverse-libre.le-reservoir-sous-la-voie",
+        "fichier": "/api/commercial/assets/trame-traverse-reservoir.webp",
+        "octetsTransferes": 139780,
+        "contientTexte": false,
+        "alternatives": {
+          "fr": "Une grande vanne ancienne sous un réservoir ouvre sur une galerie sèche marquée par la Ligne Zéro.",
+          "en": "A great ancient valve beneath a reservoir opens onto a dry gallery marked by the Zero Line."
+        },
+        "provenance": {
+          "fiche": "docs/assets/trame-traverse-reservoir.provenance.json",
+          "creeLe": "2026-07-23",
+          "outil": "Codex built-in image_gen",
+          "modele": "built-in model (identifier not exposed)",
+          "usage": "stylized-concept",
+          "entree": "No input image; generated from the project’s established industrial ash-world art direction.",
+          "prompt": "Residents inspect a monumental maintenance valve beneath three reservoirs as it reveals a dry bypass around collapsed rails; painterly 16:9 industrial concept art, no text or logos.",
+          "droits": "OpenAI Terms of Use — output assigned to the user",
+          "empreinteSha256": "81ab748cfb9b6d4d10197f41dc951a02696294b598f7825c0b16ec3f947c26f8",
+          "statutApprobation": "pending-pull-request-review",
+          "reviseur": null
+        }
+      },
+      "textes": {
+        "fr": {
+          "origine": {
+            "cle": "evenement.traverse.reservoir.origine",
+            "modele": "Plans des galeries à Pompe-Neuve",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.traverse.reservoir.titre",
+            "modele": "Le réservoir sous la voie",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.traverse.reservoir.presentation",
+            "modele": "Sous un ancien réservoir, une vanne porte le même profil que la Ligne Zéro. Elle commandait un passage sec contournant autrefois les rails affaissés.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.traverse.reservoir.information",
+              "modele": "Lever la vanne consomme une réserve mais révèle le contournement ; la préserver garde davantage d’Eau sans effacer le relevé.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "ligne-zero": {
+              "cle": "evenement.traverse.reservoir.variante.ligne-zero",
+              "modele": "Le relevé du Déversoir confirme que cette vanne appartenait au réseau de maintenance de la Ligne Zéro.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.traverse.reservoir.variante.standard",
+              "modele": "Les habitants ne connaissent que la comptine ouvrière qui décrit son ouverture.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "lever-vanne-du-contournement": {
+              "intention": {
+                "cle": "evenement.traverse.reservoir.choix.lever",
+                "modele": "Lever la vanne et relever le passage sec",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.traverse.reservoir.choix.lever.cout",
+                  "modele": "Coût connu : une des trois réserves d’Eau de Traverse-Libre est mobilisée.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "preserver-vanne": {
+              "intention": {
+                "cle": "evenement.traverse.reservoir.choix.preserve",
+                "modele": "Préserver la vanne et ses joints anciens",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.traverse.reservoir.choix.preserve.cout",
+                  "modele": "Coût connu : le contournement reste fermé jusqu’à une urgence.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        },
+        "en": {
+          "origine": {
+            "cle": "evenement.traverse.reservoir.origine",
+            "modele": "Gallery plans at New Pump",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.traverse.reservoir.titre",
+            "modele": "The reservoir beneath the track",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.traverse.reservoir.presentation",
+            "modele": "Beneath an old reservoir, a valve bears the same profile as the Zero Line. It once controlled a dry passage around the collapsed rails.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.traverse.reservoir.information",
+              "modele": "Raising the valve consumes one reserve but reveals the bypass; preserving it keeps more Water without erasing the survey.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "ligne-zero": {
+              "cle": "evenement.traverse.reservoir.variante.ligne-zero",
+              "modele": "The Spillway survey confirms that this valve belonged to the Zero Line maintenance network.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.traverse.reservoir.variante.standard",
+              "modele": "The inhabitants know only the workers’ rhyme that describes its opening.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "lever-vanne-du-contournement": {
+              "intention": {
+                "cle": "evenement.traverse.reservoir.choix.lever",
+                "modele": "Raise the valve and survey the dry passage",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.traverse.reservoir.choix.lever.cout",
+                  "modele": "Known cost: one of Free Crossing’s three Water reserves is mobilized.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "preserver-vanne": {
+              "intention": {
+                "cle": "evenement.traverse.reservoir.choix.preserve",
+                "modele": "Preserve the valve and its ancient seals",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.traverse.reservoir.choix.preserve.cout",
+                  "modele": "Known cost: the bypass remains closed until an emergency.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "trame.traverse-libre.la-galerie-qui-cede",
+      "famille": "consequences-systemiques",
+      "themes": [
+        "route-degradee",
+        "dependances",
+        "recuperation"
+      ],
+      "fonction": "garantir-une-issue-couteuse",
+      "fenetre": "pompe-neuve",
+      "conditions": {
+        "requises": [
+          {
+            "type": "lieu-present",
+            "lieu": "pompe-neuve"
+          },
+          {
+            "type": "un-des-faits-present",
+            "faits": [
+              "trame.traverse-libre.contournement-releve",
+              "trame.traverse-libre.vanne-preservee"
+            ]
+          }
+        ],
+        "interdites": []
+      },
+      "periodeEligibilite": {
+        "debut": 1200,
+        "fin": 2147483647
+      },
+      "priorite": 120,
+      "epuisement": "unique",
+      "acteurs": [
+        "porte-lanterne",
+        "habitants-traverse-libre",
+        "puits-libres"
+      ],
+      "sourcesInformations": [
+        "eclaireurs-puits-libres"
+      ],
+      "faitsLus": [
+        "trame.traverse-libre.contournement-releve",
+        "trame.traverse-libre.vanne-preservee"
+      ],
+      "choix": [
+        {
+          "id": "etayer-galerie",
+          "effets": [
+            {
+              "type": "stock.modifier",
+              "stock": "materiaux",
+              "valeur": -10
+            }
+          ],
+          "faitsProduits": [
+            {
+              "id": "trame.traverse-libre.galerie-etayee",
+              "cible": "galerie-des-reservoirs"
+            }
+          ]
+        },
+        {
+          "id": "ouvrir-contournement",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "trame.traverse-libre.contournement-ouvert",
+              "cible": "contournement-traverse-libre"
+            }
+          ]
+        }
+      ],
+      "consequenceDifferee": {
+        "type": "route-reparee-ou-contournee",
+        "cible": "traverse-libre"
+      },
+      "recuperation": {
+        "type": "dette-de-filtres-sans-stock"
+      },
+      "variantes": [
+        {
+          "id": "vanne",
+          "condition": {
+            "type": "fait-present",
+            "fait": "trame.traverse-libre.contournement-releve"
+          }
+        },
+        {
+          "id": "standard",
+          "condition": {
+            "type": "toujours"
+          }
+        }
+      ],
+      "destinationEcho": "journal-de-campagne",
+      "asset": {
+        "id": "trame.traverse-libre.la-galerie-qui-cede",
+        "fichier": "/api/commercial/assets/trame-traverse-galerie.webp",
+        "octetsTransferes": 175142,
+        "contientTexte": false,
+        "alternatives": {
+          "fr": "Une galerie ferroviaire s’affaisse devant des équipes qui choisissent entre poser des étais et ouvrir un tunnel de contournement.",
+          "en": "A railway gallery collapses before crews choosing between braces and opening a bypass tunnel."
+        },
+        "provenance": {
+          "fiche": "docs/assets/trame-traverse-galerie.provenance.json",
+          "creeLe": "2026-07-23",
+          "outil": "Codex built-in image_gen",
+          "modele": "built-in model (identifier not exposed)",
+          "usage": "stylized-concept",
+          "entree": "No input image; generated from the project’s established industrial ash-world art direction.",
+          "prompt": "A railway gallery begins to collapse while one crew prepares braces and another opens a dry piped bypass, showing two costly recovery options; painterly 16:9 industrial concept art, no text or logos.",
+          "droits": "OpenAI Terms of Use — output assigned to the user",
+          "empreinteSha256": "388d4b27f7f16903ee66ba96bbf7a2c914a6124c5ad6c37578407e4ce8c7237d",
+          "statutApprobation": "pending-pull-request-review",
+          "reviseur": null
+        }
+      },
+      "textes": {
+        "fr": {
+          "origine": {
+            "cle": "evenement.traverse.galerie.origine",
+            "modele": "Poste de surveillance de Pompe-Neuve",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.traverse.galerie.titre",
+            "modele": "La galerie qui cède",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.traverse.galerie.presentation",
+            "modele": "L’affaissement annoncé a gagné le dernier rail. Traverse-Libre peut étayer la galerie ou ouvrir son contournement, mais aucune issue n’est gratuite.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.traverse.galerie.information",
+              "modele": "L’étaiement restaure une liaison précaire ; le contournement évite le rail au prix d’une dette de filtres envers les Puits Libres.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "vanne": {
+              "cle": "evenement.traverse.galerie.variante.vanne",
+              "modele": "La vanne déjà relevée permet d’ouvrir le passage avant que le plafond ne ferme la galerie.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.traverse.galerie.variante.standard",
+              "modele": "Il faut briser les scellés préservés pour que le passage serve d’issue.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "etayer-galerie": {
+              "intention": {
+                "cle": "evenement.traverse.galerie.choix.etayer",
+                "modele": "Étayer la Galerie des Réservoirs",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.traverse.galerie.choix.etayer.cout",
+                  "modele": "Coût connu : 10 Matériaux ; la voie secondaire redevient praticable et sa cause reste consignée.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "ouvrir-contournement": {
+              "intention": {
+                "cle": "evenement.traverse.galerie.choix.contourner",
+                "modele": "Ouvrir le contournement des réservoirs",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.traverse.galerie.choix.contourner.cout",
+                  "modele": "Coût connu : aucun stock immédiat ; deux futurs lots de filtres seront dus aux Puits Libres.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        },
+        "en": {
+          "origine": {
+            "cle": "evenement.traverse.galerie.origine",
+            "modele": "New Pump monitoring post",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.traverse.galerie.titre",
+            "modele": "The yielding gallery",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.traverse.galerie.presentation",
+            "modele": "The reported collapse has reached the last rail. Free Crossing can shore up the gallery or open its bypass, but neither outcome is free.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.traverse.galerie.information",
+              "modele": "Shoring restores a precarious link; the bypass avoids the rail at the cost of a filter debt to the Free Wells.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "vanne": {
+              "cle": "evenement.traverse.galerie.variante.vanne",
+              "modele": "The surveyed valve makes it possible to open the passage before the roof closes the gallery.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.traverse.galerie.variante.standard",
+              "modele": "The preserved seals must be broken for the passage to serve as an exit.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "etayer-galerie": {
+              "intention": {
+                "cle": "evenement.traverse.galerie.choix.etayer",
+                "modele": "Shore up Reservoir Gallery",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.traverse.galerie.choix.etayer.cout",
+                  "modele": "Known cost: 10 Materials; the secondary route becomes passable again and its cause remains recorded.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "ouvrir-contournement": {
+              "intention": {
+                "cle": "evenement.traverse.galerie.choix.contourner",
+                "modele": "Open the reservoir bypass",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.traverse.galerie.choix.contourner.cout",
+                  "modele": "Known cost: no immediate stock; two future filter lots will be owed to the Free Wells.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "trame.traverse-libre.maelys-et-le-manifeste",
+      "famille": "histoires-de-compagnons",
+      "themes": [
+        "maelys-rive",
+        "registre",
+        "connaissance"
+      ],
+      "fonction": "choisir-la-trace-politique-de-l-aide",
+      "fenetre": "traverse-libre",
+      "conditions": {
+        "requises": [
+          {
+            "type": "lieu-present",
+            "lieu": "traverse-libre"
+          },
+          {
+            "type": "un-des-faits-present",
+            "faits": [
+              "trame.traverse-libre.galerie-etayee",
+              "trame.traverse-libre.contournement-ouvert"
+            ]
+          }
+        ],
+        "interdites": []
+      },
+      "periodeEligibilite": {
+        "debut": 1200,
+        "fin": 2147483647
+      },
+      "priorite": 110,
+      "epuisement": "unique",
+      "acteurs": [
+        "porte-lanterne",
+        "maelys-rive",
+        "delegues-puits-libres"
+      ],
+      "sourcesInformations": [
+        "maelys-rive"
+      ],
+      "faitsLus": [
+        "veille-basse.maelys-mission-confiee",
+        "trame.traverse-libre.galerie-etayee",
+        "trame.traverse-libre.contournement-ouvert"
+      ],
+      "choix": [
+        {
+          "id": "publier-manifeste",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "trame.traverse-libre.manifeste-public",
+              "cible": "republique-du-rail"
+            }
+          ]
+        },
+        {
+          "id": "sceller-registre",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "trame.traverse-libre.registre-scelle",
+              "cible": "delegues-puits-libres"
+            }
+          ]
+        }
+      ],
+      "consequenceDifferee": {
+        "type": "aide-attribuable-ou-discrete",
+        "cible": "traverse-libre"
+      },
+      "recuperation": {
+        "type": "registre-conserve"
+      },
+      "variantes": [
+        {
+          "id": "maelys",
+          "condition": {
+            "type": "fait-present",
+            "fait": "veille-basse.maelys-mission-confiee"
+          }
+        },
+        {
+          "id": "standard",
+          "condition": {
+            "type": "toujours"
+          }
+        }
+      ],
+      "destinationEcho": "journal-de-campagne",
+      "asset": {
+        "id": "trame.traverse-libre.maelys-et-le-manifeste",
+        "fichier": "/api/commercial/assets/trame-traverse-maelys.webp",
+        "octetsTransferes": 115390,
+        "contientTexte": false,
+        "alternatives": {
+          "fr": "Maëlys compare un manifeste public et un registre scellé devant les délégués des Puits Libres.",
+          "en": "Maëlys compares a public manifest and a sealed register before the Free Wells delegates."
+        },
+        "provenance": {
+          "fiche": "docs/assets/trame-traverse-maelys.provenance.json",
+          "creeLe": "2026-07-23",
+          "outil": "Codex built-in image_gen",
+          "modele": "built-in model (identifier not exposed)",
+          "usage": "stylized-concept",
+          "entree": "No input image; generated from the project’s established industrial ash-world art direction.",
+          "prompt": "Maëlys compares an open public cargo manifest with a sealed register placed in her instrument case before Free Wells delegates; painterly 16:9 industrial concept art, no legible text or logos.",
+          "droits": "OpenAI Terms of Use — output assigned to the user",
+          "empreinteSha256": "9e3d5d12689026ca351135980f0ab7ff4f0f9d3d66a142a6b2b1dd8d05d7dbcb",
+          "statutApprobation": "pending-pull-request-review",
+          "reviseur": null
+        }
+      },
+      "textes": {
+        "fr": {
+          "origine": {
+            "cle": "evenement.traverse.maelys.origine",
+            "modele": "Salle des registres de Traverse-Libre",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.traverse.maelys.titre",
+            "modele": "Maëlys et le manifeste",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.traverse.maelys.presentation",
+            "modele": "Maëlys peut publier chaque caisse et chaque détour, ou sceller le registre dans son coffret. Le premier choix protège les habitants par la preuve ; le second protège l’embranchement par la discrétion.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.traverse.maelys.information",
+              "modele": "Un registre public rend l’aide attribuable. Un registre scellé ne touche la République que s’il dissimule la rupture d’un Engagement existant.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "maelys": {
+              "cle": "evenement.traverse.maelys.variante.maelys",
+              "modele": "Le coffret confié depuis Veille-Basse permet à Maëlys de signer chaque relevé sans dépendre d’un bureau du Rail.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.traverse.maelys.variante.standard",
+              "modele": "Maëlys reconstitue le registre à partir des marques de caisse et des témoins de la galerie.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "publier-manifeste": {
+              "intention": {
+                "cle": "evenement.traverse.maelys.choix.public",
+                "modele": "Publier le manifeste de Traverse-Libre",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.traverse.maelys.choix.public.cout",
+                  "modele": "Coût connu : l’aide devient opposable et immédiatement connue de la République.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "sceller-registre": {
+              "intention": {
+                "cle": "evenement.traverse.maelys.choix.sceller",
+                "modele": "Sceller le registre dans le coffret de Maëlys",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.traverse.maelys.choix.sceller.cout",
+                  "modele": "Coût connu : les Puits Libres gardent la preuve ; tout Engagement rompu pourra être attribué plus tard.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        },
+        "en": {
+          "origine": {
+            "cle": "evenement.traverse.maelys.origine",
+            "modele": "Free Crossing records room",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.traverse.maelys.titre",
+            "modele": "Maëlys and the manifest",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.traverse.maelys.presentation",
+            "modele": "Maëlys can publish every crate and detour, or seal the register in her case. The first choice protects inhabitants through proof; the second protects the branch through discretion.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.traverse.maelys.information",
+              "modele": "A public register makes the aid attributable. A sealed register affects the Republic only if it conceals a broken Commitment.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "maelys": {
+              "cle": "evenement.traverse.maelys.variante.maelys",
+              "modele": "The case entrusted since Low Watch lets Maëlys sign every survey without depending on a Rail office.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.traverse.maelys.variante.standard",
+              "modele": "Maëlys reconstructs the register from crate marks and gallery witnesses.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "publier-manifeste": {
+              "intention": {
+                "cle": "evenement.traverse.maelys.choix.public",
+                "modele": "Publish the Free Crossing manifest",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.traverse.maelys.choix.public.cout",
+                  "modele": "Known cost: the aid becomes enforceable and immediately known to the Republic.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "sceller-registre": {
+              "intention": {
+                "cle": "evenement.traverse.maelys.choix.sceller",
+                "modele": "Seal the register in Maëlys’s case",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.traverse.maelys.choix.sceller.cout",
+                  "modele": "Known cost: the Free Wells keep the proof; any broken Commitment may be attributed later.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        }
+      }
     }
   ],
   "conseils": [
@@ -6951,7 +8352,17 @@ export default {
           "trame.grand-aiguillage.refroidissement-securise": "Refroidissement des ateliers sécurisé",
           "trame.grand-aiguillage.refroidissement-rationne": "Refroidissement des ateliers rationné",
           "trame.grand-aiguillage.attelage-federe-annonce": "Attelage fédéré annoncé",
-          "trame.grand-aiguillage.train-outil-reserve": "Train-outil réservé"
+          "trame.grand-aiguillage.train-outil-reserve": "Train-outil réservé",
+          "trame.pompe-neuve.balises-libres-suivies": "Balises autonomes de Pompe-Neuve suivies",
+          "trame.pompe-neuve.aiguillage-signale": "Aiguillage de Pompe-Neuve signalé à la République",
+          "trame.pompe-neuve.filtres-livres-discretement": "Filtres livrés discrètement à Traverse-Libre",
+          "trame.pompe-neuve.livraison-inscrite": "Livraison à Traverse-Libre inscrite au manifeste",
+          "trame.traverse-libre.contournement-releve": "Contournement hydraulique relevé",
+          "trame.traverse-libre.vanne-preservee": "Vanne ancienne préservée",
+          "trame.traverse-libre.galerie-etayee": "Galerie des Réservoirs étayée",
+          "trame.traverse-libre.contournement-ouvert": "Contournement de Traverse-Libre ouvert",
+          "trame.traverse-libre.manifeste-public": "Aide à Traverse-Libre rendue publique",
+          "trame.traverse-libre.registre-scelle": "Registre d’aide scellé"
         },
         "causes": {
           "bassins.haut-puits.pacte-des-citernes": "Le pacte des citernes",
@@ -6974,7 +8385,12 @@ export default {
           "trame.barriere-neuve.la-taxe-des-lanternes": "Décision prise devant le registre des taxes et réquisitions.",
           "trame.grand-aiguillage.la-piece-sans-serie": "Décision prise devant la pièce de régulation sans numéro de série.",
           "trame.grand-aiguillage.l-eau-des-machines": "Décision prise devant les circuits de refroidissement des ateliers.",
-          "trame.grand-aiguillage.ilyana-et-l-attelage": "Décision prise avec Ilyana au quai des attelages."
+          "trame.grand-aiguillage.ilyana-et-l-attelage": "Décision prise avec Ilyana au quai des attelages.",
+          "trame.pompe-neuve.l-embranchement-sans-garde": "Décision prise devant les aiguilles sans garde de Pompe-Neuve.",
+          "trame.pompe-neuve.les-filtres-du-rail": "Décision prise au dépôt de filtres de Pompe-Neuve.",
+          "trame.traverse-libre.le-reservoir-sous-la-voie": "Décision prise sous la voie des réservoirs.",
+          "trame.traverse-libre.la-galerie-qui-cede": "Décision prise face à l’affaissement de la Galerie.",
+          "trame.traverse-libre.maelys-et-le-manifeste": "Décision prise avec Maëlys devant le registre de Traverse-Libre."
         },
         "acteurs": {
           "ilyana-voss": "Ilyana Voss",
@@ -6995,7 +8411,11 @@ export default {
           "aiguilleurs": "Aiguilleurs de Grand-Aiguillage",
           "ateliers-grand-aiguillage": "Ateliers de Grand-Aiguillage",
           "habitants-grand-aiguillage": "Habitants de Grand-Aiguillage",
-          "attelages-puits-libres": "Attelages des Puits Libres"
+          "attelages-puits-libres": "Attelages des Puits Libres",
+          "mecaniciens-pompe-neuve": "Mécaniciens de Pompe-Neuve",
+          "habitants-traverse-libre": "Habitants de Traverse-Libre",
+          "reservoirs-traverse-libre": "Réservoirs de Traverse-Libre",
+          "delegues-puits-libres": "Délégués des Puits Libres"
         },
         "cibles": {
           "equipes-entretien": "Équipes d’entretien",
@@ -7017,7 +8437,13 @@ export default {
           "republique-du-rail": "République du Rail",
           "piece-de-regulation": "Pièce de régulation",
           "grand-aiguillage": "Grand-Aiguillage",
-          "train-outil-ligne-zero": "Train-outil de la Ligne Zéro"
+          "train-outil-ligne-zero": "Train-outil de la Ligne Zéro",
+          "reservoirs-traverse-libre": "Réservoirs de Traverse-Libre",
+          "delegues-puits-libres": "Délégués des Puits Libres",
+          "pompe-neuve": "Pompe-Neuve",
+          "traverse-libre": "Traverse-Libre",
+          "contournement-traverse-libre": "Contournement de Traverse-Libre",
+          "galerie-des-reservoirs": "Galerie des Réservoirs"
         }
       }
     },
@@ -7068,7 +8494,17 @@ export default {
           "trame.grand-aiguillage.refroidissement-securise": "Workshop cooling secured",
           "trame.grand-aiguillage.refroidissement-rationne": "Workshop cooling rationed",
           "trame.grand-aiguillage.attelage-federe-annonce": "Federated Hauler announced",
-          "trame.grand-aiguillage.train-outil-reserve": "Tool Train reserved"
+          "trame.grand-aiguillage.train-outil-reserve": "Tool Train reserved",
+          "trame.pompe-neuve.balises-libres-suivies": "New Pump autonomous markers followed",
+          "trame.pompe-neuve.aiguillage-signale": "New Pump switch reported to the Republic",
+          "trame.pompe-neuve.filtres-livres-discretement": "Filters discreetly delivered to Free Crossing",
+          "trame.pompe-neuve.livraison-inscrite": "Free Crossing delivery entered in the manifest",
+          "trame.traverse-libre.contournement-releve": "Hydraulic bypass surveyed",
+          "trame.traverse-libre.vanne-preservee": "Ancient valve preserved",
+          "trame.traverse-libre.galerie-etayee": "Reservoir Gallery shored up",
+          "trame.traverse-libre.contournement-ouvert": "Free Crossing bypass opened",
+          "trame.traverse-libre.manifeste-public": "Aid to Free Crossing made public",
+          "trame.traverse-libre.registre-scelle": "Aid register sealed"
         },
         "causes": {
           "bassins.haut-puits.pacte-des-citernes": "The cistern pact",
@@ -7091,7 +8527,12 @@ export default {
           "trame.barriere-neuve.la-taxe-des-lanternes": "Decision made before the tax and requisition register.",
           "trame.grand-aiguillage.la-piece-sans-serie": "Decision made before the unnumbered regulation part.",
           "trame.grand-aiguillage.l-eau-des-machines": "Decision made before the workshops’ cooling circuits.",
-          "trame.grand-aiguillage.ilyana-et-l-attelage": "Decision made with Ilyana at the haulers’ platform."
+          "trame.grand-aiguillage.ilyana-et-l-attelage": "Decision made with Ilyana at the haulers’ platform.",
+          "trame.pompe-neuve.l-embranchement-sans-garde": "Decision made at New Pump’s unattended switches.",
+          "trame.pompe-neuve.les-filtres-du-rail": "Decision made at the New Pump filter depot.",
+          "trame.traverse-libre.le-reservoir-sous-la-voie": "Decision made beneath the reservoir track.",
+          "trame.traverse-libre.la-galerie-qui-cede": "Decision made at the Reservoir Gallery collapse.",
+          "trame.traverse-libre.maelys-et-le-manifeste": "Decision made with Maëlys before the Free Crossing register."
         },
         "acteurs": {
           "ilyana-voss": "Ilyana Voss",
@@ -7112,7 +8553,11 @@ export default {
           "aiguilleurs": "Grand Junction Switch Crews",
           "ateliers-grand-aiguillage": "Grand Junction Workshops",
           "habitants-grand-aiguillage": "Grand Junction Residents",
-          "attelages-puits-libres": "Free Wells Haulers"
+          "attelages-puits-libres": "Free Wells Haulers",
+          "mecaniciens-pompe-neuve": "New Pump Mechanics",
+          "habitants-traverse-libre": "Free Crossing Inhabitants",
+          "reservoirs-traverse-libre": "Free Crossing Reservoirs",
+          "delegues-puits-libres": "Free Wells Delegates"
         },
         "cibles": {
           "equipes-entretien": "Maintenance crews",
@@ -7134,7 +8579,13 @@ export default {
           "republique-du-rail": "Rail Republic",
           "piece-de-regulation": "Regulation Part",
           "grand-aiguillage": "Grand Junction",
-          "train-outil-ligne-zero": "Zero Line Tool Train"
+          "train-outil-ligne-zero": "Zero Line Tool Train",
+          "reservoirs-traverse-libre": "Free Crossing Reservoirs",
+          "delegues-puits-libres": "Free Wells Delegates",
+          "pompe-neuve": "New Pump",
+          "traverse-libre": "Free Crossing",
+          "contournement-traverse-libre": "Free Crossing Bypass",
+          "galerie-des-reservoirs": "Reservoir Gallery"
         }
       }
     }

@@ -115,6 +115,11 @@ import {
   creerEtatInitialDeLaTrameDeFer,
   type EtatDeLaTrameDeFer,
 } from "./trameFer";
+import {
+  appliquerDecisionDeTraverseLibre,
+  creerEtatInitialDeTraverseLibre,
+  type EtatDeTraverseLibre,
+} from "./traverseLibre";
 
 export type { GraineDeCampagne } from "./graine";
 export const IDENTIFIANTS_PLATEFORMES_MOBILES =
@@ -161,6 +166,7 @@ export interface EtatCampagne {
   readonly veilleBasse: EtatDeVeilleBasse;
   readonly hautPuits: EtatDeHautPuits;
   readonly trameDeFer: EtatDeLaTrameDeFer;
+  readonly traverseLibre: EtatDeTraverseLibre;
   readonly devenirsDesSites: DevenirsDesSitesDesBassins | null;
   readonly echeances: readonly EcheanceDeCampagne[];
   readonly fluxPseudoAleatoires: Readonly<{
@@ -268,6 +274,7 @@ export function creerCampagneInitiale(graine: GraineDeCampagne): EtatCampagne {
     veilleBasse: creerEtatInitialDeVeilleBasse(),
     hautPuits: creerEtatDeHautPuitsInitial(),
     trameDeFer: creerEtatInitialDeLaTrameDeFer(),
+    traverseLibre: creerEtatInitialDeTraverseLibre(),
     devenirsDesSites: null,
     echeances: [],
     fluxPseudoAleatoires: {
@@ -400,6 +407,18 @@ function declencherSuiteNarrativeDeLaDemonstration(
     trouverEngagementDeRouteActif(etat.routes) === undefined
   ) {
     return declencherEvenement(etat, "grand-aiguillage");
+  }
+  if (
+    etat.routes.position === "pompe-neuve" &&
+    trouverEngagementDeRouteActif(etat.routes) === undefined
+  ) {
+    return declencherEvenement(etat, "pompe-neuve");
+  }
+  if (
+    etat.routes.position === "traverse-libre" &&
+    trouverEngagementDeRouteActif(etat.routes) === undefined
+  ) {
+    return declencherEvenement(etat, "traverse-libre");
   }
   return etat.routes.position === "haut-puits" &&
     trouverEngagementDeRouteActif(etat.routes) === undefined
@@ -762,10 +781,27 @@ function choisirDansEvenement(
         choix.id,
         etat.tempsDuConvoi.secondes,
       ),
+      traverseLibre: appliquerDecisionDeTraverseLibre(
+        etatApresDecisionDeVeilleBasse.traverseLibre,
+        evenement.id,
+        choix.id,
+      ),
     },
     choix.effets,
   );
-  let etatApresDecision = etatApresEffets;
+  let etatApresDecision =
+    evenement.id === "trame.traverse-libre.la-galerie-qui-cede"
+      ? {
+          ...etatApresEffets,
+          routes: {
+            ...etatApresEffets.routes,
+            etatsReels: {
+              ...etatApresEffets.routes.etatsReels,
+              "galerie-des-reservoirs": "degrade" as const,
+            },
+          },
+        }
+      : etatApresEffets;
   const scellerTransformation =
     evenement.id === "bassins.deversoir.le-chassis-des-bassins" &&
     choix.id === "sceller-transformation" &&

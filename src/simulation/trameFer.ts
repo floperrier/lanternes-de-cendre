@@ -8,6 +8,7 @@ export type IdentifiantDEngagementDeLaTrame =
   | "droit-local-de-passage"
   | "taxe-des-lanternes"
   | "priorite-aux-requisitions"
+  | "controle-de-pompe-neuve"
   | "service-lourd-du-train-outil";
 
 export interface EngagementDeLaTrame {
@@ -123,6 +124,44 @@ export function appliquerDecisionDeLaTrameDeFer(
   choixId: string,
   moment: number,
 ): EtatDeLaTrameDeFer {
+  if (evenementId === "trame.pompe-neuve.l-embranchement-sans-garde") {
+    return choixId === "faire-verifier-aiguillage"
+      ? ajouterEngagement(
+          { ...etat, relationRepublique: "transactionnelle" },
+          {
+            id: "controle-de-pompe-neuve",
+            prisA: moment,
+            avec: "republique-du-rail",
+            statut: "actif",
+          },
+        )
+      : etat;
+  }
+
+  if (evenementId === "trame.pompe-neuve.les-filtres-du-rail") {
+    const acteConnu = choixId === "inscrire-livraison";
+    const romptUnEngagement =
+      choixId === "livrer-discretement" &&
+      etat.engagements.some(
+        ({ avec }) => avec === "republique-du-rail",
+      );
+    return acteConnu || romptUnEngagement
+      ? { ...etat, relationRepublique: "fermee" }
+      : etat;
+  }
+
+  if (evenementId === "trame.traverse-libre.maelys-et-le-manifeste") {
+    const acteConnu = choixId === "publier-manifeste";
+    const romptUnEngagement =
+      choixId === "sceller-registre" &&
+      etat.engagements.some(
+        ({ avec }) => avec === "republique-du-rail",
+      );
+    return acteConnu || romptUnEngagement
+      ? { ...etat, relationRepublique: "fermee" }
+      : etat;
+  }
+
   if (evenementId === "trame.barriere-neuve.le-permis-des-essieux") {
     return ajouterEngagement(
       {
@@ -310,6 +349,30 @@ const DECISION_PAR_FAIT = {
   "trame.grand-aiguillage.train-outil-reserve": [
     "trame.grand-aiguillage.ilyana-et-l-attelage",
     "reserver-train-outil",
+  ],
+  "trame.pompe-neuve.balises-libres-suivies": [
+    "trame.pompe-neuve.l-embranchement-sans-garde",
+    "suivre-balises-libres",
+  ],
+  "trame.pompe-neuve.aiguillage-signale": [
+    "trame.pompe-neuve.l-embranchement-sans-garde",
+    "faire-verifier-aiguillage",
+  ],
+  "trame.pompe-neuve.filtres-livres-discretement": [
+    "trame.pompe-neuve.les-filtres-du-rail",
+    "livrer-discretement",
+  ],
+  "trame.pompe-neuve.livraison-inscrite": [
+    "trame.pompe-neuve.les-filtres-du-rail",
+    "inscrire-livraison",
+  ],
+  "trame.traverse-libre.manifeste-public": [
+    "trame.traverse-libre.maelys-et-le-manifeste",
+    "publier-manifeste",
+  ],
+  "trame.traverse-libre.registre-scelle": [
+    "trame.traverse-libre.maelys-et-le-manifeste",
+    "sceller-registre",
   ],
 } as const;
 

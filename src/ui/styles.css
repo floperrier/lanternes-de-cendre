@@ -2235,6 +2235,57 @@ button:hover:not(:disabled) {
   gap: 0.55rem;
 }
 
+.panneau-local {
+  position: relative;
+  margin: 0.55rem;
+  padding: 1rem;
+  overflow: hidden;
+  background:
+    linear-gradient(145deg, rgb(19 27 30 / 95%), rgb(7 12 14 / 97%)),
+    url("/assets/ui/metal-cendre.webp") center / 28rem;
+  border: 1px solid rgb(173 120 65 / 52%);
+  border-left: 0.25rem solid var(--cuivre-clair);
+  border-radius: 0.55rem;
+  box-shadow: 0 0.65rem 1.6rem rgb(0 0 0 / 24%);
+}
+
+.panneau-local h2 {
+  margin: 0.15rem 0 0.25rem;
+  color: var(--ambre-clair);
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-size: 1.7rem;
+  font-weight: 600;
+}
+
+.panneau-local > p:not(.eyebrow) {
+  margin: 0 0 0.75rem;
+  color: var(--texte-secondaire);
+}
+
+.panneau-local dl {
+  display: grid;
+  grid-template-columns: minmax(8rem, 0.45fr) minmax(0, 1fr);
+  margin: 0;
+}
+
+.panneau-local dt,
+.panneau-local dd {
+  margin: 0;
+  padding: 0.48rem 0;
+  border-top: 1px solid rgb(173 120 65 / 20%);
+}
+
+.panneau-local dt {
+  color: var(--cuivre-clair);
+  font-size: 0.74rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.panneau-local dd {
+  color: var(--texte);
+}
+
 .economie-du-convoi,
 .incident-du-convoi,
 .panneau-compagnon,
@@ -2713,6 +2764,19 @@ button:hover:not(:disabled) {
 
   .profil-compagnon {
     grid-template-columns: 1fr;
+  }
+
+  .panneau-local dl {
+    grid-template-columns: 1fr;
+  }
+
+  .panneau-local dt {
+    padding-bottom: 0.12rem;
+  }
+
+  .panneau-local dd {
+    padding-top: 0.12rem;
+    border-top: 0;
   }
 
   .atlas__reseau,

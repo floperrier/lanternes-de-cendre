@@ -30,6 +30,15 @@ acteurs:
   - attelages-puits-libres
   - barriere-neuve
   - grand-aiguillage
+  - mecaniciens-pompe-neuve
+  - habitants-traverse-libre
+  - reservoirs-traverse-libre
+  - eclaireurs-puits-libres
+  - delegues-puits-libres
+  - pompe-neuve
+  - traverse-libre
+  - contournement-traverse-libre
+  - galerie-des-reservoirs
 quartiers:
   - intendance
   - foyers
@@ -44,6 +53,8 @@ fenetres:
   - deversoir-noir
   - barriere-neuve
   - grand-aiguillage
+  - pompe-neuve
+  - traverse-libre
 lieux:
   - halte-du-puits-sec
   - haut-puits
@@ -54,6 +65,8 @@ lieux:
   - lisiere-trame-de-fer
   - barriere-neuve
   - grand-aiguillage
+  - pompe-neuve
+  - traverse-libre
 destinations_echo:
   - journal-de-campagne
 faits:
@@ -119,3 +132,13 @@ faits:
   - trame.grand-aiguillage.refroidissement-rationne
   - trame.grand-aiguillage.attelage-federe-annonce
   - trame.grand-aiguillage.train-outil-reserve
+  - trame.pompe-neuve.balises-libres-suivies
+  - trame.pompe-neuve.aiguillage-signale
+  - trame.pompe-neuve.filtres-livres-discretement
+  - trame.pompe-neuve.livraison-inscrite
+  - trame.traverse-libre.contournement-releve
+  - trame.traverse-libre.vanne-preservee
+  - trame.traverse-libre.galerie-etayee
+  - trame.traverse-libre.contournement-ouvert
+  - trame.traverse-libre.manifeste-public
+  - trame.traverse-libre.registre-scelle

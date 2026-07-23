@@ -1,0 +1,15 @@
+{
+  "asset": "serveur-commercial/assets/trame-pompe-filtres.webp",
+  "sha256": "cefb31052cbd41c234e2b1769dd651011f4f3f561d07f944d2476b0349ebdf3c",
+  "createdAt": "2026-07-23",
+  "tool": "Codex built-in image_gen",
+  "model": "built-in model (identifier not exposed)",
+  "useCase": "stylized-concept",
+  "input": "No input image; generated from the project’s established industrial ash-world art direction.",
+  "prompt": "At a soot-dark New Pump depot, cylindrical filters are divided between an official Rail wagon and tarped Free Wells hand carts; painterly 16:9 industrial concept art, no text or logos.",
+  "rights": "OpenAI Terms of Use — output assigned to the user",
+  "approval": {
+    "status": "pending-pull-request-review",
+    "reviewer": null
+  }
+}

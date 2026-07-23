@@ -49,6 +49,7 @@ const CHEMINS_D_EVENEMENTS_PREMIUM = [
   "content/evenements/nacelles.yaml",
   "content/evenements/deversoir.yaml",
   "content/evenements/trame-fer.yaml",
+  "content/evenements/traverse-libre.yaml",
 ] as const;
 const provenances = {
   "docs/assets/cite-caravane.provenance.json": lire(
@@ -125,6 +126,21 @@ const provenances = {
   ),
   "docs/assets/trame-attelage-federe.provenance.json": lire(
     "docs/assets/trame-attelage-federe.provenance.json",
+  ),
+  "docs/assets/trame-pompe-renseignement.provenance.json": lire(
+    "docs/assets/trame-pompe-renseignement.provenance.json",
+  ),
+  "docs/assets/trame-pompe-filtres.provenance.json": lire(
+    "docs/assets/trame-pompe-filtres.provenance.json",
+  ),
+  "docs/assets/trame-traverse-reservoir.provenance.json": lire(
+    "docs/assets/trame-traverse-reservoir.provenance.json",
+  ),
+  "docs/assets/trame-traverse-galerie.provenance.json": lire(
+    "docs/assets/trame-traverse-galerie.provenance.json",
+  ),
+  "docs/assets/trame-traverse-maelys.provenance.json": lire(
+    "docs/assets/trame-traverse-maelys.provenance.json",
   ),
 };
 
@@ -226,13 +242,20 @@ const causesPremium = new Set([
 ]);
 const acteursDeBase = acteurs(evenementsDeBase);
 const acteursPremium = acteurs(evenementsPremium);
-const acteursExclusifsPremium = new Set(
-  [...acteursPremium].filter((id) => !acteursDeBase.has(id)),
-);
 const ciblesDeBase = cibles(evenementsDeBase);
 const ciblesPremium = cibles(evenementsPremium);
-const ciblesExclusivesPremium = new Set(
-  [...ciblesPremium].filter((id) => !ciblesDeBase.has(id)),
+const identifiantsDeJournalDeBase = new Set([
+  ...acteursDeBase,
+  ...ciblesDeBase,
+]);
+const identifiantsDeJournalPremium = new Set([
+  ...acteursPremium,
+  ...ciblesPremium,
+]);
+const identifiantsDeJournalExclusifsPremium = new Set(
+  [...identifiantsDeJournalPremium].filter(
+    (id) => !identifiantsDeJournalDeBase.has(id),
+  ),
 );
 
 type JournalCompile =
@@ -251,11 +274,11 @@ function journalDeBase(langue: Langue): JournalCompile {
     ),
     acteurs: filtrerDictionnaire(
       journal.acteurs,
-      (id) => !acteursExclusifsPremium.has(id),
+      (id) => !identifiantsDeJournalExclusifsPremium.has(id),
     ),
     cibles: filtrerDictionnaire(
       journal.cibles,
-      (id) => !ciblesExclusivesPremium.has(id),
+      (id) => !identifiantsDeJournalExclusifsPremium.has(id),
     ),
   };
 }
@@ -342,6 +365,9 @@ function collecterModelesNarratifs(valeur: unknown): string[] {
 const chainesDuCatalogueDeBase = collecterChaines(catalogueDeBase, true);
 const fragmentsPublicsPartages = new Set([
   "Ash Pilgrims",
+  "Passable",
+  "Praticable",
+  "Publique",
   "Combustible",
   "Decision",
   "Destination",
@@ -358,6 +384,9 @@ const fragmentsPublicsPartages = new Set([
   "Pressions",
   "Remedies",
   "Veille-Basse",
+  "autonomes",
+  "autonomous",
+  "critique",
   "evacuated",
   "personnes",
 ]);

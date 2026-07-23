@@ -1,0 +1,15 @@
+{
+  "asset": "serveur-commercial/assets/trame-traverse-maelys.webp",
+  "sha256": "9e3d5d12689026ca351135980f0ab7ff4f0f9d3d66a142a6b2b1dd8d05d7dbcb",
+  "createdAt": "2026-07-23",
+  "tool": "Codex built-in image_gen",
+  "model": "built-in model (identifier not exposed)",
+  "useCase": "stylized-concept",
+  "input": "No input image; generated from the project’s established industrial ash-world art direction.",
+  "prompt": "Maëlys compares an open public cargo manifest with a sealed register placed in her instrument case before Free Wells delegates; painterly 16:9 industrial concept art, no legible text or logos.",
+  "rights": "OpenAI Terms of Use — output assigned to the user",
+  "approval": {
+    "status": "pending-pull-request-review",
+    "reviewer": null
+  }
+}

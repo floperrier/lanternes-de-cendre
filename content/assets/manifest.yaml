@@ -130,3 +130,28 @@ assets:
     alternative: evenement.trame.attelage.asset.alt
     contient_texte: false
     provenance: docs/assets/trame-attelage-federe.provenance.json
+  - id: trame.pompe-neuve.l-embranchement-sans-garde
+    fichier: /api/commercial/assets/trame-pompe-renseignement.webp
+    alternative: evenement.traverse.renseignement.asset.alt
+    contient_texte: false
+    provenance: docs/assets/trame-pompe-renseignement.provenance.json
+  - id: trame.pompe-neuve.les-filtres-du-rail
+    fichier: /api/commercial/assets/trame-pompe-filtres.webp
+    alternative: evenement.traverse.filtres.asset.alt
+    contient_texte: false
+    provenance: docs/assets/trame-pompe-filtres.provenance.json
+  - id: trame.traverse-libre.le-reservoir-sous-la-voie
+    fichier: /api/commercial/assets/trame-traverse-reservoir.webp
+    alternative: evenement.traverse.reservoir.asset.alt
+    contient_texte: false
+    provenance: docs/assets/trame-traverse-reservoir.provenance.json
+  - id: trame.traverse-libre.la-galerie-qui-cede
+    fichier: /api/commercial/assets/trame-traverse-galerie.webp
+    alternative: evenement.traverse.galerie.asset.alt
+    contient_texte: false
+    provenance: docs/assets/trame-traverse-galerie.provenance.json
+  - id: trame.traverse-libre.maelys-et-le-manifeste
+    fichier: /api/commercial/assets/trame-traverse-maelys.webp
+    alternative: evenement.traverse.maelys.asset.alt
+    contient_texte: false
+    provenance: docs/assets/trame-traverse-maelys.provenance.json

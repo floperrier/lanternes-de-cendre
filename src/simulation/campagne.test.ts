@@ -10,13 +10,14 @@ import { creerEtatDesExpeditionsInitial } from "./expeditions";
 import { creerEtatInitialDeVeilleBasse } from "./veilleBasse";
 import { creerEtatDeHautPuitsInitial } from "./hautPuits";
 import { creerEtatInitialDeLaTrameDeFer } from "./trameFer";
+import { creerEtatInitialDeTraverseLibre } from "./traverseLibre";
 
 describe("Graine de campagne", () => {
   it("crée le même état initial sérialisable pour CENDRE-01", () => {
     const etat = creerCampagneInitiale("CENDRE-01");
 
     expect(JSON.parse(JSON.stringify(etat))).toEqual({
-      version: 9,
+      version: 10,
       graine: "CENDRE-01",
       tempsDuConvoi: {
         secondes: 0,
@@ -150,6 +151,8 @@ describe("Graine de campagne", () => {
           "piste-des-levees": "degrade",
           "rampe-de-barriere-neuve": "praticable",
           "voie-des-ponts-lourds": "degrade",
+          "embranchement-de-pompe-neuve": "degrade",
+          "galerie-des-reservoirs": "degrade",
         },
         engagements: [],
         jalons: [],
@@ -159,6 +162,7 @@ describe("Graine de campagne", () => {
       veilleBasse: creerEtatInitialDeVeilleBasse(),
       hautPuits: creerEtatDeHautPuitsInitial(),
       trameDeFer: creerEtatInitialDeLaTrameDeFer(),
+      traverseLibre: creerEtatInitialDeTraverseLibre(),
       devenirsDesSites: null,
       fluxPseudoAleatoires: {
         "evenements-narratifs": {

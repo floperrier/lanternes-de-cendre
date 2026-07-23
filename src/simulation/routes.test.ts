@@ -296,6 +296,10 @@ describe("Engagement de route", () => {
         tronconId: "rampe-de-barriere-neuve",
         destination: "barriere-neuve",
       },
+      {
+        tronconId: "embranchement-de-pompe-neuve",
+        destination: "pompe-neuve",
+      },
     ]);
   });
 

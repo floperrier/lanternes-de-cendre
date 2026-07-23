@@ -6,64 +6,57 @@ import {
   empreinteEtat,
   type EtatCampagne,
 } from "../simulation/campagne";
-import { creerEtatInitialDeLaTrameDeFer } from "../simulation/trameFer";
 import { creerEtatInitialDeTraverseLibre } from "../simulation/traverseLibre";
 import {
-  VERSION_SIMULATION_AVANT_TRAME_DE_FER,
+  VERSION_SIMULATION_AVANT_TRAVERSE_LIBRE,
   VERSION_SIMULATION_COURANTE,
 } from "../simulation/versions";
 import { importerSauvegarde } from "./portable";
 import {
   FORMAT_SAUVEGARDE,
-  VERSION_SAUVEGARDE_AVANT_TRAME_DE_FER,
+  VERSION_SAUVEGARDE_AVANT_TRAVERSE_LIBRE,
   VERSION_SAUVEGARDE_COURANTE,
   VERSIONS_DU_SNAPSHOT_COURANT,
 } from "./version";
 
-function normaliserEnV8(etat: EtatCampagne) {
-  const { trameDeFer, traverseLibre, ...sansTrame } =
-    structuredClone(etat);
-  void trameDeFer;
+function normaliserEnV9(etat: EtatCampagne) {
+  const { traverseLibre, ...sansTraverse } = structuredClone(etat);
   void traverseLibre;
   const {
-    "rampe-de-barriere-neuve": rampeDeBarriereNeuve,
-    "voie-des-ponts-lourds": voieDesPontsLourds,
     "embranchement-de-pompe-neuve": embranchementDePompeNeuve,
     "galerie-des-reservoirs": galerieDesReservoirs,
     ...etatsReels
-  } = sansTrame.routes.etatsReels;
-  void rampeDeBarriereNeuve;
-  void voieDesPontsLourds;
+  } = sansTraverse.routes.etatsReels;
   void embranchementDePompeNeuve;
   void galerieDesReservoirs;
   return {
-    ...sansTrame,
-    version: VERSION_SIMULATION_AVANT_TRAME_DE_FER,
-    routes: { ...sansTrame.routes, etatsReels },
+    ...sansTraverse,
+    version: VERSION_SIMULATION_AVANT_TRAVERSE_LIBRE,
+    routes: { ...sansTraverse.routes, etatsReels },
   };
 }
 
-describe("migration v8 avant la Trame de Fer", () => {
-  it("valide le replay puis ajoute l’état initial et les deux routes v9", () => {
-    const snapshotCourant = creerCampagneInitiale("CENDRE-MIGRATION-V8");
+describe("migration v9 avant Traverse-Libre", () => {
+  it("valide le replay puis ajoute la Colonie et ses deux routes v10", () => {
+    const snapshotCourant = creerCampagneInitiale("CENDRE-MIGRATION-V9");
     const commande = {
       type: "temps-du-convoi.regler-vitesse",
       vitesse: 2,
     } as const;
     const etatCourant = appliquerCommande(snapshotCourant, commande).etat;
-    const snapshot = normaliserEnV8(snapshotCourant);
-    const etat = normaliserEnV8(etatCourant);
+    const snapshot = normaliserEnV9(snapshotCourant);
+    const etat = normaliserEnV9(etatCourant);
     const empreinteSnapshot = empreinteEtat(
       snapshot as unknown as EtatCampagne,
     );
     const empreinte = empreinteEtat(etat as unknown as EtatCampagne);
     const archive = {
       format: FORMAT_SAUVEGARDE,
-      id: "archive-v8",
-      version: VERSION_SAUVEGARDE_AVANT_TRAME_DE_FER,
+      id: "archive-v9",
+      version: VERSION_SAUVEGARDE_AVANT_TRAVERSE_LIBRE,
       versions: {
         ...VERSIONS_DU_SNAPSHOT_COURANT,
-        simulation: VERSION_SIMULATION_AVANT_TRAME_DE_FER,
+        simulation: VERSION_SIMULATION_AVANT_TRAVERSE_LIBRE,
       },
       graine: etat.graine,
       horloge: { secondes: etat.tempsDuConvoi.secondes },
@@ -86,12 +79,11 @@ describe("migration v8 avant la Trame de Fer", () => {
         etat: {
           version: VERSION_SIMULATION_COURANTE,
           tempsDuConvoi: { vitesse: 2 },
-          trameDeFer: creerEtatInitialDeLaTrameDeFer(),
           traverseLibre: creerEtatInitialDeTraverseLibre(),
           routes: {
             etatsReels: {
-              "rampe-de-barriere-neuve": "praticable",
-              "voie-des-ponts-lourds": "degrade",
+              "embranchement-de-pompe-neuve": "degrade",
+              "galerie-des-reservoirs": "degrade",
             },
           },
         },

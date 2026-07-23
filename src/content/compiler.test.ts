@@ -25,6 +25,11 @@ import provenanceTrameBarrierePermis from "../../docs/assets/trame-barriere-perm
 import provenanceTrameBarriereTaxe from "../../docs/assets/trame-barriere-taxe.provenance.json?raw";
 import provenanceTrameEauMachines from "../../docs/assets/trame-eau-machines.provenance.json?raw";
 import provenanceTramePieceRegulation from "../../docs/assets/trame-piece-regulation.provenance.json?raw";
+import provenanceTramePompeRenseignement from "../../docs/assets/trame-pompe-renseignement.provenance.json?raw";
+import provenanceTramePompeFiltres from "../../docs/assets/trame-pompe-filtres.provenance.json?raw";
+import provenanceTrameTraverseReservoir from "../../docs/assets/trame-traverse-reservoir.provenance.json?raw";
+import provenanceTrameTraverseGalerie from "../../docs/assets/trame-traverse-galerie.provenance.json?raw";
+import provenanceTrameTraverseMaelys from "../../docs/assets/trame-traverse-maelys.provenance.json?raw";
 import provenanceFiltres from "../../docs/assets/prologue-filtres-de-la-veille.provenance.json?raw";
 import provenanceIlyana from "../../docs/assets/prologue-ilyana-au-clapet.provenance.json?raw";
 import provenanceReponse from "../../docs/assets/prologue-reponse-du-phare.provenance.json?raw";
@@ -93,6 +98,16 @@ const sourcesValides: SourcesDuCatalogue = {
       provenanceTrameEauMachines,
     "docs/assets/trame-attelage-federe.provenance.json":
       provenanceTrameAttelageFedere,
+    "docs/assets/trame-pompe-renseignement.provenance.json":
+      provenanceTramePompeRenseignement,
+    "docs/assets/trame-pompe-filtres.provenance.json":
+      provenanceTramePompeFiltres,
+    "docs/assets/trame-traverse-reservoir.provenance.json":
+      provenanceTrameTraverseReservoir,
+    "docs/assets/trame-traverse-galerie.provenance.json":
+      provenanceTrameTraverseGalerie,
+    "docs/assets/trame-traverse-maelys.provenance.json":
+      provenanceTrameTraverseMaelys,
   },
   cheminDeProvenanceAsset: (chemin) =>
     chemin.startsWith("/api/commercial/assets/")
@@ -125,6 +140,11 @@ const sourcesValides: SourcesDuCatalogue = {
       "/api/commercial/assets/trame-piece-regulation.webp",
       "/api/commercial/assets/trame-eau-machines.webp",
       "/api/commercial/assets/trame-attelage-federe.webp",
+      "/api/commercial/assets/trame-pompe-renseignement.webp",
+      "/api/commercial/assets/trame-pompe-filtres.webp",
+      "/api/commercial/assets/trame-traverse-reservoir.webp",
+      "/api/commercial/assets/trame-traverse-galerie.webp",
+      "/api/commercial/assets/trame-traverse-maelys.webp",
     ].includes(chemin),
   empreinteAsset: (chemin) =>
     ({
@@ -178,6 +198,16 @@ const sourcesValides: SourcesDuCatalogue = {
         "5f9e8cac790b8aed4b537ab24dc60f8ed97cf4ce12bef69263c1663e97725085",
       "/api/commercial/assets/trame-attelage-federe.webp":
         "9ac372ba941e1645495dbf01d8c818e6d04b8ccf3af02af116c15a85a72b70cb",
+      "/api/commercial/assets/trame-pompe-renseignement.webp":
+        "a366d3b2b91475c334045a329aecab0e623aa70f40e9b004c95b864f44f82536",
+      "/api/commercial/assets/trame-pompe-filtres.webp":
+        "cefb31052cbd41c234e2b1769dd651011f4f3f561d07f944d2476b0349ebdf3c",
+      "/api/commercial/assets/trame-traverse-reservoir.webp":
+        "81ab748cfb9b6d4d10197f41dc951a02696294b598f7825c0b16ec3f947c26f8",
+      "/api/commercial/assets/trame-traverse-galerie.webp":
+        "388d4b27f7f16903ee66ba96bbf7a2c914a6124c5ad6c37578407e4ce8c7237d",
+      "/api/commercial/assets/trame-traverse-maelys.webp":
+        "9e3d5d12689026ca351135980f0ab7ff4f0f9d3d66a142a6b2b1dd8d05d7dbcb",
     })[chemin] ?? "0".repeat(64),
   tailleAsset: () => 256_000,
 };
