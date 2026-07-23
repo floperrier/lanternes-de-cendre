@@ -1,3 +1,6 @@
+import { randomUUID } from "node:crypto";
+import { readFile } from "node:fs/promises";
+
 import { expect, test, type Locator, type Page } from "@playwright/test";
 
 test.use({
@@ -227,7 +230,7 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
   const porteCommerciale = page.getByRole("region", {
     name: "La route continue",
   });
-  const email = "veilleuse-demonstration@example.test";
+  const email = `veilleuse-demonstration-${randomUUID()}@example.test`;
   await porteCommerciale.getByLabel("Adresse email").fill(email);
   await activerAuClavier(
     page,
@@ -269,6 +272,19 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
     }),
   ).toBeVisible();
   await expect(expedition).toContainText("Bilan de retour");
+  const exportApresAchat = page.waitForEvent("download");
+  await page
+    .getByRole("region", { name: "Sauvegarde de Campagne" })
+    .getByRole("button", { name: "Exporter" })
+    .click();
+  const archiveApresAchat = await exportApresAchat;
+  const cheminApresAchat = await archiveApresAchat.path();
+  expect(cheminApresAchat).not.toBeNull();
+  const contenuApresAchat = await readFile(cheminApresAchat!, "utf8");
+  expect(contenuApresAchat).not.toContain(email);
+  expect(contenuApresAchat).not.toMatch(
+    /identiteId|preuveLocale|acces-premium/i,
+  );
 
   const navigateurVierge = await page.context().browser()!.newContext();
   const autrePage = await navigateurVierge.newPage();

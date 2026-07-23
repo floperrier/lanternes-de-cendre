@@ -1,41 +1,28 @@
 import {
-  createHash,
   createHmac,
+  createPrivateKey,
   randomBytes,
+  sign,
   timingSafeEqual,
 } from "node:crypto";
 
-export type IntentionDuLien = "acheter" | "restaurer";
+import { EMPREINTE_CONTENU_PREMIUM_V1 } from "./contenuPremium";
+import {
+  creerDonneesCommercialesMemoire,
+  type CommandeCommerciale,
+  type PortDeDonneesCommerciales,
+} from "./stockage";
+
 export type TypeDeWebhookPaddle =
   | "transaction.completed"
   | "transaction.payment_failed";
 
-interface LienMagique {
-  readonly empreinte: string;
-  readonly email: string;
-  readonly intention: IntentionDuLien;
-  readonly expireA: number;
-}
-
-interface Identite {
-  readonly identiteId: string;
-  readonly email: string;
-}
-
-interface DroitPermanent {
-  readonly identiteId: string;
-  readonly permanent: true;
-  readonly transactionId: string;
-}
-
-interface Transaction {
-  readonly transactionId: string;
-  readonly identiteId: string;
-}
-
-interface Session {
-  readonly session: string;
-  readonly identiteId: string;
+export interface ConfigurationDuProduit {
+  readonly priceId: string;
+  readonly productId: string;
+  readonly quantite: 1;
+  readonly devise: "EUR";
+  readonly total: "1999";
 }
 
 interface ChargeUtilePaddle {
@@ -43,6 +30,26 @@ interface ChargeUtilePaddle {
   readonly event_type: TypeDeWebhookPaddle;
   readonly data: {
     readonly id: string;
+    readonly status: "completed" | "past_due";
+    readonly currency_code: string;
+    readonly items: readonly {
+      readonly price: {
+        readonly id: string;
+        readonly product_id: string;
+        readonly unit_price: {
+          readonly amount: string;
+          readonly currency_code: string;
+        };
+        readonly billing_cycle: null | unknown;
+      };
+      readonly quantity: number;
+    }[];
+    readonly details: {
+      readonly totals: {
+        readonly grand_total: string;
+        readonly currency_code: string;
+      };
+    };
     readonly custom_data?: {
       readonly identite_id?: string;
       readonly commande_id?: string;
@@ -52,24 +59,10 @@ interface ChargeUtilePaddle {
 
 export interface OptionsDuServiceCommercial {
   readonly secretWebhook: string;
-  readonly secretPreuveLocale: string;
+  readonly clePriveeDeRecu: string;
+  readonly produit: ConfigurationDuProduit;
+  readonly donnees?: PortDeDonneesCommerciales;
   readonly maintenant?: () => number;
-}
-
-export interface DemandeDeLien {
-  readonly email: string;
-  readonly intention: IntentionDuLien;
-}
-
-export interface ResultatDeLienDeTest {
-  readonly statut: "envoye";
-  readonly jetonDeTest: string;
-}
-
-export interface ResultatDIdentite {
-  readonly session: string;
-  readonly identiteId: string;
-  readonly intention: IntentionDuLien;
 }
 
 export interface ResultatDAcces {
@@ -79,42 +72,49 @@ export interface ResultatDAcces {
 }
 
 export interface DiagnosticCommercial {
-  readonly identites: readonly Identite[];
-  readonly droits: readonly DroitPermanent[];
+  readonly droits: readonly {
+    readonly identiteId: string;
+    readonly permanent: true;
+    readonly transactionId: string;
+  }[];
 }
 
 export interface ServiceCommercial {
-  readonly demanderLien: (
-    demande: DemandeDeLien,
-  ) => Promise<ResultatDeLienDeTest>;
-  readonly verifierLien: (jeton: string) => ResultatDIdentite;
-  readonly demarrerPaiement: (session: string) => Transaction;
+  readonly demarrerPaiement: (identiteId: string) => CommandeCommerciale;
   readonly traiterWebhookPaddle: (requete: {
     readonly corpsBrut: string;
     readonly signature: string;
   }) => { readonly statut: "traite" | "duplique" | "ignore" };
-  readonly lireAcces: (session: string) => ResultatDAcces;
+  readonly lireAcces: (identiteId: string) => ResultatDAcces;
   readonly signerWebhookDeTest: (corpsBrut: string) => string;
   readonly lireDiagnostic: () => DiagnosticCommercial;
 }
 
-const DUREE_DU_LIEN_MAGIQUE_MS = 5 * 60 * 1_000;
 const DUREE_MAXIMALE_SIGNATURE_MS = 5 * 60 * 1_000;
-
-function normaliserEmail(email: string): string {
-  const normalise = email.trim().toLocaleLowerCase("en-US");
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalise)) {
-    throw new Error("adresse-email-invalide");
-  }
-  return normalise;
-}
+const PLACEHOLDERS_INTERDITS = [
+  "remplacer",
+  "change-me",
+  "placeholder",
+  "secret-webhook-paddle-test",
+];
 
 function nouveauJeton(): string {
   return randomBytes(32).toString("base64url");
 }
 
-function empreinte(jeton: string): string {
-  return createHash("sha256").update(jeton).digest("base64url");
+function verifierSecret(secret: string) {
+  const minuscules = secret.toLocaleLowerCase("en-US");
+  if (
+    secret.length < 32 ||
+    new Set(secret).size < 16 ||
+    PLACEHOLDERS_INTERDITS.some((placeholder) =>
+      minuscules.includes(placeholder),
+    )
+  ) {
+    throw new Error(
+      "Le secret Paddle doit contenir au moins 32 caractères à forte entropie.",
+    );
+  }
 }
 
 function comparerSignatures(attendue: string, recue: string): boolean {
@@ -130,7 +130,7 @@ function lireSignature(signature: string): {
   readonly horodatage: number;
   readonly hachages: readonly string[];
 } {
-  const parties = signature.split(",");
+  const parties = signature.split(",").map((partie) => partie.trim());
   const horodatageTexte = parties
     .find((partie) => partie.startsWith("ts="))
     ?.slice(3);
@@ -157,24 +157,93 @@ function parserChargeUtile(corpsBrut: string): ChargeUtilePaddle {
   return valeur as ChargeUtilePaddle;
 }
 
+function transactionCorrespond(
+  chargeUtile: ChargeUtilePaddle,
+  commande: CommandeCommerciale,
+): boolean {
+  const [ligne] = chargeUtile.data.items;
+  return (
+    chargeUtile.data.status === "completed" &&
+    chargeUtile.data.currency_code === commande.devise &&
+    chargeUtile.data.items.length === 1 &&
+    ligne?.price.id === commande.priceId &&
+    ligne.price.product_id === commande.productId &&
+    ligne.price.unit_price.amount === commande.total &&
+    ligne.price.unit_price.currency_code === commande.devise &&
+    ligne.price.billing_cycle === null &&
+    ligne.quantity === commande.quantite &&
+    chargeUtile.data.details.totals.grand_total === commande.total &&
+    chargeUtile.data.details.totals.currency_code === commande.devise
+  );
+}
+
+function encoderBase64Url(valeur: string | Buffer): string {
+  return Buffer.from(valeur).toString("base64url");
+}
+
+function signerRecu(
+  clePriveeDeRecu: string,
+  identiteId: string,
+): string {
+  const chargeUtile = encoderBase64Url(
+    JSON.stringify({
+      version: 1,
+      sujet: identiteId,
+      portee: "acces-premium-permanent",
+      contenu: EMPREINTE_CONTENU_PREMIUM_V1,
+    }),
+  );
+  const signature = sign(
+    null,
+    Buffer.from(chargeUtile),
+    createPrivateKey(clePriveeDeRecu),
+  );
+  return `${chargeUtile}.${encoderBase64Url(signature)}`;
+}
+
 export function creerCorpsDeWebhookPaddle({
   evenementId,
   transactionId,
   identiteId,
   commandeId,
   type,
+  produit = PRODUIT_DE_TEST,
 }: {
   readonly evenementId: string;
   readonly transactionId: string;
   readonly identiteId: string;
   readonly commandeId?: string;
   readonly type: TypeDeWebhookPaddle;
+  readonly produit?: ConfigurationDuProduit;
 }): string {
   return JSON.stringify({
     event_id: evenementId,
     event_type: type,
     data: {
       id: transactionId,
+      status:
+        type === "transaction.completed" ? "completed" : "past_due",
+      currency_code: produit.devise,
+      items: [
+        {
+          price: {
+            id: produit.priceId,
+            product_id: produit.productId,
+            unit_price: {
+              amount: produit.total,
+              currency_code: produit.devise,
+            },
+            billing_cycle: null,
+          },
+          quantity: produit.quantite,
+        },
+      ],
+      details: {
+        totals: {
+          grand_total: produit.total,
+          currency_code: produit.devise,
+        },
+      },
       custom_data: {
         identite_id: identiteId,
         ...(commandeId === undefined
@@ -187,29 +256,18 @@ export function creerCorpsDeWebhookPaddle({
 
 export function creerServiceCommercial({
   secretWebhook,
-  secretPreuveLocale,
+  clePriveeDeRecu,
+  produit,
+  donnees = creerDonneesCommercialesMemoire(),
   maintenant = Date.now,
 }: OptionsDuServiceCommercial): ServiceCommercial {
-  if (secretWebhook.length < 32 || secretPreuveLocale.length < 32) {
-    throw new Error("Les secrets commerciaux doivent contenir 32 caractères.");
-  }
+  verifierSecret(secretWebhook);
+  createPrivateKey(clePriveeDeRecu);
 
-  const liens = new Map<string, LienMagique>();
-  const identitesParEmail = new Map<string, Identite>();
-  const sessions = new Map<string, Session>();
-  const transactions = new Map<string, Transaction>();
-  const droits = new Map<string, DroitPermanent>();
-  const evenementsTraites = new Set<string>();
-
-  const trouverSession = (session: string): Session => {
-    const trouvee = sessions.get(session);
-    if (trouvee === undefined) {
-      throw new Error("session-commerciale-invalide");
-    }
-    return trouvee;
-  };
-
-  const signer = (corpsBrut: string, horodatage = maintenant()) => {
+  const signerWebhook = (
+    corpsBrut: string,
+    horodatage = maintenant(),
+  ) => {
     const secondes = Math.floor(horodatage / 1_000);
     const hachage = createHmac("sha256", secretWebhook)
       .update(`${secondes}:${corpsBrut}`)
@@ -218,52 +276,17 @@ export function creerServiceCommercial({
   };
 
   return {
-    demanderLien: async ({ email, intention }) => {
-      const emailNormalise = normaliserEmail(email);
-      const jeton = nouveauJeton();
-      const cle = empreinte(jeton);
-      liens.set(cle, {
-        empreinte: cle,
-        email: emailNormalise,
-        intention,
-        expireA: maintenant() + DUREE_DU_LIEN_MAGIQUE_MS,
-      });
-      return { statut: "envoye", jetonDeTest: jeton };
-    },
-    verifierLien: (jeton) => {
-      const cle = empreinte(jeton);
-      const lien = liens.get(cle);
-      liens.delete(cle);
-      if (lien === undefined || lien.expireA < maintenant()) {
-        throw new Error("lien-magique-invalide-ou-expire");
+    demarrerPaiement: (identiteId) => {
+      if (identiteId.length === 0) {
+        throw new Error("identite-commerciale-invalide");
       }
-      let identite = identitesParEmail.get(lien.email);
-      if (identite === undefined) {
-        identite = {
-          identiteId: `usr_${nouveauJeton().slice(0, 16)}`,
-          email: lien.email,
-        };
-        identitesParEmail.set(lien.email, identite);
-      }
-      const session = `ses_${nouveauJeton()}`;
-      sessions.set(session, {
-        session,
-        identiteId: identite.identiteId,
-      });
-      return {
-        session,
-        identiteId: identite.identiteId,
-        intention: lien.intention,
+      const commande: CommandeCommerciale = {
+        commandeId: `cmd_${nouveauJeton().slice(0, 16)}`,
+        identiteId,
+        ...produit,
       };
-    },
-    demarrerPaiement: (session) => {
-      const identite = trouverSession(session);
-      const transaction: Transaction = {
-        transactionId: `txn_${nouveauJeton().slice(0, 16)}`,
-        identiteId: identite.identiteId,
-      };
-      transactions.set(transaction.transactionId, transaction);
-      return transaction;
+      donnees.enregistrerCommande(commande);
+      return commande;
     },
     traiterWebhookPaddle: ({ corpsBrut, signature }) => {
       const { horodatage, hachages } = lireSignature(signature);
@@ -285,63 +308,69 @@ export function creerServiceCommercial({
       }
 
       const chargeUtile = parserChargeUtile(corpsBrut);
-      if (evenementsTraites.has(chargeUtile.event_id)) {
+      if (donnees.evenementEstTraite(chargeUtile.event_id)) {
         return { statut: "duplique" };
       }
-
       if (chargeUtile.event_type !== "transaction.completed") {
-        evenementsTraites.add(chargeUtile.event_id);
+        donnees.marquerEvenementTraite(chargeUtile.event_id);
         return { statut: "ignore" };
       }
-      const transaction = transactions.get(chargeUtile.data.id);
-      const transactionParCommande =
-        chargeUtile.data.custom_data?.commande_id === undefined
-          ? undefined
-          : transactions.get(chargeUtile.data.custom_data.commande_id);
-      const transactionAuthentifiee =
-        transaction ?? transactionParCommande;
+
+      const commandeId =
+        chargeUtile.data.custom_data?.commande_id ??
+        chargeUtile.data.id;
+      const commande = donnees.trouverCommande(commandeId);
       if (
-        transactionAuthentifiee === undefined ||
+        commande === undefined ||
         chargeUtile.data.custom_data?.identite_id !==
-          transactionAuthentifiee.identiteId
+          commande.identiteId
       ) {
         throw new Error("transaction-paddle-inconnue");
       }
-      if (!droits.has(transactionAuthentifiee.identiteId)) {
-        droits.set(transactionAuthentifiee.identiteId, {
-          identiteId: transactionAuthentifiee.identiteId,
-          permanent: true,
-          transactionId: chargeUtile.data.id,
-        });
+      if (!transactionCorrespond(chargeUtile, commande)) {
+        throw new Error("produit-paddle-inattendu");
       }
-      evenementsTraites.add(chargeUtile.event_id);
+      donnees.enregistrerDroit({
+        identiteId: commande.identiteId,
+        permanent: true,
+        transactionId: chargeUtile.data.id,
+      });
+      donnees.marquerEvenementTraite(chargeUtile.event_id);
       return { statut: "traite" };
     },
-    lireAcces: (session) => {
-      const identite = trouverSession(session);
-      if (!droits.has(identite.identiteId)) {
-        return { premium: false, identiteId: identite.identiteId };
-      }
-      const preuveLocale = createHmac("sha256", secretPreuveLocale)
-        .update(`premium:${identite.identiteId}`)
-        .digest("base64url");
-      return {
-        premium: true,
-        identiteId: identite.identiteId,
-        preuveLocale,
-      };
-    },
-    signerWebhookDeTest: signer,
-    lireDiagnostic: () => ({
-      identites: [...identitesParEmail.values()],
-      droits: [...droits.values()],
-    }),
+    lireAcces: (identiteId) =>
+      donnees.trouverDroit(identiteId) === undefined
+        ? { premium: false, identiteId }
+        : {
+            premium: true,
+            identiteId,
+            preuveLocale: signerRecu(clePriveeDeRecu, identiteId),
+          },
+    signerWebhookDeTest: signerWebhook,
+    lireDiagnostic: () => ({ droits: donnees.listerDroits() }),
   };
 }
 
-export function creerServiceCommercialDeTest(): ServiceCommercial {
+export const PRODUIT_DE_TEST: ConfigurationDuProduit = {
+  priceId: "pri_lanternes_v1_test",
+  productId: "pro_lanternes_v1",
+  quantite: 1,
+  devise: "EUR",
+  total: "1999",
+};
+
+export const CLE_PRIVEE_DE_RECU_DE_TEST = `-----BEGIN PRIVATE KEY-----
+MC4CAQAwBQYDK2VwBCIEIGoBdws9nVuf8ZvtDfSPHmd6e3/2jumRQA4HMdla7eEZ
+-----END PRIVATE KEY-----`;
+
+export function creerServiceCommercialDeTest(
+  donnees = creerDonneesCommercialesMemoire(),
+): ServiceCommercial {
   return creerServiceCommercial({
-    secretWebhook: "secret-webhook-paddle-test-32-caracteres",
-    secretPreuveLocale: "secret-preuve-locale-test-32-caracteres",
+    secretWebhook:
+      "9vWN7kuUPHXCjogIq6Z5afE8eLwY1xQ3dRo0nTmB",
+    clePriveeDeRecu: CLE_PRIVEE_DE_RECU_DE_TEST,
+    produit: PRODUIT_DE_TEST,
+    donnees,
   });
 }

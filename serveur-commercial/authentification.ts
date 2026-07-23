@@ -9,6 +9,7 @@ export interface OptionsDAuthentificationCommerciale {
   readonly origineApplication: string;
   readonly secret: string;
   readonly database: NonNullable<BetterAuthOptions["database"]>;
+  readonly cookiesSecurises?: boolean;
   readonly envoyerLien: (message: {
     readonly email: string;
     readonly url: string;
@@ -28,11 +29,18 @@ export function creerAuthentificationCommerciale({
   origineApplication,
   secret,
   database,
+  cookiesSecurises = true,
   envoyerLien,
   auditer,
 }: OptionsDAuthentificationCommerciale) {
-  if (secret.length < 32) {
-    throw new Error("BETTER_AUTH_SECRET doit contenir au moins 32 caractères.");
+  if (
+    secret.length < 32 ||
+    new Set(secret).size < 16 ||
+    /remplacer|change-me|placeholder/i.test(secret)
+  ) {
+    throw new Error(
+      "BETTER_AUTH_SECRET doit contenir au moins 32 caractères à forte entropie.",
+    );
   }
 
   return betterAuth({
@@ -55,13 +63,17 @@ export function creerAuthentificationCommerciale({
     },
     advanced: {
       disableCSRFCheck: false,
-      useSecureCookies: true,
+      useSecureCookies: cookiesSecurises,
       cookiePrefix: "lanternes",
       defaultCookieAttributes: {
         httpOnly: true,
         sameSite: "lax",
-        secure: true,
+        secure: cookiesSecurises,
         path: "/",
+      },
+      ipAddress: {
+        ipAddressHeaders: ["x-real-ip"],
+        disableIpTracking: false,
       },
     },
     plugins: [

@@ -11,8 +11,10 @@ import {
   creerPortDuServiceCommercialNavigateur,
   stockageNavigateurAccesPremium,
 } from "./commercial/serviceNavigateur";
+import { verifierRecuPremium } from "./commercial/recu";
 import { creerPolitiqueDAccesPremium } from "./application/application";
 import { creerControleurDeSessionNavigateur } from "./sauvegarde/controleur";
+import { installerContenuPremiumDesRoutes } from "./simulation/routes";
 import { App } from "./ui/App";
 import "./ui/styles.css";
 
@@ -25,7 +27,10 @@ if (racine === null) {
 const controleurAccesPremium = creerControleurAccesPremium({
   service: creerPortDuServiceCommercialNavigateur(),
   stockage: stockageNavigateurAccesPremium,
+  verifierPreuveLocale: verifierRecuPremium,
+  installerContenuComplet: installerContenuPremiumDesRoutes,
 });
+await controleurAccesPremium.initialiser();
 const controleur = creerControleurDeSessionNavigateur(
   "CENDRE-01",
   creerPolitiqueDAccesPremium(

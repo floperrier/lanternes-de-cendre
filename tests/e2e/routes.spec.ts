@@ -136,6 +136,6 @@ test("un Engagement confirmé suspend le Temps puis le Front condamne le retour"
 
   await expect(atlas).toContainText("PositionHaut-Puits");
   await expect(atlas).toContainText("Front de cendre — accès arrière condamné");
-  await expect(atlas).toContainText("Haut-Puits → Relais des Vannes");
+  await expect(atlas).not.toContainText("Haut-Puits → Relais des Vannes");
   await expect(atlas).not.toContainText("Halte du puits sec → Haut-Puits");
 });

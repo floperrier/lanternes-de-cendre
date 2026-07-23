@@ -14,7 +14,8 @@
     "lint": "eslint . --max-warnings 0",
     "test": "npm run content:compile && vitest run",
     "test:e2e": "npm run content:compile && playwright test",
-    "check": "npm run typecheck && npm run lint && npm run test && npm run test:e2e && npm run build"
+    "test:bundle-boundary": "tsx scripts/verifier-frontiere-premium.ts",
+    "check": "npm run typecheck && npm run lint && npm run test && npm run test:e2e && npm run build && npm run test:bundle-boundary"
   },
   "dependencies": {
     "@fontsource/cormorant-garamond": "^5.3.0",

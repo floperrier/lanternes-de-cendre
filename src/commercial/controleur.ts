@@ -7,12 +7,21 @@ export interface AccesLuDuService {
   readonly preuveLocale?: string;
 }
 
+export interface ContenuCompletProtege {
+  readonly version: number;
+  readonly catalogue: unknown;
+}
+
 export interface PortDuServiceCommercial {
   readonly demanderLien: (
     email: string,
     intention: IntentionCommerciale,
-  ) => Promise<{ readonly jetonDeTest?: string }>;
-  readonly verifierLien: (jeton: string) => Promise<AccesLuDuService>;
+  ) => Promise<{ readonly urlDeTest?: string }>;
+  readonly ouvrirLien: (url: string) => void;
+  readonly reprendreApresLien: () => Promise<{
+    readonly intention: IntentionCommerciale;
+    readonly acces: AccesLuDuService;
+  } | null>;
   readonly demarrerPaiement: () => Promise<
     | { readonly mode: "test"; readonly transactionId: string }
     | {
@@ -25,9 +34,7 @@ export interface PortDuServiceCommercial {
     issue: IssueDePaiementDeTest,
   ) => Promise<void>;
   readonly lireAcces: () => Promise<AccesLuDuService>;
-  readonly chargerContenuComplet: () => Promise<{
-    readonly version: number;
-  }>;
+  readonly chargerContenuComplet: () => Promise<ContenuCompletProtege>;
 }
 
 export interface PortDuStockageAccesPremium {
@@ -37,11 +44,12 @@ export interface PortDuStockageAccesPremium {
 }
 
 export type EtatDuControleurAccesPremium =
+  | { readonly statut: "verification-locale" }
   | { readonly statut: "demonstration" }
   | {
       readonly statut: "lien-envoye";
       readonly intention: IntentionCommerciale;
-      readonly jetonDeTestDisponible: boolean;
+      readonly lienDeTestDisponible: boolean;
     }
   | {
       readonly statut: "paiement-test";
@@ -59,6 +67,7 @@ export type EtatDuControleurAccesPremium =
         | "lien-invalide"
         | "acces-introuvable"
         | "paiement-refuse"
+        | "preuve-invalide"
         | "service-indisponible";
       readonly explication: string;
     };
@@ -67,11 +76,12 @@ export interface ControleurAccesPremium {
   readonly lireEtat: () => EtatDuControleurAccesPremium;
   readonly sabonner: (ecouteur: () => void) => () => void;
   readonly possedeAccesPremium: () => boolean;
+  readonly initialiser: () => Promise<void>;
   readonly demanderLien: (
     email: string,
     intention: IntentionCommerciale,
   ) => Promise<void>;
-  readonly verifierLienDeTest: () => Promise<void>;
+  readonly ouvrirLienDeTest: () => void;
   readonly finaliserPaiementDeTest: (
     issue: IssueDePaiementDeTest,
   ) => Promise<void>;
@@ -81,13 +91,21 @@ export interface ControleurAccesPremium {
 export interface OptionsDuControleurAccesPremium {
   readonly service: PortDuServiceCommercial;
   readonly stockage: PortDuStockageAccesPremium;
+  readonly verifierPreuveLocale: (entree: {
+    readonly recu: string;
+    readonly identiteId: string;
+    readonly contenu: ContenuCompletProtege;
+  }) => Promise<boolean>;
+  readonly installerContenuComplet: (
+    contenu: ContenuCompletProtege,
+  ) => void;
 }
 
 interface AccesPersistant {
   readonly version: 1;
   readonly identiteId: string;
   readonly preuveLocale: string;
-  readonly versionDuContenu: number;
+  readonly contenu: ContenuCompletProtege;
 }
 
 function lireAccesPersistant(
@@ -103,7 +121,8 @@ function lireAccesPersistant(
       valeur.version === 1 &&
       typeof valeur.identiteId === "string" &&
       typeof valeur.preuveLocale === "string" &&
-      Number.isSafeInteger(valeur.versionDuContenu)
+      typeof valeur.contenu === "object" &&
+      valeur.contenu !== null
     ) {
       return valeur as AccesPersistant;
     }
@@ -123,18 +142,15 @@ function explicationDErreur(erreur: unknown): string {
 export function creerControleurAccesPremium({
   service,
   stockage,
+  verifierPreuveLocale,
+  installerContenuComplet,
 }: OptionsDuControleurAccesPremium): ControleurAccesPremium {
   const accesPersistant = lireAccesPersistant(stockage);
   let etat: EtatDuControleurAccesPremium =
     accesPersistant === null
       ? { statut: "demonstration" }
-      : {
-          statut: "premium",
-          identiteId: accesPersistant.identiteId,
-          provenance: "hors-ligne",
-        };
-  let jetonDeTest: string | undefined;
-  let intentionCourante: IntentionCommerciale | undefined;
+      : { statut: "verification-locale" };
+  let urlDeTest: string | undefined;
   const ecouteurs = new Set<() => void>();
 
   const publier = (nouvelEtat: EtatDuControleurAccesPremium) => {
@@ -147,12 +163,22 @@ export function creerControleurAccesPremium({
       throw new Error("acces-premium-introuvable");
     }
     const contenu = await service.chargerContenuComplet();
+    if (
+      !(await verifierPreuveLocale({
+        recu: acces.preuveLocale,
+        identiteId: acces.identiteId,
+        contenu,
+      }))
+    ) {
+      throw new Error("preuve-premium-invalide");
+    }
+    installerContenuComplet(contenu);
     stockage.enregistrer(
       JSON.stringify({
         version: 1,
         identiteId: acces.identiteId,
         preuveLocale: acces.preuveLocale,
-        versionDuContenu: contenu.version,
+        contenu,
       } satisfies AccesPersistant),
     );
     publier({
@@ -198,6 +224,24 @@ export function creerControleurAccesPremium({
     }
   };
 
+  const commencerPaiement = async () => {
+    const paiement = await service.demarrerPaiement();
+    publier(
+      paiement.mode === "test"
+        ? {
+            statut: "paiement-test",
+            transactionId: paiement.transactionId,
+          }
+        : { statut: "attente-paiement" },
+    );
+    if (
+      paiement.mode === "paddle" &&
+      paiement.attendreConfirmation !== undefined
+    ) {
+      void paiement.attendreConfirmation.then(attendreDroitApresWebhook);
+    }
+  };
+
   return {
     lireEtat: () => etat,
     sabonner: (ecouteur) => {
@@ -205,15 +249,59 @@ export function creerControleurAccesPremium({
       return () => ecouteurs.delete(ecouteur);
     },
     possedeAccesPremium: () => etat.statut === "premium",
+    initialiser: async () => {
+      if (accesPersistant !== null) {
+        const valide = await verifierPreuveLocale({
+          recu: accesPersistant.preuveLocale,
+          identiteId: accesPersistant.identiteId,
+          contenu: accesPersistant.contenu,
+        });
+        if (valide) {
+          installerContenuComplet(accesPersistant.contenu);
+          publier({
+            statut: "premium",
+            identiteId: accesPersistant.identiteId,
+            provenance: "hors-ligne",
+          });
+          return;
+        }
+        stockage.effacer();
+        publier({ statut: "demonstration" });
+      }
+
+      try {
+        const retour = await service.reprendreApresLien();
+        if (retour === null) {
+          return;
+        }
+        if (retour.acces.premium) {
+          await accorder(retour.acces);
+        } else if (retour.intention === "acheter") {
+          await commencerPaiement();
+        } else {
+          publier({
+            statut: "erreur",
+            code: "acces-introuvable",
+            explication:
+              "Aucun achat permanent n’est associé à ce compte.",
+          });
+        }
+      } catch (erreur) {
+        publier({
+          statut: "erreur",
+          code: "lien-invalide",
+          explication: explicationDErreur(erreur),
+        });
+      }
+    },
     demanderLien: async (email, intention) => {
       try {
         const resultat = await service.demanderLien(email, intention);
-        intentionCourante = intention;
-        jetonDeTest = resultat.jetonDeTest;
+        urlDeTest = resultat.urlDeTest;
         publier({
           statut: "lien-envoye",
           intention,
-          jetonDeTestDisponible: jetonDeTest !== undefined,
+          lienDeTestDisponible: urlDeTest !== undefined,
         });
       } catch (erreur) {
         publier({
@@ -223,8 +311,8 @@ export function creerControleurAccesPremium({
         });
       }
     },
-    verifierLienDeTest: async () => {
-      if (jetonDeTest === undefined || intentionCourante === undefined) {
+    ouvrirLienDeTest: () => {
+      if (urlDeTest === undefined) {
         publier({
           statut: "erreur",
           code: "lien-invalide",
@@ -232,45 +320,7 @@ export function creerControleurAccesPremium({
         });
         return;
       }
-      try {
-        const acces = await service.verifierLien(jetonDeTest);
-        jetonDeTest = undefined;
-        if (acces.premium) {
-          await accorder(acces);
-          return;
-        }
-        if (intentionCourante === "restaurer") {
-          publier({
-            statut: "erreur",
-            code: "acces-introuvable",
-            explication: "Aucun achat permanent n’est associé à ce compte.",
-          });
-          return;
-        }
-        const paiement = await service.demarrerPaiement();
-        publier(
-          paiement.mode === "test"
-            ? {
-                statut: "paiement-test",
-                transactionId: paiement.transactionId,
-              }
-            : { statut: "attente-paiement" },
-        );
-        if (
-          paiement.mode === "paddle" &&
-          paiement.attendreConfirmation !== undefined
-        ) {
-          void paiement.attendreConfirmation.then(
-            attendreDroitApresWebhook,
-          );
-        }
-      } catch (erreur) {
-        publier({
-          statut: "erreur",
-          code: "lien-invalide",
-          explication: explicationDErreur(erreur),
-        });
-      }
+      service.ouvrirLien(urlDeTest);
     },
     finaliserPaiementDeTest: async (issue) => {
       if (etat.statut !== "paiement-test") {

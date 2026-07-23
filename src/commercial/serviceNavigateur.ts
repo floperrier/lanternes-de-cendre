@@ -35,10 +35,20 @@ export function creerPortDuServiceCommercialNavigateur(): PortDuServiceCommercia
         method: "POST",
         body: JSON.stringify({ email, intention }),
       }),
-    verifierLien: async (jeton) =>
-      requeteJson(
-        `/api/commercial/lien?jeton=${encodeURIComponent(jeton)}`,
-      ),
+    ouvrirLien: (url) => window.location.assign(url),
+    reprendreApresLien: async () => {
+      const url = new URL(window.location.href);
+      const intention = url.searchParams.get("commerce");
+      if (intention !== "acheter" && intention !== "restaurer") {
+        return null;
+      }
+      const acces = await requeteJson<
+        Awaited<ReturnType<PortDuServiceCommercial["lireAcces"]>>
+      >("/api/commercial/acces");
+      url.searchParams.delete("commerce");
+      window.history.replaceState(null, "", url);
+      return { intention, acces };
+    },
     demarrerPaiement: async () => {
       const paiement = await requeteJson<
         | {

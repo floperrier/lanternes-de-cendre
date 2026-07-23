@@ -1,27 +1,44 @@
 import { randomUUID } from "node:crypto";
+import { mkdirSync } from "node:fs";
 import type {
   IncomingMessage,
   ServerResponse,
 } from "node:http";
+import { dirname } from "node:path";
+import { DatabaseSync } from "node:sqlite";
 
 import type { Plugin } from "vite";
 
+import { creerAuthentificationCommerciale } from "./authentification";
+import { CONTENU_PREMIUM_V1 } from "./contenuPremium";
 import {
   creerCorpsDeWebhookPaddle,
   creerServiceCommercial,
+  type ConfigurationDuProduit,
   type ServiceCommercial,
 } from "./service";
+import { creerDonneesCommercialesSqlite } from "./stockage";
 
-const NOM_DU_COOKIE = "lc_session";
 const CORPS_MAXIMAL = 64 * 1_024;
 
 interface OptionsDuPluginCommercial {
   readonly mode: string;
+  readonly origineApplication: string;
+  readonly cheminBaseDeDonnees: string;
   readonly paddleClientToken?: string;
-  readonly paddlePriceId?: string;
   readonly secretWebhook?: string;
-  readonly secretPreuveLocale?: string;
+  readonly clePriveeDeRecu?: string;
+  readonly secretBetterAuth?: string;
+  readonly produit: ConfigurationDuProduit;
+  readonly livraisonEmail?: {
+    readonly url: string;
+    readonly jeton: string;
+  };
 }
+
+type AuthCommerciale = ReturnType<
+  typeof creerAuthentificationCommerciale
+>;
 
 function envoyerJson(
   reponse: ServerResponse,
@@ -50,16 +67,67 @@ async function lireCorps(requete: IncomingMessage): Promise<string> {
   return Buffer.concat(morceaux).toString("utf8");
 }
 
-function lireSession(requete: IncomingMessage): string {
-  const cookie = requete.headers.cookie
-    ?.split(";")
-    .map((partie) => partie.trim())
-    .find((partie) => partie.startsWith(`${NOM_DU_COOKIE}=`));
-  const session = cookie?.slice(NOM_DU_COOKIE.length + 1);
-  if (session === undefined || session.length === 0) {
-    throw new Error("session-commerciale-absente");
+function convertirEntetes(requete: IncomingMessage): Headers {
+  const entetes = new Headers();
+  for (let index = 0; index < requete.rawHeaders.length; index += 2) {
+    const nom = requete.rawHeaders[index];
+    const valeur = requete.rawHeaders[index + 1];
+    if (nom !== undefined && valeur !== undefined) {
+      entetes.append(nom, valeur);
+    }
   }
-  return decodeURIComponent(session);
+  if (requete.socket.remoteAddress !== undefined) {
+    entetes.set("x-real-ip", requete.socket.remoteAddress);
+  }
+  return entetes;
+}
+
+async function transmettreReponseWeb(
+  source: Response,
+  cible: ServerResponse,
+) {
+  cible.statusCode = source.status;
+  source.headers.forEach((valeur, nom) => {
+    if (nom !== "set-cookie") {
+      cible.setHeader(nom, valeur);
+    }
+  });
+  const entetesEtendues = source.headers as Headers & {
+    readonly getSetCookie?: () => string[];
+  };
+  const cookies = entetesEtendues.getSetCookie?.() ?? [];
+  if (cookies.length > 0) {
+    cible.setHeader("Set-Cookie", cookies);
+  } else {
+    const cookieUnique = source.headers.get("set-cookie");
+    if (cookieUnique !== null) {
+      cible.setHeader("Set-Cookie", cookieUnique);
+    }
+  }
+  cible.end(Buffer.from(await source.arrayBuffer()));
+}
+
+async function gererBetterAuth(
+  authentification: AuthCommerciale,
+  requete: IncomingMessage,
+  reponse: ServerResponse,
+  url: URL,
+) {
+  const methode = requete.method ?? "GET";
+  const corps =
+    methode === "GET" || methode === "HEAD"
+      ? undefined
+      : await lireCorps(requete);
+  const demande = new Request(url, {
+    method: methode,
+    headers: convertirEntetes(requete),
+    ...(corps === undefined ? {} : { body: corps }),
+    redirect: "manual",
+  });
+  await transmettreReponseWeb(
+    await authentification.handler(demande),
+    reponse,
+  );
 }
 
 function refuserMethode(reponse: ServerResponse) {
@@ -68,17 +136,26 @@ function refuserMethode(reponse: ServerResponse) {
 
 function creerGestionnaire(
   service: ServiceCommercial,
+  authentification: AuthCommerciale,
+  liensDeTest: Map<string, string>,
   options: OptionsDuPluginCommercial,
 ) {
-  const transactions = new Map<
+  const commandesDeTest = new Map<
     string,
     { readonly identiteId: string }
   >();
   const modePaiement =
-    options.paddleClientToken !== undefined &&
-    options.paddlePriceId !== undefined
-      ? "paddle"
-      : "test";
+    options.paddleClientToken !== undefined ? "paddle" : "test";
+
+  const lireIdentite = async (requete: IncomingMessage) => {
+    const session = await authentification.api.getSession({
+      headers: convertirEntetes(requete),
+    });
+    if (session === null) {
+      throw new Error("session-commerciale-absente");
+    }
+    return session.user.id;
+  };
 
   return async (
     requete: IncomingMessage,
@@ -93,48 +170,45 @@ function creerGestionnaire(
     }
 
     try {
+      if (url.pathname.startsWith("/api/auth/")) {
+        await gererBetterAuth(authentification, requete, reponse, url);
+        return true;
+      }
+
       if (url.pathname === "/api/commercial/lien") {
-        if (requete.method === "POST") {
-          const corps = JSON.parse(await lireCorps(requete)) as {
-            readonly email?: string;
-            readonly intention?: "acheter" | "restaurer";
-          };
-          if (
-            typeof corps.email !== "string" ||
-            (corps.intention !== "acheter" &&
-              corps.intention !== "restaurer")
-          ) {
-            envoyerJson(reponse, 400, { erreur: "demande-invalide" });
-            return true;
-          }
-          const resultat = await service.demanderLien({
-            email: corps.email,
-            intention: corps.intention,
-          });
-          envoyerJson(reponse, 202, {
-            statut: resultat.statut,
-            ...(options.mode === "production"
-              ? {}
-              : { jetonDeTest: resultat.jetonDeTest }),
-          });
+        if (requete.method !== "POST") {
+          refuserMethode(reponse);
           return true;
         }
-        if (requete.method === "GET") {
-          const jeton = url.searchParams.get("jeton");
-          if (jeton === null) {
-            envoyerJson(reponse, 400, { erreur: "jeton-absent" });
-            return true;
-          }
-          const identite = service.verifierLien(jeton);
-          const acces = service.lireAcces(identite.session);
-          reponse.setHeader(
-            "Set-Cookie",
-            `${NOM_DU_COOKIE}=${encodeURIComponent(identite.session)}; HttpOnly; SameSite=Lax; Path=/; Max-Age=604800`,
-          );
-          envoyerJson(reponse, 200, acces);
+        const corps = JSON.parse(await lireCorps(requete)) as {
+          readonly email?: string;
+          readonly intention?: "acheter" | "restaurer";
+        };
+        if (
+          typeof corps.email !== "string" ||
+          (corps.intention !== "acheter" &&
+            corps.intention !== "restaurer")
+        ) {
+          envoyerJson(reponse, 400, { erreur: "demande-invalide" });
           return true;
         }
-        refuserMethode(reponse);
+        const email = corps.email.trim().toLocaleLowerCase("en-US");
+        liensDeTest.delete(email);
+        await authentification.api.signInMagicLink({
+          body: {
+            email,
+            callbackURL: `${options.origineApplication}/?commerce=${corps.intention}`,
+          },
+          headers: convertirEntetes(requete),
+        });
+        const urlDeTest = liensDeTest.get(email);
+        liensDeTest.delete(email);
+        envoyerJson(reponse, 202, {
+          statut: "envoye",
+          ...(options.mode === "production"
+            ? {}
+            : { urlDeTest }),
+        });
         return true;
       }
 
@@ -143,26 +217,23 @@ function creerGestionnaire(
           refuserMethode(reponse);
           return true;
         }
-        const transaction = service.demarrerPaiement(
-          lireSession(requete),
-        );
-        transactions.set(transaction.transactionId, {
-          identiteId: transaction.identiteId,
-        });
+        const identiteId = await lireIdentite(requete);
+        const commande = service.demarrerPaiement(identiteId);
+        commandesDeTest.set(commande.commandeId, { identiteId });
         envoyerJson(
           reponse,
           200,
           modePaiement === "test"
             ? {
                 mode: "test",
-                transactionId: transaction.transactionId,
+                transactionId: commande.commandeId,
               }
             : {
                 mode: "paddle",
                 clientToken: options.paddleClientToken,
-                priceId: options.paddlePriceId,
-                identiteId: transaction.identiteId,
-                commandeId: transaction.transactionId,
+                priceId: options.produit.priceId,
+                identiteId,
+                commandeId: commande.commandeId,
               },
         );
         return true;
@@ -177,17 +248,18 @@ function creerGestionnaire(
           refuserMethode(reponse);
           return true;
         }
-        lireSession(requete);
+        const identiteId = await lireIdentite(requete);
         const corps = JSON.parse(await lireCorps(requete)) as {
           readonly transactionId?: string;
           readonly issue?: "accepte" | "refuse";
         };
-        const transaction =
+        const commande =
           corps.transactionId === undefined
             ? undefined
-            : transactions.get(corps.transactionId);
+            : commandesDeTest.get(corps.transactionId);
         if (
-          transaction === undefined ||
+          commande === undefined ||
+          commande.identiteId !== identiteId ||
           corps.transactionId === undefined ||
           (corps.issue !== "accepte" && corps.issue !== "refuse")
         ) {
@@ -196,12 +268,14 @@ function creerGestionnaire(
         }
         const corpsBrut = creerCorpsDeWebhookPaddle({
           evenementId: `evt_${randomUUID()}`,
-          transactionId: corps.transactionId,
-          identiteId: transaction.identiteId,
+          transactionId: `txn_${randomUUID()}`,
+          commandeId: corps.transactionId,
+          identiteId,
           type:
             corps.issue === "accepte"
               ? "transaction.completed"
               : "transaction.payment_failed",
+          produit: options.produit,
         });
         service.traiterWebhookPaddle({
           corpsBrut,
@@ -219,7 +293,7 @@ function creerGestionnaire(
         envoyerJson(
           reponse,
           200,
-          service.lireAcces(lireSession(requete)),
+          service.lireAcces(await lireIdentite(requete)),
         );
         return true;
       }
@@ -229,16 +303,12 @@ function creerGestionnaire(
           refuserMethode(reponse);
           return true;
         }
-        const acces = service.lireAcces(lireSession(requete));
+        const acces = service.lireAcces(await lireIdentite(requete));
         if (!acces.premium) {
           envoyerJson(reponse, 403, { erreur: "acces-premium-requis" });
           return true;
         }
-        reponse.setHeader("Cache-Control", "private, max-age=86400");
-        envoyerJson(reponse, 200, {
-          version: 1,
-          catalogue: "campagne-v1",
-        });
+        envoyerJson(reponse, 200, CONTENU_PREMIUM_V1);
         return true;
       }
 
@@ -283,30 +353,107 @@ export function creerPluginCommercial(
 ): Plugin {
   return {
     name: "lanternes-service-commercial",
-    configureServer(serveur) {
+    async configureServer(serveur) {
       const secretWebhook =
         options.secretWebhook ??
         (options.mode === "production"
           ? undefined
-          : "secret-webhook-paddle-dev-32-caracteres");
-      const secretPreuveLocale =
-        options.secretPreuveLocale ??
+          : "9vWN7kuUPHXCjogIq6Z5afE8eLwY1xQ3dRo0nTmB");
+      const clePriveeDeRecu =
+        options.clePriveeDeRecu ??
         (options.mode === "production"
           ? undefined
-          : "secret-preuve-locale-dev-32-caracteres");
+          : `-----BEGIN PRIVATE KEY-----
+MC4CAQAwBQYDK2VwBCIEIGoBdws9nVuf8ZvtDfSPHmd6e3/2jumRQA4HMdla7eEZ
+-----END PRIVATE KEY-----`);
+      const secretBetterAuth =
+        options.secretBetterAuth ??
+        (options.mode === "production"
+          ? undefined
+          : "uF2w7Jp9xK4mN8qR5sV1yB6dG3hL0cZtA9eQ");
       if (
         secretWebhook === undefined ||
-        secretPreuveLocale === undefined
+        clePriveeDeRecu === undefined ||
+        secretBetterAuth === undefined
       ) {
         throw new Error(
           "Les secrets commerciaux sont obligatoires en production.",
         );
       }
+      if (
+        options.mode === "production" &&
+        options.livraisonEmail === undefined
+      ) {
+        throw new Error(
+          "Un expéditeur de magic links est obligatoire en production.",
+        );
+      }
+
+      mkdirSync(dirname(options.cheminBaseDeDonnees), {
+        recursive: true,
+      });
+      const database = new DatabaseSync(options.cheminBaseDeDonnees);
+      const donnees = creerDonneesCommercialesSqlite(database);
+      database.exec(`
+        CREATE TABLE IF NOT EXISTS audit_auth (
+          id INTEGER PRIMARY KEY,
+          evenement TEXT NOT NULL,
+          identifiant TEXT NOT NULL,
+          cree_a TEXT NOT NULL
+        ) STRICT;
+      `);
+      const auditer = database.prepare(`
+        INSERT INTO audit_auth (evenement, identifiant, cree_a)
+        VALUES (?, ?, ?)
+      `);
+      const liensDeTest = new Map<string, string>();
+      const authentification = creerAuthentificationCommerciale({
+        baseUrl: `${options.origineApplication}/api/auth`,
+        origineApplication: options.origineApplication,
+        secret: secretBetterAuth,
+        database,
+        cookiesSecurises: options.origineApplication.startsWith("https://"),
+        envoyerLien: async ({ email, url }) => {
+          if (options.mode !== "production") {
+            liensDeTest.set(email.toLocaleLowerCase("en-US"), url);
+            return;
+          }
+          const livraison = options.livraisonEmail!;
+          const reponse = await fetch(livraison.url, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${livraison.jeton}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              to: email,
+              template: "lanternes-magic-link",
+              variables: { url },
+            }),
+          });
+          if (!reponse.ok) {
+            throw new Error("livraison-magic-link-echouee");
+          }
+        },
+        auditer: async (evenement, identifiant) => {
+          auditer.run(evenement, identifiant, new Date().toISOString());
+        },
+      });
+      const contexte = await authentification.$context;
+      await contexte.runMigrations();
       const service = creerServiceCommercial({
         secretWebhook,
-        secretPreuveLocale,
+        clePriveeDeRecu,
+        produit: options.produit,
+        donnees,
       });
-      const gerer = creerGestionnaire(service, options);
+      const gerer = creerGestionnaire(
+        service,
+        authentification,
+        liensDeTest,
+        options,
+      );
+      serveur.httpServer?.once("close", () => donnees.fermer());
       serveur.middlewares.use((requete, reponse, suivant) => {
         void gerer(requete, reponse)
           .then((traitee) => {

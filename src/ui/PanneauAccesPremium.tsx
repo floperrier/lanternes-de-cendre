@@ -37,6 +37,7 @@ const TEXTES = {
     actualiser: "Vérifier mon accès",
     actif:
       "Accès premium permanent actif. La même Campagne peut continuer.",
+    verification: "Vérification du reçu premium local…",
   },
   en: {
     titre: "Permanent Premium Access",
@@ -57,6 +58,7 @@ const TEXTES = {
     actualiser: "Check my access",
     actif:
       "Permanent Premium Access is active. The same Campaign can continue.",
+    verification: "Checking the local premium receipt…",
   },
 } as const;
 
@@ -91,6 +93,10 @@ export function PanneauAccesPremium({
     );
   }
 
+  if (etat.statut === "verification-locale") {
+    return <p role="status">{textes.verification}</p>;
+  }
+
   if (
     !achatDisponible &&
     !developpe &&
@@ -119,10 +125,10 @@ export function PanneauAccesPremium({
       {etat.statut === "lien-envoye" ? (
         <div>
           <p role="status">{textes.lienEnvoye}</p>
-          {etat.jetonDeTestDisponible ? (
+          {etat.lienDeTestDisponible ? (
             <button
               type="button"
-              onClick={() => void controleur.verifierLienDeTest()}
+              onClick={() => controleur.ouvrirLienDeTest()}
             >
               {textes.ouvrirLienTest}
             </button>

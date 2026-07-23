@@ -4,28 +4,77 @@ import {
   type StockDuConvoi,
 } from "./pilotage";
 
-export const LIEUX_DE_ROUTE = {
+export type IdentifiantDeLieu =
+  | "halte-du-puits-sec"
+  | "haut-puits"
+  | "veille-basse"
+  | "relais-des-vannes";
+
+export type IdentifiantDeTroncon =
+  | "digue-des-puits"
+  | "chaussee-de-veille-basse"
+  | "chenal-des-vannes";
+
+export interface DefinitionDeLieu {
+  readonly id: IdentifiantDeLieu;
+  readonly nom: { readonly fr: string; readonly en: string };
+}
+
+export interface TronconDeRoute {
+  readonly id: IdentifiantDeTroncon;
+  readonly extremites: readonly [
+    IdentifiantDeLieu,
+    IdentifiantDeLieu,
+  ];
+  readonly dureeSecondes: number;
+  readonly etatInitial: EtatReelDeRoute;
+  readonly consommationConnue: {
+    readonly stock: "combustible";
+    readonly quantite: number;
+    readonly unite: "litres";
+  };
+  readonly consommationIncertaine: {
+    readonly stock: "eau";
+    readonly minimum: number;
+    readonly maximum: number;
+    readonly quantiteReelle: number;
+    readonly unite: "litres";
+    readonly renseignementId: string;
+  };
+  readonly renseignements: readonly RenseignementDeRoute[];
+}
+
+export interface ContenuPremiumDesRoutes {
+  readonly version: 1;
+  readonly catalogue: {
+    readonly lieux: readonly DefinitionDeLieu[];
+    readonly troncons: readonly TronconDeRoute[];
+  };
+}
+
+export const LIEUX_DE_ROUTE: Partial<
+  Record<IdentifiantDeLieu, DefinitionDeLieu>
+> = {
   "halte-du-puits-sec": {
+    id: "halte-du-puits-sec",
     nom: { fr: "Halte du puits sec", en: "Dry Well Halt" },
   },
   "haut-puits": {
+    id: "haut-puits",
     nom: { fr: "Haut-Puits", en: "High Well" },
   },
   "veille-basse": {
+    id: "veille-basse",
     nom: { fr: "Veille-Basse", en: "Lower Watch" },
   },
-  "relais-des-vannes": {
-    nom: { fr: "Relais des Vannes", en: "Sluice Relay" },
-  },
-} as const;
+};
 
-export type IdentifiantDeLieu = keyof typeof LIEUX_DE_ROUTE;
-
-export const TRONCONS_DE_ROUTE = [
+export const TRONCONS_DE_ROUTE: TronconDeRoute[] = [
   {
     id: "digue-des-puits",
     extremites: ["halte-du-puits-sec", "haut-puits"],
     dureeSecondes: 360,
+    etatInitial: "praticable",
     consommationConnue: {
       stock: "combustible",
       quantite: 3,
@@ -39,11 +88,13 @@ export const TRONCONS_DE_ROUTE = [
       unite: "litres",
       renseignementId: "digue-vigie-0",
     },
+    renseignements: [],
   },
   {
     id: "chaussee-de-veille-basse",
     extremites: ["halte-du-puits-sec", "veille-basse"],
     dureeSecondes: 480,
+    etatInitial: "degrade",
     consommationConnue: {
       stock: "combustible",
       quantite: 4,
@@ -57,29 +108,10 @@ export const TRONCONS_DE_ROUTE = [
       unite: "litres",
       renseignementId: "veille-basse-pelerins-0",
     },
+    renseignements: [],
   },
-  {
-    id: "chenal-des-vannes",
-    extremites: ["haut-puits", "relais-des-vannes"],
-    dureeSecondes: 600,
-    consommationConnue: {
-      stock: "combustible",
-      quantite: 5,
-      unite: "litres",
-    },
-    consommationIncertaine: {
-      stock: "eau",
-      minimum: 5,
-      maximum: 7,
-      quantiteReelle: 6,
-      unite: "litres",
-      renseignementId: "vannes-haut-puits-0",
-    },
-  },
-] as const;
+];
 
-export type TronconDeRoute = (typeof TRONCONS_DE_ROUTE)[number];
-export type IdentifiantDeTroncon = TronconDeRoute["id"];
 export type EtatReelDeRoute = "praticable" | "degrade" | "coupe";
 
 export interface RenseignementDeRoute {
@@ -100,6 +132,16 @@ export interface RenseignementDeRoute {
     | "puits-libres"
     | "pelerins-de-cendre"
     | "sans-controle-etabli";
+  readonly libelles?: Readonly<
+    Record<
+      "fr" | "en",
+      {
+        readonly source: string;
+        readonly danger: string;
+        readonly controlePolitique: string;
+      }
+    >
+  >;
 }
 
 export interface EngagementDeRoute {
@@ -122,7 +164,9 @@ export interface JalonDeRoute {
 
 export interface EtatDesRoutes {
   readonly position: IdentifiantDeLieu;
-  readonly etatsReels: Readonly<Record<IdentifiantDeTroncon, EtatReelDeRoute>>;
+  readonly etatsReels: Readonly<
+    Partial<Record<IdentifiantDeTroncon, EtatReelDeRoute>>
+  >;
   readonly renseignements: readonly RenseignementDeRoute[];
   readonly engagements: readonly EngagementDeRoute[];
   readonly jalons: readonly JalonDeRoute[];
@@ -198,28 +242,82 @@ const RENSEIGNEMENTS_INITIAUX: readonly RenseignementDeRoute[] = [
     danger: "visibilite",
     controlePolitique: "pelerins-de-cendre",
   },
-  {
-    id: "vannes-haut-puits-0",
-    tronconId: "chenal-des-vannes",
-    source: "eclaireurs-de-haut-puits",
-    releveA: 0,
-    fiabilite: "rapporte",
-    etatAnnonce: "praticable",
-    meteo: "cendre-basse",
-    panache: "incertain",
-    danger: "orniere",
-    controlePolitique: "sans-controle-etabli",
-  },
 ];
+
+const IDENTIFIANTS_DE_LIEUX = new Set<IdentifiantDeLieu>([
+  "halte-du-puits-sec",
+  "haut-puits",
+  "veille-basse",
+  "relais-des-vannes",
+]);
+const IDENTIFIANTS_DE_TRONCONS = new Set<IdentifiantDeTroncon>([
+  "digue-des-puits",
+  "chaussee-de-veille-basse",
+  "chenal-des-vannes",
+]);
+
+export function installerContenuPremiumDesRoutes(
+  valeur: unknown,
+): ContenuPremiumDesRoutes {
+  const contenu = valeur as Partial<ContenuPremiumDesRoutes>;
+  if (
+    contenu.version !== 1 ||
+    !Array.isArray(contenu.catalogue?.lieux) ||
+    !Array.isArray(contenu.catalogue.troncons)
+  ) {
+    throw new Error("contenu-premium-invalide");
+  }
+  const lieux = contenu.catalogue.lieux as readonly DefinitionDeLieu[];
+  const troncons = contenu.catalogue.troncons as readonly TronconDeRoute[];
+  for (const lieu of lieux) {
+    if (
+      !IDENTIFIANTS_DE_LIEUX.has(lieu.id) ||
+      typeof lieu.nom?.fr !== "string" ||
+      typeof lieu.nom.en !== "string"
+    ) {
+      throw new Error("lieu-premium-invalide");
+    }
+  }
+  for (const troncon of troncons) {
+    if (
+      !IDENTIFIANTS_DE_TRONCONS.has(troncon.id) ||
+      troncon.extremites.length !== 2 ||
+      !troncon.extremites.every((id) =>
+        IDENTIFIANTS_DE_LIEUX.has(id),
+      ) ||
+      !Number.isSafeInteger(troncon.dureeSecondes) ||
+      troncon.dureeSecondes <= 0 ||
+      !Array.isArray(troncon.renseignements)
+    ) {
+      throw new Error("troncon-premium-invalide");
+    }
+  }
+
+  for (const lieu of lieux) {
+    LIEUX_DE_ROUTE[lieu.id] = lieu;
+  }
+  for (const troncon of troncons) {
+    const index = TRONCONS_DE_ROUTE.findIndex(
+      (existant) => existant.id === troncon.id,
+    );
+    if (index === -1) {
+      TRONCONS_DE_ROUTE.push(troncon);
+    } else {
+      TRONCONS_DE_ROUTE[index] = troncon;
+    }
+  }
+  return contenu as ContenuPremiumDesRoutes;
+}
 
 export function creerEtatDesRoutesInitial(): EtatDesRoutes {
   return {
     position: "halte-du-puits-sec",
-    etatsReels: {
-      "digue-des-puits": "praticable",
-      "chaussee-de-veille-basse": "degrade",
-      "chenal-des-vannes": "praticable",
-    },
+    etatsReels: Object.fromEntries(
+      TRONCONS_DE_ROUTE.map((troncon) => [
+        troncon.id,
+        troncon.etatInitial,
+      ]),
+    ),
     renseignements: RENSEIGNEMENTS_INITIAUX,
     engagements: [],
     jalons: [],
@@ -305,7 +403,10 @@ export function confirmerEngagementDeRoute(
   if (possibilite === undefined) {
     throw new Error(`Le Tronçon de route « ${tronconId} » n’est pas accessible.`);
   }
-  if (etat.etatsReels[tronconId] === "coupe") {
+  if (
+    (etat.etatsReels[tronconId] ?? possibilite.troncon.etatInitial) ===
+    "coupe"
+  ) {
     throw new Error(
       `Le Tronçon de route « ${tronconId} » n’est plus physiquement praticable.`,
     );
@@ -356,7 +457,9 @@ export function traiterJalonsDeRoute(
     return { etat, evenements: [] };
   }
 
-  const etatPrecedent = etat.etatsReels[engagement.tronconId];
+  const troncon = trouverTronconDeRoute(engagement.tronconId);
+  const etatPrecedent =
+    etat.etatsReels[engagement.tronconId] ?? troncon.etatInitial;
   const jalon: JalonDeRoute = {
     id: `jalon-route-${etat.jalons.length + 1}`,
     type: "fin-de-troncon",

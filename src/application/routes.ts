@@ -117,13 +117,11 @@ const LIBELLES = {
     },
     danger: {
       saumure: "Nappe de saumure",
-      orniere: "Ornières profondes",
       visibilite: "Visibilité réduite",
     },
     controle: {
       "puits-libres": "Puits Libres",
       "pelerins-de-cendre": "Pèlerins de Cendre",
-      "sans-controle-etabli": "Sans contrôle établi",
     },
     combustible: "Combustible",
     eau: "Eau",
@@ -131,7 +129,6 @@ const LIBELLES = {
       "vigie-du-phare": "Vigie du Phare",
       "messagers-de-haut-puits": "Messagers de Haut-Puits",
       "relais-des-pelerins": "Relais des Pèlerins de Cendre",
-      "eclaireurs-de-haut-puits": "Éclaireurs de Haut-Puits",
     },
   },
   en: {
@@ -152,13 +149,11 @@ const LIBELLES = {
     },
     danger: {
       saumure: "Brine sheet",
-      orniere: "Deep ruts",
       visibilite: "Reduced visibility",
     },
     controle: {
       "puits-libres": "Free Wells",
       "pelerins-de-cendre": "Ash Pilgrims",
-      "sans-controle-etabli": "No established control",
     },
     combustible: "Fuel",
     eau: "Water",
@@ -166,13 +161,16 @@ const LIBELLES = {
       "vigie-du-phare": "Lighthouse Watch",
       "messagers-de-haut-puits": "High Well Messengers",
       "relais-des-pelerins": "Ash Pilgrims Relay",
-      "eclaireurs-de-haut-puits": "High Well Scouts",
     },
   },
 } as const;
 
 function nommerLieu(id: IdentifiantDeLieu, langue: Langue): string {
-  return LIEUX_DE_ROUTE[id].nom[langue];
+  const lieu = LIEUX_DE_ROUTE[id];
+  if (lieu === undefined) {
+    throw new Error(`Le Lieu de route « ${id} » n’est pas chargé.`);
+  }
+  return lieu.nom[langue];
 }
 
 function formaterDuree(secondes: number, langue: Langue): string {
@@ -207,16 +205,40 @@ function projeterRenseignement(
   langue: Langue,
 ): RenseignementDeRouteProjete {
   const libelles = LIBELLES[langue];
+  const libellesPremium = renseignement.libelles?.[langue];
+  const source =
+    libellesPremium?.source ??
+    libelles.source[
+      renseignement.source as keyof typeof libelles.source
+    ];
+  const danger =
+    libellesPremium?.danger ??
+    libelles.danger[
+      renseignement.danger as keyof typeof libelles.danger
+    ];
+  const controlePolitique =
+    libellesPremium?.controlePolitique ??
+    libelles.controle[
+      renseignement.controlePolitique as keyof typeof libelles.controle
+    ];
+  if (
+    source === undefined ||
+    danger === undefined ||
+    controlePolitique === undefined
+  ) {
+    throw new Error(
+      `Les libellés du Renseignement « ${renseignement.id} » ne sont pas chargés.`,
+    );
+  }
   return {
-    source: libelles.source[renseignement.source],
+    source,
     age: formaterAge(renseignement.releveA, secondeCourante, langue),
     fiabilite: libelles.fiabilite[renseignement.fiabilite],
     etat: libelles.etat[renseignement.etatAnnonce],
     meteo: libelles.meteo[renseignement.meteo],
     panache: libelles.panache[renseignement.panache],
-    danger: libelles.danger[renseignement.danger],
-    controlePolitique:
-      libelles.controle[renseignement.controlePolitique],
+    danger,
+    controlePolitique,
   };
 }
 
@@ -301,8 +323,18 @@ export function projeterAtlas(
           },
     troncons: tronconsAffiches.map(
       ({ troncon, destination, engageable }) => {
-        const renseignements = etat.routes.renseignements
-          .filter((renseignement) => renseignement.tronconId === troncon.id)
+        const renseignementsPersistes = etat.routes.renseignements.filter(
+          (renseignement) => renseignement.tronconId === troncon.id,
+        );
+        const renseignements = [
+          ...renseignementsPersistes,
+          ...troncon.renseignements.filter(
+            (renseignement) =>
+              !renseignementsPersistes.some(
+                (persistant) => persistant.id === renseignement.id,
+              ),
+          ),
+        ]
           .sort((gauche, droite) => droite.releveA - gauche.releveA);
         const sourceDeLIncertitude = renseignements.find(
           (renseignement) =>
@@ -349,7 +381,11 @@ export function projeterAtlas(
                   langue === "fr"
                     ? `${libelles.eau} estimée : ${eau}`
                     : `Estimated ${libelles.eau.toLowerCase()}: ${eau}`,
-                source: libelles.source[sourceDeLIncertitude.source],
+                source: projeterRenseignement(
+                  sourceDeLIncertitude,
+                  secondeCourante,
+                  langue,
+                ).source,
                 age: formaterAge(
                   sourceDeLIncertitude.releveA,
                   secondeCourante,

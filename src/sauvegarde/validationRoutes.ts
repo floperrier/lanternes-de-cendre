@@ -158,9 +158,9 @@ export function estEtatDesRoutes(
   let position: IdentifiantDeLieu = initial.position;
   let prochaineSecondePossible = 0;
   let nombreDeJalons = 0;
-  const etatsAttendus: Record<IdentifiantDeTroncon, EtatReelDeRoute> = {
-    ...initial.etatsReels,
-  };
+  const etatsAttendus: Partial<
+    Record<IdentifiantDeTroncon, EtatReelDeRoute>
+  > = { ...initial.etatsReels };
 
   for (const [index, candidat] of valeur.engagements.entries()) {
     if (

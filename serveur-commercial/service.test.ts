@@ -1,131 +1,123 @@
-import { describe, expect, it } from "vitest";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { DatabaseSync } from "node:sqlite";
+
+import { afterEach, describe, expect, it } from "vitest";
 
 import {
+  CLE_PRIVEE_DE_RECU_DE_TEST,
+  PRODUIT_DE_TEST,
   creerCorpsDeWebhookPaddle,
+  creerServiceCommercial,
   creerServiceCommercialDeTest,
 } from "./service";
+import { creerDonneesCommercialesSqlite } from "./stockage";
 
-const EMAIL = "veilleuse@example.test";
+const IDENTITE = "usr_veilleuse";
+const dossiersTemporaires: string[] = [];
 
-async function identifier(
+afterEach(async () => {
+  await Promise.all(
+    dossiersTemporaires.splice(0).map((dossier) =>
+      rm(dossier, { recursive: true, force: true }),
+    ),
+  );
+});
+
+function completerPaiement(
   service: ReturnType<typeof creerServiceCommercialDeTest>,
-  email = EMAIL,
+  evenementId = "evt_achat",
 ) {
-  const demande = await service.demanderLien({
-    email,
-    intention: "acheter",
+  const commande = service.demarrerPaiement(IDENTITE);
+  const corpsBrut = creerCorpsDeWebhookPaddle({
+    evenementId,
+    transactionId: `txn_${evenementId}`,
+    commandeId: commande.commandeId,
+    identiteId: IDENTITE,
+    type: "transaction.completed",
   });
-  return service.verifierLien(demande.jetonDeTest);
+  return {
+    commande,
+    corpsBrut,
+    signature: service.signerWebhookDeTest(corpsBrut),
+  };
 }
 
 describe("service commercial", () => {
-  it("accorde un Accès premium permanent après le webhook Paddle authentifié", async () => {
+  it("accorde un Accès premium permanent après le webhook Paddle authentifié", () => {
     const service = creerServiceCommercialDeTest();
-    const identite = await identifier(service);
-    const paiement = service.demarrerPaiement(identite.session);
-    const corpsBrut = creerCorpsDeWebhookPaddle({
-      evenementId: "evt_achat",
-      transactionId: paiement.transactionId,
-      identiteId: identite.identiteId,
-      type: "transaction.completed",
-    });
+    const paiement = completerPaiement(service);
 
     expect(
       service.traiterWebhookPaddle({
-        corpsBrut,
-        signature: service.signerWebhookDeTest(corpsBrut),
+        corpsBrut: paiement.corpsBrut,
+        signature: paiement.signature,
       }),
     ).toEqual({ statut: "traite" });
-    expect(service.lireAcces(identite.session)).toMatchObject({
+    expect(service.lireAcces(IDENTITE)).toMatchObject({
       premium: true,
-      identiteId: identite.identiteId,
-      preuveLocale: expect.any(String),
+      identiteId: IDENTITE,
+      preuveLocale: expect.stringMatching(/^[^.]+\.[^.]+$/),
     });
   });
 
-  it("rend le webhook idempotent et ne crée qu'un droit", async () => {
+  it("rend le webhook idempotent et ne crée qu'un droit", () => {
     const service = creerServiceCommercialDeTest();
-    const identite = await identifier(service);
-    const paiement = service.demarrerPaiement(identite.session);
-    const corpsBrut = creerCorpsDeWebhookPaddle({
-      evenementId: "evt_duplique",
-      transactionId: paiement.transactionId,
-      identiteId: identite.identiteId,
-      type: "transaction.completed",
-    });
-    const signature = service.signerWebhookDeTest(corpsBrut);
+    const paiement = completerPaiement(service, "evt_duplique");
 
     expect(
-      service.traiterWebhookPaddle({ corpsBrut, signature }),
+      service.traiterWebhookPaddle({
+        corpsBrut: paiement.corpsBrut,
+        signature: paiement.signature,
+      }),
     ).toEqual({ statut: "traite" });
     expect(
-      service.traiterWebhookPaddle({ corpsBrut, signature }),
+      service.traiterWebhookPaddle({
+        corpsBrut: paiement.corpsBrut,
+        signature: paiement.signature,
+      }),
     ).toEqual({ statut: "duplique" });
     expect(service.lireDiagnostic().droits).toHaveLength(1);
   });
 
-  it("relie la transaction Paddle officielle à la commande créée avant le checkout", async () => {
-    const service = creerServiceCommercialDeTest();
-    const identite = await identifier(service);
-    const commande = service.demarrerPaiement(identite.session);
-    const corpsBrut = creerCorpsDeWebhookPaddle({
-      evenementId: "evt_transaction_officielle",
-      transactionId: "txn_paddle_officielle",
-      commandeId: commande.transactionId,
-      identiteId: identite.identiteId,
-      type: "transaction.completed",
-    });
-
-    expect(
-      service.traiterWebhookPaddle({
-        corpsBrut,
-        signature: service.signerWebhookDeTest(corpsBrut),
-      }),
-    ).toEqual({ statut: "traite" });
-    expect(service.lireDiagnostic().droits).toEqual([
-      {
-        identiteId: identite.identiteId,
-        permanent: true,
-        transactionId: "txn_paddle_officielle",
-      },
-    ]);
-  });
-
-  it("rejette une signature forgée et un lien magique rejoué", async () => {
-    const service = creerServiceCommercialDeTest();
-    const demande = await service.demanderLien({
-      email: EMAIL,
-      intention: "acheter",
-    });
-    const identite = service.verifierLien(demande.jetonDeTest);
-    expect(() => service.verifierLien(demande.jetonDeTest)).toThrow(
-      "lien-magique-invalide-ou-expire",
+  it("persiste le droit et l'idempotence après redémarrage du service", async () => {
+    const dossier = await mkdtemp(join(tmpdir(), "lanternes-commerce-"));
+    dossiersTemporaires.push(dossier);
+    const chemin = join(dossier, "commerce.sqlite");
+    const donnees1 = creerDonneesCommercialesSqlite(
+      new DatabaseSync(chemin),
     );
-    const paiement = service.demarrerPaiement(identite.session);
-    const corpsBrut = creerCorpsDeWebhookPaddle({
-      evenementId: "evt_forge",
-      transactionId: paiement.transactionId,
-      identiteId: identite.identiteId,
-      type: "transaction.completed",
+    const service1 = creerServiceCommercialDeTest(donnees1);
+    const paiement = completerPaiement(service1, "evt_redemarrage");
+    service1.traiterWebhookPaddle({
+      corpsBrut: paiement.corpsBrut,
+      signature: paiement.signature,
     });
+    donnees1.fermer();
 
-    expect(() =>
-      service.traiterWebhookPaddle({
-        corpsBrut,
-        signature: `ts=${Math.floor(Date.now() / 1_000)},h1=${"0".repeat(64)}`,
+    const donnees2 = creerDonneesCommercialesSqlite(
+      new DatabaseSync(chemin),
+    );
+    const service2 = creerServiceCommercialDeTest(donnees2);
+    expect(service2.lireAcces(IDENTITE).premium).toBe(true);
+    expect(
+      service2.traiterWebhookPaddle({
+        corpsBrut: paiement.corpsBrut,
+        signature: paiement.signature,
       }),
-    ).toThrow("signature-webhook-invalide");
-    expect(service.lireAcces(identite.session).premium).toBe(false);
+    ).toEqual({ statut: "duplique" });
+    donnees2.fermer();
   });
 
-  it("n'accorde aucun droit après un paiement refusé", async () => {
+  it("n'accorde aucun droit après un paiement refusé", () => {
     const service = creerServiceCommercialDeTest();
-    const identite = await identifier(service, "refus@example.test");
-    const paiement = service.demarrerPaiement(identite.session);
+    const commande = service.demarrerPaiement(IDENTITE);
     const corpsBrut = creerCorpsDeWebhookPaddle({
       evenementId: "evt_refus",
-      transactionId: paiement.transactionId,
-      identiteId: identite.identiteId,
+      transactionId: "txn_refus",
+      commandeId: commande.commandeId,
+      identiteId: IDENTITE,
       type: "transaction.payment_failed",
     });
 
@@ -135,70 +127,79 @@ describe("service commercial", () => {
         signature: service.signerWebhookDeTest(corpsBrut),
       }),
     ).toEqual({ statut: "ignore" });
-    expect(service.lireAcces(identite.session)).toEqual({
+    expect(service.lireAcces(IDENTITE)).toEqual({
       premium: false,
-      identiteId: identite.identiteId,
+      identiteId: IDENTITE,
     });
   });
 
-  it("restaure le droit dans une nouvelle session sans transférer la progression", async () => {
+  it("rejette une autre référence, un autre produit ou un total inattendu", () => {
     const service = creerServiceCommercialDeTest();
-    const premiereIdentite = await identifier(service);
-    const paiement = service.demarrerPaiement(premiereIdentite.session);
+    const commande = service.demarrerPaiement(IDENTITE);
     const corpsBrut = creerCorpsDeWebhookPaddle({
-      evenementId: "evt_restauration",
-      transactionId: paiement.transactionId,
-      identiteId: premiereIdentite.identiteId,
+      evenementId: "evt_mauvais_produit",
+      transactionId: "txn_mauvais_produit",
+      commandeId: commande.commandeId,
+      identiteId: IDENTITE,
       type: "transaction.completed",
-    });
-    service.traiterWebhookPaddle({
-      corpsBrut,
-      signature: service.signerWebhookDeTest(corpsBrut),
+      produit: {
+        ...PRODUIT_DE_TEST,
+        priceId: "pri_autre_produit",
+        total: "1999",
+      },
     });
 
-    const restauration = await service.demanderLien({
-      email: EMAIL,
-      intention: "restaurer",
-    });
-    const deuxiemeIdentite = service.verifierLien(
-      restauration.jetonDeTest,
-    );
-
-    expect(deuxiemeIdentite.session).not.toBe(premiereIdentite.session);
-    expect(deuxiemeIdentite.identiteId).toBe(
-      premiereIdentite.identiteId,
-    );
-    expect(service.lireAcces(deuxiemeIdentite.session).premium).toBe(true);
+    expect(() =>
+      service.traiterWebhookPaddle({
+        corpsBrut,
+        signature: service.signerWebhookDeTest(corpsBrut),
+      }),
+    ).toThrow("produit-paddle-inattendu");
+    expect(service.lireAcces(IDENTITE).premium).toBe(false);
   });
 
-  it("sépare les données personnelles, les droits et toute donnée de Campagne", async () => {
+  it("rejette une signature forgée", () => {
     const service = creerServiceCommercialDeTest();
-    const identite = await identifier(service);
-    const paiement = service.demarrerPaiement(identite.session);
-    const corpsBrut = creerCorpsDeWebhookPaddle({
-      evenementId: "evt_separation",
-      transactionId: paiement.transactionId,
-      identiteId: identite.identiteId,
-      type: "transaction.completed",
-    });
+    const paiement = completerPaiement(service, "evt_forge");
+
+    expect(() =>
+      service.traiterWebhookPaddle({
+        corpsBrut: paiement.corpsBrut,
+        signature: `ts=${Math.floor(Date.now() / 1_000)},h1=${"0".repeat(64)}`,
+      }),
+    ).toThrow("signature-webhook-invalide");
+    expect(service.lireAcces(IDENTITE).premium).toBe(false);
+  });
+
+  it("sépare les droits de toute donnée personnelle ou de Campagne", () => {
+    const service = creerServiceCommercialDeTest();
+    const paiement = completerPaiement(service, "evt_separation");
     service.traiterWebhookPaddle({
-      corpsBrut,
-      signature: service.signerWebhookDeTest(corpsBrut),
+      corpsBrut: paiement.corpsBrut,
+      signature: paiement.signature,
     });
 
     const diagnostic = service.lireDiagnostic();
-    expect(diagnostic.identites).toEqual([
-      { identiteId: identite.identiteId, email: EMAIL },
-    ]);
     expect(diagnostic.droits).toEqual([
       {
-        identiteId: identite.identiteId,
+        identiteId: IDENTITE,
         permanent: true,
-        transactionId: paiement.transactionId,
+        transactionId: "txn_evt_separation",
       },
     ]);
     expect(JSON.stringify(diagnostic)).not.toMatch(
-      /campagne|graine|snapshot|commande/i,
+      /email|campagne|graine|snapshot|commande/i,
     );
+  });
+
+  it("refuse les placeholders de secrets même s'ils sont assez longs", () => {
+    expect(() =>
+      creerServiceCommercial({
+        secretWebhook:
+          "remplacer-par-un-secret-de-32-caracteres-minimum",
+        clePriveeDeRecu: CLE_PRIVEE_DE_RECU_DE_TEST,
+        produit: PRODUIT_DE_TEST,
+      }),
+    ).toThrow(/forte entropie/);
   });
 });

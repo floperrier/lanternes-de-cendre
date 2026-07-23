@@ -16,14 +16,18 @@ npm run dev
 
 Le jeu est ensuite disponible sur l’URL affichée par Vite. La Graine de
 campagne de cette tranche est `CENDRE-01`. Sans identifiants Paddle, le serveur
-de développement active le marchand de test déterministe. Pour ouvrir le
+de développement active le marchand de test déterministe. Better Auth y livre
+le magic link dans l’interface de test et conserve identités, sessions,
+commandes, droits et événements idempotents dans SQLite. Pour ouvrir le
 checkout officiel Paddle Sandbox, copier `.env.example` vers `.env.local` et
-renseigner `PADDLE_CLIENT_TOKEN` et `PADDLE_PRICE_ID`.
+renseigner `PADDLE_CLIENT_TOKEN`, `PADDLE_PRICE_ID` et `PADDLE_PRODUCT_ID`.
 
-Les secrets de webhook, de preuve locale et Better Auth restent exclusivement
-dans le service commercial. Ils ne doivent jamais porter le préfixe `VITE_` ni
-être commités. L’adaptateur Better Auth de `serveur-commercial/authentification.ts`
-attend une base persistante, un expéditeur d’email et un journal d’audit.
+Les secrets de webhook, la clé privée Ed25519 et le secret Better Auth restent
+exclusivement dans le service commercial. Ils ne doivent jamais porter le
+préfixe `VITE_` ni être commités. Seule la clé publique Ed25519 est intégrée au
+client pour vérifier le reçu hors ligne. En production, le service exige aussi
+une base persistante et `EMAIL_DELIVERY_URL`/`EMAIL_DELIVERY_TOKEN` pour livrer
+le magic link.
 
 ## Vérifier
 
@@ -47,7 +51,7 @@ push et sur chaque pull request.
   migrations et replays derrière des ports mémoire et IndexedDB ;
 - `src/ui` rend la projection dans le DOM et dans PixiJS ;
 - `serveur-commercial` porte le magic link, la vérification des webhooks
-  Paddle, l’idempotence et le droit permanent ;
+  Paddle, l’idempotence, le droit permanent et le catalogue premium protégé ;
 - le ticker PixiJS anime uniquement la présentation.
 
 Les commandes `Sauvegarder`, `Exporter` et `Importer` sont disponibles dans
