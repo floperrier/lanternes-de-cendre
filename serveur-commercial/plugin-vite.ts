@@ -21,9 +21,9 @@ import { creerDonneesCommercialesSqlite } from "./stockage";
 
 const CORPS_MAXIMAL = 64 * 1_024;
 
-interface OptionsDuPluginCommercial {
+export interface OptionsDuPluginCommercial {
   readonly mode: string;
-  readonly origineApplication: string;
+  readonly origineApplication?: string;
   readonly cheminBaseDeDonnees: string;
   readonly paddleClientToken?: string;
   readonly secretWebhook?: string;
@@ -36,9 +36,86 @@ interface OptionsDuPluginCommercial {
   };
 }
 
+interface OptionsDuPluginCommercialResolues
+  extends Omit<OptionsDuPluginCommercial, "origineApplication"> {
+  readonly origineApplication: string;
+}
+
+export interface ConfigurationServeurCommercialAValider {
+  readonly mode: string;
+  readonly origineApplication: string;
+  readonly secretWebhook?: string;
+  readonly clePriveeDeRecu?: string;
+  readonly secretBetterAuth?: string;
+  readonly livraisonEmail?: {
+    readonly url: string;
+    readonly jeton: string;
+  };
+}
+
 type AuthCommerciale = ReturnType<
   typeof creerAuthentificationCommerciale
 >;
+
+export function resoudreOrigineDeDeveloppement({
+  host,
+  port,
+  https,
+}: {
+  readonly host?: string | boolean;
+  readonly port?: number;
+  readonly https?: boolean | object;
+}): string {
+  const hote =
+    typeof host === "string" &&
+    host !== "0.0.0.0" &&
+    host !== "::"
+      ? host
+      : "127.0.0.1";
+  return `${https ? "https" : "http"}://${hote}:${port ?? 5173}`;
+}
+
+function exigerHttps(valeur: string, nom: string) {
+  let url: URL;
+  try {
+    url = new URL(valeur);
+  } catch {
+    throw new Error(`${nom} doit être une URL HTTPS valide.`);
+  }
+  if (url.protocol !== "https:") {
+    throw new Error(`${nom} doit utiliser HTTPS en production.`);
+  }
+}
+
+export function validerConfigurationServeurCommercial(
+  configuration: ConfigurationServeurCommercialAValider,
+) {
+  if (configuration.mode !== "production") {
+    return;
+  }
+  if (
+    configuration.secretWebhook === undefined ||
+    configuration.clePriveeDeRecu === undefined ||
+    configuration.secretBetterAuth === undefined
+  ) {
+    throw new Error(
+      "Les secrets commerciaux sont obligatoires en production.",
+    );
+  }
+  if (configuration.livraisonEmail === undefined) {
+    throw new Error(
+      "Un expéditeur de magic links est obligatoire en production.",
+    );
+  }
+  exigerHttps(
+    configuration.origineApplication,
+    "COMMERCIAL_ORIGIN",
+  );
+  exigerHttps(
+    configuration.livraisonEmail.url,
+    "EMAIL_DELIVERY_URL",
+  );
+}
 
 function envoyerJson(
   reponse: ServerResponse,
@@ -138,7 +215,7 @@ function creerGestionnaire(
   service: ServiceCommercial,
   authentification: AuthCommerciale,
   liensDeTest: Map<string, string>,
-  options: OptionsDuPluginCommercial,
+  options: OptionsDuPluginCommercialResolues,
 ) {
   const commandesDeTest = new Map<
     string,
@@ -194,13 +271,25 @@ function creerGestionnaire(
         }
         const email = corps.email.trim().toLocaleLowerCase("en-US");
         liensDeTest.delete(email);
-        await authentification.api.signInMagicLink({
-          body: {
-            email,
-            callbackURL: `${options.origineApplication}/?commerce=${corps.intention}`,
-          },
-          headers: convertirEntetes(requete),
-        });
+        const entetes = convertirEntetes(requete);
+        entetes.set("Content-Type", "application/json");
+        const reponseAuth = await authentification.handler(
+          new Request(
+            `${options.origineApplication}/api/auth/sign-in/magic-link`,
+            {
+              method: "POST",
+              headers: entetes,
+              body: JSON.stringify({
+                email,
+                callbackURL: `${options.origineApplication}/?commerce=${corps.intention}`,
+              }),
+            },
+          ),
+        );
+        if (!reponseAuth.ok) {
+          await transmettreReponseWeb(reponseAuth, reponse);
+          return true;
+        }
         const urlDeTest = liensDeTest.get(email);
         liensDeTest.delete(email);
         envoyerJson(reponse, 202, {
@@ -354,6 +443,17 @@ export function creerPluginCommercial(
   return {
     name: "lanternes-service-commercial",
     async configureServer(serveur) {
+      const origineApplication =
+        options.origineApplication ??
+        resoudreOrigineDeDeveloppement({
+          host: serveur.config.server.host,
+          port: serveur.config.server.port,
+          https: serveur.config.server.https,
+        });
+      const optionsResolues: OptionsDuPluginCommercialResolues = {
+        ...options,
+        origineApplication,
+      };
       const secretWebhook =
         options.secretWebhook ??
         (options.mode === "production"
@@ -371,22 +471,20 @@ MC4CAQAwBQYDK2VwBCIEIGoBdws9nVuf8ZvtDfSPHmd6e3/2jumRQA4HMdla7eEZ
         (options.mode === "production"
           ? undefined
           : "uF2w7Jp9xK4mN8qR5sV1yB6dG3hL0cZtA9eQ");
+      validerConfigurationServeurCommercial({
+        mode: options.mode,
+        origineApplication,
+        secretWebhook,
+        clePriveeDeRecu,
+        secretBetterAuth,
+        livraisonEmail: options.livraisonEmail,
+      });
       if (
         secretWebhook === undefined ||
         clePriveeDeRecu === undefined ||
         secretBetterAuth === undefined
       ) {
-        throw new Error(
-          "Les secrets commerciaux sont obligatoires en production.",
-        );
-      }
-      if (
-        options.mode === "production" &&
-        options.livraisonEmail === undefined
-      ) {
-        throw new Error(
-          "Un expéditeur de magic links est obligatoire en production.",
-        );
+        throw new Error("configuration-commerciale-incomplete");
       }
 
       mkdirSync(dirname(options.cheminBaseDeDonnees), {
@@ -408,11 +506,13 @@ MC4CAQAwBQYDK2VwBCIEIGoBdws9nVuf8ZvtDfSPHmd6e3/2jumRQA4HMdla7eEZ
       `);
       const liensDeTest = new Map<string, string>();
       const authentification = creerAuthentificationCommerciale({
-        baseUrl: `${options.origineApplication}/api/auth`,
-        origineApplication: options.origineApplication,
+        baseUrl: `${origineApplication}/api/auth`,
+        origineApplication,
         secret: secretBetterAuth,
         database,
-        cookiesSecurises: options.origineApplication.startsWith("https://"),
+        cookiesSecurises:
+          options.mode === "production" ||
+          origineApplication.startsWith("https://"),
         envoyerLien: async ({ email, url }) => {
           if (options.mode !== "production") {
             liensDeTest.set(email.toLocaleLowerCase("en-US"), url);
@@ -451,7 +551,7 @@ MC4CAQAwBQYDK2VwBCIEIGoBdws9nVuf8ZvtDfSPHmd6e3/2jumRQA4HMdla7eEZ
         service,
         authentification,
         liensDeTest,
-        options,
+        optionsResolues,
       );
       serveur.httpServer?.once("close", () => donnees.fermer());
       serveur.middlewares.use((requete, reponse, suivant) => {

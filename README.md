@@ -20,14 +20,18 @@ de développement active le marchand de test déterministe. Better Auth y livre
 le magic link dans l’interface de test et conserve identités, sessions,
 commandes, droits et événements idempotents dans SQLite. Pour ouvrir le
 checkout officiel Paddle Sandbox, copier `.env.example` vers `.env.local` et
-renseigner `PADDLE_CLIENT_TOKEN`, `PADDLE_PRICE_ID` et `PADDLE_PRODUCT_ID`.
+renseigner ses trois valeurs publiques. Ce fichier local ne configure ni
+origine distante ni secret : le port effectivement résolu par Vite est donc
+repris dans les magic links.
 
 Les secrets de webhook, la clé privée Ed25519 et le secret Better Auth restent
 exclusivement dans le service commercial. Ils ne doivent jamais porter le
 préfixe `VITE_` ni être commités. Seule la clé publique Ed25519 est intégrée au
-client pour vérifier le reçu hors ligne. En production, le service exige aussi
-une base persistante et `EMAIL_DELIVERY_URL`/`EMAIL_DELIVERY_TOKEN` pour livrer
-le magic link.
+client pour vérifier le reçu hors ligne. La production part de
+`.env.production.example` et exige le remplacement de toutes ses valeurs :
+origine et livraison email HTTPS, secrets forts, paire Ed25519 cohérente et
+base SQLite persistante. Le fichier d’exemple de production ne doit jamais
+être utilisé tel quel.
 
 ## Vérifier
 

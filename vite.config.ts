@@ -7,15 +7,21 @@ export default defineConfig(({ mode }) => {
   const environnement = loadEnv(mode, process.cwd(), "");
   const lire = (nom: string) =>
     process.env[nom] ?? environnement[nom];
-  const port = lire("PLAYWRIGHT_PORT") ?? "5173";
-  const origineApplication =
-    lire("COMMERCIAL_ORIGIN") ?? `http://127.0.0.1:${port}`;
+  const port = Number.parseInt(
+    lire("PLAYWRIGHT_PORT") ?? "5173",
+    10,
+  );
   return {
+    server: {
+      host: "127.0.0.1",
+      port,
+      strictPort: true,
+    },
     plugins: [
       react(),
       creerPluginCommercial({
         mode,
-        origineApplication,
+        origineApplication: lire("COMMERCIAL_ORIGIN"),
         cheminBaseDeDonnees:
           lire("COMMERCIAL_DATABASE_PATH") ??
           `.scratch/commercial-${port}.sqlite`,
