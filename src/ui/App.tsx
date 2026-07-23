@@ -1,5 +1,6 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
 
+import type { ControleurAccesPremium } from "../commercial/controleur";
 import { projeterCampagne } from "../application/application";
 import {
   projeterImplantationPixi,
@@ -30,6 +31,7 @@ import { SelecteurDeLangue } from "./SelecteurDeLangue";
 import { CriseDuConvoi } from "./CriseDuConvoi";
 import { OrdreDistantDExpedition } from "./OrdreDistantDExpedition";
 import { JalonFinalDeLaDemonstration } from "./JalonFinalDeLaDemonstration";
+import { PanneauAccesPremium } from "./PanneauAccesPremium";
 import { choisirSurfacePrioritaire } from "./ordreDesSurfaces";
 
 interface PropsCampagne {
@@ -38,11 +40,22 @@ interface PropsCampagne {
     { readonly statut: "ouverte" }
   >;
   readonly controleur: ControleurDeSessionCampagne;
+  readonly controleurAccesPremium: ControleurAccesPremium;
 }
 
-function CampagnePersistante({ etatDuControleur, controleur }: PropsCampagne) {
+function CampagnePersistante({
+  etatDuControleur,
+  controleur,
+  controleurAccesPremium,
+}: PropsCampagne) {
   const [langue, choisirLangue] = useState<Langue>("fr");
   const application = etatDuControleur.ouverture.application;
+  const etatAccesPremium = useSyncExternalStore(
+    controleurAccesPremium.sabonner,
+    controleurAccesPremium.lireEtat,
+    controleurAccesPremium.lireEtat,
+  );
+  const accesPremiumActif = etatAccesPremium.statut === "premium";
   const etat = useSyncExternalStore(
     application.sabonner,
     application.lireEtat,
@@ -69,7 +82,8 @@ function CampagnePersistante({ etatDuControleur, controleur }: PropsCampagne) {
   const surfacePrioritaire = choisirSurfacePrioritaire({
     criseActive: projectionDesCrises.active !== null,
     checkpointDeCriseRequis,
-    demonstrationTerminee: projectionDeDemonstration.terminee,
+    demonstrationTerminee:
+      projectionDeDemonstration.terminee && !accesPremiumActif,
     ordreDExpedition: projectionDExpedition.ordreImportant !== null,
     evenementNarratif: projection.evenementNarratif !== null,
     conseil: projectionDuConseil.conseil !== null,
@@ -136,6 +150,11 @@ function CampagnePersistante({ etatDuControleur, controleur }: PropsCampagne) {
         {jalonDeDemonstrationAffiche ? null : (
           <div className="app-header__outils">
             <SelecteurDeLangue langue={langue} choisirLangue={choisirLangue} />
+            <PanneauAccesPremium
+              controleur={controleurAccesPremium}
+              langue={langue}
+              achatDisponible={false}
+            />
             <PanneauSauvegarde
               controleur={controleur}
               statutAutomatique={etatDuControleur.statutSauvegarde}
@@ -202,6 +221,11 @@ function CampagnePersistante({ etatDuControleur, controleur }: PropsCampagne) {
             statutAutomatique={etatDuControleur.statutSauvegarde}
             erreurAsynchrone={etatDuControleur.erreurSauvegarde}
           />
+          <PanneauAccesPremium
+            controleur={controleurAccesPremium}
+            langue={langue}
+            achatDisponible
+          />
         </JalonFinalDeLaDemonstration>
       ) : surfacePrioritaire === "ordre-expedition" &&
         projectionDExpedition.ordreImportant !== null ? (
@@ -229,7 +253,10 @@ function CampagnePersistante({ etatDuControleur, controleur }: PropsCampagne) {
       <CommandesDuTemps
         application={application}
         projection={projection}
-        bloque={criseBloquante || projectionDeDemonstration.terminee}
+        bloque={
+          criseBloquante ||
+          (projectionDeDemonstration.terminee && !accesPremiumActif)
+        }
       />
     </main>
   );
@@ -237,9 +264,13 @@ function CampagnePersistante({ etatDuControleur, controleur }: PropsCampagne) {
 
 interface PropsApp {
   readonly controleur: ControleurDeSessionCampagne;
+  readonly controleurAccesPremium: ControleurAccesPremium;
 }
 
-export function App({ controleur }: PropsApp) {
+export function App({
+  controleur,
+  controleurAccesPremium,
+}: PropsApp) {
   const etatDuControleur = useSyncExternalStore(
     controleur.sabonner,
     controleur.lireEtat,
@@ -268,6 +299,7 @@ export function App({ controleur }: PropsApp) {
     <CampagnePersistante
       etatDuControleur={etatDuControleur}
       controleur={controleur}
+      controleurAccesPremium={controleurAccesPremium}
     />
   );
 }

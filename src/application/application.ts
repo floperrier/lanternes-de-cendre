@@ -93,6 +93,20 @@ export const ACCES_AU_CONTENU_COMPLET: PolitiqueDAccesAuContenu = {
   verifierCommande: () => null,
 };
 
+export function creerPolitiqueDAccesPremium(
+  possedeAccesPremium: () => boolean,
+): PolitiqueDAccesAuContenu {
+  return {
+    verifierCommande: (etat, commande) =>
+      possedeAccesPremium()
+        ? null
+        : ACCES_AU_CONTENU_DE_LA_DEMONSTRATION.verifierCommande(
+            etat,
+            commande,
+          ),
+  };
+}
+
 interface TempsDecompose {
   readonly minutes: number;
   readonly secondesRestantes: number;

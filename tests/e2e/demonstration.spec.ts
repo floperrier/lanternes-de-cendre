@@ -28,6 +28,12 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
   page,
 }, testInfo) => {
   test.setTimeout(120_000);
+  const chargementsDuContenuComplet: string[] = [];
+  page.on("request", (requete) => {
+    if (requete.url().includes("/api/commercial/contenu-complet")) {
+      chargementsDuContenuComplet.push(requete.url());
+    }
+  });
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.clock.install();
   await page.goto("/");
@@ -155,6 +161,7 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
       name: "Étudier l’Engagement vers Relais des Vannes",
     }),
   ).toHaveCount(0);
+  expect(chargementsDuContenuComplet).toHaveLength(0);
 
   await page.clock.fastForward(2_265_000);
   const ordre = page.getByRole("region", {
@@ -167,7 +174,9 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
   await page.clock.fastForward(2_250_000);
 
   const jalon = page.getByRole("region", { name: "La route continue" });
-  await expect(jalon.getByRole("heading")).toBeFocused();
+  await expect(
+    jalon.getByRole("heading", { name: "La route continue" }),
+  ).toBeFocused();
   await expect(page.locator(".app-header")).toHaveAttribute("inert", "");
   await expect(page.locator(".scene-layout")).toHaveAttribute("inert", "");
   await expect(jalon).toContainText(
@@ -210,6 +219,81 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
   await expect(
     page.getByRole("region", { name: "The road continues" }),
   ).toContainText("The same Campaign can continue with Premium Access");
+
+  await activerAuClavier(
+    page,
+    page.getByRole("button", { name: "Français" }),
+  );
+  const porteCommerciale = page.getByRole("region", {
+    name: "La route continue",
+  });
+  const email = "veilleuse-demonstration@example.test";
+  await porteCommerciale.getByLabel("Adresse email").fill(email);
+  await activerAuClavier(
+    page,
+    porteCommerciale.getByRole("button", {
+      name: "Acheter la V1 — 19,99 € TTC",
+    }),
+  );
+  await expect(
+    porteCommerciale.getByText(
+      "Lien de connexion envoyé. Il expire dans cinq minutes.",
+    ),
+  ).toBeVisible();
+  await activerAuClavier(
+    page,
+    porteCommerciale.getByRole("button", {
+      name: "Ouvrir le lien de test",
+    }),
+  );
+  await expect(
+    porteCommerciale.getByText(/Environnement Paddle de test/),
+  ).toBeVisible();
+  await activerAuClavier(
+    page,
+    porteCommerciale.getByRole("button", {
+      name: "Valider le paiement test",
+    }),
+  );
+
+  await expect(porteCommerciale).toHaveCount(0);
+  await expect(
+    page.getByText(
+      "Accès premium permanent actif. La même Campagne peut continuer.",
+    ),
+  ).toBeVisible();
+  expect(chargementsDuContenuComplet).toHaveLength(1);
+  await expect(
+    page.getByRole("button", {
+      name: "Étudier l’Engagement vers Relais des Vannes",
+    }),
+  ).toBeVisible();
+  await expect(expedition).toContainText("Bilan de retour");
+
+  const navigateurVierge = await page.context().browser()!.newContext();
+  const autrePage = await navigateurVierge.newPage();
+  await autrePage.goto("/");
+  await expect(
+    autrePage.locator("time").filter({ hasText: "00:00" }).first(),
+  ).toBeVisible();
+  await autrePage
+    .getByRole("button", { name: "Restaurer mon achat" })
+    .click();
+  await autrePage.getByLabel("Adresse email").fill(email);
+  await autrePage
+    .getByRole("button", { name: "Restaurer mon achat" })
+    .click();
+  await autrePage
+    .getByRole("button", { name: "Ouvrir le lien de test" })
+    .click();
+  await expect(
+    autrePage.getByText(
+      "Accès premium permanent actif. La même Campagne peut continuer.",
+    ),
+  ).toBeVisible();
+  await expect(autrePage.getByText("CENDRE-01").first()).toBeVisible();
+  await expect(autrePage.getByText("Bilan de retour")).toHaveCount(0);
+  await navigateurVierge.close();
 
   await page.screenshot({
     path: testInfo.outputPath("demonstration-final.png"),

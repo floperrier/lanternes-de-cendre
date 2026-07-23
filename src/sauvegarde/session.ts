@@ -2,6 +2,7 @@ import {
   creerApplicationCampagne,
   reprendreApplicationCampagne,
   type ApplicationCampagne,
+  type PolitiqueDAccesAuContenu,
 } from "../application/application";
 import type { GraineDeCampagne } from "../simulation/campagne";
 import {
@@ -51,10 +52,15 @@ export type ResultatImportCampagne =
     > & { readonly erreurPersistance?: string })
   | Extract<ResultatImportSauvegarde, { readonly statut: "invalide" }>;
 
+export interface OptionsDAccesDeSession {
+  readonly politiqueDAcces?: PolitiqueDAccesAuContenu;
+}
+
 function reprendreSauvegarde(
   sauvegarde: SauvegardeCampagne,
+  options: OptionsDAccesDeSession,
 ): ApplicationCampagne {
-  return reprendreApplicationCampagne(sauvegarde.etat);
+  return reprendreApplicationCampagne(sauvegarde.etat, options);
 }
 
 function archiverTexte(
@@ -149,6 +155,7 @@ async function persisterSauvegardeSansMasquerLeResultat(
 export async function importerCampagne(
   port: PortDePersistanceSauvegardes,
   archiveOriginale: string,
+  options: OptionsDAccesDeSession = {},
 ): Promise<ResultatImportCampagne> {
   const importation = importerSauvegarde(archiveOriginale);
 
@@ -164,7 +171,7 @@ export async function importerCampagne(
     return {
       statut: "compatible",
       sauvegarde: importation.sauvegarde,
-      application: reprendreSauvegarde(importation.sauvegarde),
+      application: reprendreSauvegarde(importation.sauvegarde, options),
       reproduction: importation.sauvegarde.reproduction,
       ...(erreurPersistance === undefined ? {} : { erreurPersistance }),
     };
@@ -193,7 +200,7 @@ export async function importerCampagne(
     return {
       statut: "migree",
       sauvegarde: importation.sauvegarde,
-      application: reprendreSauvegarde(importation.sauvegarde),
+      application: reprendreSauvegarde(importation.sauvegarde, options),
       reproduction: importation.sauvegarde.reproduction,
       archiveOriginale,
       ...(erreurPersistance === undefined ? {} : { erreurPersistance }),
@@ -223,6 +230,7 @@ export async function importerCampagne(
 export async function ouvrirCampagne(
   port: PortDePersistanceSauvegardes,
   graine: GraineDeCampagne,
+  options: OptionsDAccesDeSession = {},
 ): Promise<ResultatOuvertureCampagne> {
   let archiveIncompatible: ArchivePersistante | undefined;
   let explication: string | undefined;
@@ -289,7 +297,7 @@ export async function ouvrirCampagne(
   if (sauvegardeTrouvee !== undefined) {
     return {
       statut: "reprise",
-      application: reprendreSauvegarde(sauvegardeTrouvee),
+      application: reprendreSauvegarde(sauvegardeTrouvee, options),
       reproduction: sauvegardeTrouvee.reproduction,
       ...(explication === undefined ? {} : { explication }),
       ...(archiveIncompatible === undefined
@@ -298,7 +306,7 @@ export async function ouvrirCampagne(
     };
   }
 
-  const application = creerApplicationCampagne(graine);
+  const application = creerApplicationCampagne(graine, options);
   return {
     statut: "nouvelle",
     application,

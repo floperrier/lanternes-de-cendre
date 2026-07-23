@@ -19,6 +19,8 @@
   "dependencies": {
     "@fontsource/cormorant-garamond": "^5.3.0",
     "@fontsource/source-sans-3": "^5.3.0",
+    "@paddle/paddle-js": "^1.6.4",
+    "better-auth": "^1.6.24",
     "pixi.js": "^8.19.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7"

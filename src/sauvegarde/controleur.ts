@@ -1,4 +1,7 @@
-import type { ApplicationCampagne } from "../application/application";
+import type {
+  ApplicationCampagne,
+  PolitiqueDAccesAuContenu,
+} from "../application/application";
 import {
   empreinteEtat,
   type EtatCampagne,
@@ -52,6 +55,7 @@ export interface OptionsDuControleur {
   readonly port: PortDePersistanceSauvegardes;
   readonly graine: GraineDeCampagne;
   readonly delaiDEcriture?: number;
+  readonly politiqueDAcces?: PolitiqueDAccesAuContenu;
 }
 
 interface JournalMutable {
@@ -77,6 +81,7 @@ export function creerControleurDeSessionCampagne({
   port,
   graine,
   delaiDEcriture = 300,
+  politiqueDAcces,
 }: OptionsDuControleur): ControleurDeSessionCampagne {
   let etat: EtatDuControleurDeSession = { statut: "chargement" };
   let application: ApplicationCampagne | undefined;
@@ -294,7 +299,7 @@ export function creerControleurDeSessionCampagne({
     }
   };
 
-  const ouverture = ouvrirCampagne(port, graine)
+  const ouverture = ouvrirCampagne(port, graine, { politiqueDAcces })
     .then((resultat) => {
       brancherOuverture(resultat);
       planifierSauvegarde();
@@ -358,7 +363,9 @@ export function creerControleurDeSessionCampagne({
 
         let resultat: ResultatImportCampagne;
         try {
-          resultat = await importerCampagne(port, archiveOriginale);
+          resultat = await importerCampagne(port, archiveOriginale, {
+            politiqueDAcces,
+          });
         } catch (erreur) {
           terminerImport();
           if (!fermee && nombreDImportsEnAttente === 0) {
@@ -456,9 +463,11 @@ export function creerControleurDeSessionCampagne({
 
 export function creerControleurDeSessionNavigateur(
   graine: GraineDeCampagne,
+  politiqueDAcces?: PolitiqueDAccesAuContenu,
 ): ControleurDeSessionCampagne {
   return creerControleurDeSessionCampagne({
     port: creerPortDePersistanceIndexedDb(),
     graine,
+    politiqueDAcces,
   });
 }
