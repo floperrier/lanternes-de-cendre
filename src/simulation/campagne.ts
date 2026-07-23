@@ -77,6 +77,19 @@ import {
   type EvenementDExpedition,
   type MouvementDeStockDExpedition,
 } from "./expeditions";
+import {
+  accueillirOuOrienterLaCohorte,
+  creerEtatInitialDeVeilleBasse,
+  deciderPourMaelys,
+  interventionDeVeilleBasseEstPrete,
+  intervenirPourVeilleBasse,
+  laisserPasserLOccasionDIntervenir,
+  preparerInterventionPourVeilleBasse,
+  revelerLesRegistresDuReflux,
+  traiterEcheancesDeVeilleBasse,
+  type EtatDeVeilleBasse,
+  type EvenementDeVeilleBasse,
+} from "./veilleBasse";
 
 export type { GraineDeCampagne } from "./graine";
 export const IDENTIFIANTS_PLATEFORMES_MOBILES =
@@ -120,6 +133,7 @@ export interface EtatCampagne {
   readonly routes: EtatDesRoutes;
   readonly crises: EtatDesCrises;
   readonly expeditions: EtatDesExpeditions;
+  readonly veilleBasse: EtatDeVeilleBasse;
   readonly echeances: readonly EcheanceDeCampagne[];
   readonly fluxPseudoAleatoires: Readonly<{
     "evenements-narratifs": FluxPseudoAleatoire;
@@ -187,7 +201,8 @@ export type EvenementDeDomaine =
   | EvenementDInfrastructure
   | EvenementDeRoute
   | EvenementDeCrise
-  | EvenementDExpedition;
+  | EvenementDExpedition
+  | EvenementDeVeilleBasse;
 
 export interface TransitionDeCampagne {
   readonly etat: EtatCampagne;
@@ -220,6 +235,7 @@ export function creerCampagneInitiale(graine: GraineDeCampagne): EtatCampagne {
     routes: creerEtatDesRoutesInitial(),
     crises: creerEtatDesCrisesInitial(),
     expeditions: creerEtatDesExpeditionsInitial(),
+    veilleBasse: creerEtatInitialDeVeilleBasse(),
     echeances: [],
     fluxPseudoAleatoires: {
       "evenements-narratifs": creerFluxPseudoAleatoire(
@@ -244,6 +260,10 @@ function conditionEstRemplie(
     );
   }
 
+  if (condition.type === "lieu-present") {
+    return etat.routes.position === condition.lieu;
+  }
+
   return condition.faits.some((faitAttendu) =>
     etat.narration.faitsDeCampagne.some((fait) => fait.id === faitAttendu),
   );
@@ -254,6 +274,12 @@ function evenementEstEligible(
   evenement: EvenementDuCatalogue,
   fenetre: string,
 ): boolean {
+  if (
+    evenement.id === "veille-basse.la-porte-des-filtres" &&
+    !interventionDeVeilleBasseEstPrete(etat.veilleBasse)
+  ) {
+    return false;
+  }
   return (
     evenement.fenetre === fenetre &&
     etat.tempsDuConvoi.secondes >= evenement.periodeEligibilite.debut &&
@@ -522,7 +548,58 @@ function choisirDansEvenement(
     );
   }
 
-  const etatApresEffets = appliquerEffets(etat, choix.effets);
+  const etatApresDecisionDeVeilleBasse = (() => {
+    if (evenement.id === "veille-basse.la-place-sous-le-phare") {
+      return {
+        ...etat,
+        veilleBasse: accueillirOuOrienterLaCohorte(
+          etat.veilleBasse,
+          commande.choixId as "accueillir" | "refuser" | "rediriger",
+          etat.tempsDuConvoi.secondes,
+        ).etat,
+      };
+    }
+    if (evenement.id === "veille-basse.la-porte-des-filtres") {
+      return {
+        ...etat,
+        veilleBasse:
+          commande.choixId === "renoncer-intervention"
+            ? laisserPasserLOccasionDIntervenir(
+                etat.veilleBasse,
+                etat.tempsDuConvoi.secondes,
+              )
+            : intervenirPourVeilleBasse(
+                etat.veilleBasse,
+                commande.choixId as "renforcer-sas" | "ouvrir-hospice",
+                etat.tempsDuConvoi.secondes,
+              ),
+      };
+    }
+    if (evenement.id === "veille-basse.les-registres-du-reflux") {
+      return {
+        ...etat,
+        veilleBasse: revelerLesRegistresDuReflux(
+          etat.veilleBasse,
+          commande.choixId as "copier-registres" | "laisser-registres",
+        ),
+      };
+    }
+    if (evenement.id === "veille-basse.maelys-et-le-coffret") {
+      return {
+        ...etat,
+        veilleBasse: deciderPourMaelys(
+          etat.veilleBasse,
+          commande.choixId as "confier-coffret" | "garder-equipes",
+          etat.tempsDuConvoi.secondes,
+        ),
+      };
+    }
+    return etat;
+  })();
+  const etatApresEffets = appliquerEffets(
+    etatApresDecisionDeVeilleBasse,
+    choix.effets,
+  );
   const effetsDeFait = decrireEffetsDeFait(choix.effets);
   const faitsProduits = choix.faitsProduits.map((fait) => ({
     id: fait.id,
@@ -645,6 +722,28 @@ export function appliquerCommande(
       evenements.push(...echeancesRestantes.evenements);
     }
 
+    const veilleBasse = traiterEcheancesDeVeilleBasse(
+      nouvelEtat.veilleBasse,
+      etat.tempsDuConvoi.secondes,
+      nouvellesSecondes,
+    );
+    nouvelEtat = {
+      ...nouvelEtat,
+      veilleBasse: veilleBasse.etat,
+      citeCaravane: veilleBasse.evenements.some(
+        (evenement) =>
+          evenement.type === "cohorte.integration-terminee",
+      )
+        ? {
+            ...nouvelEtat.citeCaravane,
+            habitants:
+              nouvelEtat.citeCaravane.habitants +
+              veilleBasse.etat.cohorte.taille,
+          }
+        : nouvelEtat.citeCaravane,
+    };
+    evenements.push(...veilleBasse.evenements);
+
     const jalonsDeRoute = traiterJalonsDeRoute(
       nouvelEtat.routes,
       etat.tempsDuConvoi.secondes,
@@ -652,6 +751,32 @@ export function appliquerCommande(
     );
     nouvelEtat = { ...nouvelEtat, routes: jalonsDeRoute.etat };
     evenements.push(...jalonsDeRoute.evenements);
+
+    if (
+      nouvelEtat.narration.evenementActif === null &&
+      interventionDeVeilleBasseEstPrete(nouvelEtat.veilleBasse) &&
+      !nouvelEtat.narration.evenementsJoues.includes(
+        "veille-basse.la-porte-des-filtres",
+      )
+    ) {
+      const evenementOuvrantLIntervention =
+        veilleBasse.evenements.find(
+          (evenement) =>
+            evenement.type === "cohorte.integration-terminee" ||
+            (evenement.type === "consequence-differee.manifestee" &&
+              (evenement.consequenceId ===
+                "veille-basse.cohorte-refusee-revient-aux-portes" ||
+                evenement.consequenceId ===
+                  "veille-basse.hospice-accueille-la-cohorte")),
+        );
+      nouvelEtat = {
+        ...nouvelEtat,
+        veilleBasse: preparerInterventionPourVeilleBasse(
+          nouvelEtat.veilleBasse,
+          evenementOuvrantLIntervention?.moment ?? nouvellesSecondes,
+        ),
+      };
+    }
 
     const suiteNarrative =
       declencherSuiteNarrativeDeLaDemonstration(nouvelEtat);

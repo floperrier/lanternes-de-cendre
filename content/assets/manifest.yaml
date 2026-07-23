@@ -25,3 +25,23 @@ assets:
     alternative: evenement.bassins.haut-puits.asset.alt
     contient_texte: false
     provenance: docs/assets/bassins-haut-puits.provenance.json
+  - id: veille-basse.la-place-sous-le-phare
+    fichier: /assets/veille-basse-cohorte.webp
+    alternative: evenement.veille-basse.cohorte.asset.alt
+    contient_texte: false
+    provenance: docs/assets/veille-basse-cohorte.provenance.json
+  - id: veille-basse.la-porte-des-filtres
+    fichier: /assets/veille-basse-porte.webp
+    alternative: evenement.veille-basse.porte.asset.alt
+    contient_texte: false
+    provenance: docs/assets/veille-basse-porte.provenance.json
+  - id: veille-basse.les-registres-du-reflux
+    fichier: /assets/veille-basse-archives.webp
+    alternative: evenement.veille-basse.archives.asset.alt
+    contient_texte: false
+    provenance: docs/assets/veille-basse-archives.provenance.json
+  - id: veille-basse.maelys-et-le-coffret
+    fichier: /assets/veille-basse-maelys.webp
+    alternative: evenement.veille-basse.maelys.asset.alt
+    contient_texte: false
+    provenance: docs/assets/veille-basse-maelys.provenance.json

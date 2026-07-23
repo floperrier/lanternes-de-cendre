@@ -2,10 +2,16 @@ version: 1
 acteurs:
   - porte-lanterne
   - cohorte-de-refugies
+  - cohorte-du-sillon
   - ilyana-voss
+  - maelys-rive
   - equipes-entretien
   - puits-libres
   - habitants-haut-puits
+  - habitants-veille-basse
+  - techniciens-veille-basse
+  - pelerins-de-cendre
+  - hospice-du-sillon
 quartiers:
   - intendance
   - foyers
@@ -15,6 +21,11 @@ fenetres:
   - premiere-minute-atteinte
   - prologue-enchaine
   - premier-jalon-bassins-fendus
+lieux:
+  - halte-du-puits-sec
+  - haut-puits
+  - veille-basse
+  - hospice-du-sillon
 destinations_echo:
   - journal-de-campagne
 faits:
@@ -28,6 +39,16 @@ faits:
   - prologue.ilyana-contredite
   - bassins.haut-puits.partage-promis
   - bassins.haut-puits.reserves-protegees
+  - veille-basse.cohorte-accueillie
+  - veille-basse.cohorte-refusee
+  - veille-basse.cohorte-redirigee
+  - veille-basse.sas-renforce
+  - veille-basse.hospice-ouvert
+  - veille-basse.intervention-refusee
+  - veille-basse.registres-copies
+  - veille-basse.registres-laisses
+  - veille-basse.maelys-mission-confiee
+  - veille-basse.maelys-equipes-prioritaires
   - compagnon.ilyana-voss.affectee-intendance
   - conseil.premiere-veille.circuit-securise
   - conseil.premiere-veille.distribution-maintenue

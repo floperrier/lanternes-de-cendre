@@ -2,13 +2,37 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { parseDocument, stringify } from "yaml";
 
 import { compilerCatalogue } from "../src/content/compiler";
 
 const racine = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const lire = (chemin: string) => readFileSync(resolve(racine, chemin), "utf8");
+const fusionnerEvenements = (chemins: readonly string[]): string => {
+  const evenements = chemins.flatMap((chemin) => {
+    const document = parseDocument(lire(chemin), {
+      schema: "core",
+      uniqueKeys: true,
+    });
+    if (document.errors.length > 0) {
+      throw document.errors[0];
+    }
+    const source = document.toJS() as {
+      readonly version?: unknown;
+      readonly evenements?: unknown;
+    };
+    if (source.version !== 1 || !Array.isArray(source.evenements)) {
+      throw new Error(`${chemin} — catalogue d’Événements invalide`);
+    }
+    return source.evenements;
+  });
+  return stringify({ version: 1, evenements });
+};
 const catalogue = compilerCatalogue({
-  evenements: lire("content/evenements/prologue.yaml"),
+  evenements: fusionnerEvenements([
+    "content/evenements/prologue.yaml",
+    "content/evenements/veille-basse.yaml",
+  ]),
   infrastructure: lire("content/infrastructure.yaml"),
   conseils: lire("content/conseils/premiere-veille.yaml"),
   references: lire("content/references.yaml"),
@@ -32,6 +56,18 @@ const catalogue = compilerCatalogue({
     ),
     "docs/assets/bassins-haut-puits.provenance.json": lire(
       "docs/assets/bassins-haut-puits.provenance.json",
+    ),
+    "docs/assets/veille-basse-cohorte.provenance.json": lire(
+      "docs/assets/veille-basse-cohorte.provenance.json",
+    ),
+    "docs/assets/veille-basse-porte.provenance.json": lire(
+      "docs/assets/veille-basse-porte.provenance.json",
+    ),
+    "docs/assets/veille-basse-archives.provenance.json": lire(
+      "docs/assets/veille-basse-archives.provenance.json",
+    ),
+    "docs/assets/veille-basse-maelys.provenance.json": lire(
+      "docs/assets/veille-basse-maelys.provenance.json",
     ),
   },
   assetExiste: (chemin) =>

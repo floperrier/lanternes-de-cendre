@@ -12,6 +12,10 @@ import provenanceHautPuits from "../../docs/assets/bassins-haut-puits.provenance
 import provenanceFiltres from "../../docs/assets/prologue-filtres-de-la-veille.provenance.json?raw";
 import provenanceIlyana from "../../docs/assets/prologue-ilyana-au-clapet.provenance.json?raw";
 import provenanceReponse from "../../docs/assets/prologue-reponse-du-phare.provenance.json?raw";
+import provenanceVeilleBasseArchives from "../../docs/assets/veille-basse-archives.provenance.json?raw";
+import provenanceVeilleBasseCohorte from "../../docs/assets/veille-basse-cohorte.provenance.json?raw";
+import provenanceVeilleBasseMaelys from "../../docs/assets/veille-basse-maelys.provenance.json?raw";
+import provenanceVeilleBassePorte from "../../docs/assets/veille-basse-porte.provenance.json?raw";
 import {
   ErreurDeContenu,
   compilerCatalogue,
@@ -37,6 +41,14 @@ const sourcesValides: SourcesDuCatalogue = {
       provenanceFiltres,
     "docs/assets/prologue-ilyana-au-clapet.provenance.json": provenanceIlyana,
     "docs/assets/bassins-haut-puits.provenance.json": provenanceHautPuits,
+    "docs/assets/veille-basse-cohorte.provenance.json":
+      provenanceVeilleBasseCohorte,
+    "docs/assets/veille-basse-porte.provenance.json":
+      provenanceVeilleBassePorte,
+    "docs/assets/veille-basse-archives.provenance.json":
+      provenanceVeilleBasseArchives,
+    "docs/assets/veille-basse-maelys.provenance.json":
+      provenanceVeilleBasseMaelys,
   },
   assetExiste: (chemin) =>
     [
@@ -45,6 +57,10 @@ const sourcesValides: SourcesDuCatalogue = {
       "/assets/prologue-filtres-de-la-veille.webp",
       "/assets/prologue-ilyana-au-clapet.webp",
       "/assets/bassins-haut-puits.webp",
+      "/assets/veille-basse-cohorte.webp",
+      "/assets/veille-basse-porte.webp",
+      "/assets/veille-basse-archives.webp",
+      "/assets/veille-basse-maelys.webp",
     ].includes(chemin),
   empreinteAsset: (chemin) =>
     ({
@@ -58,6 +74,14 @@ const sourcesValides: SourcesDuCatalogue = {
         "e61f18f77e360e9fd454dad5e16536f18bbcdaa13ee1875cbcf65d4c598449b2",
       "/assets/bassins-haut-puits.webp":
         "1538d10da74331d41bfe2ddbe88198c96e796115eb10a02dbeb35155cab9b5a9",
+      "/assets/veille-basse-cohorte.webp":
+        "f595550d62faa755e30250d9e2b52aaaa549ff8d9f17b44ee027e38f841bc8a6",
+      "/assets/veille-basse-porte.webp":
+        "6005fd7eb2736df10bb68147c2ae1fac47bbc34eeccca7dcc6d841f9226944f2",
+      "/assets/veille-basse-archives.webp":
+        "78c082dd0cae64868e0bac44a0dcabb4c626dba277d57f08280aa80032f89848",
+      "/assets/veille-basse-maelys.webp":
+        "3ad5cda3a39479cf5f9ceb03b75ae9ec7a3ce395c7a58fe68e6f92e3070886d8",
     })[chemin] ?? "0".repeat(64),
   tailleAsset: () => 256_000,
 };

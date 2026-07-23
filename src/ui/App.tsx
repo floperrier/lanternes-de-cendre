@@ -12,6 +12,7 @@ import { projeterAtlas } from "../application/routes";
 import { projeterCrises } from "../application/crise";
 import { projeterExpedition } from "../application/expeditions";
 import { projeterDemonstration } from "../application/demonstration";
+import { projeterVeilleBasse } from "../application/veilleBasse";
 import type { Langue } from "../content/types";
 import { criseAttendSonCheckpoint } from "../simulation/crise";
 import {
@@ -33,6 +34,7 @@ import { OrdreDistantDExpedition } from "./OrdreDistantDExpedition";
 import { JalonFinalDeLaDemonstration } from "./JalonFinalDeLaDemonstration";
 import { PanneauAccesPremium } from "./PanneauAccesPremium";
 import { choisirSurfacePrioritaire } from "./ordreDesSurfaces";
+import { VeilleBasseEtCohorte } from "./VeilleBasseEtCohorte";
 
 interface PropsCampagne {
   readonly etatDuControleur: Extract<
@@ -79,6 +81,7 @@ function CampagnePersistante({
     checkpointDeCriseRequis || projectionDesCrises.active !== null;
   const projectionDExpedition = projeterExpedition(etat, langue);
   const projectionDeDemonstration = projeterDemonstration(etat, langue);
+  const projectionDeVeilleBasse = projeterVeilleBasse(etat, langue);
   const surfacePrioritaire = choisirSurfacePrioritaire({
     criseActive: projectionDesCrises.active !== null,
     checkpointDeCriseRequis,
@@ -200,6 +203,12 @@ function CampagnePersistante({
             langue={langue}
             crises={projectionDesCrises}
           />
+          {etat.routes.position === "veille-basse" ? (
+            <VeilleBasseEtCohorte
+              projection={projectionDeVeilleBasse}
+              langue={langue}
+            />
+          ) : null}
         </div>
       </div>
 

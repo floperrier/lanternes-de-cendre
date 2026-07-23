@@ -336,6 +336,8 @@ evenements:
     fenetre: premier-jalon-bassins-fendus
     conditions:
       requises:
+        - type: lieu-present
+          lieu: haut-puits
         - type: temps-au-moins
           secondes: 360
         - type: un-des-faits-present

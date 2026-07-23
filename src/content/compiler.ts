@@ -60,6 +60,7 @@ interface ReferencesCompilees {
   readonly acteurs: ReadonlySet<string>;
   readonly quartiers: ReadonlySet<string>;
   readonly fenetres: ReadonlySet<string>;
+  readonly lieux: ReadonlySet<string>;
   readonly destinationsEcho: ReadonlySet<string>;
   readonly faits: ReadonlySet<string>;
 }
@@ -187,6 +188,7 @@ function compilerReferences(source: string): ReferencesCompilees {
     acteurs: new Set(chaines(racine.acteurs, "references.yaml/acteurs")),
     quartiers: new Set(chaines(racine.quartiers, "references.yaml/quartiers")),
     fenetres: new Set(chaines(racine.fenetres, "references.yaml/fenetres")),
+    lieux: new Set(chaines(racine.lieux, "references.yaml/lieux")),
     destinationsEcho: new Set(
       chaines(
         racine.destinations_echo,
@@ -540,6 +542,11 @@ function compilerCondition(
       verifierReference(references.faits, fait, `${chemin}/faits/${index}`),
     );
     return { type, faits };
+  }
+  if (type === "lieu-present") {
+    const lieu = chaine(condition.lieu, `${chemin}/lieu`);
+    verifierReference(references.lieux, lieu, `${chemin}/lieu`);
+    return { type, lieu };
   }
 
   return echouer("reference", `${chemin}/type`, `condition inconnue « ${type} »`);

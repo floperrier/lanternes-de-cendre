@@ -7,13 +7,14 @@ import {
 } from "./campagne";
 import { creerInfrastructureInitiale } from "./infrastructure";
 import { creerEtatDesExpeditionsInitial } from "./expeditions";
+import { creerEtatInitialDeVeilleBasse } from "./veilleBasse";
 
 describe("Graine de campagne", () => {
   it("crée le même état initial sérialisable pour CENDRE-01", () => {
     const etat = creerCampagneInitiale("CENDRE-01");
 
     expect(JSON.parse(JSON.stringify(etat))).toEqual({
-      version: 4,
+      version: 5,
       graine: "CENDRE-01",
       tempsDuConvoi: {
         secondes: 0,
@@ -144,6 +145,7 @@ describe("Graine de campagne", () => {
       }),
       echeances: [],
       expeditions: creerEtatDesExpeditionsInitial(),
+      veilleBasse: creerEtatInitialDeVeilleBasse(),
       fluxPseudoAleatoires: {
         "evenements-narratifs": {
           algorithme: "xoshiro128**",

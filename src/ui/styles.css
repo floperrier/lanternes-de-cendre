@@ -246,6 +246,31 @@ summary:focus-visible,
   scrollbar-color: var(--cuivre-clair) var(--surface);
 }
 
+.panneau-veille-basse {
+  display: grid;
+  gap: 0.9rem;
+  padding: 1rem;
+  border: 1px solid var(--ligne, #62717b);
+  background: color-mix(in srgb, #172027 94%, #d99b52 6%);
+}
+
+.panneau-veille-basse article,
+.panneau-veille-basse aside {
+  padding-block-start: 0.75rem;
+  border-block-start: 1px solid color-mix(in srgb, #62717b 55%, transparent);
+}
+
+.panneau-veille-basse dl {
+  display: grid;
+  grid-template-columns: minmax(8rem, 1fr) minmax(0, 2fr);
+  gap: 0.3rem 0.75rem;
+  margin: 0;
+}
+
+.panneau-veille-basse dd {
+  margin: 0;
+}
+
 .coupe-habitee {
   position: relative;
   min-height: 0;

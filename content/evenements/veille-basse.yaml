@@ -1,0 +1,353 @@
+version: 1
+evenements:
+  - id: veille-basse.la-place-sous-le-phare
+    famille: conflits-regionaux
+    themes:
+      - accueil
+      - cohorte-de-refugies
+    fonction: arbitrer-accueil-cohorte
+    fenetre: premier-jalon-bassins-fendus
+    conditions:
+      requises:
+        - type: lieu-present
+          lieu: veille-basse
+      interdites: []
+    periode_eligibilite:
+      debut: 480
+      fin: 24000
+    priorite: 110
+    epuisement: unique
+    acteurs:
+      - porte-lanterne
+      - cohorte-du-sillon
+      - habitants-veille-basse
+      - pelerins-de-cendre
+      - techniciens-veille-basse
+    origine:
+      cle: evenement.veille-basse.cohorte.origine
+      variables: []
+    libelle_intentions:
+      cle: evenement.ruban.intentions
+      variables: []
+    titre:
+      cle: evenement.veille-basse.cohorte.titre
+      variables: []
+    presentation:
+      cle: evenement.veille-basse.cohorte.presentation
+      variables: []
+    informations:
+      - source: cohorte-du-sillon
+        texte:
+          cle: evenement.veille-basse.cohorte.information
+          variables: []
+      - source: techniciens-veille-basse
+        texte:
+          cle: evenement.veille-basse.cohorte.information-charge
+          variables: []
+    faits_lus: []
+    choix:
+      - id: accueillir
+        intention:
+          cle: evenement.veille-basse.cohorte.choix.accueillir
+          variables: []
+        couts_connus:
+          - cle: evenement.veille-basse.cohorte.choix.accueillir.cout
+            variables: []
+        effets: []
+        faits_produits:
+          - id: veille-basse.cohorte-accueillie
+            cible: cohorte-du-sillon
+      - id: refuser
+        intention:
+          cle: evenement.veille-basse.cohorte.choix.refuser
+          variables: []
+        couts_connus:
+          - cle: evenement.veille-basse.cohorte.choix.refuser.cout
+            variables: []
+        effets: []
+        faits_produits:
+          - id: veille-basse.cohorte-refusee
+            cible: cohorte-du-sillon
+      - id: rediriger
+        intention:
+          cle: evenement.veille-basse.cohorte.choix.rediriger
+          variables: []
+        couts_connus:
+          - cle: evenement.veille-basse.cohorte.choix.rediriger.cout
+            variables: []
+        effets: []
+        faits_produits:
+          - id: veille-basse.cohorte-redirigee
+            cible: hospice-du-sillon
+    consequence_differee:
+      type: integration-ou-prochain-jalon-de-veille-basse
+      cible: cohorte-du-sillon
+    recuperation:
+      type: equipes-apres-integration
+    variantes:
+      - id: standard
+        condition: toujours
+        presentation:
+          cle: evenement.veille-basse.cohorte.variante.standard
+          variables: []
+    destination_echo: journal-de-campagne
+    asset: veille-basse.la-place-sous-le-phare
+
+  - id: veille-basse.la-porte-des-filtres
+    famille: conflits-regionaux
+    themes:
+      - survie-collective
+      - pelerins-de-cendre
+    fonction: offrir-intervention-avant-perte
+    fenetre: premier-jalon-bassins-fendus
+    conditions:
+      requises:
+        - type: lieu-present
+          lieu: veille-basse
+        - type: un-des-faits-present
+          faits:
+            - veille-basse.cohorte-accueillie
+            - veille-basse.cohorte-refusee
+            - veille-basse.cohorte-redirigee
+      interdites: []
+    periode_eligibilite:
+      debut: 480
+      fin: 24600
+    priorite: 100
+    epuisement: unique
+    acteurs:
+      - porte-lanterne
+      - habitants-veille-basse
+      - pelerins-de-cendre
+      - techniciens-veille-basse
+    origine:
+      cle: evenement.veille-basse.porte.origine
+      variables: []
+    libelle_intentions:
+      cle: evenement.ruban.intentions
+      variables: []
+    titre:
+      cle: evenement.veille-basse.porte.titre
+      variables: []
+    presentation:
+      cle: evenement.veille-basse.porte.presentation
+      variables: []
+    informations:
+      - source: techniciens-veille-basse
+        texte:
+          cle: evenement.veille-basse.porte.information
+          variables: []
+    faits_lus:
+      - veille-basse.cohorte-accueillie
+      - veille-basse.cohorte-refusee
+      - veille-basse.cohorte-redirigee
+    choix:
+      - id: renforcer-sas
+        intention:
+          cle: evenement.veille-basse.porte.choix.sas
+          variables: []
+        couts_connus:
+          - cle: evenement.veille-basse.porte.choix.sas.cout
+            variables: []
+        effets: []
+        faits_produits:
+          - id: veille-basse.sas-renforce
+            cible: habitants-veille-basse
+      - id: ouvrir-hospice
+        intention:
+          cle: evenement.veille-basse.porte.choix.hospice
+          variables: []
+        couts_connus:
+          - cle: evenement.veille-basse.porte.choix.hospice.cout
+            variables: []
+        effets: []
+        faits_produits:
+          - id: veille-basse.hospice-ouvert
+            cible: hospice-du-sillon
+      - id: renoncer-intervention
+        intention:
+          cle: evenement.veille-basse.porte.choix.renoncer
+          variables: []
+        couts_connus:
+          - cle: evenement.veille-basse.porte.choix.renoncer.cout
+            variables: []
+        effets: []
+        faits_produits:
+          - id: veille-basse.intervention-refusee
+            cible: habitants-veille-basse
+    consequence_differee:
+      type: intervention-ou-perte-au-jalon-local
+      cible: habitants-veille-basse
+    recuperation:
+      type: marche-des-filtres
+    variantes:
+      - id: standard
+        condition: toujours
+        presentation:
+          cle: evenement.veille-basse.porte.variante.standard
+          variables: []
+    destination_echo: journal-de-campagne
+    asset: veille-basse.la-porte-des-filtres
+
+  - id: veille-basse.les-registres-du-reflux
+    famille: mystere-des-phares
+    themes:
+      - reseau-ancien
+      - peripheries-sacrifiees
+    fonction: revelation-essentielle-deplacement-des-cendres
+    fenetre: premier-jalon-bassins-fendus
+    conditions:
+      requises:
+        - type: lieu-present
+          lieu: veille-basse
+        - type: un-des-faits-present
+          faits:
+            - veille-basse.sas-renforce
+            - veille-basse.hospice-ouvert
+      interdites: []
+    periode_eligibilite:
+      debut: 480
+      fin: 25200
+    priorite: 90
+    epuisement: unique
+    acteurs:
+      - porte-lanterne
+      - techniciens-veille-basse
+    origine:
+      cle: evenement.veille-basse.archives.origine
+      variables: []
+    libelle_intentions:
+      cle: evenement.ruban.intentions
+      variables: []
+    titre:
+      cle: evenement.veille-basse.archives.titre
+      variables: []
+    presentation:
+      cle: evenement.veille-basse.archives.presentation
+      variables: []
+    informations:
+      - source: techniciens-veille-basse
+        texte:
+          cle: evenement.veille-basse.archives.information
+          variables: []
+    faits_lus:
+      - veille-basse.sas-renforce
+      - veille-basse.hospice-ouvert
+    choix:
+      - id: copier-registres
+        intention:
+          cle: evenement.veille-basse.archives.choix.copier
+          variables: []
+        couts_connus:
+          - cle: evenement.veille-basse.archives.choix.copier.cout
+            variables: []
+        effets: []
+        faits_produits:
+          - id: veille-basse.registres-copies
+            cible: techniciens-veille-basse
+      - id: laisser-registres
+        intention:
+          cle: evenement.veille-basse.archives.choix.laisser
+          variables: []
+        couts_connus:
+          - cle: evenement.veille-basse.archives.choix.laisser.cout
+            variables: []
+        effets: []
+        faits_produits:
+          - id: veille-basse.registres-laisses
+            cible: habitants-veille-basse
+    consequence_differee:
+      type: solution-finale
+      cible: porte-lanterne
+    recuperation:
+      type: revelation-garantie
+    variantes:
+      - id: standard
+        condition: toujours
+        presentation:
+          cle: evenement.veille-basse.archives.variante.standard
+          variables: []
+    destination_echo: journal-de-campagne
+    asset: veille-basse.les-registres-du-reflux
+
+  - id: veille-basse.maelys-et-le-coffret
+    famille: histoires-de-compagnons
+    themes:
+      - confiance
+      - transmission
+    fonction: histoire-de-maelys-rive
+    fenetre: premier-jalon-bassins-fendus
+    conditions:
+      requises:
+        - type: lieu-present
+          lieu: veille-basse
+        - type: un-des-faits-present
+          faits:
+            - veille-basse.registres-copies
+            - veille-basse.registres-laisses
+      interdites: []
+    periode_eligibilite:
+      debut: 480
+      fin: 25800
+    priorite: 80
+    epuisement: unique
+    acteurs:
+      - porte-lanterne
+      - maelys-rive
+      - techniciens-veille-basse
+    origine:
+      cle: evenement.veille-basse.maelys.origine
+      variables: []
+    libelle_intentions:
+      cle: evenement.ruban.intentions
+      variables: []
+    titre:
+      cle: evenement.veille-basse.maelys.titre
+      variables: []
+    presentation:
+      cle: evenement.veille-basse.maelys.presentation
+      variables: []
+    informations:
+      - source: maelys-rive
+        texte:
+          cle: evenement.veille-basse.maelys.information
+          variables: []
+    faits_lus:
+      - veille-basse.registres-copies
+      - veille-basse.registres-laisses
+    choix:
+      - id: confier-coffret
+        intention:
+          cle: evenement.veille-basse.maelys.choix.coffret
+          variables: []
+        couts_connus:
+          - cle: evenement.veille-basse.maelys.choix.coffret.cout
+            variables: []
+        effets: []
+        faits_produits:
+          - id: veille-basse.maelys-mission-confiee
+            cible: maelys-rive
+      - id: garder-equipes
+        intention:
+          cle: evenement.veille-basse.maelys.choix.equipes
+          variables: []
+        couts_connus:
+          - cle: evenement.veille-basse.maelys.choix.equipes.cout
+            variables: []
+        effets: []
+        faits_produits:
+          - id: veille-basse.maelys-equipes-prioritaires
+            cible: techniciens-veille-basse
+    consequence_differee:
+      type: prochain-jalon-de-veille-basse
+      cible: maelys-rive
+    recuperation:
+      type: competence-non-obligatoire
+    variantes:
+      - id: standard
+        condition: toujours
+        presentation:
+          cle: evenement.veille-basse.maelys.variante.standard
+          variables: []
+    destination_echo: journal-de-campagne
+    asset: veille-basse.maelys-et-le-coffret

@@ -37,6 +37,10 @@ export type ConditionDEvenement =
   | {
       readonly type: "un-des-faits-present";
       readonly faits: readonly string[];
+    }
+  | {
+      readonly type: "lieu-present";
+      readonly lieu: string;
     };
 
 export interface FaitProduit {
