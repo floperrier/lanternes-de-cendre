@@ -131,7 +131,10 @@ import {
 import {
   ancrageEstPrepare,
   citadelleDeCendreEstCredible,
+  constellationEstCredible,
   COUTS_DES_SOLUTIONS_FINALES,
+  reaccordEstPrepare,
+  reseauDeFerEstCredible,
   refugeCommunEstCredible,
 } from "../simulation/finale";
 
@@ -2496,14 +2499,19 @@ const IDS_DU_CONTRAT_FINAL = new Set([
   "finale.contrat.causes-publiees",
   "finale.contrat.causes-consignees",
 ]);
-const IDS_DE_SELECTION_D_ANCRAGE = new Set([
+const IDS_DE_SELECTION_FINALE = new Set([
   "finale.ancrage.selection-preparee",
   "finale.ancrage.selection-risquee",
+  "finale.reaccord.selection-preparee",
+  "finale.reaccord.selection-risquee",
 ]);
-const IDS_DE_VARIANTE_D_ANCRAGE = new Set([
+const IDS_DE_VARIANTE_FINALE = new Set([
   "finale.ancrage.refuge-commun",
   "finale.ancrage.citadelle-de-cendre",
   "finale.ancrage.dernier-rempart",
+  "finale.reaccord.constellation",
+  "finale.reaccord.reseau-de-fer",
+  "finale.reaccord.veilles-dispersees",
 ]);
 
 function effetsDeFaitSontExactement(
@@ -2545,7 +2553,7 @@ function effetsDeFaitSontExactement(
   );
 }
 
-export function ancrageFinalEstCausal(
+export function contratFinalEstCausal(
   faits: readonly ObjetInconnu[],
   infrastructure: EtatInfrastructure,
   routes: EtatDesRoutes,
@@ -2560,12 +2568,12 @@ export function ancrageFinalEstCausal(
   const selections = faits
     .map((fait, index) => ({ fait, index }))
     .filter(({ fait }) =>
-      IDS_DE_SELECTION_D_ANCRAGE.has(String(fait.id)),
+      IDS_DE_SELECTION_FINALE.has(String(fait.id)),
     );
   const variantes = faits
     .map((fait, index) => ({ fait, index }))
     .filter(({ fait }) =>
-      IDS_DE_VARIANTE_D_ANCRAGE.has(String(fait.id)),
+      IDS_DE_VARIANTE_FINALE.has(String(fait.id)),
     );
 
   if (
@@ -2597,23 +2605,36 @@ export function ancrageFinalEstCausal(
     const idsAvant = new Set(
       faitsAvant.map((fait) => String(fait.id)),
     );
-    const ancragePrepare = ancrageEstPrepare(idsAvant);
+    const estAncrage = String(selection.fait.id).startsWith(
+      "finale.ancrage.",
+    );
     const estPrepare =
-      selection.fait.id === "finale.ancrage.selection-preparee";
+      selection.fait.id === "finale.ancrage.selection-preparee" ||
+      selection.fait.id === "finale.reaccord.selection-preparee";
+    const preparationAttendue = estAncrage
+      ? ancrageEstPrepare(idsAvant)
+      : reaccordEstPrepare(idsAvant);
+    const solution = estAncrage ? "ancrer" : "reaccorder";
     const cout =
-      COUTS_DES_SOLUTIONS_FINALES.ancrer[
+      COUTS_DES_SOLUTIONS_FINALES[solution][
         estPrepare ? "preparee" : "risquee"
       ];
-    if (
-      estPrepare !== ancragePrepare ||
-      !effetsDeFaitSontExactement(
-        selection.fait,
-        [{ stock: "materiaux", variation: -cout.materiaux }],
-        cout.habitants === 0 ? [] : [-cout.habitants],
-      ) ||
-      habitantsCourants <= 0 ||
-      !calculerStockAttendu(
-        "materiaux",
+    const coutsMateriels = [
+      ...(cout.eau === 0
+        ? []
+        : [{ stock: "eau" as const, variation: -cout.eau }]),
+      {
+        stock: "materiaux" as const,
+        variation: -cout.materiaux,
+      },
+    ];
+    const stockCouvre = (
+      stock: "eau" | "materiaux",
+      coutAttendu: number,
+    ) =>
+      coutAttendu === 0 ||
+      calculerStockAttendu(
+        stock,
         selection.fait.moment as number,
         faitsAvant,
         infrastructure,
@@ -2622,8 +2643,20 @@ export function ancrageFinalEstCausal(
         hautPuits,
         veilleBasse,
       ).possibilites.some(
-        ({ quantite }) => quantite >= cout.materiaux,
-      )
+        ({ quantite }) => quantite >= coutAttendu,
+      );
+    if (
+      estPrepare !== preparationAttendue ||
+      (!estAncrage &&
+        idsAvant.has("couronne.ouverture.breche-ouverte")) ||
+      !effetsDeFaitSontExactement(
+        selection.fait,
+        coutsMateriels,
+        cout.habitants === 0 ? [] : [-cout.habitants],
+      ) ||
+      habitantsCourants <= 0 ||
+      !stockCouvre("eau", cout.eau) ||
+      !stockCouvre("materiaux", cout.materiaux)
     ) {
       return false;
     }
@@ -2644,6 +2677,15 @@ export function ancrageFinalEstCausal(
       .slice(0, variante.index)
       .map((fait) => String(fait.id)),
   );
+  const selectionDAncrage = String(selection.fait.id).startsWith(
+    "finale.ancrage.",
+  );
+  const varianteDAncrage = String(variante.fait.id).startsWith(
+    "finale.ancrage.",
+  );
+  if (selectionDAncrage !== varianteDAncrage) {
+    return false;
+  }
   if (variante.fait.id === "finale.ancrage.refuge-commun") {
     return (
       selection.fait.id === "finale.ancrage.selection-preparee" &&
@@ -2656,7 +2698,19 @@ export function ancrageFinalEstCausal(
   ) {
     return citadelleDeCendreEstCredible(idsAvant);
   }
-  return variante.fait.id === "finale.ancrage.dernier-rempart";
+  if (variante.fait.id === "finale.ancrage.dernier-rempart") {
+    return true;
+  }
+  if (variante.fait.id === "finale.reaccord.constellation") {
+    return (
+      selection.fait.id === "finale.reaccord.selection-preparee" &&
+      constellationEstCredible(idsAvant)
+    );
+  }
+  if (variante.fait.id === "finale.reaccord.reseau-de-fer") {
+    return reseauDeFerEstCredible(idsAvant);
+  }
+  return variante.fait.id === "finale.reaccord.veilles-dispersees";
 }
 
 function estEtatPilotage(
@@ -3681,7 +3735,7 @@ function lireEtatAvecSchemaCourant(
       hautPuits,
       veilleBasse,
     ) ||
-    !ancrageFinalEstCausal(
+    !contratFinalEstCausal(
       narration.faitsDeCampagne,
       infrastructure,
       routes,

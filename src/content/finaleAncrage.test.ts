@@ -28,7 +28,7 @@ describe("finale — Ancrer le cœur", () => {
         id.startsWith("finale.ancrage."),
       ),
     ).toHaveLength(3);
-    expect(catalogueDEvenements.evenements).toHaveLength(56);
+    expect(catalogueDEvenements.evenements).toHaveLength(57);
   });
 
   it("livre trois assets premium bilingues, accessibles et traçables", () => {

@@ -118,7 +118,7 @@ export function projeterContratFinal(
     negociation: finale.optionsDeNegociation.map(
       (option) => textes.variantes[option]!,
     ),
-    variante: textes.variantes[finale.varianteDAncrage]!,
+    variante: textes.variantes[finale.varianteFinale]!,
     bilan,
     libelles:
       textes.libelles as ProjectionDuContratFinal["libelles"],

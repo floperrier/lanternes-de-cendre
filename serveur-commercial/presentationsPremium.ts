@@ -1450,6 +1450,14 @@ export const PRESENTATIONS_PREMIUM = {
         "coalition-absente": "coalition des Colonies non préparée",
         "accord-partage": "accord régional de partage établi",
         "accord-ferme": "accord régional fermé ou centralisé",
+        "specialistes-reaccord-reunis":
+          "spécialistes de fréquence et d’atelier réunis",
+        "specialistes-reaccord-absents":
+          "spécialistes du Réaccord non réunis",
+        "engagements-reaccord-actifs":
+          "Engagements régionaux applicables au maillage",
+        "engagements-reaccord-absents":
+          "aucun Engagement applicable au maillage",
         "ligne-zero-relevee": "Ligne Zéro relevée dans les Bassins",
         "ligne-zero-absente": "référence de la Ligne Zéro absente",
         "ressources-suffisantes": "coût déterminé couvert",
@@ -1466,22 +1474,35 @@ export const PRESENTATIONS_PREMIUM = {
         aucune: "aucune Solution irréversible engagée",
         "ancrage-prepare": "Ancrage préparé irréversiblement engagé",
         "ancrage-risque": "Ancrage risqué irréversiblement engagé",
+        "reaccord-prepare":
+          "Réaccord préparé irréversiblement engagé",
+        "reaccord-risque":
+          "Réaccord risqué irréversiblement engagé",
       },
       variantes: {
-        aucune: "variante d’Ancrage encore indécise",
+        aucune: "variante finale encore indécise",
         "refuge-commun": "Refuge commun",
         "citadelle-de-cendre": "Citadelle de cendre",
         "dernier-rempart": "Dernier Rempart",
+        constellation: "Constellation",
+        "reseau-de-fer": "Réseau de fer",
+        "veilles-dispersees": "Veilles dispersées",
       },
       stabilites: {
         stable: "stabilité technique partagée",
         fortifiee: "stabilité technique fortifiée",
         "sous-contrainte": "stabilité technique sous contrainte",
+        maillee: "stabilité du maillage entretenue",
+        rigide: "stabilité du maillage rigide",
+        fragmentee: "stabilité fragmentée entre les Veilles",
       },
       controles: {
         partage: "contrôle politique distribué",
         centralise: "contrôle politique centralisé",
         equipes: "contrôle gardé par les équipes",
+        coalition: "réseau détenu par la coalition",
+        republique: "réseau détenu par la République",
+        "sans-proprietaire": "aucun propriétaire du réseau entier",
       },
       coutsHumains: {
         contenu: "coût humain contenu",
@@ -1501,7 +1522,7 @@ export const PRESENTATIONS_PREMIUM = {
         causes: "Causes consultables",
         selection: "Solution engagée",
         negociation: "Options crédibles de la Dernière négociation",
-        variante: "Variante d’Ancrage",
+        variante: "Variante de la Solution",
         bilan: "Stabilité, contrôle et coût humain",
       },
     },
@@ -1536,6 +1557,14 @@ export const PRESENTATIONS_PREMIUM = {
         "coalition-absente": "Colony coalition not prepared",
         "accord-partage": "regional sharing agreement established",
         "accord-ferme": "regional agreement closed or centralized",
+        "specialistes-reaccord-reunis":
+          "frequency and workshop specialists assembled",
+        "specialistes-reaccord-absents":
+          "Retuning specialists not assembled",
+        "engagements-reaccord-actifs":
+          "regional Commitments applicable to the mesh",
+        "engagements-reaccord-absents":
+          "no Commitment applicable to the mesh",
         "ligne-zero-relevee": "Zero Line surveyed in the Basins",
         "ligne-zero-absente": "Zero Line reference absent",
         "ressources-suffisantes": "determined cost covered",
@@ -1552,22 +1581,35 @@ export const PRESENTATIONS_PREMIUM = {
         aucune: "no irreversible Solution committed",
         "ancrage-prepare": "prepared Anchoring irreversibly committed",
         "ancrage-risque": "risky Anchoring irreversibly committed",
+        "reaccord-prepare":
+          "prepared Retuning irreversibly committed",
+        "reaccord-risque":
+          "risky Retuning irreversibly committed",
       },
       variantes: {
-        aucune: "Anchoring variant still undecided",
+        aucune: "final variant still undecided",
         "refuge-commun": "Common Refuge",
         "citadelle-de-cendre": "Ash Citadel",
         "dernier-rempart": "Last Rampart",
+        constellation: "Constellation",
+        "reseau-de-fer": "Iron Network",
+        "veilles-dispersees": "Scattered Watches",
       },
       stabilites: {
         stable: "shared technical stability",
         fortifiee: "fortified technical stability",
         "sous-contrainte": "technical stability under strain",
+        maillee: "maintained mesh stability",
+        rigide: "rigid mesh stability",
+        fragmentee: "stability fragmented among the Watches",
       },
       controles: {
         partage: "distributed political control",
         centralise: "centralized political control",
         equipes: "control held by the crews",
+        coalition: "network owned by the coalition",
+        republique: "network owned by the Republic",
+        "sans-proprietaire": "no owner of the whole network",
       },
       coutsHumains: {
         contenu: "contained human cost",
@@ -1587,7 +1629,7 @@ export const PRESENTATIONS_PREMIUM = {
         causes: "Consultable causes",
         selection: "Committed Solution",
         negociation: "Credible Last Negotiation options",
-        variante: "Anchoring variant",
+        variante: "Solution variant",
         bilan: "Stability, control, and human cost",
       },
     },

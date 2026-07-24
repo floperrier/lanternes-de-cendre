@@ -62,6 +62,7 @@ import provenanceCouronneOuvertureClef from "../../docs/assets/couronne-ouvertur
 import provenanceFinaleAncrageContrat from "../../docs/assets/finale-ancrage-contrat.provenance.json?raw";
 import provenanceFinaleAncrageNegociation from "../../docs/assets/finale-ancrage-negociation.provenance.json?raw";
 import provenanceFinaleAncrageCoeur from "../../docs/assets/finale-ancrage-coeur.provenance.json?raw";
+import provenanceFinaleReaccordConflit from "../../docs/assets/finale-reaccord-conflit.provenance.json?raw";
 import {
   ErreurDeContenu,
   compilerCatalogue,
@@ -183,6 +184,8 @@ const sourcesValides: SourcesDuCatalogue = {
       provenanceFinaleAncrageNegociation,
     "docs/assets/finale-ancrage-coeur.provenance.json":
       provenanceFinaleAncrageCoeur,
+    "docs/assets/finale-reaccord-conflit.provenance.json":
+      provenanceFinaleReaccordConflit,
   },
   cheminDeProvenanceAsset: (chemin) =>
     chemin.startsWith("/api/commercial/assets/")
@@ -245,6 +248,7 @@ const sourcesValides: SourcesDuCatalogue = {
       "/api/commercial/assets/finale-ancrage-contrat.webp",
       "/api/commercial/assets/finale-ancrage-negociation.webp",
       "/api/commercial/assets/finale-ancrage-coeur.webp",
+      "/api/commercial/assets/finale-reaccord-conflit.webp",
     ].includes(chemin),
   empreinteAsset: (chemin) =>
     ({
@@ -358,6 +362,8 @@ const sourcesValides: SourcesDuCatalogue = {
         "9f15ff90971d5bbd3237c556435c00857dd0165bdcc266674835655129cba11e",
       "/api/commercial/assets/finale-ancrage-coeur.webp":
         "21c39a0d0b01c931c030649e9fe60a178ab11f6ea688606b7afaae8470f09601",
+      "/api/commercial/assets/finale-reaccord-conflit.webp":
+        "0b8561fa7c1cda0892e5b95ebf7506fdf35816d6b6cdb6304457856a2a0fc5a9",
     })[chemin] ?? "0".repeat(64),
   tailleAsset: () => 256_000,
 };

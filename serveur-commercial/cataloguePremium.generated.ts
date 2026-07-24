@@ -14628,11 +14628,12 @@ export default {
       "famille": "conflits-regionaux",
       "themes": [
         "ancrage",
+        "reaccord",
         "choix-final",
         "cout-determine",
         "irreversibilite"
       ],
-      "fonction": "choisir-l-ancrage-prepare-ou-risque-sans-tirage",
+      "fonction": "choisir-l-ancrage-ou-le-reaccord-prepare-ou-risque-sans-tirage",
       "fenetre": "finale-ancrage",
       "conditions": {
         "requises": [
@@ -14663,6 +14664,7 @@ export default {
         "finale.contrat.causes-publiees",
         "finale.contrat.causes-consignees",
         "couronne.approches.berceau-amorce",
+        "couronne.approches.etalon-calibre",
         "couronne.ouverture.breche-ouverte"
       ],
       "choix": [
@@ -14701,10 +14703,52 @@ export default {
               "cible": "coeur-du-noeud"
             }
           ]
+        },
+        {
+          "id": "selectionner-reaccord-prepare",
+          "effets": [
+            {
+              "type": "stock.modifier",
+              "stock": "eau",
+              "valeur": -4
+            },
+            {
+              "type": "stock.modifier",
+              "stock": "materiaux",
+              "valeur": -4
+            }
+          ],
+          "faitsProduits": [
+            {
+              "id": "finale.reaccord.selection-preparee",
+              "cible": "etalon-de-reaccord"
+            }
+          ]
+        },
+        {
+          "id": "selectionner-reaccord-risque",
+          "effets": [
+            {
+              "type": "stock.modifier",
+              "stock": "eau",
+              "valeur": -10
+            },
+            {
+              "type": "stock.modifier",
+              "stock": "materiaux",
+              "valeur": -8
+            }
+          ],
+          "faitsProduits": [
+            {
+              "id": "finale.reaccord.selection-risquee",
+              "cible": "etalon-de-reaccord"
+            }
+          ]
         }
       ],
       "consequenceDifferee": {
-        "type": "ancrage-rendu-irreversible-avant-la-derniere-negociation",
+        "type": "solution-rendue-irreversible-avant-la-derniere-negociation",
         "cible": "coeur-du-noeud"
       },
       "recuperation": {
@@ -14716,6 +14760,13 @@ export default {
           "condition": {
             "type": "fait-present",
             "fait": "couronne.approches.berceau-amorce"
+          }
+        },
+        {
+          "id": "etalon",
+          "condition": {
+            "type": "fait-present",
+            "fait": "couronne.approches.etalon-calibre"
           }
         },
         {
@@ -14772,20 +14823,20 @@ export default {
           },
           "titre": {
             "cle": "evenement.finale.selection.titre",
-            "modele": "Choisir d’Ancrer le cœur",
+            "modele": "Choisir la Solution finale",
             "variables": [],
             "valeurs": {}
           },
           "presentation": {
             "cle": "evenement.finale.selection.presentation",
-            "modele": "L’Ancrage immobilisera le cœur mobile. Préparé, il consomme les pièces mesurées ; risqué, il exige davantage de Matériaux et expose huit Habitants. Le coût affiché ne changera plus après confirmation.",
+            "modele": "Ancrer immobilisera le cœur ; Réaccorder relancera ses liaisons et leurs nuisances. Chaque Solution préparée ou risquée affiche son coût exact avant engagement. Aucun tirage ne le changera.",
             "variables": [],
             "valeurs": {}
           },
           "informations": [
             {
               "cle": "evenement.finale.selection.information",
-              "modele": "Si les moyens ne couvrent pas le coût déterminé, l’Ancrage demeure visible comme impossible et aucune intention ne peut le sélectionner.",
+              "modele": "Une Solution dont les moyens ne couvrent pas le coût déterminé demeure visible comme impossible dans le contrat, sans intention sélectionnable.",
               "variables": [],
               "valeurs": {}
             }
@@ -14794,6 +14845,12 @@ export default {
             "prepare": {
               "cle": "evenement.finale.selection.variante.prepare",
               "modele": "Les mesures du Berceau alignent les bras porteurs avant la fermeture.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "etalon": {
+              "cle": "evenement.finale.selection.variante.etalon",
+              "modele": "L’Étalon calibré rend comparables les fréquences des Colonies sans décider qui possédera le réseau.",
               "variables": [],
               "valeurs": {}
             },
@@ -14842,6 +14899,38 @@ export default {
                   "valeurs": {}
                 }
               ]
+            },
+            "selectionner-reaccord-prepare": {
+              "intention": {
+                "cle": "evenement.finale.selection.choix.reaccord.prepare",
+                "modele": "Engager le Réaccord préparé",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.finale.selection.choix.reaccord.prepare.cout",
+                  "modele": "Coût déterminé : 4 Eau et 4 Matériaux ; spécialistes, alliances et Engagements couvrent le maillage.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "selectionner-reaccord-risque": {
+              "intention": {
+                "cle": "evenement.finale.selection.choix.reaccord.risque",
+                "modele": "Forcer le Réaccord risqué",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.finale.selection.choix.reaccord.risque.cout",
+                  "modele": "Coût déterminé : 10 Eau et 8 Matériaux ; nuisances non résolues, aucun tirage final.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
             }
           }
         },
@@ -14860,20 +14949,20 @@ export default {
           },
           "titre": {
             "cle": "evenement.finale.selection.titre",
-            "modele": "Choose to Anchor the heart",
+            "modele": "Choose the final Solution",
             "variables": [],
             "valeurs": {}
           },
           "presentation": {
             "cle": "evenement.finale.selection.presentation",
-            "modele": "Anchoring will immobilize the mobile heart. Prepared, it consumes measured parts; risky, it needs more Materials and exposes eight Inhabitants. The displayed cost will not change after confirmation.",
+            "modele": "Anchoring will immobilize the heart; Retuning will restart its links and their nuisances. Every prepared or risky Solution shows its exact cost before commitment. No roll will change it.",
             "variables": [],
             "valeurs": {}
           },
           "informations": [
             {
               "cle": "evenement.finale.selection.information",
-              "modele": "If the means do not cover the determined cost, Anchoring remains visible as impossible and no intention can select it.",
+              "modele": "A Solution whose means do not cover its determined cost remains visible as impossible in the contract, with no selectable intention.",
               "variables": [],
               "valeurs": {}
             }
@@ -14882,6 +14971,12 @@ export default {
             "prepare": {
               "cle": "evenement.finale.selection.variante.prepare",
               "modele": "The Cradle’s measurements align the load-bearing arms before closure.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "etalon": {
+              "cle": "evenement.finale.selection.variante.etalon",
+              "modele": "The calibrated Standard makes Colony frequencies comparable without deciding who will own the network.",
               "variables": [],
               "valeurs": {}
             },
@@ -14926,6 +15021,38 @@ export default {
                 {
                   "cle": "evenement.finale.selection.choix.risque.cout",
                   "modele": "Determined cost: 10 Materials and 8 exposed Inhabitants; no final roll.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "selectionner-reaccord-prepare": {
+              "intention": {
+                "cle": "evenement.finale.selection.choix.reaccord.prepare",
+                "modele": "Commit prepared Retuning",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.finale.selection.choix.reaccord.prepare.cout",
+                  "modele": "Determined cost: 4 Water and 4 Materials; specialists, alliances, and Commitments cover the mesh.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "selectionner-reaccord-risque": {
+              "intention": {
+                "cle": "evenement.finale.selection.choix.reaccord.risque",
+                "modele": "Force risky Retuning",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.finale.selection.choix.reaccord.risque.cout",
+                  "modele": "Determined cost: 10 Water and 8 Materials; unresolved nuisances, no final roll.",
                   "variables": [],
                   "valeurs": {}
                 }
@@ -15265,6 +15392,407 @@ export default {
                 {
                   "cle": "evenement.finale.negociation.choix.rempart.cout",
                   "modele": "Determined consequence: stability under strain, custody by crews, high human cost.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "finale.reaccord.la-derniere-negociation-du-reseau",
+      "famille": "conflits-regionaux",
+      "themes": [
+        "reaccord",
+        "derniere-negociation",
+        "constellation",
+        "reseau-de-fer",
+        "veilles-dispersees"
+      ],
+      "fonction": "attribuer-le-maillage-et-ses-nuisances-avec-les-seuls-moyens-credibles",
+      "fenetre": "finale-ancrage",
+      "conditions": {
+        "requises": [
+          {
+            "type": "un-des-faits-present",
+            "faits": [
+              "finale.reaccord.selection-preparee",
+              "finale.reaccord.selection-risquee"
+            ]
+          }
+        ],
+        "interdites": []
+      },
+      "periodeEligibilite": {
+        "debut": 1200,
+        "fin": 2147483647
+      },
+      "priorite": 180,
+      "epuisement": "unique",
+      "acteurs": [
+        "porte-lanterne",
+        "delegations-des-cinq-colonies",
+        "republique-du-rail",
+        "equipes-de-l-anneau"
+      ],
+      "sourcesInformations": [
+        "delegations-des-cinq-colonies"
+      ],
+      "faitsLus": [
+        "finale.reaccord.selection-preparee",
+        "finale.reaccord.selection-risquee",
+        "couronne.colonies.voie-alliee-preparee",
+        "couronne.tete-de-ligne.mandat-republicain",
+        "trame.aiguillage-zero.charte-partagee",
+        "trame.aiguillage-zero.monopole-republicain",
+        "trame.aiguillage-zero.engagement-transport-autonome"
+      ],
+      "choix": [
+        {
+          "id": "mailler-la-constellation",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "finale.reaccord.constellation",
+              "cible": "etalon-de-reaccord"
+            }
+          ]
+        },
+        {
+          "id": "confier-le-reseau-de-fer",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "finale.reaccord.reseau-de-fer",
+              "cible": "etalon-de-reaccord"
+            }
+          ]
+        },
+        {
+          "id": "separer-les-veilles",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "finale.reaccord.veilles-dispersees",
+              "cible": "etalon-de-reaccord"
+            }
+          ]
+        }
+      ],
+      "consequenceDifferee": {
+        "type": "proprietaire-du-reseau-et-partage-des-nuisances-consignes",
+        "cible": "etalon-de-reaccord"
+      },
+      "recuperation": {
+        "type": "veilles-dispersees-restent-possibles-sans-proprietaire-unique"
+      },
+      "variantes": [
+        {
+          "id": "coalition",
+          "condition": {
+            "type": "fait-present",
+            "fait": "couronne.colonies.voie-alliee-preparee"
+          }
+        },
+        {
+          "id": "charte",
+          "condition": {
+            "type": "fait-present",
+            "fait": "trame.aiguillage-zero.charte-partagee"
+          }
+        },
+        {
+          "id": "transport",
+          "condition": {
+            "type": "fait-present",
+            "fait": "trame.aiguillage-zero.engagement-transport-autonome"
+          }
+        },
+        {
+          "id": "mandat-republicain",
+          "condition": {
+            "type": "fait-present",
+            "fait": "couronne.tete-de-ligne.mandat-republicain"
+          }
+        },
+        {
+          "id": "monopole-republicain",
+          "condition": {
+            "type": "fait-present",
+            "fait": "trame.aiguillage-zero.monopole-republicain"
+          }
+        },
+        {
+          "id": "standard",
+          "condition": {
+            "type": "toujours"
+          }
+        }
+      ],
+      "destinationEcho": "journal-de-campagne",
+      "asset": {
+        "id": "finale.reaccord.la-derniere-negociation-du-reseau",
+        "fichier": "/api/commercial/assets/finale-reaccord-conflit.webp",
+        "octetsTransferes": 186104,
+        "contientTexte": false,
+        "alternatives": {
+          "fr": "Des délégations et des équipes négocient autour d’un Étalon central entre une constellation de halos, un réseau ferré rigide et des Veilles isolées.",
+          "en": "Delegates and crews negotiate around a central Standard between a constellation of halos, a rigid rail network, and isolated Watches."
+        },
+        "provenance": {
+          "fiche": "docs/assets/finale-reaccord-conflit.provenance.json",
+          "creeLe": "2026-07-23",
+          "outil": "Codex built-in image_gen",
+          "modele": "built-in model (identifier not exposed)",
+          "usage": "stylized-concept",
+          "entree": "No input image; generated from the project’s established industrial ash-world art direction.",
+          "prompt": "Delegates and exhausted crews negotiate around a calibrated Retuning Standard inside the Central Node; three routing patterns evoke Constellation, Iron Network, and Scattered Watches; cinematic painterly 16:9, no text or logos, costly rather than triumphant.",
+          "droits": "OpenAI Terms of Use — output assigned to the user",
+          "empreinteSha256": "0b8561fa7c1cda0892e5b95ebf7506fdf35816d6b6cdb6304457856a2a0fc5a9",
+          "statutApprobation": "pending-pull-request-review",
+          "reviseur": null
+        }
+      },
+      "textes": {
+        "fr": {
+          "origine": {
+            "cle": "evenement.finale.reaccord.origine",
+            "modele": "Table de l’Étalon de réaccord",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.finale.reaccord.titre",
+            "modele": "La Dernière négociation du réseau",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.finale.reaccord.presentation",
+            "modele": "L’Étalon tient la fréquence, pas la justice. Les Colonies, la République et les équipes désignent maintenant le propriétaire de chaque relais et les populations qui vivront sous ses arcs, ses coupures et ses parasites.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.finale.reaccord.information",
+              "modele": "Constellation, Réseau de fer et Veilles dispersées n’apparaissent que si leurs alliances ou mandats existent. La solution de repli évite un propriétaire unique, mais disperse stabilité et inégalités.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "coalition": {
+              "cle": "evenement.finale.reaccord.variante.coalition",
+              "modele": "Les registres des cinq Colonies permettent de répartir entretien et parasites sans prétendre que leurs intérêts sont identiques.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "charte": {
+              "cle": "evenement.finale.reaccord.variante.partage",
+              "modele": "La Charte ou l’Engagement de transport rend opposable un partage des relais ; sans coalition mandatée, aucune voix ne peut toutefois posséder le maillage entier.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "transport": {
+              "cle": "evenement.finale.reaccord.variante.partage",
+              "modele": "La Charte ou l’Engagement de transport rend opposable un partage des relais ; sans coalition mandatée, aucune voix ne peut toutefois posséder le maillage entier.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "mandat-republicain": {
+              "cle": "evenement.finale.reaccord.variante.republique",
+              "modele": "Le mandat ou le monopole républicain fournit une chaîne d’entretien, mais réserve les premiers halos aux voies qu’elle contrôle.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "monopole-republicain": {
+              "cle": "evenement.finale.reaccord.variante.republique",
+              "modele": "Le mandat ou le monopole républicain fournit une chaîne d’entretien, mais réserve les premiers halos aux voies qu’elle contrôle.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.finale.reaccord.variante.standard",
+              "modele": "Faute de propriétaire crédible pour l’ensemble, chaque Veille ne peut répondre que de ses relais et de ses propres marges.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "mailler-la-constellation": {
+              "intention": {
+                "cle": "evenement.finale.reaccord.choix.constellation",
+                "modele": "Mailler une Constellation entretenue par la coalition",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.finale.reaccord.choix.constellation.cout",
+                  "modele": "Conséquence déterminée : maillage stable, réseau détenu par la coalition, nuisances mutualisées mais jamais effacées.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "confier-le-reseau-de-fer": {
+              "intention": {
+                "cle": "evenement.finale.reaccord.choix.reseau",
+                "modele": "Confier les relais à un Réseau de fer",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.finale.reaccord.choix.reseau.cout",
+                  "modele": "Conséquence déterminée : maillage rigide, réseau détenu par la République, protection hiérarchisée et inégale.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "separer-les-veilles": {
+              "intention": {
+                "cle": "evenement.finale.reaccord.choix.veilles",
+                "modele": "Séparer le réseau en Veilles dispersées",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.finale.reaccord.choix.veilles.cout",
+                  "modele": "Conséquence déterminée : halos autonomes sans propriétaire commun, stabilité fragmentée et nuisances reportées aux marges.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        },
+        "en": {
+          "origine": {
+            "cle": "evenement.finale.reaccord.origine",
+            "modele": "Retuning Standard table",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.finale.reaccord.titre",
+            "modele": "The network’s Last Negotiation",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.finale.reaccord.presentation",
+            "modele": "The Standard holds frequency, not justice. The Colonies, Republic, and crews now designate who owns each relay and which populations will live beneath its arcs, outages, and interference.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.finale.reaccord.information",
+              "modele": "Constellation, Iron Network, and Scattered Watches appear only when their alliances or mandates exist. The fallback avoids a single owner but disperses both stability and inequality.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "coalition": {
+              "cle": "evenement.finale.reaccord.variante.coalition",
+              "modele": "The five Colonies’ registers can distribute maintenance and interference without pretending their interests are identical.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "charte": {
+              "cle": "evenement.finale.reaccord.variante.partage",
+              "modele": "The Charter or transport Commitment makes relay sharing enforceable; without a mandated coalition, however, no voice can own the whole mesh.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "transport": {
+              "cle": "evenement.finale.reaccord.variante.partage",
+              "modele": "The Charter or transport Commitment makes relay sharing enforceable; without a mandated coalition, however, no voice can own the whole mesh.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "mandat-republicain": {
+              "cle": "evenement.finale.reaccord.variante.republique",
+              "modele": "The Republic mandate or monopoly provides a maintenance chain but reserves the first halos for the routes it controls.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "monopole-republicain": {
+              "cle": "evenement.finale.reaccord.variante.republique",
+              "modele": "The Republic mandate or monopoly provides a maintenance chain but reserves the first halos for the routes it controls.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.finale.reaccord.variante.standard",
+              "modele": "Without a credible owner for the whole, each Watch can answer only for its relays and its own margins.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "mailler-la-constellation": {
+              "intention": {
+                "cle": "evenement.finale.reaccord.choix.constellation",
+                "modele": "Mesh a Constellation maintained by the coalition",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.finale.reaccord.choix.constellation.cout",
+                  "modele": "Determined consequence: stable mesh, network owned by the coalition, nuisances pooled but never erased.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "confier-le-reseau-de-fer": {
+              "intention": {
+                "cle": "evenement.finale.reaccord.choix.reseau",
+                "modele": "Entrust the relays to an Iron Network",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.finale.reaccord.choix.reseau.cout",
+                  "modele": "Determined consequence: rigid mesh, network owned by the Republic, hierarchical and unequal protection.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "separer-les-veilles": {
+              "intention": {
+                "cle": "evenement.finale.reaccord.choix.veilles",
+                "modele": "Separate the network into Scattered Watches",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.finale.reaccord.choix.veilles.cout",
+                  "modele": "Determined consequence: autonomous halos without a shared owner, fragmented stability, and nuisances shifted to the margins.",
                   "variables": [],
                   "valeurs": {}
                 }
@@ -16329,7 +16857,12 @@ export default {
           "finale.ancrage.selection-risquee": "Ancrage risqué engagé",
           "finale.ancrage.refuge-commun": "Refuge commun établi autour du cœur",
           "finale.ancrage.citadelle-de-cendre": "Citadelle de cendre verrouillée",
-          "finale.ancrage.dernier-rempart": "Dernier Rempart tenu par les équipes"
+          "finale.ancrage.dernier-rempart": "Dernier Rempart tenu par les équipes",
+          "finale.reaccord.selection-preparee": "Réaccord préparé engagé",
+          "finale.reaccord.selection-risquee": "Réaccord risqué engagé",
+          "finale.reaccord.constellation": "Constellation confiée à la coalition",
+          "finale.reaccord.reseau-de-fer": "Réseau de fer confié à la République",
+          "finale.reaccord.veilles-dispersees": "Veilles dispersées rendues autonomes"
         },
         "causes": {
           "bassins.haut-puits.pacte-des-citernes": "Le pacte des citernes",
@@ -16382,7 +16915,8 @@ export default {
           "couronne.ouverture.ilyana-maelys-et-la-clef": "Garde de la clef décidée avec les équipes du dernier relais.",
           "finale.ancrage.le-contrat-des-trois-solutions": "Causes finales lues dans les organes du Nœud.",
           "finale.ancrage.choisir-d-ancrer-le-coeur": "Solution irréversible choisie devant le cœur mécanique.",
-          "finale.ancrage.la-derniere-negociation": "Contrôle et coût humain négociés lors du dernier Conseil."
+          "finale.ancrage.la-derniere-negociation": "Contrôle et coût humain négociés lors du dernier Conseil.",
+          "finale.reaccord.la-derniere-negociation-du-reseau": "Propriété du maillage et partage des nuisances négociés au Nœud."
         },
         "acteurs": {
           "ilyana-voss": "Ilyana Voss",
@@ -16615,7 +17149,12 @@ export default {
           "finale.ancrage.selection-risquee": "Risky Anchoring committed",
           "finale.ancrage.refuge-commun": "Common Refuge established around the heart",
           "finale.ancrage.citadelle-de-cendre": "Ash Citadel locked",
-          "finale.ancrage.dernier-rempart": "Last Rampart held by the crews"
+          "finale.ancrage.dernier-rempart": "Last Rampart held by the crews",
+          "finale.reaccord.selection-preparee": "Prepared Retuning committed",
+          "finale.reaccord.selection-risquee": "Risky Retuning committed",
+          "finale.reaccord.constellation": "Constellation entrusted to the coalition",
+          "finale.reaccord.reseau-de-fer": "Iron Network entrusted to the Republic",
+          "finale.reaccord.veilles-dispersees": "Scattered Watches made autonomous"
         },
         "causes": {
           "bassins.haut-puits.pacte-des-citernes": "The cistern pact",
@@ -16668,7 +17207,8 @@ export default {
           "couronne.ouverture.ilyana-maelys-et-la-clef": "Key custody decided with the last relay crews.",
           "finale.ancrage.le-contrat-des-trois-solutions": "Final causes read from the Node’s organs.",
           "finale.ancrage.choisir-d-ancrer-le-coeur": "Irreversible Solution chosen before the mechanical heart.",
-          "finale.ancrage.la-derniere-negociation": "Control and human cost negotiated at the final Council."
+          "finale.ancrage.la-derniere-negociation": "Control and human cost negotiated at the final Council.",
+          "finale.reaccord.la-derniere-negociation-du-reseau": "Mesh ownership and nuisance sharing negotiated at the Node."
         },
         "acteurs": {
           "ilyana-voss": "Ilyana Voss",

@@ -6,7 +6,7 @@ import type {
   EffetMaterielDeFait,
 } from "../simulation/faits";
 import {
-  ancrageFinalEstCausal,
+  contratFinalEstCausal,
   type ObjetInconnu,
 } from "./validation";
 
@@ -31,6 +31,11 @@ const materiaux = (variation: number): EffetMaterielDeFait => ({
   stock: "materiaux",
   variation,
 });
+const eau = (variation: number): EffetMaterielDeFait => ({
+  type: "stock.modifie",
+  stock: "eau",
+  variation,
+});
 const habitants = (variation: number): EffetHumainDeFait => ({
   type: "habitants.modifies",
   variation,
@@ -41,7 +46,7 @@ function valider(
   habitantsCourants = 184,
 ): boolean {
   const etat = creerCampagneInitiale("CENDRE-VALIDATION-FINALE");
-  return ancrageFinalEstCausal(
+  return contratFinalEstCausal(
     faits,
     etat.infrastructure,
     etat.routes,
@@ -52,7 +57,7 @@ function valider(
   );
 }
 
-describe("validation causale de l’Ancrage final", () => {
+describe("validation causale du contrat final", () => {
   it("accepte les coûts exacts des Ancrages préparé et risqué", () => {
     expect(
       valider([
@@ -77,6 +82,34 @@ describe("validation causale de l’Ancrage final", () => {
         ],
         176,
       ),
+    ).toBe(true);
+  });
+
+  it("accepte les coûts exacts des Réaccords préparé et risqué", () => {
+    expect(
+      valider([
+        fait("couronne.approches.etalon-calibre", 50),
+        fait("couronne.tete-de-ligne.atelier-commun", 55),
+        fait("couronne.colonies.voie-alliee-preparee", 60),
+        fait("trame.aiguillage-zero.charte-partagee", 70),
+        fait("finale.contrat.causes-publiees", 200),
+        fait("finale.reaccord.selection-preparee", 300, [
+          eau(-4),
+          materiaux(-4),
+        ]),
+        fait("finale.reaccord.constellation", 400),
+      ]),
+    ).toBe(true);
+    expect(
+      valider([
+        fait("couronne.approches.etalon-calibre", 50),
+        fait("finale.contrat.causes-consignees", 200),
+        fait("finale.reaccord.selection-risquee", 300, [
+          eau(-10),
+          materiaux(-8),
+        ]),
+        fait("finale.reaccord.veilles-dispersees", 400),
+      ]),
     ).toBe(true);
   });
 
@@ -166,6 +199,54 @@ describe("validation causale de l’Ancrage final", () => {
       valider([
         ...preparation,
         fait("finale.ancrage.dernier-rempart", 400),
+      ]),
+    ).toBe(true);
+  });
+
+  it("rejette un Réaccord impossible, un coût falsifié et un propriétaire sans mandat", () => {
+    expect(
+      valider([
+        fait("couronne.approches.etalon-calibre", 50),
+        fait("couronne.ouverture.breche-ouverte", 80),
+        fait("finale.contrat.causes-publiees", 200),
+        fait("finale.reaccord.selection-risquee", 300, [
+          eau(-10),
+          materiaux(-8),
+        ]),
+      ]),
+    ).toBe(false);
+    expect(
+      valider([
+        fait("couronne.approches.etalon-calibre", 50),
+        fait("finale.contrat.causes-publiees", 200),
+        fait("finale.reaccord.selection-risquee", 300, [
+          eau(-9),
+          materiaux(-8),
+        ]),
+      ]),
+    ).toBe(false);
+    expect(
+      valider([
+        fait("couronne.approches.etalon-calibre", 50),
+        fait("finale.contrat.causes-publiees", 200),
+        fait("finale.reaccord.selection-risquee", 300, [
+          eau(-10),
+          materiaux(-8),
+        ]),
+        fait("finale.reaccord.reseau-de-fer", 400),
+      ]),
+    ).toBe(false);
+    expect(
+      valider([
+        fait("couronne.approches.etalon-calibre", 50),
+        fait("couronne.tete-de-ligne.atelier-commun", 60),
+        fait("couronne.tete-de-ligne.mandat-republicain", 70),
+        fait("finale.contrat.causes-publiees", 200),
+        fait("finale.reaccord.selection-preparee", 300, [
+          eau(-4),
+          materiaux(-4),
+        ]),
+        fait("finale.reaccord.reseau-de-fer", 400),
       ]),
     ).toBe(true);
   });

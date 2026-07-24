@@ -1,0 +1,82 @@
+version: 1
+evenements:
+  - id: finale.reaccord.la-derniere-negociation-du-reseau
+    famille: conflits-regionaux
+    themes: [reaccord, derniere-negociation, constellation, reseau-de-fer, veilles-dispersees]
+    fonction: attribuer-le-maillage-et-ses-nuisances-avec-les-seuls-moyens-credibles
+    fenetre: finale-ancrage
+    conditions:
+      requises:
+        - type: un-des-faits-present
+          faits:
+            - finale.reaccord.selection-preparee
+            - finale.reaccord.selection-risquee
+      interdites: []
+    periode_eligibilite: { debut: 1200, fin: 2147483647 }
+    priorite: 180
+    epuisement: unique
+    acteurs:
+      - porte-lanterne
+      - delegations-des-cinq-colonies
+      - republique-du-rail
+      - equipes-de-l-anneau
+    origine: { cle: evenement.finale.reaccord.origine, variables: [] }
+    libelle_intentions: { cle: evenement.ruban.intentions, variables: [] }
+    titre: { cle: evenement.finale.reaccord.titre, variables: [] }
+    presentation: { cle: evenement.finale.reaccord.presentation, variables: [] }
+    informations:
+      - source: delegations-des-cinq-colonies
+        texte: { cle: evenement.finale.reaccord.information, variables: [] }
+    faits_lus:
+      - finale.reaccord.selection-preparee
+      - finale.reaccord.selection-risquee
+      - couronne.colonies.voie-alliee-preparee
+      - couronne.tete-de-ligne.mandat-republicain
+      - trame.aiguillage-zero.charte-partagee
+      - trame.aiguillage-zero.monopole-republicain
+      - trame.aiguillage-zero.engagement-transport-autonome
+    choix:
+      - id: mailler-la-constellation
+        intention: { cle: evenement.finale.reaccord.choix.constellation, variables: [] }
+        couts_connus:
+          - { cle: evenement.finale.reaccord.choix.constellation.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - { id: finale.reaccord.constellation, cible: etalon-de-reaccord }
+      - id: confier-le-reseau-de-fer
+        intention: { cle: evenement.finale.reaccord.choix.reseau, variables: [] }
+        couts_connus:
+          - { cle: evenement.finale.reaccord.choix.reseau.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - { id: finale.reaccord.reseau-de-fer, cible: etalon-de-reaccord }
+      - id: separer-les-veilles
+        intention: { cle: evenement.finale.reaccord.choix.veilles, variables: [] }
+        couts_connus:
+          - { cle: evenement.finale.reaccord.choix.veilles.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - { id: finale.reaccord.veilles-dispersees, cible: etalon-de-reaccord }
+    consequence_differee: { type: proprietaire-du-reseau-et-partage-des-nuisances-consignes, cible: etalon-de-reaccord }
+    recuperation: { type: veilles-dispersees-restent-possibles-sans-proprietaire-unique }
+    variantes:
+      - id: coalition
+        condition: fait-present:couronne.colonies.voie-alliee-preparee
+        presentation: { cle: evenement.finale.reaccord.variante.coalition, variables: [] }
+      - id: charte
+        condition: fait-present:trame.aiguillage-zero.charte-partagee
+        presentation: { cle: evenement.finale.reaccord.variante.partage, variables: [] }
+      - id: transport
+        condition: fait-present:trame.aiguillage-zero.engagement-transport-autonome
+        presentation: { cle: evenement.finale.reaccord.variante.partage, variables: [] }
+      - id: mandat-republicain
+        condition: fait-present:couronne.tete-de-ligne.mandat-republicain
+        presentation: { cle: evenement.finale.reaccord.variante.republique, variables: [] }
+      - id: monopole-republicain
+        condition: fait-present:trame.aiguillage-zero.monopole-republicain
+        presentation: { cle: evenement.finale.reaccord.variante.republique, variables: [] }
+      - id: standard
+        condition: toujours
+        presentation: { cle: evenement.finale.reaccord.variante.standard, variables: [] }
+    destination_echo: journal-de-campagne
+    asset: finale.reaccord.la-derniere-negociation-du-reseau

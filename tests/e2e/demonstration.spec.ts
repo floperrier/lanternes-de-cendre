@@ -1104,7 +1104,7 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
     ["Les trois socles du nœud", "Cartographier les trois socles"],
     [
       "Les montages de la Couronne",
-      "Reporter les préparatifs et conserver les plans",
+      "Calibrer l’Étalon de réaccord",
     ],
     [
       "Ilyana et les plans sous cendre",
@@ -1151,6 +1151,146 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
       name: "Silent Crown Approaches",
     }),
   ).toContainText("Plans distributed among Caravan-city teams");
+  await activerAuClavier(
+    pageTraverse,
+    pageTraverse.getByRole("button", { name: "Français" }),
+  );
+  await activerAuClavier(
+    pageTraverse,
+    atlasTraverse.getByRole("button", {
+      name: "Étudier l’Engagement vers Arc ferroviaire du Nœud",
+    }),
+  );
+  await activerAuClavier(
+    pageTraverse,
+    pageTraverse
+      .getByRole("dialog", {
+        name: "Engagement vers Anneau intérieur",
+      })
+      .getByRole("button", {
+        name:
+          "Confirmer l’Engagement sans retour vers Anneau intérieur",
+      }),
+  );
+  await activerAuClavier(
+    pageTraverse,
+    pageTraverse.getByRole("button", { name: "Vitesse 4×" }),
+  );
+  await pageTraverse.clock.fastForward(121_000);
+
+  for (const [titre, choix] of [
+    [
+      "Le diagnostic des verrous",
+      "Rendre le diagnostic commun aux délégations",
+    ],
+    [
+      "Les trois montages devant la porte",
+      "Maintenir les trois dossiers de préparation",
+    ],
+    [
+      "Le dernier Conseil de la Couronne",
+      "Ouvrir par l’arc ferroviaire",
+    ],
+    [
+      "Ilyana, Maëlys et la clef",
+      "Consigner la clef entre les équipes",
+    ],
+  ] as const) {
+    const evenement = pageTraverse.getByRole("region", { name: titre });
+    await expect(evenement.getByRole("img")).toBeVisible();
+    await activerAuClavier(
+      pageTraverse,
+      evenement.getByRole("button", { name: choix }),
+    );
+    await pageTraverse.clock.fastForward(1_000);
+  }
+
+  await activerAuClavier(
+    pageTraverse,
+    atlasTraverse.getByRole("button", {
+      name:
+        "Étudier l’Engagement vers Passage de la Couronne ouverte",
+    }),
+  );
+  await activerAuClavier(
+    pageTraverse,
+    pageTraverse
+      .getByRole("dialog", { name: "Engagement vers Nœud central" })
+      .getByRole("button", {
+        name: "Confirmer l’Engagement sans retour vers Nœud central",
+      }),
+  );
+  await activerAuClavier(
+    pageTraverse,
+    pageTraverse.getByRole("button", { name: "Vitesse 4×" }),
+  );
+  await pageTraverse.clock.fastForward(91_000);
+  await expect(
+    sauvegardeTraverse.getByText(
+      "Point de reprise avant Solution finale enregistré.",
+    ),
+  ).toBeVisible();
+
+  const contratReaccord = pageTraverse.getByRole("region", {
+    name: "Contrat final du Nœud",
+  });
+  await expect(contratReaccord).toContainText(
+    "Réaccorder le réseau — Solution finale préparée",
+  );
+  const revelationReaccord = pageTraverse.getByRole("region", {
+    name: "Le contrat des trois Solutions",
+  });
+  await activerAuClavier(
+    pageTraverse,
+    revelationReaccord.getByRole("button", {
+      name: "Rendre les causes lisibles à toutes les équipes",
+    }),
+  );
+  await pageTraverse.clock.fastForward(1_000);
+
+  const choixFinalTraverse = pageTraverse.getByRole("region", {
+    name: "Choisir la Solution finale",
+  });
+  const reaccordPrepare = choixFinalTraverse.getByRole("button", {
+    name: "Engager le Réaccord préparé",
+  });
+  await expect(reaccordPrepare).toContainText(
+    "4 Eau et 4 Matériaux",
+  );
+  await activerAuClavier(pageTraverse, reaccordPrepare);
+  await pageTraverse.clock.fastForward(1_000);
+
+  const conflitReaccord = pageTraverse.getByRole("region", {
+    name: "La Dernière négociation du réseau",
+  });
+  await expect(conflitReaccord.getByRole("img")).toBeVisible();
+  await expect(conflitReaccord).toContainText(
+    "propriétaire de chaque relais",
+  );
+  await expect(conflitReaccord.getByRole("button")).toHaveCount(1);
+  await activerAuClavier(
+    pageTraverse,
+    conflitReaccord.getByRole("button", {
+      name: "Séparer le réseau en Veilles dispersées",
+    }),
+  );
+  await pageTraverse.clock.fastForward(1_000);
+  await expect(contratReaccord).toContainText("Veilles dispersées");
+  await expect(contratReaccord).toContainText(
+    "stabilité fragmentée entre les Veilles",
+  );
+  await expect(contratReaccord).toContainText(
+    "aucun propriétaire du réseau entier",
+  );
+  await expect(contratReaccord).toContainText(
+    "coût humain durablement élevé",
+  );
+  await pageTraverse.screenshot({
+    path: testInfo.outputPath(
+      "finale-reaccord-veilles-dispersees-mobile.png",
+    ),
+    fullPage: true,
+  });
 
   const navigateurColonies = await page.context().browser()!.newContext({
     viewport: { width: 640, height: 360 },
@@ -1436,7 +1576,7 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
   await pageColonies.clock.fastForward(1_000);
 
   const choixDAncrage = pageColonies.getByRole("region", {
-    name: "Choisir d’Ancrer le cœur",
+    name: "Choisir la Solution finale",
   });
   await expect(choixDAncrage.getByRole("img")).toBeVisible();
   const ancrageRisque = choixDAncrage.getByRole("button", {

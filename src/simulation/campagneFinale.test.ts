@@ -26,6 +26,7 @@ function preparer(
   faits: readonly string[],
   materiaux = 84,
   habitants = 184,
+  eau = 84,
 ): EtatCampagne {
   const initial = creerCampagneInitiale("CENDRE-FINALE");
   return {
@@ -42,6 +43,10 @@ function preparer(
           materiaux: {
             ...initial.pilotage.economie.stocks.materiaux,
             quantite: materiaux,
+          },
+          eau: {
+            ...initial.pilotage.economie.stocks.eau,
+            quantite: eau,
           },
         },
       },
@@ -114,12 +119,14 @@ describe("finale — Ancrer le cœur", () => {
       ]),
     );
     const choix = projeterCampagne(selection).evenementNarratif?.choix;
-    expect(choix).toEqual([
+    expect(choix).toEqual(
+      expect.arrayContaining([
       expect.objectContaining({
         id: "selectionner-ancrage-prepare",
         coutsConnus: [expect.stringContaining("4 Matériaux")],
       }),
-    ]);
+      ]),
+    );
     const materiauxAvant =
       selection.pilotage.economie.stocks.materiaux.quantite;
     const negociation = choisir(
@@ -142,7 +149,7 @@ describe("finale — Ancrer le cœur", () => {
     const conclue = choisir(negociation, "negocier-refuge-commun");
     expect(reconstruireEtatDuContratFinal(conclue)).toMatchObject({
       selection: "ancrage-prepare",
-      varianteDAncrage: "refuge-commun",
+      varianteFinale: "refuge-commun",
       bilan: {
         stabilite: "stable",
         controle: "partage",
@@ -192,7 +199,7 @@ describe("finale — Ancrer le cœur", () => {
     const conclue = choisir(negociation, "tenir-dernier-rempart");
     expect(reconstruireEtatDuContratFinal(conclue)).toMatchObject({
       selection: "ancrage-risque",
-      varianteDAncrage: "dernier-rempart",
+      varianteFinale: "dernier-rempart",
       bilan: {
         stabilite: "sous-contrainte",
         controle: "equipes",
@@ -262,4 +269,272 @@ describe("finale — Ancrer le cœur", () => {
     expect(empreinteEtat(premiere)).toBe(empreinteEtat(seconde));
     expect(premiere).toEqual(seconde);
   });
+});
+
+describe("finale — Réaccorder le réseau", () => {
+  const preparationPartagee = [
+    "couronne.approches.etalon-calibre",
+    "couronne.tete-de-ligne.atelier-commun",
+    "couronne.colonies.voie-alliee-preparee",
+    "trame.aiguillage-zero.charte-partagee",
+    "couronne.tete-de-ligne.mandat-republicain",
+  ] as const;
+
+  it("prépare le Réaccord par plusieurs combinaisons d’appuis", () => {
+    expect(
+      reconstruireEtatDuContratFinal(
+        preparer(preparationPartagee),
+      ).solutions.reaccorder.statut,
+    ).toBe("preparee");
+    expect(
+      reconstruireEtatDuContratFinal(
+        preparer([
+          "couronne.approches.etalon-calibre",
+          "couronne.tete-de-ligne.mandat-republicain",
+        ]),
+      ).solutions.reaccorder.statut,
+    ).toBe("risquee");
+    expect(
+      reconstruireEtatDuContratFinal(
+        preparer([
+          "couronne.approches.etalon-calibre",
+          "couronne.tete-de-ligne.atelier-commun",
+          "couronne.tete-de-ligne.mandat-republicain",
+        ]),
+      ).solutions.reaccorder.statut,
+    ).toBe("preparee");
+  });
+
+  it("paie le Réaccord préparé puis n’expose que les propriétaires crédibles", () => {
+    const selection = atteindreLaSelection(
+      preparer(preparationPartagee),
+    );
+    expect(
+      projeterCampagne(selection).evenementNarratif?.choix,
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: "selectionner-reaccord-prepare",
+          coutsConnus: [
+            expect.stringContaining("4 Eau et 4 Matériaux"),
+          ],
+        }),
+      ]),
+    );
+    const eauAvant =
+      selection.pilotage.economie.stocks.eau.quantite;
+    const materiauxAvant =
+      selection.pilotage.economie.stocks.materiaux.quantite;
+
+    const negociation = choisir(
+      selection,
+      "selectionner-reaccord-prepare",
+    );
+
+    expect(
+      negociation.pilotage.economie.stocks.eau.quantite,
+    ).toBe(eauAvant - 4);
+    expect(
+      negociation.pilotage.economie.stocks.materiaux.quantite,
+    ).toBe(materiauxAvant - 4);
+    expect(
+      projeterCampagne(negociation).evenementNarratif?.choix.map(
+        ({ id }) => id,
+      ),
+    ).toEqual([
+      "mailler-la-constellation",
+      "confier-le-reseau-de-fer",
+      "separer-les-veilles",
+    ]);
+
+    const conclue = choisir(
+      negociation,
+      "mailler-la-constellation",
+    );
+    expect(reconstruireEtatDuContratFinal(conclue)).toMatchObject({
+      selection: "reaccord-prepare",
+      varianteFinale: "constellation",
+      bilan: {
+        stabilite: "maillee",
+        controle: "coalition",
+        coutHumain: "contenu",
+      },
+    });
+  });
+
+  it("rend le Réaccord risqué déterministe et garde les Veilles comme repli", () => {
+    const origine = preparer([
+      "couronne.approches.etalon-calibre",
+    ]);
+    const conclure = () => {
+      const selection = atteindreLaSelection(origine);
+      expect(
+        projeterCampagne(selection).evenementNarratif?.choix,
+      ).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            id: "selectionner-reaccord-risque",
+            coutsConnus: [
+              expect.stringContaining("10 Eau et 8 Matériaux"),
+            ],
+          }),
+        ]),
+      );
+      const negociation = choisir(
+        selection,
+        "selectionner-reaccord-risque",
+      );
+      expect(
+        projeterCampagne(negociation).evenementNarratif?.choix.map(
+          ({ id }) => id,
+        ),
+      ).toEqual(["separer-les-veilles"]);
+      return choisir(negociation, "separer-les-veilles");
+    };
+
+    const premiere = conclure();
+    const seconde = conclure();
+    expect(empreinteEtat(premiere)).toBe(empreinteEtat(seconde));
+    expect(reconstruireEtatDuContratFinal(premiere)).toMatchObject({
+      selection: "reaccord-risque",
+      varianteFinale: "veilles-dispersees",
+      bilan: {
+        stabilite: "fragmentee",
+        controle: "sans-proprietaire",
+        coutHumain: "eleve",
+      },
+    });
+  });
+
+  it("nomme le monopole qui rend le Réseau de fer crédible", () => {
+    const selection = atteindreLaSelection(
+      preparer([
+        "couronne.approches.etalon-calibre",
+        "couronne.tete-de-ligne.atelier-commun",
+        "trame.aiguillage-zero.monopole-republicain",
+      ]),
+    );
+    const negociation = choisir(
+      selection,
+      "selectionner-reaccord-prepare",
+    );
+    const projection =
+      projeterCampagne(negociation).evenementNarratif;
+
+    expect(projection?.variante).toContain("monopole républicain");
+    expect(projection?.choix.map(({ id }) => id)).toEqual([
+      "confier-le-reseau-de-fer",
+      "separer-les-veilles",
+    ]);
+  });
+
+  it("interdit le Réaccord si la brèche a détruit les bus", () => {
+    const selection = atteindreLaSelection(
+      preparer([
+        "couronne.approches.etalon-calibre",
+        "couronne.colonies.voie-alliee-preparee",
+        "trame.aiguillage-zero.charte-partagee",
+        "couronne.ouverture.breche-ouverte",
+      ]),
+    );
+
+    expect(
+      projeterCampagne(selection).evenementNarratif?.choix.some(
+        ({ id }) => id.startsWith("selectionner-reaccord"),
+      ),
+    ).toBe(false);
+    expect(
+      reconstruireEtatDuContratFinal(selection).solutions.reaccorder,
+    ).toMatchObject({
+      statut: "impossible",
+      selectionnable: false,
+      causes: expect.arrayContaining(["noeud-endommage"]),
+    });
+  });
+
+  it("fige le diagnostic après le paiement exact en Eau et Matériaux", () => {
+    const selection = atteindreLaSelection(
+      preparer(preparationPartagee, 4, 184, 4),
+    );
+    const apresPaiement = choisir(
+      selection,
+      "selectionner-reaccord-prepare",
+    );
+
+    expect(
+      apresPaiement.pilotage.economie.stocks.eau.quantite,
+    ).toBe(0);
+    expect(
+      apresPaiement.pilotage.economie.stocks.materiaux.quantite,
+    ).toBe(0);
+    expect(
+      reconstruireEtatDuContratFinal(apresPaiement).solutions
+        .reaccorder,
+    ).toMatchObject({
+      statut: "preparee",
+      selectionnable: true,
+      causes: expect.arrayContaining(["ressources-suffisantes"]),
+    });
+  });
+
+  it.each([
+    {
+      nom: "préparé",
+      faits: preparationPartagee,
+      statut: "preparee",
+      selection: "selectionner-reaccord-prepare",
+      variante: "mailler-la-constellation",
+    },
+    {
+      nom: "risqué",
+      faits: ["couronne.approches.etalon-calibre"],
+      statut: "risquee",
+      selection: "selectionner-reaccord-risque",
+      variante: "separer-les-veilles",
+    },
+    {
+      nom: "impossible",
+      faits: [
+        "couronne.approches.etalon-calibre",
+        "couronne.ouverture.breche-ouverte",
+      ],
+      statut: "impossible",
+      selection: undefined,
+      variante: undefined,
+    },
+  ] as const)(
+    "rejoue l’état, les explications et l’empreinte du scénario $nom",
+    ({ faits, statut, selection, variante }) => {
+      const executer = () => {
+        const auContrat = atteindreLaSelection(preparer(faits));
+        const projection = projeterContratFinal(auContrat);
+        const explications = projection.solutions.find(
+          ({ id }) => id === "reaccorder",
+        )?.causes;
+        if (selection === undefined || variante === undefined) {
+          return { etat: auContrat, explications };
+        }
+        const enNegociation = choisir(auContrat, selection);
+        return {
+          etat: choisir(enNegociation, variante),
+          explications,
+        };
+      };
+
+      const premiere = executer();
+      const seconde = executer();
+
+      expect(
+        reconstruireEtatDuContratFinal(
+          atteindreLaSelection(preparer(faits)),
+        ).solutions.reaccorder.statut,
+      ).toBe(statut);
+      expect(premiere.explications).toEqual(seconde.explications);
+      expect(premiere.explications).not.toHaveLength(0);
+      expect(empreinteEtat(premiere.etat)).toBe(
+        empreinteEtat(seconde.etat),
+      );
+      expect(premiere.etat).toEqual(seconde.etat);
+    },
+  );
 });

@@ -1,0 +1,15 @@
+{
+  "asset": "serveur-commercial/assets/finale-reaccord-conflit.webp",
+  "sha256": "0b8561fa7c1cda0892e5b95ebf7506fdf35816d6b6cdb6304457856a2a0fc5a9",
+  "createdAt": "2026-07-23",
+  "tool": "Codex built-in image_gen",
+  "model": "built-in model (identifier not exposed)",
+  "useCase": "stylized-concept",
+  "input": "No input image; generated from the project’s established industrial ash-world art direction.",
+  "prompt": "Delegates and exhausted crews negotiate around a calibrated Retuning Standard inside the Central Node; three routing patterns evoke Constellation, Iron Network, and Scattered Watches; cinematic painterly 16:9, no text or logos, costly rather than triumphant.",
+  "rights": "OpenAI Terms of Use — output assigned to the user",
+  "approval": {
+    "status": "pending-pull-request-review",
+    "reviewer": null
+  }
+}

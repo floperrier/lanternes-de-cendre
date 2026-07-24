@@ -59,8 +59,8 @@ evenements:
 
   - id: finale.ancrage.choisir-d-ancrer-le-coeur
     famille: conflits-regionaux
-    themes: [ancrage, choix-final, cout-determine, irreversibilite]
-    fonction: choisir-l-ancrage-prepare-ou-risque-sans-tirage
+    themes: [ancrage, reaccord, choix-final, cout-determine, irreversibilite]
+    fonction: choisir-l-ancrage-ou-le-reaccord-prepare-ou-risque-sans-tirage
     fenetre: finale-ancrage
     conditions:
       requises:
@@ -86,6 +86,7 @@ evenements:
       - finale.contrat.causes-publiees
       - finale.contrat.causes-consignees
       - couronne.approches.berceau-amorce
+      - couronne.approches.etalon-calibre
       - couronne.ouverture.breche-ouverte
     choix:
       - id: selectionner-ancrage-prepare
@@ -105,12 +106,33 @@ evenements:
           - { type: habitants.modifier, valeur: -8 }
         faits_produits:
           - { id: finale.ancrage.selection-risquee, cible: coeur-du-noeud }
-    consequence_differee: { type: ancrage-rendu-irreversible-avant-la-derniere-negociation, cible: coeur-du-noeud }
+      - id: selectionner-reaccord-prepare
+        intention: { cle: evenement.finale.selection.choix.reaccord.prepare, variables: [] }
+        couts_connus:
+          - { cle: evenement.finale.selection.choix.reaccord.prepare.cout, variables: [] }
+        effets:
+          - { type: stock.modifier, stock: eau, valeur: -4 }
+          - { type: stock.modifier, stock: materiaux, valeur: -4 }
+        faits_produits:
+          - { id: finale.reaccord.selection-preparee, cible: etalon-de-reaccord }
+      - id: selectionner-reaccord-risque
+        intention: { cle: evenement.finale.selection.choix.reaccord.risque, variables: [] }
+        couts_connus:
+          - { cle: evenement.finale.selection.choix.reaccord.risque.cout, variables: [] }
+        effets:
+          - { type: stock.modifier, stock: eau, valeur: -10 }
+          - { type: stock.modifier, stock: materiaux, valeur: -8 }
+        faits_produits:
+          - { id: finale.reaccord.selection-risquee, cible: etalon-de-reaccord }
+    consequence_differee: { type: solution-rendue-irreversible-avant-la-derniere-negociation, cible: coeur-du-noeud }
     recuperation: { type: solution-impossible-reste-non-selectionnable }
     variantes:
       - id: prepare
         condition: fait-present:couronne.approches.berceau-amorce
         presentation: { cle: evenement.finale.selection.variante.prepare, variables: [] }
+      - id: etalon
+        condition: fait-present:couronne.approches.etalon-calibre
+        presentation: { cle: evenement.finale.selection.variante.etalon, variables: [] }
       - id: breche
         condition: fait-present:couronne.ouverture.breche-ouverte
         presentation: { cle: evenement.finale.selection.variante.breche, variables: [] }
