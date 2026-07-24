@@ -164,6 +164,8 @@ describe("Graine de campagne", () => {
           "passage-de-la-couronne-muette": "praticable",
           "voie-de-tete-de-ligne": "praticable",
           "chemin-des-trois-veilles": "degrade",
+          "piste-des-serres-de-verre": "degrade",
+          "rampe-du-seuil": "degrade",
         },
         engagements: [],
         jalons: [],

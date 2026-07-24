@@ -68,6 +68,19 @@ acteurs:
   - precipitateur-embarque
   - tete-de-ligne
   - veille-des-trois
+  - delegations-des-cinq-colonies
+  - habitants-du-seuil
+  - commis-du-marche-du-seuil
+  - releveurs-du-seuil
+  - equipes-de-la-rampe
+  - serres-de-verre
+  - seuil
+  - marche-du-seuil
+  - releves-du-noeud
+  - rampe-du-seuil
+  - acces-du-noeud
+  - registre-des-rallies
+  - noeud-central-de-regulation
 quartiers:
   - intendance
   - foyers
@@ -90,6 +103,8 @@ fenetres:
   - couronne-tete-de-ligne
   - couronne-veille-des-trois
   - couronne-approches
+  - couronne-serres-de-verre
+  - couronne-seuil
 lieux:
   - halte-du-puits-sec
   - haut-puits
@@ -108,6 +123,8 @@ lieux:
   - couronne-muette
   - tete-de-ligne
   - veille-des-trois
+  - serres-de-verre
+  - seuil
 destinations_echo:
   - journal-de-campagne
 faits:
@@ -218,3 +235,13 @@ faits:
   - couronne.approches.preparatifs-reportes
   - couronne.approches.plans-confies-a-ilyana
   - couronne.approches.plans-repartis-aux-equipes
+  - couronne.serres-de-verre.coalition-ralliee
+  - couronne.serres-de-verre.passage-force
+  - couronne.seuil.marche-rationne
+  - couronne.seuil.dernieres-pieces-achetees
+  - couronne.seuil.releves-recopies
+  - couronne.seuil.releves-separes
+  - couronne.colonies.voie-alliee-preparee
+  - couronne.colonies.breche-couteuse-preparee
+  - couronne.seuil.registre-confie-a-maelys
+  - couronne.seuil.registre-commun

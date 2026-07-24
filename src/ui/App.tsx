@@ -19,6 +19,7 @@ import { projeterTraverseLibre } from "../application/traverseLibre";
 import { projeterConvergenceDeLaTrame } from "../application/convergenceTrame";
 import { projeterAiguillageZero } from "../application/aiguillageZero";
 import { projeterApprochesDeLaCouronne } from "../application/couronne";
+import { projeterVoieDesColonies } from "../application/voieColonies";
 import type { Langue } from "../content/types";
 import { criseAttendSonCheckpoint } from "../simulation/crise";
 import {
@@ -47,6 +48,7 @@ import { TraverseLibre } from "./TraverseLibre";
 import { ConvergenceTrame } from "./ConvergenceTrame";
 import { AiguillageZero } from "./AiguillageZero";
 import { Couronne } from "./Couronne";
+import { VoieColonies } from "./VoieColonies";
 
 interface PropsCampagne {
   readonly etatDuControleur: Extract<
@@ -104,6 +106,10 @@ function CampagnePersistante({
   const projectionDeLAiguillageZero = projeterAiguillageZero(etat, langue);
   const projectionDesApprochesDeLaCouronne =
     projeterApprochesDeLaCouronne(etat, langue);
+  const projectionDeLaVoieDesColonies = projeterVoieDesColonies(
+    etat,
+    langue,
+  );
   const surfacePrioritaire = choisirSurfacePrioritaire({
     criseActive: projectionDesCrises.active !== null,
     checkpointDeCriseRequis,
@@ -250,6 +256,7 @@ function CampagnePersistante({
           <ConvergenceTrame projection={projectionDeConvergence} />
           <AiguillageZero projection={projectionDeLAiguillageZero} />
           <Couronne projection={projectionDesApprochesDeLaCouronne} />
+          <VoieColonies projection={projectionDeLaVoieDesColonies} />
         </div>
       </div>
 

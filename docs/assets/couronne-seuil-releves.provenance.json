@@ -1,0 +1,15 @@
+{
+  "asset": "serveur-commercial/assets/couronne-seuil-releves.webp",
+  "sha256": "3b29bb83faac05d63a3187cdc0877e4e392d279d947c3db39abd5bc61004cb57",
+  "createdAt": "2026-07-23",
+  "tool": "Codex built-in image_gen",
+  "model": "built-in model (identifier not exposed)",
+  "useCase": "stylized-concept",
+  "input": "No input image; generated from the project’s established industrial ash-world art direction.",
+  "prompt": "Surveyors compare mechanical gauges and maps before the Node’s anchoring cradle, calibration rail and precipitation conduit without activating any Solution; painterly 16:9, no text or logos.",
+  "rights": "OpenAI Terms of Use — output assigned to the user",
+  "approval": {
+    "status": "pending-pull-request-review",
+    "reviewer": null
+  }
+}

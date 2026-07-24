@@ -36,6 +36,8 @@ function normaliserEnV9(etat: EtatCampagne) {
     "passage-de-la-couronne-muette": passageDeLaCouronneMuette,
     "voie-de-tete-de-ligne": voieDeTeteDeLigne,
     "chemin-des-trois-veilles": cheminDesTroisVeilles,
+    "piste-des-serres-de-verre": pisteDesSerresDeVerre,
+    "rampe-du-seuil": rampeDuSeuil,
     ...etatsReels
   } = sansTraverse.routes.etatsReels;
   void embranchementDePompeNeuve;
@@ -51,6 +53,8 @@ function normaliserEnV9(etat: EtatCampagne) {
   void passageDeLaCouronneMuette;
   void voieDeTeteDeLigne;
   void cheminDesTroisVeilles;
+  void pisteDesSerresDeVerre;
+  void rampeDuSeuil;
   return {
     ...sansTraverse,
     version: VERSION_SIMULATION_AVANT_TRAVERSE_LIBRE,

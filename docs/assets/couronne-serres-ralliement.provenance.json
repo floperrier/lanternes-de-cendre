@@ -1,0 +1,15 @@
+{
+  "asset": "serveur-commercial/assets/couronne-serres-ralliement.webp",
+  "sha256": "d6e6d24ac34844a83cbae28183849a4a63863b6a238c85e69c43d1ca28fc0e0a",
+  "createdAt": "2026-07-23",
+  "tool": "Codex built-in image_gen",
+  "model": "built-in model (identifier not exposed)",
+  "useCase": "stylized-concept",
+  "input": "No input image; generated from the project’s established industrial ash-world art direction.",
+  "prompt": "Five visibly distinct Colony delegations rally around broken glass tables at abandoned ash-covered Glasshouses, with the warm mobile lighthouse caravan behind them; cinematic painterly 16:9, no text or logos.",
+  "rights": "OpenAI Terms of Use — output assigned to the user",
+  "approval": {
+    "status": "pending-pull-request-review",
+    "reviewer": null
+  }
+}

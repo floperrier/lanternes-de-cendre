@@ -50,6 +50,11 @@ import provenanceCouronneVeilleDesTrois from "../../docs/assets/couronne-veille-
 import provenanceCouronneTroisSocles from "../../docs/assets/couronne-trois-socles.provenance.json?raw";
 import provenanceCouronneMontages from "../../docs/assets/couronne-montages.provenance.json?raw";
 import provenanceCouronneIlyanaPlans from "../../docs/assets/couronne-ilyana-plans.provenance.json?raw";
+import provenanceCouronneSerresRalliement from "../../docs/assets/couronne-serres-ralliement.provenance.json?raw";
+import provenanceCouronneSeuilMarche from "../../docs/assets/couronne-seuil-marche.provenance.json?raw";
+import provenanceCouronneSeuilReleves from "../../docs/assets/couronne-seuil-releves.provenance.json?raw";
+import provenanceCouronneRampeCouteuse from "../../docs/assets/couronne-rampe-couteuse.provenance.json?raw";
+import provenanceCouronneMaelysRegistre from "../../docs/assets/couronne-maelys-registre.provenance.json?raw";
 import {
   ErreurDeContenu,
   compilerCatalogue,
@@ -147,6 +152,16 @@ const sourcesValides: SourcesDuCatalogue = {
       provenanceCouronneMontages,
     "docs/assets/couronne-ilyana-plans.provenance.json":
       provenanceCouronneIlyanaPlans,
+    "docs/assets/couronne-serres-ralliement.provenance.json":
+      provenanceCouronneSerresRalliement,
+    "docs/assets/couronne-seuil-marche.provenance.json":
+      provenanceCouronneSeuilMarche,
+    "docs/assets/couronne-seuil-releves.provenance.json":
+      provenanceCouronneSeuilReleves,
+    "docs/assets/couronne-rampe-couteuse.provenance.json":
+      provenanceCouronneRampeCouteuse,
+    "docs/assets/couronne-maelys-registre.provenance.json":
+      provenanceCouronneMaelysRegistre,
   },
   cheminDeProvenanceAsset: (chemin) =>
     chemin.startsWith("/api/commercial/assets/")
@@ -197,6 +212,11 @@ const sourcesValides: SourcesDuCatalogue = {
       "/api/commercial/assets/couronne-trois-socles.webp",
       "/api/commercial/assets/couronne-montages.webp",
       "/api/commercial/assets/couronne-ilyana-plans.webp",
+      "/api/commercial/assets/couronne-serres-ralliement.webp",
+      "/api/commercial/assets/couronne-seuil-marche.webp",
+      "/api/commercial/assets/couronne-seuil-releves.webp",
+      "/api/commercial/assets/couronne-rampe-couteuse.webp",
+      "/api/commercial/assets/couronne-maelys-registre.webp",
     ].includes(chemin),
   empreinteAsset: (chemin) =>
     ({
@@ -286,6 +306,16 @@ const sourcesValides: SourcesDuCatalogue = {
         "a28fb1fccb0b7ba754077409d660661b144078de69c647db5c7537d656ccf189",
       "/api/commercial/assets/couronne-ilyana-plans.webp":
         "8da26e9043037e64804279cdd1565280420bc1b5e2b7439691d2804487e8707f",
+      "/api/commercial/assets/couronne-serres-ralliement.webp":
+        "d6e6d24ac34844a83cbae28183849a4a63863b6a238c85e69c43d1ca28fc0e0a",
+      "/api/commercial/assets/couronne-seuil-marche.webp":
+        "2bd490facb1d680841674470df33bc5adb703d43008a57aa738d338b71286b6c",
+      "/api/commercial/assets/couronne-seuil-releves.webp":
+        "3b29bb83faac05d63a3187cdc0877e4e392d279d947c3db39abd5bc61004cb57",
+      "/api/commercial/assets/couronne-rampe-couteuse.webp":
+        "28430bbd11b713ff6370b6d6de496dbe5527391f64e6801cf1f3386ad83d9d96",
+      "/api/commercial/assets/couronne-maelys-registre.webp":
+        "8f63e062243939aeb59523c4cb22a3110a0bc36fd015499f8cf42cc264538c92",
     })[chemin] ?? "0".repeat(64),
   tailleAsset: () => 256_000,
 };

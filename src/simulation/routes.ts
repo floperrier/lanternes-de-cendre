@@ -22,7 +22,9 @@ export type IdentifiantDeLieu =
   | "aiguillage-zero"
   | "couronne-muette"
   | "tete-de-ligne"
-  | "veille-des-trois";
+  | "veille-des-trois"
+  | "serres-de-verre"
+  | "seuil";
 
 export type IdentifiantDeTroncon =
   | "digue-des-puits"
@@ -49,7 +51,9 @@ export type IdentifiantDeTroncon =
   | "faisceau-de-l-aiguillage-zero"
   | "passage-de-la-couronne-muette"
   | "voie-de-tete-de-ligne"
-  | "chemin-des-trois-veilles";
+  | "chemin-des-trois-veilles"
+  | "piste-des-serres-de-verre"
+  | "rampe-du-seuil";
 
 export interface DefinitionDeLieu {
   readonly id: IdentifiantDeLieu;
@@ -340,6 +344,8 @@ const IDENTIFIANTS_DE_LIEUX = new Set<IdentifiantDeLieu>([
   "couronne-muette",
   "tete-de-ligne",
   "veille-des-trois",
+  "serres-de-verre",
+  "seuil",
 ]);
 const IDENTIFIANTS_DE_TRONCONS = new Set<IdentifiantDeTroncon>([
   "digue-des-puits",
@@ -367,6 +373,8 @@ const IDENTIFIANTS_DE_TRONCONS = new Set<IdentifiantDeTroncon>([
   "passage-de-la-couronne-muette",
   "voie-de-tete-de-ligne",
   "chemin-des-trois-veilles",
+  "piste-des-serres-de-verre",
+  "rampe-du-seuil",
 ]);
 
 export function installerContenuPremiumDesRoutes(

@@ -37,6 +37,11 @@ export const NOMS_D_ASSETS_PREMIUM = [
   "couronne-trois-socles.webp",
   "couronne-montages.webp",
   "couronne-ilyana-plans.webp",
+  "couronne-serres-ralliement.webp",
+  "couronne-seuil-marche.webp",
+  "couronne-seuil-releves.webp",
+  "couronne-rampe-couteuse.webp",
+  "couronne-maelys-registre.webp",
 ] as const;
 
 export const LIEUX_PREMIUM = [
@@ -99,6 +104,14 @@ export const LIEUX_PREMIUM = [
   {
     id: "veille-des-trois",
     nom: { fr: "Veille-des-Trois", en: "Threefold Watch" },
+  },
+  {
+    id: "serres-de-verre",
+    nom: { fr: "Serres-de-Verre", en: "Glasshouses" },
+  },
+  {
+    id: "seuil",
+    nom: { fr: "Le Seuil", en: "Threshold" },
   },
 ] as const;
 
@@ -1398,6 +1411,106 @@ export const TRONCONS_PREMIUM = [
             source: "Low Watch withdrawal message",
             danger: "No stable keepers can hold three beacons",
             controlePolitique: "Evacuating the surveys becomes the only safe concession",
+          },
+        },
+      },
+    ],
+  },
+  {
+    id: "piste-des-serres-de-verre",
+    nom: {
+      fr: "Piste des Serres-de-Verre",
+      en: "Glasshouses Track",
+    },
+    extremites: ["couronne-muette", "serres-de-verre"],
+    originesAutorisees: ["couronne-muette"],
+    dureeSecondes: 720,
+    etatInitial: "degrade",
+    consommationConnue: {
+      stock: "combustible",
+      quantite: 7,
+      unite: "litres",
+    },
+    consommationIncertaine: {
+      stock: "eau",
+      minimum: 7,
+      maximum: 10,
+      quantiteReelle: 9,
+      unite: "litres",
+      renseignementId: "serres-de-verre-ralliement",
+    },
+    renseignements: [
+      {
+        id: "serres-de-verre-ralliement",
+        tronconId: "piste-des-serres-de-verre",
+        source: "eclaireurs-puits-libres",
+        releveA: 0,
+        fiabilite: "rapporte",
+        etatAnnonce: "degrade",
+        meteo: "rafales-de-cendre",
+        panache: "incertain",
+        danger: "orniere",
+        controlePolitique: "sans-controle-etabli",
+        libelles: {
+          fr: {
+            source: "Rapports croisés des quatre Colonies quittées",
+            danger: "Verrières effondrées et piste gourmande en eau",
+            controlePolitique: "Ralliement composite sans autorité unique",
+          },
+          en: {
+            source: "Cross-checked reports from the four departed Colonies",
+            danger: "Collapsed glass roofs and a water-hungry track",
+            controlePolitique: "Composite rally under no single authority",
+          },
+        },
+      },
+    ],
+  },
+  {
+    id: "rampe-du-seuil",
+    nom: {
+      fr: "Rampe du Seuil",
+      en: "Threshold Ramp",
+    },
+    extremites: ["serres-de-verre", "seuil"],
+    originesAutorisees: ["serres-de-verre"],
+    dureeSecondes: 540,
+    etatInitial: "degrade",
+    consommationConnue: {
+      stock: "combustible",
+      quantite: 5,
+      unite: "litres",
+    },
+    consommationIncertaine: {
+      stock: "eau",
+      minimum: 5,
+      maximum: 8,
+      quantiteReelle: 7,
+      unite: "litres",
+      renseignementId: "seuil-rampe-logistique",
+    },
+    renseignements: [
+      {
+        id: "seuil-rampe-logistique",
+        tronconId: "rampe-du-seuil",
+        source: "eclaireurs-puits-libres",
+        releveA: 0,
+        fiabilite: "confirme",
+        etatAnnonce: "degrade",
+        meteo: "cendre-basse",
+        panache: "absent",
+        danger: "ponts-fatigues",
+        controlePolitique: "passage-conteste",
+        libelles: {
+          fr: {
+            source: "Relevé commun des équipes ralliées aux Serres",
+            danger: "Rampe brisée exigeant eau, pièces et équipes coordonnées",
+            controlePolitique: "Le Seuil revendique la maîtrise de son accès",
+          },
+          en: {
+            source: "Joint survey by the teams rallied at the Glasshouses",
+            danger: "Broken ramp requiring water, parts, and coordinated crews",
+            controlePolitique: "Threshold claims authority over its own access",
           },
         },
       },

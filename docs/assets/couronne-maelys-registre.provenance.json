@@ -1,0 +1,15 @@
+{
+  "asset": "serveur-commercial/assets/couronne-maelys-registre.webp",
+  "sha256": "8f63e062243939aeb59523c4cb22a3110a0bc36fd015499f8cf42cc264538c92",
+  "createdAt": "2026-07-23",
+  "tool": "Codex built-in image_gen",
+  "model": "built-in model (identifier not exposed)",
+  "useCase": "stylized-concept",
+  "input": "No input image; generated from the project’s established industrial ash-world art direction.",
+  "prompt": "Maëlys and representatives of five Colonies place tools and tokens around a shared registry table at Threshold, showing distributed memory and accountability; painterly 16:9, no text or logos.",
+  "rights": "OpenAI Terms of Use — output assigned to the user",
+  "approval": {
+    "status": "pending-pull-request-review",
+    "reviewer": null
+  }
+}

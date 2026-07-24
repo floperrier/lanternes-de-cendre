@@ -206,6 +206,34 @@ export interface TextesDesApprochesDeLaCouronne {
   readonly libelles: DictionnaireDeTextes;
 }
 
+export interface TextesDeLaVoieDesColonies {
+  readonly titre: string;
+  readonly eyebrow: string;
+  readonly besoins: DictionnaireDeTextes;
+  readonly interactions: DictionnaireDeTextes;
+  readonly devenirs: DictionnaireDeTextes;
+  readonly retours: DictionnaireDeTextes;
+  readonly cohortes: DictionnaireDeTextes;
+  readonly voies: DictionnaireDeTextes;
+  readonly booleens: DictionnaireDeTextes;
+  readonly statutsDuSeuil: DictionnaireDeTextes;
+  readonly pressions: DictionnaireDeTextes;
+  readonly marches: DictionnaireDeTextes;
+  readonly abris: DictionnaireDeTextes;
+  readonly releves: DictionnaireDeTextes;
+  readonly revendications: DictionnaireDeTextes;
+  readonly acces: DictionnaireDeTextes;
+  readonly gardes: DictionnaireDeTextes;
+  readonly formats: {
+    readonly serres: string;
+    readonly retour: string;
+    readonly credibilite: string;
+    readonly seuil: string;
+  };
+  readonly nomsDesColonies: DictionnaireDeTextes;
+  readonly libelles: DictionnaireDeTextes;
+}
+
 export interface PresentationsPremium {
   readonly hautPuits: Readonly<Record<Langue, TextesDeHautPuits>>;
   readonly veilleBasse: Readonly<Record<Langue, TextesDeVeilleBasse>>;
@@ -219,6 +247,9 @@ export interface PresentationsPremium {
   >;
   readonly couronne?: Readonly<
     Record<Langue, TextesDesApprochesDeLaCouronne>
+  >;
+  readonly voieColonies?: Readonly<
+    Record<Langue, TextesDeLaVoieDesColonies>
   >;
   readonly deversoir?: Readonly<
     Record<
@@ -326,6 +357,16 @@ export function installerPresentationsPremium(valeur: unknown): void {
         typeof evenement.id === "string" &&
         evenement.id.startsWith("couronne."),
     );
+  const inclutVoieColonies =
+    Array.isArray(evenements) &&
+    evenements.some(
+      (evenement) =>
+        estObjet(evenement) &&
+        typeof evenement.id === "string" &&
+        (evenement.id.startsWith("couronne.serres-de-verre.") ||
+          evenement.id.startsWith("couronne.seuil.") ||
+          evenement.id.startsWith("couronne.colonies.")),
+    );
   const surfacesAttendues = [
     "hautPuits",
     "veilleBasse",
@@ -335,6 +376,7 @@ export function installerPresentationsPremium(valeur: unknown): void {
     ...(inclutConvergence ? ["convergence"] : []),
     ...(inclutAiguillage ? ["aiguillage"] : []),
     ...(inclutCouronne ? ["couronne"] : []),
+    ...(inclutVoieColonies ? ["voieColonies"] : []),
   ];
   if (
     !estObjet(presentations) ||

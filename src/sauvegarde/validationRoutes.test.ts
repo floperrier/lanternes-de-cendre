@@ -461,6 +461,7 @@ describe("validation persistante des routes", () => {
     for (const tronconId of [
       "voie-de-tete-de-ligne",
       "chemin-des-trois-veilles",
+      "piste-des-serres-de-verre",
     ] as const) {
       const engagement = confirmerEngagementDeRoute(
         aLaCouronne,
@@ -487,5 +488,36 @@ describe("validation persistante des routes", () => {
         ]),
       ).toBe(true);
     }
+  });
+
+  it("refuse la Rampe du Seuil avant l’issue persistante des Serres", () => {
+    const auxSerres = {
+      ...creerEtatDesRoutesInitial(),
+      position: "serres-de-verre" as const,
+    };
+    const engagement = confirmerEngagementDeRoute(
+      auxSerres,
+      "rampe-du-seuil",
+      400,
+    ).etat;
+    expect(
+      engagementsDuDeversoirSontCausaux(engagement, []),
+    ).toBe(false);
+    expect(
+      engagementsDuDeversoirSontCausaux(engagement, [
+        {
+          id: "couronne.serres-de-verre.coalition-ralliee",
+          moment: 401,
+        },
+      ]),
+    ).toBe(false);
+    expect(
+      engagementsDuDeversoirSontCausaux(engagement, [
+        {
+          id: "couronne.serres-de-verre.passage-force",
+          moment: 400,
+        },
+      ]),
+    ).toBe(true);
   });
 });

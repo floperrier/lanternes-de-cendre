@@ -60,6 +60,8 @@ function normaliserEnV7(etat: EtatCampagne): Record<string, unknown> {
   delete historique.routes.etatsReels["passage-de-la-couronne-muette"];
   delete historique.routes.etatsReels["voie-de-tete-de-ligne"];
   delete historique.routes.etatsReels["chemin-des-trois-veilles"];
+  delete historique.routes.etatsReels["piste-des-serres-de-verre"];
+  delete historique.routes.etatsReels["rampe-du-seuil"];
   delete historique.narration.causaliteHistorique;
   delete historique.hautPuits.projetRegional;
   delete historique.veilleBasse.cohorte.orientationRegionale;

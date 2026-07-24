@@ -121,10 +121,12 @@ import { calculerOffreDesNacelles } from "../simulation/nacelles";
 import {
   creerEtatInitialDeLaTrameDeFer,
   reconstruireEtatDeLaTrameDeFer,
+  type EtatDeLaTrameDeFer,
 } from "../simulation/trameFer";
 import {
   creerEtatInitialDeTraverseLibre,
   reconstruireEtatDeTraverseLibre,
+  type EtatDeTraverseLibre,
 } from "../simulation/traverseLibre";
 
 const EMPREINTE = /^[0-9a-f]{8}$/;
@@ -459,6 +461,8 @@ export function estCommandeV6(valeur: unknown): valeur is CommandeCampagne {
       "nacelles-de-veille-basse",
       "voie-de-tete-de-ligne",
       "chemin-des-trois-veilles",
+      "piste-des-serres-de-verre",
+      "rampe-du-seuil",
     ].includes(String(valeur.tronconId))
   ) {
     return false;
@@ -494,6 +498,8 @@ export function estCommandeV7(valeur: unknown): valeur is CommandeCampagne {
       "piste-des-levees",
       "voie-de-tete-de-ligne",
       "chemin-des-trois-veilles",
+      "piste-des-serres-de-verre",
+      "rampe-du-seuil",
     ].includes(String(valeur.tronconId))
   ) {
     return false;
@@ -520,6 +526,8 @@ export function estCommandeV8(valeur: unknown): valeur is CommandeCampagne {
       "voie-des-ponts-lourds",
       "voie-de-tete-de-ligne",
       "chemin-des-trois-veilles",
+      "piste-des-serres-de-verre",
+      "rampe-du-seuil",
     ].includes(
       String(valeur.tronconId),
     )
@@ -553,6 +561,8 @@ export function estCommandeV9(valeur: unknown): valeur is CommandeCampagne {
       "passage-de-la-couronne-muette",
       "voie-de-tete-de-ligne",
       "chemin-des-trois-veilles",
+      "piste-des-serres-de-verre",
+      "rampe-du-seuil",
     ].includes(String(valeur.tronconId))
   ) {
     return false;
@@ -2142,6 +2152,111 @@ export function preparatifsDeLaCouronneSontCausaux(
   });
 }
 
+export function voieDesColoniesEstCausale(
+  faits: readonly ObjetInconnu[],
+  infrastructure: EtatInfrastructure,
+  routes: EtatDesRoutes,
+  expeditions: EtatDesExpeditions,
+  hautPuits: EtatDeHautPuits,
+  veilleBasse: EtatDeVeilleBasse,
+  trameDeFer: EtatDeLaTrameDeFer,
+  traverseLibre: EtatDeTraverseLibre,
+): boolean {
+  const indexDeLaCoalition = faits.findIndex(
+    (fait) =>
+      fait.id === "couronne.serres-de-verre.coalition-ralliee",
+  );
+  if (indexDeLaCoalition >= 0) {
+    const faitDeCoalition = faits[indexDeLaCoalition]!;
+    if (!estNombreFini(faitDeCoalition.moment)) {
+      return false;
+    }
+    const veilleBasseAlliee =
+      (veilleBasse.colonie.statut === "stable" ||
+        veilleBasse.colonie.statut === "prospere") &&
+      veilleBasse.colonie.techniciens.equipesDisponibles > 0;
+    const alliances = [
+      hautPuits.relationPublique === "cooperative" &&
+        hautPuits.colonie.statut !== "perdue",
+      veilleBasseAlliee,
+      trameDeFer.grandAiguillage.statut === "atelier-negocie" ||
+        trameDeFer.relationRepublique === "cooperative",
+      traverseLibre.statut === "autonome" ||
+        traverseLibre.relationPuitsLibres === "cooperative",
+    ].filter(Boolean).length;
+    const equipesDeVeilleBasse = veilleBasseAlliee
+      ? veilleBasse.colonie.techniciens.equipesDisponibles
+      : 0;
+    const equipes =
+      equipesDeVeilleBasse +
+      veilleBasse.cohorte.integration.equipesIntegrees +
+      (trameDeFer.occasions.attelageFedere.statut === "annoncee"
+        ? 1
+        : 0) +
+      (traverseLibre.routeSecondaire.statut === "reparee" ? 1 : 0);
+    if (alliances < 2 || equipes < 2) {
+      return false;
+    }
+    const faitsAvant = faits.slice(0, indexDeLaCoalition);
+    for (const [stock, seuil] of [
+      ["eau", 10],
+      ["materiaux", 8],
+    ] as const) {
+      if (
+        !calculerStockAttendu(
+          stock,
+          faitDeCoalition.moment as number,
+          faitsAvant,
+          infrastructure,
+          routes,
+          expeditions,
+          hautPuits,
+          veilleBasse,
+        ).possibilites.some(({ quantite }) => quantite >= seuil)
+      ) {
+        return false;
+      }
+    }
+  }
+
+  const indexDeLAchat = faits.findIndex(
+    (fait) =>
+      fait.id === "couronne.seuil.dernieres-pieces-achetees",
+  );
+  if (indexDeLAchat >= 0) {
+    const faitAchat = faits[indexDeLAchat]!;
+    if (
+      !estNombreFini(faitAchat.moment) ||
+      !calculerStockAttendu(
+        "eau",
+        faitAchat.moment as number,
+        faits.slice(0, indexDeLAchat),
+        infrastructure,
+        routes,
+        expeditions,
+        hautPuits,
+        veilleBasse,
+      ).possibilites.some(({ quantite }) => quantite >= 4)
+    ) {
+      return false;
+    }
+  }
+
+  const indexDeLaVoieAlliee = faits.findIndex(
+    (fait) => fait.id === "couronne.colonies.voie-alliee-preparee",
+  );
+  return (
+    indexDeLaVoieAlliee < 0 ||
+    faits
+      .slice(0, indexDeLaVoieAlliee)
+      .some(
+        (fait) =>
+          fait.id ===
+          "couronne.serres-de-verre.coalition-ralliee",
+      )
+  );
+}
+
 function estEtatPilotage(
   valeur: unknown,
   secondesCourantes: number,
@@ -3146,6 +3261,16 @@ function lireEtatAvecSchemaCourant(
       hautPuits,
       veilleBasse,
     ) ||
+    !voieDesColoniesEstCausale(
+      narration.faitsDeCampagne,
+      infrastructure,
+      routes,
+      expeditions,
+      hautPuits,
+      veilleBasse,
+      trameDeFer as EtatDeLaTrameDeFer,
+      traverseLibre as EtatDeTraverseLibre,
+    ) ||
     !estCausaliteDeNarrationValide(
       parties,
       pilotage,
@@ -3220,6 +3345,8 @@ function lireEtatAvecSchemaV9(
       "passage-de-la-couronne-muette",
       "voie-de-tete-de-ligne",
       "chemin-des-trois-veilles",
+      "piste-des-serres-de-verre",
+      "rampe-du-seuil",
     ].some(
       (id) =>
         Object.prototype.hasOwnProperty.call(
@@ -3313,6 +3440,8 @@ function lireEtatAvecSchemaV8(
       "passage-de-la-couronne-muette",
       "voie-de-tete-de-ligne",
       "chemin-des-trois-veilles",
+      "piste-des-serres-de-verre",
+      "rampe-du-seuil",
     ].some((id) =>
       Object.prototype.hasOwnProperty.call(
         (valeur.routes as ObjetInconnu).etatsReels,
@@ -3400,6 +3529,8 @@ function lireEtatAvecSchemaV7(
       "passage-de-la-couronne-muette",
       "voie-de-tete-de-ligne",
       "chemin-des-trois-veilles",
+      "piste-des-serres-de-verre",
+      "rampe-du-seuil",
     ].some((id) =>
       Object.prototype.hasOwnProperty.call(
         (valeur.routes as ObjetInconnu).etatsReels,

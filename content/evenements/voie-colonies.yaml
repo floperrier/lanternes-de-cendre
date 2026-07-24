@@ -1,0 +1,293 @@
+version: 1
+evenements:
+  - id: couronne.serres-de-verre.le-ralliement-des-cinq-colonies
+    famille: conflits-regionaux
+    themes: [couronne-muette, colonies, cohortes, ralliement]
+    fonction: faire-revenir-les-cinq-colonies-et-evaluer-la-credibilite-de-leur-voie
+    fenetre: couronne-serres-de-verre
+    conditions:
+      requises:
+        - type: lieu-present
+          lieu: serres-de-verre
+      interdites: []
+    periode_eligibilite: { debut: 1200, fin: 2147483647 }
+    priorite: 190
+    epuisement: unique
+    acteurs:
+      - porte-lanterne
+      - delegations-des-cinq-colonies
+      - cohorte-du-sillon
+      - habitants-du-seuil
+    origine: { cle: evenement.colonies.serres.origine, variables: [] }
+    libelle_intentions: { cle: evenement.ruban.intentions, variables: [] }
+    titre: { cle: evenement.colonies.serres.titre, variables: [] }
+    presentation: { cle: evenement.colonies.serres.presentation, variables: [] }
+    informations:
+      - source: delegations-des-cinq-colonies
+        texte: { cle: evenement.colonies.serres.information, variables: [] }
+    faits_lus:
+      - veille-basse.cohorte-accueillie
+      - trame.grand-aiguillage.reparation-locale-ouverte
+    choix:
+      - id: rallier-coalition
+        intention: { cle: evenement.colonies.serres.choix.coalition, variables: [] }
+        couts_connus:
+          - { cle: evenement.colonies.serres.choix.coalition.cout, variables: [] }
+        effets:
+          - { type: stock.modifier, stock: eau, valeur: -10 }
+          - { type: stock.modifier, stock: materiaux, valeur: -8 }
+        faits_produits:
+          - { id: couronne.serres-de-verre.coalition-ralliee, cible: serres-de-verre }
+      - id: forcer-passage
+        intention: { cle: evenement.colonies.serres.choix.forcer, variables: [] }
+        couts_connus:
+          - { cle: evenement.colonies.serres.choix.forcer.cout, variables: [] }
+        effets:
+          - { type: habitants.modifier, valeur: -6 }
+        faits_produits:
+          - { id: couronne.serres-de-verre.passage-force, cible: serres-de-verre }
+    consequence_differee: { type: voie-des-colonies-qualifiee, cible: rampe-du-seuil }
+    recuperation: { type: passage-couteux-toujours-disponible }
+    variantes:
+      - id: cohorte
+        condition: fait-present:veille-basse.cohorte-accueillie
+        presentation: { cle: evenement.colonies.serres.variante.cohorte, variables: [] }
+      - id: ateliers
+        condition: fait-present:trame.grand-aiguillage.reparation-locale-ouverte
+        presentation: { cle: evenement.colonies.serres.variante.ateliers, variables: [] }
+      - id: standard
+        condition: toujours
+        presentation: { cle: evenement.colonies.serres.variante.standard, variables: [] }
+    destination_echo: journal-de-campagne
+    asset: couronne.serres-de-verre.le-ralliement-des-cinq-colonies
+
+  - id: couronne.seuil.le-marche-des-abris
+    famille: conflits-regionaux
+    themes: [seuil, marche-limite, abris, revendication-politique]
+    fonction: donner-au-seuil-un-etat-des-pressions-un-marche-des-abris-et-une-voix-propres
+    fenetre: couronne-seuil
+    conditions:
+      requises:
+        - type: lieu-present
+          lieu: seuil
+      interdites: []
+    periode_eligibilite: { debut: 1200, fin: 2147483647 }
+    priorite: 190
+    epuisement: unique
+    acteurs: [porte-lanterne, habitants-du-seuil, commis-du-marche-du-seuil]
+    origine: { cle: evenement.colonies.seuil.marche.origine, variables: [] }
+    libelle_intentions: { cle: evenement.ruban.intentions, variables: [] }
+    titre: { cle: evenement.colonies.seuil.marche.titre, variables: [] }
+    presentation: { cle: evenement.colonies.seuil.marche.presentation, variables: [] }
+    informations:
+      - source: habitants-du-seuil
+        texte: { cle: evenement.colonies.seuil.marche.information, variables: [] }
+    faits_lus:
+      - couronne.serres-de-verre.coalition-ralliee
+      - couronne.serres-de-verre.passage-force
+    choix:
+      - id: rationner-marche-partager-abris
+        intention: { cle: evenement.colonies.seuil.marche.choix.rationner, variables: [] }
+        couts_connus:
+          - { cle: evenement.colonies.seuil.marche.choix.rationner.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - { id: couronne.seuil.marche-rationne, cible: marche-du-seuil }
+      - id: acheter-dernieres-pieces
+        intention: { cle: evenement.colonies.seuil.marche.choix.acheter, variables: [] }
+        couts_connus:
+          - { cle: evenement.colonies.seuil.marche.choix.acheter.cout, variables: [] }
+        effets:
+          - { type: stock.modifier, stock: eau, valeur: -4 }
+          - { type: stock.modifier, stock: materiaux, valeur: 4 }
+        faits_produits:
+          - { id: couronne.seuil.dernieres-pieces-achetees, cible: marche-du-seuil }
+    consequence_differee: { type: pressions-et-revendication-du-seuil-consignees, cible: seuil }
+    recuperation: { type: aucun-choix-ne-ferme-les-releves-du-noeud }
+    variantes:
+      - id: coalition
+        condition: fait-present:couronne.serres-de-verre.coalition-ralliee
+        presentation: { cle: evenement.colonies.seuil.marche.variante.coalition, variables: [] }
+      - id: passage-force
+        condition: fait-present:couronne.serres-de-verre.passage-force
+        presentation: { cle: evenement.colonies.seuil.marche.variante.passage-force, variables: [] }
+      - id: standard
+        condition: toujours
+        presentation: { cle: evenement.colonies.seuil.marche.variante.standard, variables: [] }
+    destination_echo: journal-de-campagne
+    asset: couronne.seuil.le-marche-des-abris
+
+  - id: couronne.seuil.les-releves-sous-la-porte
+    famille: mystere-des-phares
+    themes: [seuil, noeud-central, reseau-ancien, peripheries-sacrifiees]
+    fonction: reveler-au-seuil-les-transferts-de-cendre-du-reseau-sans-choisir-de-solution
+    fenetre: couronne-seuil
+    conditions:
+      requises:
+        - type: un-des-faits-present
+          faits:
+            - couronne.seuil.marche-rationne
+            - couronne.seuil.dernieres-pieces-achetees
+      interdites: []
+    periode_eligibilite: { debut: 1200, fin: 2147483647 }
+    priorite: 180
+    epuisement: unique
+    acteurs: [porte-lanterne, releveurs-du-seuil, equipes-entretien]
+    origine: { cle: evenement.colonies.seuil.releves.origine, variables: [] }
+    libelle_intentions: { cle: evenement.ruban.intentions, variables: [] }
+    titre: { cle: evenement.colonies.seuil.releves.titre, variables: [] }
+    presentation: { cle: evenement.colonies.seuil.releves.presentation, variables: [] }
+    informations:
+      - source: releveurs-du-seuil
+        texte: { cle: evenement.colonies.seuil.releves.information, variables: [] }
+    faits_lus:
+      - couronne.seuil.marche-rationne
+      - couronne.seuil.dernieres-pieces-achetees
+      - veille-basse.registres-copies
+      - bassins.haut-puits.decanteur-documente
+    choix:
+      - id: recopier-releves-aux-delegations
+        intention: { cle: evenement.colonies.seuil.releves.choix.recopier, variables: [] }
+        couts_connus:
+          - { cle: evenement.colonies.seuil.releves.choix.recopier.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - { id: couronne.seuil.releves-recopies, cible: releves-du-noeud }
+      - id: conserver-series-separees
+        intention: { cle: evenement.colonies.seuil.releves.choix.separer, variables: [] }
+        couts_connus:
+          - { cle: evenement.colonies.seuil.releves.choix.separer.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - { id: couronne.seuil.releves-separes, cible: releves-du-noeud }
+    consequence_differee: { type: dette-peripherique-du-reseau-revelee, cible: noeud-central-de-regulation }
+    recuperation: { type: les-deux-lectures-preservent-les-trois-solutions }
+    variantes:
+      - id: registres
+        condition: fait-present:veille-basse.registres-copies
+        presentation: { cle: evenement.colonies.seuil.releves.variante.registres, variables: [] }
+      - id: decanteur
+        condition: fait-present:bassins.haut-puits.decanteur-documente
+        presentation: { cle: evenement.colonies.seuil.releves.variante.decanteur, variables: [] }
+      - id: standard
+        condition: toujours
+        presentation: { cle: evenement.colonies.seuil.releves.variante.standard, variables: [] }
+    destination_echo: journal-de-campagne
+    asset: couronne.seuil.les-releves-sous-la-porte
+
+  - id: couronne.colonies.le-prix-de-la-rampe
+    famille: consequences-systemiques
+    themes: [voie-des-colonies, alliances, equipes, eau, pieces]
+    fonction: transformer-les-moyens-preserves-en-acces-allie-ou-en-breche-couteuse
+    fenetre: couronne-seuil
+    conditions:
+      requises:
+        - type: un-des-faits-present
+          faits:
+            - couronne.seuil.releves-recopies
+            - couronne.seuil.releves-separes
+      interdites: []
+    periode_eligibilite: { debut: 1200, fin: 2147483647 }
+    priorite: 170
+    epuisement: unique
+    acteurs: [porte-lanterne, equipes-de-la-rampe, delegations-des-cinq-colonies]
+    origine: { cle: evenement.colonies.rampe.origine, variables: [] }
+    libelle_intentions: { cle: evenement.ruban.intentions, variables: [] }
+    titre: { cle: evenement.colonies.rampe.titre, variables: [] }
+    presentation: { cle: evenement.colonies.rampe.presentation, variables: [] }
+    informations:
+      - source: equipes-de-la-rampe
+        texte: { cle: evenement.colonies.rampe.information, variables: [] }
+    faits_lus:
+      - couronne.seuil.releves-recopies
+      - couronne.seuil.releves-separes
+      - couronne.serres-de-verre.coalition-ralliee
+      - couronne.serres-de-verre.passage-force
+    choix:
+      - id: engager-equipes-ralliees
+        intention: { cle: evenement.colonies.rampe.choix.equipes, variables: [] }
+        couts_connus:
+          - { cle: evenement.colonies.rampe.choix.equipes.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - { id: couronne.colonies.voie-alliee-preparee, cible: acces-du-noeud }
+      - id: maintenir-breche-couteuse
+        intention: { cle: evenement.colonies.rampe.choix.breche, variables: [] }
+        couts_connus:
+          - { cle: evenement.colonies.rampe.choix.breche.cout, variables: [] }
+        effets:
+          - { type: habitants.modifier, valeur: -4 }
+        faits_produits:
+          - { id: couronne.colonies.breche-couteuse-preparee, cible: acces-du-noeud }
+    consequence_differee: { type: acces-du-noeud-prepare-sans-selection-finale, cible: noeud-central-de-regulation }
+    recuperation: { type: breche-couteuse-toujours-disponible }
+    variantes:
+      - id: coalition
+        condition: fait-present:couronne.serres-de-verre.coalition-ralliee
+        presentation: { cle: evenement.colonies.rampe.variante.coalition, variables: [] }
+      - id: passage-force
+        condition: fait-present:couronne.serres-de-verre.passage-force
+        presentation: { cle: evenement.colonies.rampe.variante.passage-force, variables: [] }
+      - id: standard
+        condition: toujours
+        presentation: { cle: evenement.colonies.rampe.variante.standard, variables: [] }
+    destination_echo: journal-de-campagne
+    asset: couronne.colonies.le-prix-de-la-rampe
+
+  - id: couronne.seuil.maelys-et-le-registre-des-rallies
+    famille: histoires-de-compagnons
+    themes: [maelys-rive, colonies, memoire, responsabilite]
+    fonction: confier-ou-partager-la-memoire-des-rallies-sans-rendre-maelys-obligatoire
+    fenetre: couronne-seuil
+    conditions:
+      requises:
+        - type: un-des-faits-present
+          faits:
+            - couronne.colonies.voie-alliee-preparee
+            - couronne.colonies.breche-couteuse-preparee
+      interdites: []
+    periode_eligibilite: { debut: 1200, fin: 2147483647 }
+    priorite: 160
+    epuisement: unique
+    acteurs: [porte-lanterne, maelys-rive, delegations-des-cinq-colonies]
+    origine: { cle: evenement.colonies.maelys.origine, variables: [] }
+    libelle_intentions: { cle: evenement.ruban.intentions, variables: [] }
+    titre: { cle: evenement.colonies.maelys.titre, variables: [] }
+    presentation: { cle: evenement.colonies.maelys.presentation, variables: [] }
+    informations:
+      - source: maelys-rive
+        texte: { cle: evenement.colonies.maelys.information, variables: [] }
+    faits_lus:
+      - couronne.colonies.voie-alliee-preparee
+      - couronne.colonies.breche-couteuse-preparee
+      - veille-basse.maelys-mission-confiee
+      - trame.traverse-libre.manifeste-public
+    choix:
+      - id: confier-registre-a-maelys
+        intention: { cle: evenement.colonies.maelys.choix.confier, variables: [] }
+        couts_connus:
+          - { cle: evenement.colonies.maelys.choix.confier.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - { id: couronne.seuil.registre-confie-a-maelys, cible: registre-des-rallies }
+      - id: tenir-registre-commun
+        intention: { cle: evenement.colonies.maelys.choix.commun, variables: [] }
+        couts_connus:
+          - { cle: evenement.colonies.maelys.choix.commun.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - { id: couronne.seuil.registre-commun, cible: registre-des-rallies }
+    consequence_differee: { type: garde-du-registre-consignee, cible: registre-des-rallies }
+    recuperation: { type: memoire-collective-preservee-sans-compagnon-obligatoire }
+    variantes:
+      - id: mission
+        condition: fait-present:veille-basse.maelys-mission-confiee
+        presentation: { cle: evenement.colonies.maelys.variante.mission, variables: [] }
+      - id: manifeste
+        condition: fait-present:trame.traverse-libre.manifeste-public
+        presentation: { cle: evenement.colonies.maelys.variante.manifeste, variables: [] }
+      - id: standard
+        condition: toujours
+        presentation: { cle: evenement.colonies.maelys.variante.standard, variables: [] }
+    destination_echo: journal-de-campagne
+    asset: couronne.seuil.maelys-et-le-registre-des-rallies

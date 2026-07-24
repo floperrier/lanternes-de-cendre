@@ -45,6 +45,8 @@ function sansRouteBasse(etat: EtatCampagne) {
     "passage-de-la-couronne-muette": passageDeLaCouronneMuette,
     "voie-de-tete-de-ligne": voieDeTeteDeLigne,
     "chemin-des-trois-veilles": cheminDesTroisVeilles,
+    "piste-des-serres-de-verre": pisteDesSerresDeVerre,
+    "rampe-du-seuil": rampeDuSeuil,
     ...etatsReelsV6
   } = sansTrame.routes.etatsReels;
   void routeBasse;
@@ -68,6 +70,8 @@ function sansRouteBasse(etat: EtatCampagne) {
   void passageDeLaCouronneMuette;
   void voieDeTeteDeLigne;
   void cheminDesTroisVeilles;
+  void pisteDesSerresDeVerre;
+  void rampeDuSeuil;
   return {
     ...sansTrame,
     version: VERSION_SIMULATION_AVANT_NACELLES,

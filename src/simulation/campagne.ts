@@ -7,6 +7,7 @@ import type {
 } from "../content/types";
 import type { EffetsDeFait, FaitDeCampagne } from "./faits";
 import { choixDesApprochesDeLaCouronneEstDisponible } from "./couronne";
+import { choixDeLaVoieDesColoniesEstDisponible } from "./voieColonies";
 import {
   creerFluxPseudoAleatoire,
   type FluxPseudoAleatoire,
@@ -460,6 +461,18 @@ function declencherSuiteNarrativeDeLaDemonstration(
       declencherEvenement(etat, "couronne-approches")
     );
   }
+  if (
+    etat.routes.position === "serres-de-verre" &&
+    trouverEngagementDeRouteActif(etat.routes) === undefined
+  ) {
+    return declencherEvenement(etat, "couronne-serres-de-verre");
+  }
+  if (
+    etat.routes.position === "seuil" &&
+    trouverEngagementDeRouteActif(etat.routes) === undefined
+  ) {
+    return declencherEvenement(etat, "couronne-seuil");
+  }
   return etat.routes.position === "haut-puits" &&
     trouverEngagementDeRouteActif(etat.routes) === undefined
     ? declencherEvenement(etat, "halte-haut-puits")
@@ -523,7 +536,8 @@ export function choixNarratifEstDisponible(
   }
   if (
     evenementId.startsWith("couronne.") &&
-    !choixDesApprochesDeLaCouronneEstDisponible(etat, choix.id)
+    (!choixDesApprochesDeLaCouronneEstDisponible(etat, choix.id) ||
+      !choixDeLaVoieDesColoniesEstDisponible(etat, choix.id))
   ) {
     return false;
   }

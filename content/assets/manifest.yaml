@@ -220,3 +220,28 @@ assets:
     alternative: evenement.couronne.ilyana.asset.alt
     contient_texte: false
     provenance: docs/assets/couronne-ilyana-plans.provenance.json
+  - id: couronne.serres-de-verre.le-ralliement-des-cinq-colonies
+    fichier: /api/commercial/assets/couronne-serres-ralliement.webp
+    alternative: evenement.colonies.serres.asset.alt
+    contient_texte: false
+    provenance: docs/assets/couronne-serres-ralliement.provenance.json
+  - id: couronne.seuil.le-marche-des-abris
+    fichier: /api/commercial/assets/couronne-seuil-marche.webp
+    alternative: evenement.colonies.seuil.marche.asset.alt
+    contient_texte: false
+    provenance: docs/assets/couronne-seuil-marche.provenance.json
+  - id: couronne.seuil.les-releves-sous-la-porte
+    fichier: /api/commercial/assets/couronne-seuil-releves.webp
+    alternative: evenement.colonies.seuil.releves.asset.alt
+    contient_texte: false
+    provenance: docs/assets/couronne-seuil-releves.provenance.json
+  - id: couronne.colonies.le-prix-de-la-rampe
+    fichier: /api/commercial/assets/couronne-rampe-couteuse.webp
+    alternative: evenement.colonies.rampe.asset.alt
+    contient_texte: false
+    provenance: docs/assets/couronne-rampe-couteuse.provenance.json
+  - id: couronne.seuil.maelys-et-le-registre-des-rallies
+    fichier: /api/commercial/assets/couronne-maelys-registre.webp
+    alternative: evenement.colonies.maelys.asset.alt
+    contient_texte: false
+    provenance: docs/assets/couronne-maelys-registre.provenance.json

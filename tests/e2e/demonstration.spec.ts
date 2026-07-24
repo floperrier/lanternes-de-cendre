@@ -1056,6 +1056,25 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
   await expect(atlasTraverse).toContainText("Couronne muette");
   await expect(atlasTraverse).toContainText("Voie de Tête-de-Ligne");
   await expect(atlasTraverse).toContainText("Chemin des Trois Veilles");
+  await expect(atlasTraverse).toContainText(
+    "Piste des Serres-de-Verre",
+  );
+
+  await activerAuClavier(
+    pageTraverse,
+    sauvegardeTraverse.getByRole("button", { name: "Sauvegarder" }),
+  );
+  await expect(
+    sauvegardeTraverse.getByText("Sauvegarde à jour."),
+  ).toBeVisible();
+  const exportALaCouronne = pageTraverse.waitForEvent("download");
+  await activerAuClavier(
+    pageTraverse,
+    sauvegardeTraverse.getByRole("button", { name: "Exporter" }),
+  );
+  const archiveALaCouronne = await exportALaCouronne;
+  const cheminArchiveALaCouronne = await archiveALaCouronne.path();
+  expect(cheminArchiveALaCouronne).not.toBeNull();
 
   await activerAuClavier(
     pageTraverse,
@@ -1132,6 +1151,157 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
       name: "Silent Crown Approaches",
     }),
   ).toContainText("Plans distributed among Caravan-city teams");
+
+  const navigateurColonies = await page.context().browser()!.newContext({
+    viewport: { width: 640, height: 360 },
+    deviceScaleFactor: 2,
+  });
+  const pageColonies = await navigateurColonies.newPage();
+  await installerHorlogeFixe(pageColonies);
+  await pageColonies.goto("/");
+  await activerAuClavier(
+    pageColonies,
+    pageColonies.getByRole("button", { name: "Restaurer mon achat" }),
+  );
+  await pageColonies.getByLabel("Adresse email").fill(email);
+  await activerAuClavier(
+    pageColonies,
+    pageColonies.getByRole("button", { name: "Restaurer mon achat" }),
+  );
+  await activerAuClavier(
+    pageColonies,
+    pageColonies.getByRole("button", { name: "Ouvrir le lien de test" }),
+  );
+  const sauvegardeColonies = pageColonies.getByRole("region", {
+    name: "Sauvegarde de Campagne",
+  });
+  const importALaCouronne = pageColonies.waitForEvent("filechooser");
+  await activerAuClavier(
+    pageColonies,
+    sauvegardeColonies.getByRole("button", {
+      name: "Importer",
+      exact: true,
+    }),
+  );
+  await (await importALaCouronne).setFiles(
+    cheminArchiveALaCouronne!,
+  );
+  await expect(
+    sauvegardeColonies.getByText("Sauvegarde importée et reprise."),
+  ).toBeVisible();
+
+  const atlasColonies = pageColonies.getByRole("region", {
+    name: "Atlas d’exploitation",
+  });
+  await activerAuClavier(
+    pageColonies,
+    atlasColonies.getByRole("button", {
+      name: "Étudier l’Engagement vers Piste des Serres-de-Verre",
+    }),
+  );
+  await activerAuClavier(
+    pageColonies,
+    pageColonies
+      .getByRole("dialog", { name: "Engagement vers Serres-de-Verre" })
+      .getByRole("button", {
+        name:
+          "Confirmer l’Engagement sans retour vers Serres-de-Verre",
+      }),
+  );
+  await activerAuClavier(
+    pageColonies,
+    pageColonies.getByRole("button", { name: "Vitesse 4×" }),
+  );
+  await pageColonies.clock.fastForward(180_000);
+
+  const ralliement = pageColonies.getByRole("region", {
+    name: "Le ralliement des cinq Colonies",
+  });
+  await expect(ralliement.getByRole("img")).toBeVisible();
+  await activerAuClavier(
+    pageColonies,
+    ralliement.getByRole("button", {
+      name: "Forcer le passage sans coalition",
+    }),
+  );
+  await pageColonies.clock.fastForward(1_000);
+  await activerAuClavier(
+    pageColonies,
+    atlasColonies.getByRole("button", {
+      name: "Étudier l’Engagement vers Rampe du Seuil",
+    }),
+  );
+  await activerAuClavier(
+    pageColonies,
+    pageColonies
+      .getByRole("dialog", { name: "Engagement vers Le Seuil" })
+      .getByRole("button", {
+        name: "Confirmer l’Engagement sans retour vers Le Seuil",
+      }),
+  );
+  await activerAuClavier(
+    pageColonies,
+    pageColonies.getByRole("button", { name: "Vitesse 4×" }),
+  );
+  await pageColonies.clock.fastForward(135_000);
+
+  for (const [titre, choix] of [
+    [
+      "Le marché des abris",
+      "Rationner le marché et partager les abris",
+    ],
+    [
+      "Les relevés sous la porte",
+      "Recopier les relevés aux délégations",
+    ],
+    ["Le prix de la rampe", "Maintenir la brèche coûteuse"],
+    [
+      "Maëlys et le registre des ralliés",
+      "Tenir un registre commun",
+    ],
+  ] as const) {
+    const evenement = pageColonies.getByRole("region", { name: titre });
+    await expect(evenement.getByRole("img")).toBeVisible();
+    await activerAuClavier(
+      pageColonies,
+      evenement.getByRole("button", { name: choix }),
+    );
+    await pageColonies.clock.fastForward(1_000);
+  }
+
+  const voieDesColonies = pageColonies.getByRole("region", {
+    name: "Voie des Colonies",
+  });
+  await expect(voieDesColonies).toContainText(
+    "Retour des cinq Colonies",
+  );
+  await expect(voieDesColonies).toContainText(
+    "Haut-Puits : délégation présente",
+  );
+  await expect(voieDesColonies).toContainText(
+    "Seuil : habitants représentés sur place",
+  );
+  await expect(voieDesColonies).toContainText(
+    "brèche coûteuse tenue par les Habitants",
+  );
+  await expect(voieDesColonies).toContainText(
+    "voix du Seuil garantie",
+  );
+  await pageColonies.screenshot({
+    path: testInfo.outputPath("couronne-voie-colonies-mobile.png"),
+    fullPage: true,
+  });
+  await activerAuClavier(
+    pageColonies,
+    pageColonies.getByRole("button", { name: "English" }),
+  );
+  await expect(
+    pageColonies.getByRole("region", { name: "Colony Route" }),
+  ).toContainText("Return of the five Colonies");
+  await expect(
+    pageColonies.getByRole("region", { name: "Colony Route" }),
+  ).toContainText("costly breach held by Inhabitants");
+  await navigateurColonies.close();
   await navigateurTraverse.close();
 
   await page.screenshot({

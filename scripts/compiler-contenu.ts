@@ -53,6 +53,7 @@ const CHEMINS_D_EVENEMENTS_PREMIUM = [
   "content/evenements/convergence-trame.yaml",
   "content/evenements/aiguillage-zero.yaml",
   "content/evenements/couronne-approches.yaml",
+  "content/evenements/voie-colonies.yaml",
 ] as const;
 const provenances = {
   "docs/assets/cite-caravane.provenance.json": lire(
@@ -183,6 +184,21 @@ const provenances = {
   ),
   "docs/assets/couronne-ilyana-plans.provenance.json": lire(
     "docs/assets/couronne-ilyana-plans.provenance.json",
+  ),
+  "docs/assets/couronne-serres-ralliement.provenance.json": lire(
+    "docs/assets/couronne-serres-ralliement.provenance.json",
+  ),
+  "docs/assets/couronne-seuil-marche.provenance.json": lire(
+    "docs/assets/couronne-seuil-marche.provenance.json",
+  ),
+  "docs/assets/couronne-seuil-releves.provenance.json": lire(
+    "docs/assets/couronne-seuil-releves.provenance.json",
+  ),
+  "docs/assets/couronne-rampe-couteuse.provenance.json": lire(
+    "docs/assets/couronne-rampe-couteuse.provenance.json",
+  ),
+  "docs/assets/couronne-maelys-registre.provenance.json": lire(
+    "docs/assets/couronne-maelys-registre.provenance.json",
   ),
 };
 

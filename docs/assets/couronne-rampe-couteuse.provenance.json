@@ -1,0 +1,15 @@
+{
+  "asset": "serveur-commercial/assets/couronne-rampe-couteuse.webp",
+  "sha256": "28430bbd11b713ff6370b6d6de496dbe5527391f64e6801cf1f3386ad83d9d96",
+  "createdAt": "2026-07-23",
+  "tool": "Codex built-in image_gen",
+  "model": "built-in model (identifier not exposed)",
+  "useCase": "stylized-concept",
+  "input": "No input image; generated from the project’s established industrial ash-world art direction.",
+  "prompt": "Broken service ramp contrasts prepared allied logistics using water, parts and crews with a dangerous fallback hauled by inhabitants and stretchers; painterly 16:9, no text or logos.",
+  "rights": "OpenAI Terms of Use — output assigned to the user",
+  "approval": {
+    "status": "pending-pull-request-review",
+    "reviewer": null
+  }
+}

@@ -1006,6 +1006,202 @@ export const PRESENTATIONS_PREMIUM = {
       },
     },
   },
+  voieColonies: {
+    fr: {
+      titre: "Voie des Colonies",
+      eyebrow: "Couronne muette · Serres-de-Verre et Seuil",
+      besoins: {
+        "eau-pieces-equipes": "Eau, pièces et équipes coordonnées",
+      },
+      interactions: {
+        "ralliement-en-attente": "ralliement en attente",
+        "coalition-ralliee": "coalition des Colonies ralliée",
+        "passage-force": "passage forcé sans coalition",
+      },
+      devenirs: {
+        indetermine: "devenir indéterminé",
+        "carrefour-allie": "carrefour allié",
+        epuise: "serres épuisées par le passage",
+      },
+      retours: {
+        delegation: "délégation présente",
+        rapport: "rapport transmis",
+        penurie: "pénurie rendue visible",
+        requisition: "ordre de réquisition",
+        atelier: "atelier représenté",
+        autonomie: "délégation autonome",
+        "habitants-du-seuil": "habitants représentés sur place",
+      },
+      cohortes: {
+        absente: "aucune Cohorte au ralliement",
+        integree: "Cohorte intégrée avec équipes de charpente étanche",
+        redirigee: "Cohorte redirigée revenue par un rapport",
+        refusee: "Cohorte refusée revenue par sa pénurie",
+      },
+      voies: {
+        credible: "voie commune jugée crédible",
+        fragile: "fragile — seul le recours coûteux est garanti",
+      },
+      booleens: { true: "oui", false: "non" },
+      statutsDuSeuil: { fragile: "fragile", stable: "stable" },
+      pressions: {
+        "abris-satures": "abris saturés",
+        "pieces-rares": "pièces rares",
+        "delegations-rivales": "délégations rivales",
+      },
+      marches: {
+        limite: "limité à un échange",
+        rationne: "sous rationnement",
+        epuise: "épuisé",
+      },
+      abris: {
+        satures: "saturés",
+        partages: "partagés avec les délégations",
+        "reserves-au-convoi": "réservés au convoi",
+      },
+      releves: {
+        inconnus: "encore inconnus",
+        recoupes: "recopiés et recoupés",
+        "conserves-separes": "conservés par séries séparées",
+      },
+      revendications: {
+        "voix-revendiquee": "voix du Seuil revendiquée",
+        "voix-garantie": "voix du Seuil garantie",
+        "tutelle-contestee": "tutelle du convoi contestée",
+      },
+      acces: {
+        "non-prepare": "accès du Nœud non préparé",
+        "voie-alliee": "voie alliée entretenue par les Colonies",
+        "breche-couteuse": "brèche coûteuse tenue par les Habitants",
+      },
+      gardes: {
+        indecise: "garde du registre indécise",
+        maelys: "registre confié à Maëlys et transmissible",
+        commune: "registre commun réparti entre les délégations",
+      },
+      formats: {
+        serres: "{besoin} · {interaction} · {devenir}",
+        retour: "{colonie} : {retour}",
+        credibilite:
+          "Voie {voie} · {alliances} alliances · {equipes} équipes · Eau : {eau} · pièces : {pieces}",
+        seuil:
+          "État {statut} · Pressions : {pressions} · Marché {marche} · Abris {abris} · Relevés {releves} · {revendication}",
+      },
+      nomsDesColonies: {
+        hautPuits: "Haut-Puits",
+        veilleBasse: "Veille-Basse",
+        grandAiguillage: "Grand-Aiguillage",
+        traverseLibre: "Traverse-Libre",
+        seuil: "Le Seuil",
+      },
+      libelles: {
+        serres: "Serres-de-Verre",
+        retours: "Retour des cinq Colonies",
+        cohorte: "Cohorte",
+        credibilite: "Crédibilité de la voie",
+        seuil: "Colonie du Seuil",
+        acces: "Préparation de l’accès",
+        garde: "Registre des ralliés",
+      },
+    },
+    en: {
+      titre: "Colony Route",
+      eyebrow: "Silent Crown · Glasshouses and Threshold",
+      besoins: {
+        "eau-pieces-equipes": "Water, parts, and coordinated crews",
+      },
+      interactions: {
+        "ralliement-en-attente": "rally pending",
+        "coalition-ralliee": "Colony coalition rallied",
+        "passage-force": "passage forced without a coalition",
+      },
+      devenirs: {
+        indetermine: "future undetermined",
+        "carrefour-allie": "allied crossroads",
+        epuise: "glasshouses exhausted by the passage",
+      },
+      retours: {
+        delegation: "delegation present",
+        rapport: "report relayed",
+        penurie: "shortage made visible",
+        requisition: "requisition order",
+        atelier: "workshop represented",
+        autonomie: "autonomous delegation",
+        "habitants-du-seuil": "residents represented on site",
+      },
+      cohortes: {
+        absente: "no Cohort at the rally",
+        integree: "integrated Cohort with sealed-frame crews",
+        redirigee: "redirected Cohort returned through a report",
+        refusee: "refused Cohort returned through its shortage",
+      },
+      voies: {
+        credible: "shared route judged credible",
+        fragile: "fragile — only the costly fallback is guaranteed",
+      },
+      booleens: { true: "yes", false: "no" },
+      statutsDuSeuil: { fragile: "fragile", stable: "stable" },
+      pressions: {
+        "abris-satures": "saturated shelters",
+        "pieces-rares": "scarce parts",
+        "delegations-rivales": "rival delegations",
+      },
+      marches: {
+        limite: "limited to one exchange",
+        rationne: "under rationing",
+        epuise: "exhausted",
+      },
+      abris: {
+        satures: "saturated",
+        partages: "shared with the delegations",
+        "reserves-au-convoi": "reserved for the caravan",
+      },
+      releves: {
+        inconnus: "still unknown",
+        recoupes: "copied and cross-checked",
+        "conserves-separes": "kept as separate series",
+      },
+      revendications: {
+        "voix-revendiquee": "Threshold’s voice claimed",
+        "voix-garantie": "Threshold’s voice guaranteed",
+        "tutelle-contestee": "caravan authority challenged",
+      },
+      acces: {
+        "non-prepare": "Node access unprepared",
+        "voie-alliee": "allied route maintained by the Colonies",
+        "breche-couteuse": "costly breach held by Inhabitants",
+      },
+      gardes: {
+        indecise: "custody of the register undecided",
+        maelys: "register entrusted to Maëlys and transferable",
+        commune: "shared register distributed among the delegations",
+      },
+      formats: {
+        serres: "{besoin} · {interaction} · {devenir}",
+        retour: "{colonie}: {retour}",
+        credibilite:
+          "{voie} route · {alliances} alliances · {equipes} crews · Water: {eau} · parts: {pieces}",
+        seuil:
+          "{statut} · Pressures: {pressions} · {marche} market · {abris} shelters · Surveys {releves} · {revendication}",
+      },
+      nomsDesColonies: {
+        hautPuits: "High Well",
+        veilleBasse: "Lower Watch",
+        grandAiguillage: "Grand Junction",
+        traverseLibre: "Free Crossing",
+        seuil: "Threshold",
+      },
+      libelles: {
+        serres: "Glasshouses",
+        retours: "Return of the five Colonies",
+        cohorte: "Cohort",
+        credibilite: "Route credibility",
+        seuil: "Threshold Colony",
+        acces: "Access preparation",
+        garde: "Rallied parties register",
+      },
+    },
+  },
   deversoir: {
     fr: {
       nomsDesLieux: {

@@ -340,6 +340,10 @@ const FAITS_OUVRANT_LE_PASSAGE_DE_LA_COURONNE = new Set([
   "trame.aiguillage-zero.passage-consigne",
   "trame.aiguillage-zero.passage-transmis",
 ]);
+const FAITS_OUVRANT_LA_RAMPE_DU_SEUIL = new Set([
+  "couronne.serres-de-verre.coalition-ralliee",
+  "couronne.serres-de-verre.passage-force",
+]);
 const FAITS_D_INTERFACE_DE_SIGNAL_ZERO = new Set([
   "trame.signal-zero.interface-rail-lue",
   "trame.signal-zero.interface-libre-lue",
@@ -378,8 +382,11 @@ export function engagementsDuDeversoirSontCausaux(
         : engagement.tronconId === "passage-de-la-couronne-muette"
           ? FAITS_OUVRANT_LE_PASSAGE_DE_LA_COURONNE
         : engagement.tronconId === "voie-de-tete-de-ligne" ||
-            engagement.tronconId === "chemin-des-trois-veilles"
+            engagement.tronconId === "chemin-des-trois-veilles" ||
+            engagement.tronconId === "piste-des-serres-de-verre"
           ? FAITS_OUVRANT_LE_PASSAGE_DE_LA_COURONNE
+        : engagement.tronconId === "rampe-du-seuil"
+          ? FAITS_OUVRANT_LA_RAMPE_DU_SEUIL
         : engagement.tronconId === "passage-de-la-ligne-zero" ||
             engagement.tronconId === "piste-des-levees"
           ? FAITS_OUVRANT_LE_PASSAGE_REGIONAL

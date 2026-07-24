@@ -584,6 +584,8 @@ function normaliserEtatCourantEnV6(
     "passage-de-la-couronne-muette": passageDeLaCouronneMuette,
     "voie-de-tete-de-ligne": voieDeTeteDeLigne,
     "chemin-des-trois-veilles": cheminDesTroisVeilles,
+    "piste-des-serres-de-verre": pisteDesSerresDeVerre,
+    "rampe-du-seuil": rampeDuSeuil,
     ...etatsReelsV6
   } = sansTrame.routes.etatsReels;
   void routeAjoutee;
@@ -607,6 +609,8 @@ function normaliserEtatCourantEnV6(
   void passageDeLaCouronneMuette;
   void voieDeTeteDeLigne;
   void cheminDesTroisVeilles;
+  void pisteDesSerresDeVerre;
+  void rampeDuSeuil;
   return {
     ...sansTrame,
     version: VERSION_SIMULATION_AVANT_NACELLES,
@@ -837,6 +841,8 @@ function normaliserEtatCourantEnV7(
     "passage-de-la-couronne-muette": passageDeLaCouronneMuette,
     "voie-de-tete-de-ligne": voieDeTeteDeLigne,
     "chemin-des-trois-veilles": cheminDesTroisVeilles,
+    "piste-des-serres-de-verre": pisteDesSerresDeVerre,
+    "rampe-du-seuil": rampeDuSeuil,
     ...etatsReelsV7
   } = sansDevenirs.routes.etatsReels;
   void cheminDeLHospice;
@@ -859,6 +865,8 @@ function normaliserEtatCourantEnV7(
   void passageDeLaCouronneMuette;
   void voieDeTeteDeLigne;
   void cheminDesTroisVeilles;
+  void pisteDesSerresDeVerre;
+  void rampeDuSeuil;
   const { topologieHistorique, ...routesV7 } = sansDevenirs.routes;
   void topologieHistorique;
   return {
@@ -1042,6 +1050,8 @@ function normaliserEtatCourantEnV8(
     "passage-de-la-couronne-muette": passageDeLaCouronneMuette,
     "voie-de-tete-de-ligne": voieDeTeteDeLigne,
     "chemin-des-trois-veilles": cheminDesTroisVeilles,
+    "piste-des-serres-de-verre": pisteDesSerresDeVerre,
+    "rampe-du-seuil": rampeDuSeuil,
     ...etatsReelsV8
   } = sansTrame.routes.etatsReels;
   void rampeDeBarriereNeuve;
@@ -1059,6 +1069,8 @@ function normaliserEtatCourantEnV8(
   void passageDeLaCouronneMuette;
   void voieDeTeteDeLigne;
   void cheminDesTroisVeilles;
+  void pisteDesSerresDeVerre;
+  void rampeDuSeuil;
   return {
     ...sansTrame,
     version: VERSION_SIMULATION_AVANT_TRAME_DE_FER,
@@ -1199,6 +1211,8 @@ function normaliserEtatCourantEnV9(
     "passage-de-la-couronne-muette": passageDeLaCouronneMuette,
     "voie-de-tete-de-ligne": voieDeTeteDeLigne,
     "chemin-des-trois-veilles": cheminDesTroisVeilles,
+    "piste-des-serres-de-verre": pisteDesSerresDeVerre,
+    "rampe-du-seuil": rampeDuSeuil,
     ...etatsReelsV9
   } = sansTraverse.routes.etatsReels;
   void embranchementDePompeNeuve;
@@ -1214,6 +1228,8 @@ function normaliserEtatCourantEnV9(
   void passageDeLaCouronneMuette;
   void voieDeTeteDeLigne;
   void cheminDesTroisVeilles;
+  void pisteDesSerresDeVerre;
+  void rampeDuSeuil;
   return {
     ...sansTraverse,
     version: VERSION_SIMULATION_AVANT_TRAVERSE_LIBRE,

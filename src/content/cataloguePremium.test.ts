@@ -166,4 +166,45 @@ describe("installation du contenu narratif premium", () => {
       }),
     ).not.toThrow();
   });
+
+  it("exige la présentation de la voie des Colonies pour le lot du Seuil", () => {
+    const presentationsDeCouronne = {
+      hautPuits: PRESENTATIONS_VALIDES.hautPuits,
+      veilleBasse: PRESENTATIONS_VALIDES.veilleBasse,
+      couronne: {
+        fr: { titre: "Approches de la Couronne" },
+        en: { titre: "Silent Crown Approaches" },
+      },
+    };
+    const lotDuSeuil = {
+      version: 1,
+      catalogue: {
+        evenements: [
+          {
+            id: "couronne.seuil.le-marche-des-abris",
+          },
+        ],
+        presentations: presentationsDeCouronne,
+      },
+    };
+
+    expect(() =>
+      installerPresentationsPremium(lotDuSeuil),
+    ).toThrow("presentations-premium-invalides");
+    expect(() =>
+      installerPresentationsPremium({
+        ...lotDuSeuil,
+        catalogue: {
+          ...lotDuSeuil.catalogue,
+          presentations: {
+            ...presentationsDeCouronne,
+            voieColonies: {
+              fr: { titre: "Voie des Colonies" },
+              en: { titre: "Colony Route" },
+            },
+          },
+        },
+      }),
+    ).not.toThrow();
+  });
 });

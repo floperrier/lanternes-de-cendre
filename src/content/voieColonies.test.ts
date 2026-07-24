@@ -4,14 +4,14 @@ import { catalogueDEvenements } from "./catalogue";
 import catalogueDeBase from "./catalogue.generated";
 
 const IDS = [
-  "couronne.tete-de-ligne.le-decret-du-dernier-quai",
-  "couronne.veille-des-trois.les-filtres-sous-les-phares",
-  "couronne.approches.les-trois-socles-du-noeud",
-  "couronne.approches.les-montages-de-la-couronne",
-  "couronne.approches.ilyana-et-les-plans-sous-cendre",
+  "couronne.serres-de-verre.le-ralliement-des-cinq-colonies",
+  "couronne.seuil.le-marche-des-abris",
+  "couronne.seuil.les-releves-sous-la-porte",
+  "couronne.colonies.le-prix-de-la-rampe",
+  "couronne.seuil.maelys-et-le-registre-des-rallies",
 ] as const;
 
-describe("approches de la Couronne muette", () => {
+describe("voie des Colonies", () => {
   it("compile exactement deux conflits, un mystère, une conséquence et une histoire de Compagnon", () => {
     const lot = IDS.map((id) =>
       catalogueDEvenements.evenements.find(
@@ -64,21 +64,22 @@ describe("approches de la Couronne muette", () => {
     ).toBe(5);
   });
 
-  it("garde les approches, leurs textes et leurs assets hors du catalogue gratuit", () => {
+  it("garde les Serres, le Seuil et leurs assets hors du catalogue gratuit", () => {
     expect(JSON.stringify(catalogueDeBase)).not.toMatch(
-      /Tête-de-Ligne|Railhead|Veille-des-Trois|Threefold Watch|Berceau d’ancrage|Anchoring Cradle/,
+      /Serres-de-Verre|Glasshouses|Marché du Seuil|Threshold market/,
     );
-    expect(JSON.stringify(catalogueDeBase)).not.toContain("couronne-");
+    expect(JSON.stringify(catalogueDeBase)).not.toContain(
+      "couronne-serres-ralliement",
+    );
   });
 
-  it("donne à chaque décision importante un ou deux Faits persistants", () => {
+  it("donne à chaque décision importante un Fait persistant", () => {
     for (const id of IDS) {
       const evenement = catalogueDEvenements.evenements.find(
         (candidat) => candidat.id === id,
       );
       for (const choix of evenement?.choix ?? []) {
-        expect(choix.faitsProduits.length).toBeGreaterThanOrEqual(1);
-        expect(choix.faitsProduits.length).toBeLessThanOrEqual(2);
+        expect(choix.faitsProduits).toHaveLength(1);
       }
     }
   });

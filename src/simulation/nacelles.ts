@@ -195,7 +195,9 @@ export function routeAvalDesBassinsEstPreparee(
     tronconId !== "faisceau-de-l-aiguillage-zero" &&
     tronconId !== "passage-de-la-couronne-muette" &&
     tronconId !== "voie-de-tete-de-ligne" &&
-    tronconId !== "chemin-des-trois-veilles"
+    tronconId !== "chemin-des-trois-veilles" &&
+    tronconId !== "piste-des-serres-de-verre" &&
+    tronconId !== "rampe-du-seuil"
   ) {
     return true;
   }
@@ -232,8 +234,14 @@ export function routeAvalDesBassinsEstPreparee(
           : tronconId === "passage-de-la-couronne-muette"
             ? FAITS_DE_PASSAGE_VERS_LA_COURONNE
           : tronconId === "voie-de-tete-de-ligne" ||
-              tronconId === "chemin-des-trois-veilles"
+              tronconId === "chemin-des-trois-veilles" ||
+              tronconId === "piste-des-serres-de-verre"
             ? FAITS_DE_PASSAGE_VERS_LA_COURONNE
+          : tronconId === "rampe-du-seuil"
+            ? [
+                "couronne.serres-de-verre.coalition-ralliee",
+                "couronne.serres-de-verre.passage-force",
+              ]
           : FAITS_DE_PASSAGE_REGIONAL;
   return faitsAttendus.some((fait) => faits.includes(fait));
 }

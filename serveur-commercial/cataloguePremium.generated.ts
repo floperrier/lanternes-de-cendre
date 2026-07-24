@@ -11529,6 +11529,1515 @@ export default {
           }
         }
       }
+    },
+    {
+      "id": "couronne.serres-de-verre.le-ralliement-des-cinq-colonies",
+      "famille": "conflits-regionaux",
+      "themes": [
+        "couronne-muette",
+        "colonies",
+        "cohortes",
+        "ralliement"
+      ],
+      "fonction": "faire-revenir-les-cinq-colonies-et-evaluer-la-credibilite-de-leur-voie",
+      "fenetre": "couronne-serres-de-verre",
+      "conditions": {
+        "requises": [
+          {
+            "type": "lieu-present",
+            "lieu": "serres-de-verre"
+          }
+        ],
+        "interdites": []
+      },
+      "periodeEligibilite": {
+        "debut": 1200,
+        "fin": 2147483647
+      },
+      "priorite": 190,
+      "epuisement": "unique",
+      "acteurs": [
+        "porte-lanterne",
+        "delegations-des-cinq-colonies",
+        "cohorte-du-sillon",
+        "habitants-du-seuil"
+      ],
+      "sourcesInformations": [
+        "delegations-des-cinq-colonies"
+      ],
+      "faitsLus": [
+        "veille-basse.cohorte-accueillie",
+        "trame.grand-aiguillage.reparation-locale-ouverte"
+      ],
+      "choix": [
+        {
+          "id": "rallier-coalition",
+          "effets": [
+            {
+              "type": "stock.modifier",
+              "stock": "eau",
+              "valeur": -10
+            },
+            {
+              "type": "stock.modifier",
+              "stock": "materiaux",
+              "valeur": -8
+            }
+          ],
+          "faitsProduits": [
+            {
+              "id": "couronne.serres-de-verre.coalition-ralliee",
+              "cible": "serres-de-verre"
+            }
+          ]
+        },
+        {
+          "id": "forcer-passage",
+          "effets": [
+            {
+              "type": "habitants.modifier",
+              "valeur": -6
+            }
+          ],
+          "faitsProduits": [
+            {
+              "id": "couronne.serres-de-verre.passage-force",
+              "cible": "serres-de-verre"
+            }
+          ]
+        }
+      ],
+      "consequenceDifferee": {
+        "type": "voie-des-colonies-qualifiee",
+        "cible": "rampe-du-seuil"
+      },
+      "recuperation": {
+        "type": "passage-couteux-toujours-disponible"
+      },
+      "variantes": [
+        {
+          "id": "cohorte",
+          "condition": {
+            "type": "fait-present",
+            "fait": "veille-basse.cohorte-accueillie"
+          }
+        },
+        {
+          "id": "ateliers",
+          "condition": {
+            "type": "fait-present",
+            "fait": "trame.grand-aiguillage.reparation-locale-ouverte"
+          }
+        },
+        {
+          "id": "standard",
+          "condition": {
+            "type": "toujours"
+          }
+        }
+      ],
+      "destinationEcho": "journal-de-campagne",
+      "asset": {
+        "id": "couronne.serres-de-verre.le-ralliement-des-cinq-colonies",
+        "fichier": "/api/commercial/assets/couronne-serres-ralliement.webp",
+        "octetsTransferes": 172944,
+        "contientTexte": false,
+        "alternatives": {
+          "fr": "Cinq groupes de délégations se rassemblent autour de tables de verre brisé devant la Cité-caravane.",
+          "en": "Five groups of delegates gather around broken-glass tables before the Caravan-city."
+        },
+        "provenance": {
+          "fiche": "docs/assets/couronne-serres-ralliement.provenance.json",
+          "creeLe": "2026-07-23",
+          "outil": "Codex built-in image_gen",
+          "modele": "built-in model (identifier not exposed)",
+          "usage": "stylized-concept",
+          "entree": "No input image; generated from the project’s established industrial ash-world art direction.",
+          "prompt": "Five visibly distinct Colony delegations rally around broken glass tables at abandoned ash-covered Glasshouses, with the warm mobile lighthouse caravan behind them; cinematic painterly 16:9, no text or logos.",
+          "droits": "OpenAI Terms of Use — output assigned to the user",
+          "empreinteSha256": "d6e6d24ac34844a83cbae28183849a4a63863b6a238c85e69c43d1ca28fc0e0a",
+          "statutApprobation": "pending-pull-request-review",
+          "reviseur": null
+        }
+      },
+      "textes": {
+        "fr": {
+          "origine": {
+            "cle": "evenement.colonies.serres.origine",
+            "modele": "Verrières brisées des Serres-de-Verre",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.colonies.serres.titre",
+            "modele": "Le ralliement des cinq Colonies",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.colonies.serres.presentation",
+            "modele": "Sous les verrières mortes, Haut-Puits, Veille-Basse, Grand-Aiguillage, Traverse-Libre et le Seuil reviennent par leurs délégations, rapports, pénuries ou Cohortes. Une voie commune n’est crédible qu’avec alliances, équipes, eau et pièces réellement préservées.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.colonies.serres.information",
+              "modele": "Les représentants montrent leurs réserves et leurs absents avant de promettre quoi que ce soit ; la Cité-caravane devra fournir dix unités d’Eau et huit de Matériaux.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "cohorte": {
+              "cle": "evenement.colonies.serres.variante.cohorte",
+              "modele": "La Cohorte intégrée apporte sa charpente étanche et réclame une place parmi les signataires.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "ateliers": {
+              "cle": "evenement.colonies.serres.variante.ateliers",
+              "modele": "Les ateliers négociés de Grand-Aiguillage dépêchent des attelages plutôt qu’un ordre de réquisition.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.colonies.serres.variante.standard",
+              "modele": "Chaque Colonie est présente, mais toutes ne sont pas en mesure de déléguer.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "rallier-coalition": {
+              "intention": {
+                "cle": "evenement.colonies.serres.choix.coalition",
+                "modele": "Rallier la coalition des Colonies",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.colonies.serres.choix.coalition.cout",
+                  "modele": "Coût connu : 10 Eau et 8 Matériaux ; exige au moins deux alliances et deux équipes préservées.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "forcer-passage": {
+              "intention": {
+                "cle": "evenement.colonies.serres.choix.forcer",
+                "modele": "Forcer le passage sans coalition",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.colonies.serres.choix.forcer.cout",
+                  "modele": "Coût connu : 6 Habitants ; la voie reste praticable au prix des abris démontés et des équipes épuisées.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        },
+        "en": {
+          "origine": {
+            "cle": "evenement.colonies.serres.origine",
+            "modele": "Broken panes of the Glasshouses",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.colonies.serres.titre",
+            "modele": "The rally of the five Colonies",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.colonies.serres.presentation",
+            "modele": "Beneath the dead glass roofs, High Well, Lower Watch, Grand Junction, Free Crossing, and Threshold return through delegations, reports, shortages, or Cohorts. A shared route is credible only with alliances, crews, Water, and parts that were truly preserved.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.colonies.serres.information",
+              "modele": "Representatives show their reserves and absences before making promises; the Caravan-city must provide ten Water and eight Materials.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "cohorte": {
+              "cle": "evenement.colonies.serres.variante.cohorte",
+              "modele": "The integrated Cohort brings sealed-frame skills and claims a place among the signatories.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "ateliers": {
+              "cle": "evenement.colonies.serres.variante.ateliers",
+              "modele": "Grand Junction’s negotiated workshops send haulers rather than a requisition order.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.colonies.serres.variante.standard",
+              "modele": "Every Colony is present, though not all can send a delegation.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "rallier-coalition": {
+              "intention": {
+                "cle": "evenement.colonies.serres.choix.coalition",
+                "modele": "Rally the Colony coalition",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.colonies.serres.choix.coalition.cout",
+                  "modele": "Known cost: 10 Water and 8 Materials; requires at least two alliances and two preserved crews.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "forcer-passage": {
+              "intention": {
+                "cle": "evenement.colonies.serres.choix.forcer",
+                "modele": "Force passage without a coalition",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.colonies.serres.choix.forcer.cout",
+                  "modele": "Known cost: 6 Inhabitants; the route remains passable through dismantled shelters and exhausted crews.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "couronne.seuil.le-marche-des-abris",
+      "famille": "conflits-regionaux",
+      "themes": [
+        "seuil",
+        "marche-limite",
+        "abris",
+        "revendication-politique"
+      ],
+      "fonction": "donner-au-seuil-un-etat-des-pressions-un-marche-des-abris-et-une-voix-propres",
+      "fenetre": "couronne-seuil",
+      "conditions": {
+        "requises": [
+          {
+            "type": "lieu-present",
+            "lieu": "seuil"
+          }
+        ],
+        "interdites": []
+      },
+      "periodeEligibilite": {
+        "debut": 1200,
+        "fin": 2147483647
+      },
+      "priorite": 190,
+      "epuisement": "unique",
+      "acteurs": [
+        "porte-lanterne",
+        "habitants-du-seuil",
+        "commis-du-marche-du-seuil"
+      ],
+      "sourcesInformations": [
+        "habitants-du-seuil"
+      ],
+      "faitsLus": [
+        "couronne.serres-de-verre.coalition-ralliee",
+        "couronne.serres-de-verre.passage-force"
+      ],
+      "choix": [
+        {
+          "id": "rationner-marche-partager-abris",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "couronne.seuil.marche-rationne",
+              "cible": "marche-du-seuil"
+            }
+          ]
+        },
+        {
+          "id": "acheter-dernieres-pieces",
+          "effets": [
+            {
+              "type": "stock.modifier",
+              "stock": "eau",
+              "valeur": -4
+            },
+            {
+              "type": "stock.modifier",
+              "stock": "materiaux",
+              "valeur": 4
+            }
+          ],
+          "faitsProduits": [
+            {
+              "id": "couronne.seuil.dernieres-pieces-achetees",
+              "cible": "marche-du-seuil"
+            }
+          ]
+        }
+      ],
+      "consequenceDifferee": {
+        "type": "pressions-et-revendication-du-seuil-consignees",
+        "cible": "seuil"
+      },
+      "recuperation": {
+        "type": "aucun-choix-ne-ferme-les-releves-du-noeud"
+      },
+      "variantes": [
+        {
+          "id": "coalition",
+          "condition": {
+            "type": "fait-present",
+            "fait": "couronne.serres-de-verre.coalition-ralliee"
+          }
+        },
+        {
+          "id": "passage-force",
+          "condition": {
+            "type": "fait-present",
+            "fait": "couronne.serres-de-verre.passage-force"
+          }
+        },
+        {
+          "id": "standard",
+          "condition": {
+            "type": "toujours"
+          }
+        }
+      ],
+      "destinationEcho": "journal-de-campagne",
+      "asset": {
+        "id": "couronne.seuil.le-marche-des-abris",
+        "fichier": "/api/commercial/assets/couronne-seuil-marche.webp",
+        "octetsTransferes": 126018,
+        "contientTexte": false,
+        "alternatives": {
+          "fr": "Un marché limité et des abris étanches occupés entourent les portes anciennes du Nœud au Seuil.",
+          "en": "A limited market and occupied sealed shelters surround the Node’s ancient doors at Threshold."
+        },
+        "provenance": {
+          "fiche": "docs/assets/couronne-seuil-marche.provenance.json",
+          "creeLe": "2026-07-23",
+          "outil": "Codex built-in image_gen",
+          "modele": "built-in model (identifier not exposed)",
+          "usage": "stylized-concept",
+          "entree": "No input image; generated from the project’s established industrial ash-world art direction.",
+          "prompt": "Threshold’s sealed logistics annex with a limited parts market, saturated shelters, local residents and ancient Node conduits; painterly oblique 16:9, no text or logos.",
+          "droits": "OpenAI Terms of Use — output assigned to the user",
+          "empreinteSha256": "2bd490facb1d680841674470df33bc5adb703d43008a57aa738d338b71286b6c",
+          "statutApprobation": "pending-pull-request-review",
+          "reviseur": null
+        }
+      },
+      "textes": {
+        "fr": {
+          "origine": {
+            "cle": "evenement.colonies.seuil.marche.origine",
+            "modele": "Annexe logistique étanche du Seuil",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.colonies.seuil.marche.titre",
+            "modele": "Le marché des abris",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.colonies.seuil.marche.presentation",
+            "modele": "Le Seuil n’est pas une antichambre neutre : ses habitants vivent entre un marché presque vide, des abris saturés et les portes du Nœud. Ils exigent une voix avant de céder leurs dernières pièces.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.colonies.seuil.marche.information",
+              "modele": "Le marché ne peut soutenir qu’un dernier échange. Partager les abris stabilise la Colonie ; acheter les pièces réserve des places au convoi et nourrit la contestation.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "coalition": {
+              "cle": "evenement.colonies.seuil.marche.variante.coalition",
+              "modele": "Les délégations ralliées soutiennent la revendication du Seuil sans parler à sa place.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "passage-force": {
+              "cle": "evenement.colonies.seuil.marche.variante.passage-force",
+              "modele": "Les brancards venus des Serres rendent chaque place d’abri immédiatement politique.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.colonies.seuil.marche.variante.standard",
+              "modele": "Les habitants du Seuil comptent eux-mêmes les places et les pièces qu’on leur demande.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "rationner-marche-partager-abris": {
+              "intention": {
+                "cle": "evenement.colonies.seuil.marche.choix.rationner",
+                "modele": "Rationner le marché et partager les abris",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.colonies.seuil.marche.choix.rationner.cout",
+                  "modele": "Coût connu : aucune ressource gagnée ; les pièces restent rares et le Seuil obtient une voix garantie.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "acheter-dernieres-pieces": {
+              "intention": {
+                "cle": "evenement.colonies.seuil.marche.choix.acheter",
+                "modele": "Acheter les dernières pièces",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.colonies.seuil.marche.choix.acheter.cout",
+                  "modele": "Coût connu : 4 Eau contre 4 Matériaux ; le marché est épuisé et des abris sont réservés au convoi.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        },
+        "en": {
+          "origine": {
+            "cle": "evenement.colonies.seuil.marche.origine",
+            "modele": "Threshold’s sealed logistics annex",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.colonies.seuil.marche.titre",
+            "modele": "The shelter market",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.colonies.seuil.marche.presentation",
+            "modele": "Threshold is no neutral antechamber: its residents live between an almost empty market, saturated shelters, and the Node’s doors. They demand a voice before yielding their last parts.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.colonies.seuil.marche.information",
+              "modele": "The market can support one final exchange. Sharing shelters stabilizes the Colony; buying the parts reserves places for the caravan and fuels opposition.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "coalition": {
+              "cle": "evenement.colonies.seuil.marche.variante.coalition",
+              "modele": "The rallied delegations support Threshold’s claim without speaking in its place.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "passage-force": {
+              "cle": "evenement.colonies.seuil.marche.variante.passage-force",
+              "modele": "Stretchers from the Glasshouses make every shelter place immediately political.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.colonies.seuil.marche.variante.standard",
+              "modele": "Threshold residents count the places and parts being requested themselves.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "rationner-marche-partager-abris": {
+              "intention": {
+                "cle": "evenement.colonies.seuil.marche.choix.rationner",
+                "modele": "Ration the market and share the shelters",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.colonies.seuil.marche.choix.rationner.cout",
+                  "modele": "Known cost: no resources gained; parts remain scarce and Threshold gains a guaranteed voice.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "acheter-dernieres-pieces": {
+              "intention": {
+                "cle": "evenement.colonies.seuil.marche.choix.acheter",
+                "modele": "Buy the last parts",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.colonies.seuil.marche.choix.acheter.cout",
+                  "modele": "Known cost: 4 Water for 4 Materials; the market is exhausted and shelters are reserved for the caravan.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "couronne.seuil.les-releves-sous-la-porte",
+      "famille": "mystere-des-phares",
+      "themes": [
+        "seuil",
+        "noeud-central",
+        "reseau-ancien",
+        "peripheries-sacrifiees"
+      ],
+      "fonction": "reveler-au-seuil-les-transferts-de-cendre-du-reseau-sans-choisir-de-solution",
+      "fenetre": "couronne-seuil",
+      "conditions": {
+        "requises": [
+          {
+            "type": "un-des-faits-present",
+            "faits": [
+              "couronne.seuil.marche-rationne",
+              "couronne.seuil.dernieres-pieces-achetees"
+            ]
+          }
+        ],
+        "interdites": []
+      },
+      "periodeEligibilite": {
+        "debut": 1200,
+        "fin": 2147483647
+      },
+      "priorite": 180,
+      "epuisement": "unique",
+      "acteurs": [
+        "porte-lanterne",
+        "releveurs-du-seuil",
+        "equipes-entretien"
+      ],
+      "sourcesInformations": [
+        "releveurs-du-seuil"
+      ],
+      "faitsLus": [
+        "couronne.seuil.marche-rationne",
+        "couronne.seuil.dernieres-pieces-achetees",
+        "veille-basse.registres-copies",
+        "bassins.haut-puits.decanteur-documente"
+      ],
+      "choix": [
+        {
+          "id": "recopier-releves-aux-delegations",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "couronne.seuil.releves-recopies",
+              "cible": "releves-du-noeud"
+            }
+          ]
+        },
+        {
+          "id": "conserver-series-separees",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "couronne.seuil.releves-separes",
+              "cible": "releves-du-noeud"
+            }
+          ]
+        }
+      ],
+      "consequenceDifferee": {
+        "type": "dette-peripherique-du-reseau-revelee",
+        "cible": "noeud-central-de-regulation"
+      },
+      "recuperation": {
+        "type": "les-deux-lectures-preservent-les-trois-solutions"
+      },
+      "variantes": [
+        {
+          "id": "registres",
+          "condition": {
+            "type": "fait-present",
+            "fait": "veille-basse.registres-copies"
+          }
+        },
+        {
+          "id": "decanteur",
+          "condition": {
+            "type": "fait-present",
+            "fait": "bassins.haut-puits.decanteur-documente"
+          }
+        },
+        {
+          "id": "standard",
+          "condition": {
+            "type": "toujours"
+          }
+        }
+      ],
+      "destinationEcho": "journal-de-campagne",
+      "asset": {
+        "id": "couronne.seuil.les-releves-sous-la-porte",
+        "fichier": "/api/commercial/assets/couronne-seuil-releves.webp",
+        "octetsTransferes": 148342,
+        "contientTexte": false,
+        "alternatives": {
+          "fr": "Des équipes comparent des jauges et des cartes devant les trois interfaces mécaniques du Nœud.",
+          "en": "Crews compare gauges and maps before the Node’s three mechanical interfaces."
+        },
+        "provenance": {
+          "fiche": "docs/assets/couronne-seuil-releves.provenance.json",
+          "creeLe": "2026-07-23",
+          "outil": "Codex built-in image_gen",
+          "modele": "built-in model (identifier not exposed)",
+          "usage": "stylized-concept",
+          "entree": "No input image; generated from the project’s established industrial ash-world art direction.",
+          "prompt": "Surveyors compare mechanical gauges and maps before the Node’s anchoring cradle, calibration rail and precipitation conduit without activating any Solution; painterly 16:9, no text or logos.",
+          "droits": "OpenAI Terms of Use — output assigned to the user",
+          "empreinteSha256": "3b29bb83faac05d63a3187cdc0877e4e392d279d947c3db39abd5bc61004cb57",
+          "statutApprobation": "pending-pull-request-review",
+          "reviseur": null
+        }
+      },
+      "textes": {
+        "fr": {
+          "origine": {
+            "cle": "evenement.colonies.seuil.releves.origine",
+            "modele": "Chambre des mesures sous la porte du Nœud",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.colonies.seuil.releves.titre",
+            "modele": "Les relevés sous la porte",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.colonies.seuil.releves.presentation",
+            "modele": "Les séries du Seuil confirment que le Réseau ancien protégeait ses centres en déplaçant la cendre vers les périphéries. Berceau, Étalon et Précipitateur répondent aux mêmes conduites sans désigner une Solution innocente.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.colonies.seuil.releves.information",
+              "modele": "Recopier les mesures distribue la preuve ; conserver les séries séparées protège leurs écarts. Les deux lectures maintiennent les trois Solutions ouvertes.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "registres": {
+              "cle": "evenement.colonies.seuil.releves.variante.registres",
+              "modele": "Les copies de Veille-Basse recoupent le reflux toxique jusque dans les abris périphériques.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "decanteur": {
+              "cle": "evenement.colonies.seuil.releves.variante.decanteur",
+              "modele": "Le Décanteur documenté de Haut-Puits donne une échelle matérielle aux dépôts déplacés.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.colonies.seuil.releves.variante.standard",
+              "modele": "Les aiguilles mécaniques dessinent la dette du Réseau avant toute remise en activité.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "recopier-releves-aux-delegations": {
+              "intention": {
+                "cle": "evenement.colonies.seuil.releves.choix.recopier",
+                "modele": "Recopier les relevés aux délégations",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.colonies.seuil.releves.choix.recopier.cout",
+                  "modele": "Coût connu : aucun stock ; la preuve devient commune et politiquement opposable.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "conserver-series-separees": {
+              "intention": {
+                "cle": "evenement.colonies.seuil.releves.choix.separer",
+                "modele": "Conserver les séries séparées",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.colonies.seuil.releves.choix.separer.cout",
+                  "modele": "Coût connu : aucun stock ; les divergences restent attribuables à chaque source.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        },
+        "en": {
+          "origine": {
+            "cle": "evenement.colonies.seuil.releves.origine",
+            "modele": "Survey chamber beneath the Node’s door",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.colonies.seuil.releves.titre",
+            "modele": "The surveys beneath the door",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.colonies.seuil.releves.presentation",
+            "modele": "Threshold’s series confirm that the old Network protected its centers by moving ash toward the peripheries. Cradle, Standard, and Precipitator answer the same conduits without naming an innocent Solution.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.colonies.seuil.releves.information",
+              "modele": "Copying the measurements distributes the evidence; keeping the series separate protects their differences. Both readings keep all three Solutions open.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "registres": {
+              "cle": "evenement.colonies.seuil.releves.variante.registres",
+              "modele": "Lower Watch’s copies trace the toxic backflow into the peripheral shelters.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "decanteur": {
+              "cle": "evenement.colonies.seuil.releves.variante.decanteur",
+              "modele": "High Well’s documented settling unit gives a material scale to the displaced deposits.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.colonies.seuil.releves.variante.standard",
+              "modele": "Mechanical needles map the Network’s debt before any reactivation.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "recopier-releves-aux-delegations": {
+              "intention": {
+                "cle": "evenement.colonies.seuil.releves.choix.recopier",
+                "modele": "Copy the surveys for the delegations",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.colonies.seuil.releves.choix.recopier.cout",
+                  "modele": "Known cost: no stock; the evidence becomes shared and politically enforceable.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "conserver-series-separees": {
+              "intention": {
+                "cle": "evenement.colonies.seuil.releves.choix.separer",
+                "modele": "Keep the series separate",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.colonies.seuil.releves.choix.separer.cout",
+                  "modele": "Known cost: no stock; discrepancies remain attributable to each source.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "couronne.colonies.le-prix-de-la-rampe",
+      "famille": "consequences-systemiques",
+      "themes": [
+        "voie-des-colonies",
+        "alliances",
+        "equipes",
+        "eau",
+        "pieces"
+      ],
+      "fonction": "transformer-les-moyens-preserves-en-acces-allie-ou-en-breche-couteuse",
+      "fenetre": "couronne-seuil",
+      "conditions": {
+        "requises": [
+          {
+            "type": "un-des-faits-present",
+            "faits": [
+              "couronne.seuil.releves-recopies",
+              "couronne.seuil.releves-separes"
+            ]
+          }
+        ],
+        "interdites": []
+      },
+      "periodeEligibilite": {
+        "debut": 1200,
+        "fin": 2147483647
+      },
+      "priorite": 170,
+      "epuisement": "unique",
+      "acteurs": [
+        "porte-lanterne",
+        "equipes-de-la-rampe",
+        "delegations-des-cinq-colonies"
+      ],
+      "sourcesInformations": [
+        "equipes-de-la-rampe"
+      ],
+      "faitsLus": [
+        "couronne.seuil.releves-recopies",
+        "couronne.seuil.releves-separes",
+        "couronne.serres-de-verre.coalition-ralliee",
+        "couronne.serres-de-verre.passage-force"
+      ],
+      "choix": [
+        {
+          "id": "engager-equipes-ralliees",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "couronne.colonies.voie-alliee-preparee",
+              "cible": "acces-du-noeud"
+            }
+          ]
+        },
+        {
+          "id": "maintenir-breche-couteuse",
+          "effets": [
+            {
+              "type": "habitants.modifier",
+              "valeur": -4
+            }
+          ],
+          "faitsProduits": [
+            {
+              "id": "couronne.colonies.breche-couteuse-preparee",
+              "cible": "acces-du-noeud"
+            }
+          ]
+        }
+      ],
+      "consequenceDifferee": {
+        "type": "acces-du-noeud-prepare-sans-selection-finale",
+        "cible": "noeud-central-de-regulation"
+      },
+      "recuperation": {
+        "type": "breche-couteuse-toujours-disponible"
+      },
+      "variantes": [
+        {
+          "id": "coalition",
+          "condition": {
+            "type": "fait-present",
+            "fait": "couronne.serres-de-verre.coalition-ralliee"
+          }
+        },
+        {
+          "id": "passage-force",
+          "condition": {
+            "type": "fait-present",
+            "fait": "couronne.serres-de-verre.passage-force"
+          }
+        },
+        {
+          "id": "standard",
+          "condition": {
+            "type": "toujours"
+          }
+        }
+      ],
+      "destinationEcho": "journal-de-campagne",
+      "asset": {
+        "id": "couronne.colonies.le-prix-de-la-rampe",
+        "fichier": "/api/commercial/assets/couronne-rampe-couteuse.webp",
+        "octetsTransferes": 141424,
+        "contientTexte": false,
+        "alternatives": {
+          "fr": "Des équipes alliées consolident une rampe tandis qu’un passage de secours exige des brancards et des Habitants.",
+          "en": "Allied crews reinforce a ramp while a fallback crossing demands stretchers and Inhabitants."
+        },
+        "provenance": {
+          "fiche": "docs/assets/couronne-rampe-couteuse.provenance.json",
+          "creeLe": "2026-07-23",
+          "outil": "Codex built-in image_gen",
+          "modele": "built-in model (identifier not exposed)",
+          "usage": "stylized-concept",
+          "entree": "No input image; generated from the project’s established industrial ash-world art direction.",
+          "prompt": "Broken service ramp contrasts prepared allied logistics using water, parts and crews with a dangerous fallback hauled by inhabitants and stretchers; painterly 16:9, no text or logos.",
+          "droits": "OpenAI Terms of Use — output assigned to the user",
+          "empreinteSha256": "28430bbd11b713ff6370b6d6de496dbe5527391f64e6801cf1f3386ad83d9d96",
+          "statutApprobation": "pending-pull-request-review",
+          "reviseur": null
+        }
+      },
+      "textes": {
+        "fr": {
+          "origine": {
+            "cle": "evenement.colonies.rampe.origine",
+            "modele": "Rampe de service brisée du Seuil",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.colonies.rampe.titre",
+            "modele": "Le prix de la rampe",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.colonies.rampe.presentation",
+            "modele": "La voie des Colonies peut devenir un accès entretenu par les alliés, ou demeurer une brèche que des Habitants devront tenir au prix de leurs corps. Ce choix prépare l’ouverture sans sélectionner une Solution finale.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.colonies.rampe.information",
+              "modele": "Les équipes ralliées ne s’engagent que si la coalition a réellement été formée. La brèche coûteuse reste disponible dans tous les cas.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "coalition": {
+              "cle": "evenement.colonies.rampe.variante.coalition",
+              "modele": "Cordages, eau et pièces portent les marques de plusieurs Colonies plutôt qu’un sceau unique.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "passage-force": {
+              "cle": "evenement.colonies.rampe.variante.passage-force",
+              "modele": "Les abris démontés aux Serres deviennent ici passerelles et brancards.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.colonies.rampe.variante.standard",
+              "modele": "La rampe ne promet aucun passage gratuit, seulement un coût visible.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "engager-equipes-ralliees": {
+              "intention": {
+                "cle": "evenement.colonies.rampe.choix.equipes",
+                "modele": "Engager les équipes ralliées",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.colonies.rampe.choix.equipes.cout",
+                  "modele": "Coût connu : les moyens ont déjà été engagés aux Serres ; les alliances répondent de l’entretien.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "maintenir-breche-couteuse": {
+              "intention": {
+                "cle": "evenement.colonies.rampe.choix.breche",
+                "modele": "Maintenir la brèche coûteuse",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.colonies.rampe.choix.breche.cout",
+                  "modele": "Coût connu : 4 Habitants ; l’accès reste humainement fragile mais n’impose aucune Solution.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        },
+        "en": {
+          "origine": {
+            "cle": "evenement.colonies.rampe.origine",
+            "modele": "Threshold’s broken service ramp",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.colonies.rampe.titre",
+            "modele": "The price of the ramp",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.colonies.rampe.presentation",
+            "modele": "The Colony route can become access maintained by allies, or remain a breach Inhabitants must hold with their bodies. This choice prepares the opening without selecting a final Solution.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.colonies.rampe.information",
+              "modele": "Rallied crews commit only if the coalition was actually formed. The costly breach remains available in every case.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "coalition": {
+              "cle": "evenement.colonies.rampe.variante.coalition",
+              "modele": "Ropes, Water, and parts bear the marks of several Colonies rather than one seal.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "passage-force": {
+              "cle": "evenement.colonies.rampe.variante.passage-force",
+              "modele": "Shelters dismantled at the Glasshouses become bridges and stretchers here.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.colonies.rampe.variante.standard",
+              "modele": "The ramp promises no free passage, only a visible cost.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "engager-equipes-ralliees": {
+              "intention": {
+                "cle": "evenement.colonies.rampe.choix.equipes",
+                "modele": "Commit the rallied crews",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.colonies.rampe.choix.equipes.cout",
+                  "modele": "Known cost: the means were already committed at the Glasshouses; the alliances answer for maintenance.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "maintenir-breche-couteuse": {
+              "intention": {
+                "cle": "evenement.colonies.rampe.choix.breche",
+                "modele": "Maintain the costly breach",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.colonies.rampe.choix.breche.cout",
+                  "modele": "Known cost: 4 Inhabitants; access remains humanly fragile but imposes no Solution.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "couronne.seuil.maelys-et-le-registre-des-rallies",
+      "famille": "histoires-de-compagnons",
+      "themes": [
+        "maelys-rive",
+        "colonies",
+        "memoire",
+        "responsabilite"
+      ],
+      "fonction": "confier-ou-partager-la-memoire-des-rallies-sans-rendre-maelys-obligatoire",
+      "fenetre": "couronne-seuil",
+      "conditions": {
+        "requises": [
+          {
+            "type": "un-des-faits-present",
+            "faits": [
+              "couronne.colonies.voie-alliee-preparee",
+              "couronne.colonies.breche-couteuse-preparee"
+            ]
+          }
+        ],
+        "interdites": []
+      },
+      "periodeEligibilite": {
+        "debut": 1200,
+        "fin": 2147483647
+      },
+      "priorite": 160,
+      "epuisement": "unique",
+      "acteurs": [
+        "porte-lanterne",
+        "maelys-rive",
+        "delegations-des-cinq-colonies"
+      ],
+      "sourcesInformations": [
+        "maelys-rive"
+      ],
+      "faitsLus": [
+        "couronne.colonies.voie-alliee-preparee",
+        "couronne.colonies.breche-couteuse-preparee",
+        "veille-basse.maelys-mission-confiee",
+        "trame.traverse-libre.manifeste-public"
+      ],
+      "choix": [
+        {
+          "id": "confier-registre-a-maelys",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "couronne.seuil.registre-confie-a-maelys",
+              "cible": "registre-des-rallies"
+            }
+          ]
+        },
+        {
+          "id": "tenir-registre-commun",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "couronne.seuil.registre-commun",
+              "cible": "registre-des-rallies"
+            }
+          ]
+        }
+      ],
+      "consequenceDifferee": {
+        "type": "garde-du-registre-consignee",
+        "cible": "registre-des-rallies"
+      },
+      "recuperation": {
+        "type": "memoire-collective-preservee-sans-compagnon-obligatoire"
+      },
+      "variantes": [
+        {
+          "id": "mission",
+          "condition": {
+            "type": "fait-present",
+            "fait": "veille-basse.maelys-mission-confiee"
+          }
+        },
+        {
+          "id": "manifeste",
+          "condition": {
+            "type": "fait-present",
+            "fait": "trame.traverse-libre.manifeste-public"
+          }
+        },
+        {
+          "id": "standard",
+          "condition": {
+            "type": "toujours"
+          }
+        }
+      ],
+      "destinationEcho": "journal-de-campagne",
+      "asset": {
+        "id": "couronne.seuil.maelys-et-le-registre-des-rallies",
+        "fichier": "/api/commercial/assets/couronne-maelys-registre.webp",
+        "octetsTransferes": 141732,
+        "contientTexte": false,
+        "alternatives": {
+          "fr": "Maëlys et des représentants de cinq Colonies déposent outils et jetons autour d’un registre commun.",
+          "en": "Maëlys and representatives of five Colonies place tools and tokens around a shared register."
+        },
+        "provenance": {
+          "fiche": "docs/assets/couronne-maelys-registre.provenance.json",
+          "creeLe": "2026-07-23",
+          "outil": "Codex built-in image_gen",
+          "modele": "built-in model (identifier not exposed)",
+          "usage": "stylized-concept",
+          "entree": "No input image; generated from the project’s established industrial ash-world art direction.",
+          "prompt": "Maëlys and representatives of five Colonies place tools and tokens around a shared registry table at Threshold, showing distributed memory and accountability; painterly 16:9, no text or logos.",
+          "droits": "OpenAI Terms of Use — output assigned to the user",
+          "empreinteSha256": "8f63e062243939aeb59523c4cb22a3110a0bc36fd015499f8cf42cc264538c92",
+          "statutApprobation": "pending-pull-request-review",
+          "reviseur": null
+        }
+      },
+      "textes": {
+        "fr": {
+          "origine": {
+            "cle": "evenement.colonies.maelys.origine",
+            "modele": "Table du registre des ralliés",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.colonies.maelys.titre",
+            "modele": "Maëlys et le registre des ralliés",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.colonies.maelys.presentation",
+            "modele": "Maëlys propose de garder les noms, apports et refus de chaque Colonie sans transformer leur coalition en récit unanime. Une copie commune peut aussi répartir cette responsabilité.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.colonies.maelys.information",
+              "modele": "Les deux gardes conservent les retours des Colonies et de la Cohorte ; aucune ne rend Maëlys indispensable.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "mission": {
+              "cle": "evenement.colonies.maelys.variante.mission",
+              "modele": "Son relevé de l’Hospice lui a appris à distinguer une absence d’un abandon.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "manifeste": {
+              "cle": "evenement.colonies.maelys.variante.manifeste",
+              "modele": "Le manifeste public de Traverse-Libre fournit déjà les noms de celles et ceux qui ont rendu l’aide visible.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.colonies.maelys.variante.standard",
+              "modele": "Maëlys laisse une place vide pour toute Colonie revenue seulement par un rapport.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "confier-registre-a-maelys": {
+              "intention": {
+                "cle": "evenement.colonies.maelys.choix.confier",
+                "modele": "Confier le registre à Maëlys",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.colonies.maelys.choix.confier.cout",
+                  "modele": "Coût connu : aucun stock ; Maëlys devient garante d’un registre transmissible.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "tenir-registre-commun": {
+              "intention": {
+                "cle": "evenement.colonies.maelys.choix.commun",
+                "modele": "Tenir un registre commun",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.colonies.maelys.choix.commun.cout",
+                  "modele": "Coût connu : aucun stock ; chaque délégation conserve une copie et une obligation.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        },
+        "en": {
+          "origine": {
+            "cle": "evenement.colonies.maelys.origine",
+            "modele": "Rallied parties register table",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.colonies.maelys.titre",
+            "modele": "Maëlys and the register of the rallied",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.colonies.maelys.presentation",
+            "modele": "Maëlys offers to keep the names, contributions, and refusals of every Colony without turning their coalition into a unanimous story. A shared copy can also distribute that responsibility.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.colonies.maelys.information",
+              "modele": "Both forms of custody preserve the returns of the Colonies and the Cohort; neither makes Maëlys indispensable.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "mission": {
+              "cle": "evenement.colonies.maelys.variante.mission",
+              "modele": "Her Hospice survey taught her to distinguish an absence from an abandonment.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "manifeste": {
+              "cle": "evenement.colonies.maelys.variante.manifeste",
+              "modele": "Free Crossing’s public manifest already names those who made the aid visible.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.colonies.maelys.variante.standard",
+              "modele": "Maëlys leaves an empty place for every Colony that returned only through a report.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "confier-registre-a-maelys": {
+              "intention": {
+                "cle": "evenement.colonies.maelys.choix.confier",
+                "modele": "Entrust the register to Maëlys",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.colonies.maelys.choix.confier.cout",
+                  "modele": "Known cost: no stock; Maëlys becomes keeper of a transferable register.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "tenir-registre-commun": {
+              "intention": {
+                "cle": "evenement.colonies.maelys.choix.commun",
+                "modele": "Keep a shared register",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.colonies.maelys.choix.commun.cout",
+                  "modele": "Known cost: no stock; each delegation keeps a copy and an obligation.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        }
+      }
     }
   ],
   "conseils": [
@@ -12558,7 +14067,17 @@ export default {
           "couronne.approches.precipitateur-assemble": "Précipitateur embarqué assemblé",
           "couronne.approches.preparatifs-reportes": "Préparatifs de la Couronne reportés",
           "couronne.approches.plans-confies-a-ilyana": "Plans de la Couronne confiés à Ilyana",
-          "couronne.approches.plans-repartis-aux-equipes": "Plans de la Couronne répartis aux équipes"
+          "couronne.approches.plans-repartis-aux-equipes": "Plans de la Couronne répartis aux équipes",
+          "couronne.serres-de-verre.coalition-ralliee": "Coalition des Colonies ralliée aux Serres-de-Verre",
+          "couronne.serres-de-verre.passage-force": "Passage des Serres-de-Verre forcé",
+          "couronne.seuil.marche-rationne": "Marché du Seuil rationné et abris partagés",
+          "couronne.seuil.dernieres-pieces-achetees": "Dernières pièces du Seuil achetées",
+          "couronne.seuil.releves-recopies": "Relevés du Nœud recopiés aux délégations",
+          "couronne.seuil.releves-separes": "Séries du Nœud conservées séparément",
+          "couronne.colonies.voie-alliee-preparee": "Voie alliée vers le Nœud préparée",
+          "couronne.colonies.breche-couteuse-preparee": "Brèche coûteuse vers le Nœud préparée",
+          "couronne.seuil.registre-confie-a-maelys": "Registre des ralliés confié à Maëlys",
+          "couronne.seuil.registre-commun": "Registre commun des ralliés établi"
         },
         "causes": {
           "bassins.haut-puits.pacte-des-citernes": "Le pacte des citernes",
@@ -12599,7 +14118,12 @@ export default {
           "couronne.veille-des-trois.les-filtres-sous-les-phares": "Décision prise sous les trois phares éteints de Veille-des-Trois.",
           "couronne.approches.les-trois-socles-du-noeud": "Diagnostic établi dans le Nœud enfoui de la Couronne.",
           "couronne.approches.les-montages-de-la-couronne": "Préparation décidée dans l’atelier provisoire de la Couronne.",
-          "couronne.approches.ilyana-et-les-plans-sous-cendre": "Garde des plans décidée avec Ilyana et les équipes."
+          "couronne.approches.ilyana-et-les-plans-sous-cendre": "Garde des plans décidée avec Ilyana et les équipes.",
+          "couronne.serres-de-verre.le-ralliement-des-cinq-colonies": "Décision prise au ralliement des cinq Colonies.",
+          "couronne.seuil.le-marche-des-abris": "Décision prise au marché limité et aux abris du Seuil.",
+          "couronne.seuil.les-releves-sous-la-porte": "Lecture décidée devant les conduites du Nœud.",
+          "couronne.colonies.le-prix-de-la-rampe": "Accès préparé sur la rampe brisée du Seuil.",
+          "couronne.seuil.maelys-et-le-registre-des-rallies": "Garde du registre décidée avec Maëlys et les délégations."
         },
         "acteurs": {
           "ilyana-voss": "Ilyana Voss",
@@ -12636,7 +14160,12 @@ export default {
           "habitants-tete-de-ligne": "Habitants de Tête-de-Ligne",
           "gardiens-des-trois-veilles": "Gardiens des Trois Veilles",
           "socles-du-noeud-de-la-couronne": "Socles du Nœud de la Couronne",
-          "plans-des-trois-montages": "Plans des trois montages"
+          "plans-des-trois-montages": "Plans des trois montages",
+          "delegations-des-cinq-colonies": "Délégations des cinq Colonies",
+          "habitants-du-seuil": "Habitants du Seuil",
+          "commis-du-marche-du-seuil": "Commis du marché du Seuil",
+          "releveurs-du-seuil": "Releveurs du Seuil",
+          "equipes-de-la-rampe": "Équipes de la rampe"
         },
         "cibles": {
           "equipes-entretien": "Équipes d’entretien",
@@ -12688,7 +14217,14 @@ export default {
           "plans-des-trois-montages": "Plans des trois montages",
           "berceau-d-ancrage": "Berceau d’ancrage",
           "etalon-de-reaccord": "Étalon de réaccord",
-          "precipitateur-embarque": "Précipitateur embarqué"
+          "precipitateur-embarque": "Précipitateur embarqué",
+          "serres-de-verre": "Serres-de-Verre",
+          "marche-du-seuil": "Marché du Seuil",
+          "releves-du-noeud": "Relevés du Nœud",
+          "rampe-du-seuil": "Rampe du Seuil",
+          "acces-du-noeud": "Accès du Nœud",
+          "registre-des-rallies": "Registre des ralliés",
+          "noeud-central-de-regulation": "Nœud central de régulation"
         }
       }
     },
@@ -12784,7 +14320,17 @@ export default {
           "couronne.approches.precipitateur-assemble": "Caravan Precipitator assembled",
           "couronne.approches.preparatifs-reportes": "Crown preparations postponed",
           "couronne.approches.plans-confies-a-ilyana": "Crown plans entrusted to Ilyana",
-          "couronne.approches.plans-repartis-aux-equipes": "Crown plans distributed among crews"
+          "couronne.approches.plans-repartis-aux-equipes": "Crown plans distributed among crews",
+          "couronne.serres-de-verre.coalition-ralliee": "Colony coalition rallied at the Glasshouses",
+          "couronne.serres-de-verre.passage-force": "Glasshouses passage forced",
+          "couronne.seuil.marche-rationne": "Threshold market rationed and shelters shared",
+          "couronne.seuil.dernieres-pieces-achetees": "Threshold’s last parts purchased",
+          "couronne.seuil.releves-recopies": "Node surveys copied for the delegations",
+          "couronne.seuil.releves-separes": "Node series kept separate",
+          "couronne.colonies.voie-alliee-preparee": "Allied route to the Node prepared",
+          "couronne.colonies.breche-couteuse-preparee": "Costly breach to the Node prepared",
+          "couronne.seuil.registre-confie-a-maelys": "Rallied parties register entrusted to Maëlys",
+          "couronne.seuil.registre-commun": "Shared register of rallied parties established"
         },
         "causes": {
           "bassins.haut-puits.pacte-des-citernes": "The cistern pact",
@@ -12825,7 +14371,12 @@ export default {
           "couronne.veille-des-trois.les-filtres-sous-les-phares": "Decision made beneath Threefold Watch’s three dead beacons.",
           "couronne.approches.les-trois-socles-du-noeud": "Diagnostic established in the Crown’s buried Node.",
           "couronne.approches.les-montages-de-la-couronne": "Preparation decided in the Crown’s field workshop.",
-          "couronne.approches.ilyana-et-les-plans-sous-cendre": "Custody of the plans decided with Ilyana and the crews."
+          "couronne.approches.ilyana-et-les-plans-sous-cendre": "Custody of the plans decided with Ilyana and the crews.",
+          "couronne.serres-de-verre.le-ralliement-des-cinq-colonies": "Decision made at the rally of the five Colonies.",
+          "couronne.seuil.le-marche-des-abris": "Decision made at Threshold’s limited market and shelters.",
+          "couronne.seuil.les-releves-sous-la-porte": "Reading chosen before the Node’s conduits.",
+          "couronne.colonies.le-prix-de-la-rampe": "Access prepared on Threshold’s broken ramp.",
+          "couronne.seuil.maelys-et-le-registre-des-rallies": "Custody of the register decided with Maëlys and the delegations."
         },
         "acteurs": {
           "ilyana-voss": "Ilyana Voss",
@@ -12862,7 +14413,12 @@ export default {
           "habitants-tete-de-ligne": "Railhead inhabitants",
           "gardiens-des-trois-veilles": "Three Watches keepers",
           "socles-du-noeud-de-la-couronne": "Crown Node mounts",
-          "plans-des-trois-montages": "Plans for the three assemblies"
+          "plans-des-trois-montages": "Plans for the three assemblies",
+          "delegations-des-cinq-colonies": "Delegations from the five Colonies",
+          "habitants-du-seuil": "Threshold residents",
+          "commis-du-marche-du-seuil": "Threshold market clerks",
+          "releveurs-du-seuil": "Threshold surveyors",
+          "equipes-de-la-rampe": "Ramp crews"
         },
         "cibles": {
           "equipes-entretien": "Maintenance crews",
@@ -12914,7 +14470,14 @@ export default {
           "plans-des-trois-montages": "Plans for the three assemblies",
           "berceau-d-ancrage": "Anchoring Cradle",
           "etalon-de-reaccord": "Retuning Gauge",
-          "precipitateur-embarque": "Caravan Precipitator"
+          "precipitateur-embarque": "Caravan Precipitator",
+          "serres-de-verre": "Glasshouses",
+          "marche-du-seuil": "Threshold market",
+          "releves-du-noeud": "Node surveys",
+          "rampe-du-seuil": "Threshold Ramp",
+          "acces-du-noeud": "Node access",
+          "registre-des-rallies": "Rallied parties register",
+          "noeud-central-de-regulation": "Central Regulation Node"
         }
       }
     }
