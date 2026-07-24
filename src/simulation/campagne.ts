@@ -7,6 +7,10 @@ import type {
 } from "../content/types";
 import type { EffetsDeFait, FaitDeCampagne } from "./faits";
 import { choixDesApprochesDeLaCouronneEstDisponible } from "./couronne";
+import {
+  ajusterEffetsDeLOuvertureDeLaCouronne,
+  choixDeLOuvertureDeLaCouronneEstDisponible,
+} from "./ouvertureCouronne";
 import { choixDeLaVoieDesColoniesEstDisponible } from "./voieColonies";
 import {
   creerFluxPseudoAleatoire,
@@ -473,6 +477,12 @@ function declencherSuiteNarrativeDeLaDemonstration(
   ) {
     return declencherEvenement(etat, "couronne-seuil");
   }
+  if (
+    etat.routes.position === "anneau-interieur" &&
+    trouverEngagementDeRouteActif(etat.routes) === undefined
+  ) {
+    return declencherEvenement(etat, "couronne-ouverture");
+  }
   return etat.routes.position === "haut-puits" &&
     trouverEngagementDeRouteActif(etat.routes) === undefined
     ? declencherEvenement(etat, "halte-haut-puits")
@@ -537,7 +547,8 @@ export function choixNarratifEstDisponible(
   if (
     evenementId.startsWith("couronne.") &&
     (!choixDesApprochesDeLaCouronneEstDisponible(etat, choix.id) ||
-      !choixDeLaVoieDesColoniesEstDisponible(etat, choix.id))
+      !choixDeLaVoieDesColoniesEstDisponible(etat, choix.id) ||
+      !choixDeLOuvertureDeLaCouronneEstDisponible(etat, choix.id))
   ) {
     return false;
   }
@@ -582,11 +593,16 @@ export function choixNarratifEstDisponible(
     Extract<EffetDEvenement, { readonly type: "stock.modifier" }>["stock"],
     number
   >();
-  const effetsApplicables = ajusterEffetsDuChoixDeLAiguillageZero(
+  const effetsApplicables = ajusterEffetsDeLOuvertureDeLaCouronne(
     etat,
     evenementId,
     choix.id,
-    choix.effets,
+    ajusterEffetsDuChoixDeLAiguillageZero(
+      etat,
+      evenementId,
+      choix.id,
+      choix.effets,
+    ),
   );
   for (const effet of effetsApplicables) {
     if (effet.type === "stock.modifier" && effet.valeur < 0) {
@@ -877,11 +893,16 @@ function choisirDansEvenement(
     }
     return etat;
   })();
-  const effetsApplicables = ajusterEffetsDuChoixDeLAiguillageZero(
+  const effetsApplicables = ajusterEffetsDeLOuvertureDeLaCouronne(
     etatApresDecisionDeVeilleBasse,
     evenement.id,
     choix.id,
-    choix.effets,
+    ajusterEffetsDuChoixDeLAiguillageZero(
+      etatApresDecisionDeVeilleBasse,
+      evenement.id,
+      choix.id,
+      choix.effets,
+    ),
   );
   const etatApresEffets = appliquerEffets(
     {

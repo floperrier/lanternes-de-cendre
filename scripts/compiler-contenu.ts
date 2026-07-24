@@ -54,6 +54,7 @@ const CHEMINS_D_EVENEMENTS_PREMIUM = [
   "content/evenements/aiguillage-zero.yaml",
   "content/evenements/couronne-approches.yaml",
   "content/evenements/voie-colonies.yaml",
+  "content/evenements/ouverture-couronne.yaml",
 ] as const;
 const provenances = {
   "docs/assets/cite-caravane.provenance.json": lire(
@@ -200,6 +201,18 @@ const provenances = {
   "docs/assets/couronne-maelys-registre.provenance.json": lire(
     "docs/assets/couronne-maelys-registre.provenance.json",
   ),
+  "docs/assets/couronne-ouverture-diagnostic.provenance.json": lire(
+    "docs/assets/couronne-ouverture-diagnostic.provenance.json",
+  ),
+  "docs/assets/couronne-ouverture-montages.provenance.json": lire(
+    "docs/assets/couronne-ouverture-montages.provenance.json",
+  ),
+  "docs/assets/couronne-ouverture-conseil.provenance.json": lire(
+    "docs/assets/couronne-ouverture-conseil.provenance.json",
+  ),
+  "docs/assets/couronne-ouverture-clef.provenance.json": lire(
+    "docs/assets/couronne-ouverture-clef.provenance.json",
+  ),
 };
 
 function cheminPhysiqueAsset(chemin: string): string {
@@ -264,7 +277,12 @@ function idsDeFaits(evenements: readonly EvenementDuCatalogue[]): Set<string> {
 }
 
 function acteurs(evenements: readonly EvenementDuCatalogue[]): Set<string> {
-  return new Set(evenements.flatMap((evenement) => evenement.acteurs));
+  return new Set(
+    evenements.flatMap((evenement) => [
+      ...evenement.acteurs,
+      ...evenement.sourcesInformations,
+    ]),
+  );
 }
 
 function cibles(evenements: readonly EvenementDuCatalogue[]): Set<string> {

@@ -25,6 +25,90 @@ const PRESENTATIONS_VALIDES = {
   },
 };
 
+function dictionnaire(...cles: readonly string[]) {
+  return Object.fromEntries(cles.map((cle) => [cle, cle]));
+}
+
+const PRESENTATION_OUVERTURE_VALIDE = {
+  titre: "Ouverture de la Couronne",
+  eyebrow: "Anneau intérieur",
+  nomsDesOuvertures: dictionnaire(
+    "ferroviaire",
+    "phares",
+    "colonies",
+    "breche",
+  ),
+  statutsDesOuvertures: dictionnaire(
+    "indisponible",
+    "risquee",
+    "preparee",
+    "toujours-disponible",
+  ),
+  acteurs: dictionnaire(
+    "republique",
+    "atelier-commun",
+    "pelerins",
+    "releveurs",
+    "coalition",
+    "delegations-fragiles",
+    "absents",
+    "breche",
+  ),
+  couts: dictionnaire("ferroviaire", "phares", "colonies", "breche"),
+  projets: dictionnaire("berceau", "etalon", "precipitateur"),
+  diagnostics: dictionnaire(
+    "portance-inconnue",
+    "portance-confirmee",
+    "frequences-inconnues",
+    "frequences-calibrees",
+    "decharges-inconnues",
+    "decharges-cartographiees",
+  ),
+  preparations: dictionnaire(
+    "absente",
+    "amorcee",
+    "calibree",
+    "assemble",
+  ),
+  reductions: dictionnaire(
+    "aucune",
+    "berceau",
+    "etalon",
+    "precipitateur",
+  ),
+  delegations: dictionnaire("absente", "conditionnelle", "mandatee"),
+  ouverturesChoisies: dictionnaire(
+    "aucune",
+    "ferroviaire",
+    "phares",
+    "colonies",
+    "breche",
+  ),
+  noeud: dictionnaire(
+    "inaccessible",
+    "intact",
+    "contraint",
+    "endommage",
+  ),
+  solutions: dictionnaire("ancrer", "reaccorder", "precipiter"),
+  statutsDesSolutions: dictionnaire(
+    "preparee",
+    "risquee",
+    "impossible",
+  ),
+  gardes: dictionnaire("indecise", "gardiennes", "collective"),
+  formats: dictionnaire("ouverture", "projet", "conseil", "solution"),
+  libelles: dictionnaire(
+    "ouvertures",
+    "projets",
+    "conseil",
+    "choix",
+    "noeud",
+    "solutions",
+    "garde",
+  ),
+};
+
 function lot(conseils?: readonly unknown[]) {
   return {
     version: 1,
@@ -202,6 +286,63 @@ describe("installation du contenu narratif premium", () => {
               fr: { titre: "Voie des Colonies" },
               en: { titre: "Colony Route" },
             },
+          },
+        },
+      }),
+    ).not.toThrow();
+  });
+
+  it("exige la présentation de l’Ouverture pour le lot du dernier Conseil", () => {
+    const presentationsDeCouronne = {
+      hautPuits: PRESENTATIONS_VALIDES.hautPuits,
+      veilleBasse: PRESENTATIONS_VALIDES.veilleBasse,
+      couronne: {
+        fr: { titre: "Approches de la Couronne" },
+        en: { titre: "Silent Crown Approaches" },
+      },
+    };
+    const lotOuverture = {
+      version: 1,
+      catalogue: {
+        evenements: [
+          {
+            id: "couronne.ouverture.le-diagnostic-des-verrous",
+          },
+        ],
+        presentations: presentationsDeCouronne,
+      },
+    };
+
+    expect(() =>
+      installerPresentationsPremium(lotOuverture),
+    ).toThrow("presentations-premium-invalides");
+    expect(() =>
+      installerPresentationsPremium({
+        ...lotOuverture,
+        catalogue: {
+          ...lotOuverture.catalogue,
+          presentations: {
+            ...presentationsDeCouronne,
+            ouvertureCouronne: {
+              fr: { titre: "Ouverture de la Couronne" },
+              en: { titre: "Opening the Crown" },
+            },
+          },
+        },
+      }),
+    ).toThrow("presentations-premium-invalides");
+    expect(() =>
+      installerPresentationsPremium({
+        ...lotOuverture,
+        catalogue: {
+          ...lotOuverture.catalogue,
+          presentations: {
+            ...presentationsDeCouronne,
+            ouvertureCouronne:
+              {
+                fr: PRESENTATION_OUVERTURE_VALIDE,
+                en: PRESENTATION_OUVERTURE_VALIDE,
+              },
           },
         },
       }),

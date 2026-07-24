@@ -1,0 +1,15 @@
+{
+  "asset": "serveur-commercial/assets/couronne-ouverture-diagnostic.webp",
+  "sha256": "3d2732baabb5df3d00da176251eafa7a859b0d81279ac19301bebbea3df7004a",
+  "createdAt": "2026-07-23",
+  "tool": "Codex built-in image_gen",
+  "model": "built-in model (identifier not exposed)",
+  "useCase": "stylized-concept",
+  "input": "No input image; generated from the project’s established industrial ash-world art direction.",
+  "prompt": "Crews examine three diagnostic consoles inside the immense circular lock chamber of the Central Node; cinematic painterly 16:9, no text or logos.",
+  "rights": "OpenAI Terms of Use — output assigned to the user",
+  "approval": {
+    "status": "pending-pull-request-review",
+    "reviewer": null
+  }
+}

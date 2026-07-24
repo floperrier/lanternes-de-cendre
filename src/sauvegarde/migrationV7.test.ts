@@ -62,6 +62,15 @@ function normaliserEnV7(etat: EtatCampagne): Record<string, unknown> {
   delete historique.routes.etatsReels["chemin-des-trois-veilles"];
   delete historique.routes.etatsReels["piste-des-serres-de-verre"];
   delete historique.routes.etatsReels["rampe-du-seuil"];
+  delete historique.routes.etatsReels["arc-ferroviaire-du-noeud"];
+  delete historique.routes.etatsReels["galerie-des-trois-phares"];
+  delete historique.routes.etatsReels["porte-logistique-du-seuil"];
+  delete historique.routes.etatsReels[
+    "passage-de-la-couronne-ouverte"
+  ];
+  delete historique.routes.etatsReels[
+    "breche-de-secours-du-noeud"
+  ];
   delete historique.narration.causaliteHistorique;
   delete historique.hautPuits.projetRegional;
   delete historique.veilleBasse.cohorte.orientationRegionale;

@@ -2953,15 +2953,13 @@ export default {
           "puits-libres": "Puits Libres",
           "habitants-haut-puits": "Habitants de Haut-Puits",
           "equipes-entretien": "Équipes d’entretien",
-          "porte-lanterne": "Porte-Lanterne",
-          "eclaireurs-puits-libres": "Éclaireurs des Puits Libres"
+          "porte-lanterne": "Porte-Lanterne"
         },
         "cibles": {
           "equipes-entretien": "Équipes d’entretien",
           "ilyana-voss": "Ilyana Voss",
           "puits-libres": "Puits Libres",
-          "habitants-haut-puits": "Habitants de Haut-Puits",
-          "eclaireurs-puits-libres": "Éclaireurs des Puits Libres"
+          "habitants-haut-puits": "Habitants de Haut-Puits"
         }
       }
     },
@@ -2993,15 +2991,13 @@ export default {
           "puits-libres": "Free Wells",
           "habitants-haut-puits": "High Well inhabitants",
           "equipes-entretien": "Maintenance crews",
-          "porte-lanterne": "Lantern-Bearer",
-          "eclaireurs-puits-libres": "Free Wells Scouts"
+          "porte-lanterne": "Lantern-Bearer"
         },
         "cibles": {
           "equipes-entretien": "Maintenance crews",
           "ilyana-voss": "Ilyana Voss",
           "puits-libres": "Free Wells",
-          "habitants-haut-puits": "High Well inhabitants",
-          "eclaireurs-puits-libres": "Free Wells Scouts"
+          "habitants-haut-puits": "High Well inhabitants"
         }
       }
     }

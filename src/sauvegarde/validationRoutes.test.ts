@@ -520,4 +520,87 @@ describe("validation persistante des routes", () => {
       ]),
     ).toBe(true);
   });
+
+  it("refuse les trois arcs de convergence avant leur garde terminale", () => {
+    const scenarios = [
+      {
+        position: "tete-de-ligne",
+        route: "arc-ferroviaire-du-noeud",
+        fait: "couronne.approches.plans-repartis-aux-equipes",
+      },
+      {
+        position: "veille-des-trois",
+        route: "galerie-des-trois-phares",
+        fait: "couronne.approches.plans-confies-a-ilyana",
+      },
+      {
+        position: "seuil",
+        route: "porte-logistique-du-seuil",
+        fait: "couronne.seuil.registre-commun",
+      },
+    ] as const;
+    for (const scenario of scenarios) {
+      const routes = {
+        ...creerEtatDesRoutesInitial(),
+        position: scenario.position,
+      };
+      const engagement = confirmerEngagementDeRoute(
+        routes,
+        scenario.route,
+        500,
+      ).etat;
+      expect(
+        engagementsDuDeversoirSontCausaux(engagement, []),
+      ).toBe(false);
+      expect(
+        engagementsDuDeversoirSontCausaux(engagement, [
+          { id: scenario.fait, moment: 500 },
+        ]),
+      ).toBe(true);
+    }
+  });
+
+  it("exige une ouverture et la garde de la clef avant chaque passage final", () => {
+    const anneau = {
+      ...creerEtatDesRoutesInitial(),
+      position: "anneau-interieur" as const,
+    };
+    const passage = confirmerEngagementDeRoute(
+      anneau,
+      "passage-de-la-couronne-ouverte",
+      600,
+    ).etat;
+    expect(
+      engagementsDuDeversoirSontCausaux(passage, [
+        { id: "couronne.ouverture.rail-ouverte", moment: 600 },
+      ]),
+    ).toBe(false);
+    expect(
+      engagementsDuDeversoirSontCausaux(passage, [
+        { id: "couronne.ouverture.rail-ouverte", moment: 600 },
+        { id: "couronne.ouverture.clef-collective", moment: 600 },
+      ]),
+    ).toBe(true);
+
+    const breche = confirmerEngagementDeRoute(
+      anneau,
+      "breche-de-secours-du-noeud",
+      700,
+    ).etat;
+    expect(
+      engagementsDuDeversoirSontCausaux(breche, [
+        { id: "couronne.ouverture.rail-ouverte", moment: 700 },
+        { id: "couronne.ouverture.clef-collective", moment: 700 },
+      ]),
+    ).toBe(false);
+    expect(
+      engagementsDuDeversoirSontCausaux(breche, [
+        { id: "couronne.ouverture.breche-ouverte", moment: 700 },
+        {
+          id: "couronne.ouverture.clef-confiee-aux-gardiennes",
+          moment: 700,
+        },
+      ]),
+    ).toBe(true);
+  });
 });

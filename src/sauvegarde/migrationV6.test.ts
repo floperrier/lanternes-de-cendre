@@ -47,6 +47,11 @@ function sansRouteBasse(etat: EtatCampagne) {
     "chemin-des-trois-veilles": cheminDesTroisVeilles,
     "piste-des-serres-de-verre": pisteDesSerresDeVerre,
     "rampe-du-seuil": rampeDuSeuil,
+    "arc-ferroviaire-du-noeud": arcFerroviaireDuNoeud,
+    "galerie-des-trois-phares": galerieDesTroisPhares,
+    "porte-logistique-du-seuil": porteLogistiqueDuSeuil,
+    "passage-de-la-couronne-ouverte": passageDeLaCouronneOuverte,
+    "breche-de-secours-du-noeud": brecheDeSecoursDuNoeud,
     ...etatsReelsV6
   } = sansTrame.routes.etatsReels;
   void routeBasse;
@@ -72,6 +77,11 @@ function sansRouteBasse(etat: EtatCampagne) {
   void cheminDesTroisVeilles;
   void pisteDesSerresDeVerre;
   void rampeDuSeuil;
+  void arcFerroviaireDuNoeud;
+  void galerieDesTroisPhares;
+  void porteLogistiqueDuSeuil;
+  void passageDeLaCouronneOuverte;
+  void brecheDeSecoursDuNoeud;
   return {
     ...sansTrame,
     version: VERSION_SIMULATION_AVANT_NACELLES,

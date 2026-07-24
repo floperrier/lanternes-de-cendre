@@ -234,6 +234,32 @@ export interface TextesDeLaVoieDesColonies {
   readonly libelles: DictionnaireDeTextes;
 }
 
+export interface TextesDeLOuvertureDeLaCouronne {
+  readonly titre: string;
+  readonly eyebrow: string;
+  readonly nomsDesOuvertures: DictionnaireDeTextes;
+  readonly statutsDesOuvertures: DictionnaireDeTextes;
+  readonly acteurs: DictionnaireDeTextes;
+  readonly couts: DictionnaireDeTextes;
+  readonly projets: DictionnaireDeTextes;
+  readonly diagnostics: DictionnaireDeTextes;
+  readonly preparations: DictionnaireDeTextes;
+  readonly reductions: DictionnaireDeTextes;
+  readonly delegations: DictionnaireDeTextes;
+  readonly ouverturesChoisies: DictionnaireDeTextes;
+  readonly noeud: DictionnaireDeTextes;
+  readonly solutions: DictionnaireDeTextes;
+  readonly statutsDesSolutions: DictionnaireDeTextes;
+  readonly gardes: DictionnaireDeTextes;
+  readonly formats: {
+    readonly ouverture: string;
+    readonly projet: string;
+    readonly conseil: string;
+    readonly solution: string;
+  };
+  readonly libelles: DictionnaireDeTextes;
+}
+
 export interface PresentationsPremium {
   readonly hautPuits: Readonly<Record<Langue, TextesDeHautPuits>>;
   readonly veilleBasse: Readonly<Record<Langue, TextesDeVeilleBasse>>;
@@ -250,6 +276,9 @@ export interface PresentationsPremium {
   >;
   readonly voieColonies?: Readonly<
     Record<Langue, TextesDeLaVoieDesColonies>
+  >;
+  readonly ouvertureCouronne?: Readonly<
+    Record<Langue, TextesDeLOuvertureDeLaCouronne>
   >;
   readonly deversoir?: Readonly<
     Record<
@@ -294,6 +323,102 @@ function estArbreDeTextes(valeur: unknown): boolean {
     estObjet(valeur) &&
     Object.keys(valeur).length > 0 &&
     Object.values(valeur).every(estArbreDeTextes)
+  );
+}
+
+function estDictionnaireAvecCles(
+  valeur: unknown,
+  cles: readonly string[],
+): boolean {
+  return (
+    estObjet(valeur) &&
+    cles.every(
+      (cle) =>
+        typeof valeur[cle] === "string" &&
+        (valeur[cle] as string).length > 0,
+    )
+  );
+}
+
+function estPresentationDeLOuvertureDeLaCouronne(
+  valeur: unknown,
+): boolean {
+  if (
+    !estObjet(valeur) ||
+    typeof valeur.titre !== "string" ||
+    valeur.titre.length === 0 ||
+    typeof valeur.eyebrow !== "string" ||
+    valeur.eyebrow.length === 0
+  ) {
+    return false;
+  }
+  return [
+    [
+      "nomsDesOuvertures",
+      ["ferroviaire", "phares", "colonies", "breche"],
+    ],
+    [
+      "statutsDesOuvertures",
+      ["indisponible", "risquee", "preparee", "toujours-disponible"],
+    ],
+    [
+      "acteurs",
+      [
+        "republique",
+        "atelier-commun",
+        "pelerins",
+        "releveurs",
+        "coalition",
+        "delegations-fragiles",
+        "absents",
+        "breche",
+      ],
+    ],
+    ["couts", ["ferroviaire", "phares", "colonies", "breche"]],
+    ["projets", ["berceau", "etalon", "precipitateur"]],
+    [
+      "diagnostics",
+      [
+        "portance-inconnue",
+        "portance-confirmee",
+        "frequences-inconnues",
+        "frequences-calibrees",
+        "decharges-inconnues",
+        "decharges-cartographiees",
+      ],
+    ],
+    ["preparations", ["absente", "amorcee", "calibree", "assemble"]],
+    ["reductions", ["aucune", "berceau", "etalon", "precipitateur"]],
+    ["delegations", ["absente", "conditionnelle", "mandatee"]],
+    [
+      "ouverturesChoisies",
+      ["aucune", "ferroviaire", "phares", "colonies", "breche"],
+    ],
+    ["noeud", ["inaccessible", "intact", "contraint", "endommage"]],
+    ["solutions", ["ancrer", "reaccorder", "precipiter"]],
+    [
+      "statutsDesSolutions",
+      ["preparee", "risquee", "impossible"],
+    ],
+    ["gardes", ["indecise", "gardiennes", "collective"]],
+    ["formats", ["ouverture", "projet", "conseil", "solution"]],
+    [
+      "libelles",
+      [
+        "ouvertures",
+        "projets",
+        "conseil",
+        "choix",
+        "noeud",
+        "solutions",
+        "garde",
+      ],
+    ],
+  ].every(([champ, cles]) =>
+    estDictionnaireAvecCles(
+      valeur[champ as string],
+      cles as readonly string[],
+    ),
   );
 }
 
@@ -367,6 +492,14 @@ export function installerPresentationsPremium(valeur: unknown): void {
           evenement.id.startsWith("couronne.seuil.") ||
           evenement.id.startsWith("couronne.colonies.")),
     );
+  const inclutOuvertureDeLaCouronne =
+    Array.isArray(evenements) &&
+    evenements.some(
+      (evenement) =>
+        estObjet(evenement) &&
+        typeof evenement.id === "string" &&
+        evenement.id.startsWith("couronne.ouverture."),
+    );
   const surfacesAttendues = [
     "hautPuits",
     "veilleBasse",
@@ -377,6 +510,9 @@ export function installerPresentationsPremium(valeur: unknown): void {
     ...(inclutAiguillage ? ["aiguillage"] : []),
     ...(inclutCouronne ? ["couronne"] : []),
     ...(inclutVoieColonies ? ["voieColonies"] : []),
+    ...(inclutOuvertureDeLaCouronne
+      ? ["ouvertureCouronne"]
+      : []),
   ];
   if (
     !estObjet(presentations) ||
@@ -384,9 +520,17 @@ export function installerPresentationsPremium(valeur: unknown): void {
       return (
         estObjet(presentations[surface]) &&
         ["fr", "en"].every((langue) =>
-          estArbreDeTextes(
-            (presentations[surface] as Record<string, unknown>)[langue],
-          ),
+          surface === "ouvertureCouronne"
+            ? estPresentationDeLOuvertureDeLaCouronne(
+                (presentations[surface] as Record<string, unknown>)[
+                  langue
+                ],
+              )
+            : estArbreDeTextes(
+                (presentations[surface] as Record<string, unknown>)[
+                  langue
+                ],
+              ),
         )
       );
     })

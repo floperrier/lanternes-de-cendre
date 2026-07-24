@@ -586,6 +586,11 @@ function normaliserEtatCourantEnV6(
     "chemin-des-trois-veilles": cheminDesTroisVeilles,
     "piste-des-serres-de-verre": pisteDesSerresDeVerre,
     "rampe-du-seuil": rampeDuSeuil,
+    "arc-ferroviaire-du-noeud": arcFerroviaireDuNoeud,
+    "galerie-des-trois-phares": galerieDesTroisPhares,
+    "porte-logistique-du-seuil": porteLogistiqueDuSeuil,
+    "passage-de-la-couronne-ouverte": passageDeLaCouronneOuverte,
+    "breche-de-secours-du-noeud": brecheDeSecoursDuNoeud,
     ...etatsReelsV6
   } = sansTrame.routes.etatsReels;
   void routeAjoutee;
@@ -611,6 +616,11 @@ function normaliserEtatCourantEnV6(
   void cheminDesTroisVeilles;
   void pisteDesSerresDeVerre;
   void rampeDuSeuil;
+  void arcFerroviaireDuNoeud;
+  void galerieDesTroisPhares;
+  void porteLogistiqueDuSeuil;
+  void passageDeLaCouronneOuverte;
+  void brecheDeSecoursDuNoeud;
   return {
     ...sansTrame,
     version: VERSION_SIMULATION_AVANT_NACELLES,
@@ -843,6 +853,11 @@ function normaliserEtatCourantEnV7(
     "chemin-des-trois-veilles": cheminDesTroisVeilles,
     "piste-des-serres-de-verre": pisteDesSerresDeVerre,
     "rampe-du-seuil": rampeDuSeuil,
+    "arc-ferroviaire-du-noeud": arcFerroviaireDuNoeud,
+    "galerie-des-trois-phares": galerieDesTroisPhares,
+    "porte-logistique-du-seuil": porteLogistiqueDuSeuil,
+    "passage-de-la-couronne-ouverte": passageDeLaCouronneOuverte,
+    "breche-de-secours-du-noeud": brecheDeSecoursDuNoeud,
     ...etatsReelsV7
   } = sansDevenirs.routes.etatsReels;
   void cheminDeLHospice;
@@ -867,6 +882,11 @@ function normaliserEtatCourantEnV7(
   void cheminDesTroisVeilles;
   void pisteDesSerresDeVerre;
   void rampeDuSeuil;
+  void arcFerroviaireDuNoeud;
+  void galerieDesTroisPhares;
+  void porteLogistiqueDuSeuil;
+  void passageDeLaCouronneOuverte;
+  void brecheDeSecoursDuNoeud;
   const { topologieHistorique, ...routesV7 } = sansDevenirs.routes;
   void topologieHistorique;
   return {
@@ -1052,6 +1072,11 @@ function normaliserEtatCourantEnV8(
     "chemin-des-trois-veilles": cheminDesTroisVeilles,
     "piste-des-serres-de-verre": pisteDesSerresDeVerre,
     "rampe-du-seuil": rampeDuSeuil,
+    "arc-ferroviaire-du-noeud": arcFerroviaireDuNoeud,
+    "galerie-des-trois-phares": galerieDesTroisPhares,
+    "porte-logistique-du-seuil": porteLogistiqueDuSeuil,
+    "passage-de-la-couronne-ouverte": passageDeLaCouronneOuverte,
+    "breche-de-secours-du-noeud": brecheDeSecoursDuNoeud,
     ...etatsReelsV8
   } = sansTrame.routes.etatsReels;
   void rampeDeBarriereNeuve;
@@ -1071,6 +1096,11 @@ function normaliserEtatCourantEnV8(
   void cheminDesTroisVeilles;
   void pisteDesSerresDeVerre;
   void rampeDuSeuil;
+  void arcFerroviaireDuNoeud;
+  void galerieDesTroisPhares;
+  void porteLogistiqueDuSeuil;
+  void passageDeLaCouronneOuverte;
+  void brecheDeSecoursDuNoeud;
   return {
     ...sansTrame,
     version: VERSION_SIMULATION_AVANT_TRAME_DE_FER,
@@ -1213,6 +1243,11 @@ function normaliserEtatCourantEnV9(
     "chemin-des-trois-veilles": cheminDesTroisVeilles,
     "piste-des-serres-de-verre": pisteDesSerresDeVerre,
     "rampe-du-seuil": rampeDuSeuil,
+    "arc-ferroviaire-du-noeud": arcFerroviaireDuNoeud,
+    "galerie-des-trois-phares": galerieDesTroisPhares,
+    "porte-logistique-du-seuil": porteLogistiqueDuSeuil,
+    "passage-de-la-couronne-ouverte": passageDeLaCouronneOuverte,
+    "breche-de-secours-du-noeud": brecheDeSecoursDuNoeud,
     ...etatsReelsV9
   } = sansTraverse.routes.etatsReels;
   void embranchementDePompeNeuve;
@@ -1230,6 +1265,11 @@ function normaliserEtatCourantEnV9(
   void cheminDesTroisVeilles;
   void pisteDesSerresDeVerre;
   void rampeDuSeuil;
+  void arcFerroviaireDuNoeud;
+  void galerieDesTroisPhares;
+  void porteLogistiqueDuSeuil;
+  void passageDeLaCouronneOuverte;
+  void brecheDeSecoursDuNoeud;
   return {
     ...sansTraverse,
     version: VERSION_SIMULATION_AVANT_TRAVERSE_LIBRE,

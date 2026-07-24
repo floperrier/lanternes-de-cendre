@@ -24,7 +24,9 @@ export type IdentifiantDeLieu =
   | "tete-de-ligne"
   | "veille-des-trois"
   | "serres-de-verre"
-  | "seuil";
+  | "seuil"
+  | "anneau-interieur"
+  | "noeud-central";
 
 export type IdentifiantDeTroncon =
   | "digue-des-puits"
@@ -53,7 +55,12 @@ export type IdentifiantDeTroncon =
   | "voie-de-tete-de-ligne"
   | "chemin-des-trois-veilles"
   | "piste-des-serres-de-verre"
-  | "rampe-du-seuil";
+  | "rampe-du-seuil"
+  | "arc-ferroviaire-du-noeud"
+  | "galerie-des-trois-phares"
+  | "porte-logistique-du-seuil"
+  | "passage-de-la-couronne-ouverte"
+  | "breche-de-secours-du-noeud";
 
 export interface DefinitionDeLieu {
   readonly id: IdentifiantDeLieu;
@@ -346,6 +353,8 @@ const IDENTIFIANTS_DE_LIEUX = new Set<IdentifiantDeLieu>([
   "veille-des-trois",
   "serres-de-verre",
   "seuil",
+  "anneau-interieur",
+  "noeud-central",
 ]);
 const IDENTIFIANTS_DE_TRONCONS = new Set<IdentifiantDeTroncon>([
   "digue-des-puits",
@@ -375,6 +384,11 @@ const IDENTIFIANTS_DE_TRONCONS = new Set<IdentifiantDeTroncon>([
   "chemin-des-trois-veilles",
   "piste-des-serres-de-verre",
   "rampe-du-seuil",
+  "arc-ferroviaire-du-noeud",
+  "galerie-des-trois-phares",
+  "porte-logistique-du-seuil",
+  "passage-de-la-couronne-ouverte",
+  "breche-de-secours-du-noeud",
 ]);
 
 export function installerContenuPremiumDesRoutes(

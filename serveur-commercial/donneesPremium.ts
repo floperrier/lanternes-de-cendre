@@ -42,6 +42,10 @@ export const NOMS_D_ASSETS_PREMIUM = [
   "couronne-seuil-releves.webp",
   "couronne-rampe-couteuse.webp",
   "couronne-maelys-registre.webp",
+  "couronne-ouverture-diagnostic.webp",
+  "couronne-ouverture-montages.webp",
+  "couronne-ouverture-conseil.webp",
+  "couronne-ouverture-clef.webp",
 ] as const;
 
 export const LIEUX_PREMIUM = [
@@ -112,6 +116,14 @@ export const LIEUX_PREMIUM = [
   {
     id: "seuil",
     nom: { fr: "Le Seuil", en: "Threshold" },
+  },
+  {
+    id: "anneau-interieur",
+    nom: { fr: "Anneau intérieur", en: "Inner Ring" },
+  },
+  {
+    id: "noeud-central",
+    nom: { fr: "Nœud central", en: "Central Node" },
   },
 ] as const;
 
@@ -1511,6 +1523,268 @@ export const TRONCONS_PREMIUM = [
             source: "Joint survey by the teams rallied at the Glasshouses",
             danger: "Broken ramp requiring water, parts, and coordinated crews",
             controlePolitique: "Threshold claims authority over its own access",
+          },
+        },
+      },
+    ],
+  },
+  {
+    id: "arc-ferroviaire-du-noeud",
+    nom: {
+      fr: "Arc ferroviaire du Nœud",
+      en: "Node Rail Arc",
+    },
+    extremites: ["tete-de-ligne", "anneau-interieur"],
+    originesAutorisees: ["tete-de-ligne"],
+    dureeSecondes: 480,
+    etatInitial: "degrade",
+    consommationConnue: {
+      stock: "combustible",
+      quantite: 5,
+      unite: "litres",
+    },
+    consommationIncertaine: {
+      stock: "eau",
+      minimum: 4,
+      maximum: 6,
+      quantiteReelle: 5,
+      unite: "litres",
+      renseignementId: "arc-ferroviaire-portance",
+    },
+    renseignements: [
+      {
+        id: "arc-ferroviaire-portance",
+        tronconId: "arc-ferroviaire-du-noeud",
+        source: "ateliers-grand-aiguillage",
+        releveA: 0,
+        fiabilite: "confirme",
+        etatAnnonce: "degrade",
+        meteo: "cendre-basse",
+        panache: "absent",
+        danger: "ponts-fatigues",
+        controlePolitique: "mandat-conteste",
+        libelles: {
+          fr: {
+            source: "Calculs de portance de Tête-de-Ligne",
+            danger: "Tablier annulaire rompu au-dessus du Nœud",
+            controlePolitique:
+              "Mandat républicain ou atelier commun selon le Conseil",
+          },
+          en: {
+            source: "Railhead load calculations",
+            danger: "Broken ring deck above the Node",
+            controlePolitique:
+              "Republic mandate or shared workshop, as decided",
+          },
+        },
+      },
+    ],
+  },
+  {
+    id: "galerie-des-trois-phares",
+    nom: {
+      fr: "Galerie des Trois Phares",
+      en: "Three Beacons Gallery",
+    },
+    extremites: ["veille-des-trois", "anneau-interieur"],
+    originesAutorisees: ["veille-des-trois"],
+    dureeSecondes: 600,
+    etatInitial: "degrade",
+    consommationConnue: {
+      stock: "combustible",
+      quantite: 6,
+      unite: "litres",
+    },
+    consommationIncertaine: {
+      stock: "eau",
+      minimum: 5,
+      maximum: 8,
+      quantiteReelle: 7,
+      unite: "litres",
+      renseignementId: "galerie-phares-filtres",
+    },
+    renseignements: [
+      {
+        id: "galerie-phares-filtres",
+        tronconId: "galerie-des-trois-phares",
+        source: "gardiens-des-trois-veilles",
+        releveA: 0,
+        fiabilite: "rapporte",
+        etatAnnonce: "degrade",
+        meteo: "rafales-de-cendre",
+        panache: "incertain",
+        danger: "filtres-satures",
+        controlePolitique: "sanctuaire-dispute",
+        libelles: {
+          fr: {
+            source: "Relevés synchronisés des Trois Veilles",
+            danger: "Galerie réfléchissante chargée de cendre",
+            controlePolitique:
+              "Pèlerins et releveurs revendiquent des usages distincts",
+          },
+          en: {
+            source: "Synchronized surveys from the Three Watches",
+            danger: "Reflective gallery loaded with ash",
+            controlePolitique:
+              "Pilgrims and surveyors claim distinct uses",
+          },
+        },
+      },
+    ],
+  },
+  {
+    id: "porte-logistique-du-seuil",
+    nom: {
+      fr: "Porte logistique du Seuil",
+      en: "Threshold Logistics Gate",
+    },
+    extremites: ["seuil", "anneau-interieur"],
+    originesAutorisees: ["seuil"],
+    dureeSecondes: 420,
+    etatInitial: "degrade",
+    consommationConnue: {
+      stock: "combustible",
+      quantite: 4,
+      unite: "litres",
+    },
+    consommationIncertaine: {
+      stock: "eau",
+      minimum: 4,
+      maximum: 6,
+      quantiteReelle: 5,
+      unite: "litres",
+      renseignementId: "porte-seuil-abris",
+    },
+    renseignements: [
+      {
+        id: "porte-seuil-abris",
+        tronconId: "porte-logistique-du-seuil",
+        source: "releveurs-du-seuil",
+        releveA: 0,
+        fiabilite: "confirme",
+        etatAnnonce: "degrade",
+        meteo: "cendre-basse",
+        panache: "absent",
+        danger: "abris-satures",
+        controlePolitique: "voix-du-seuil",
+        libelles: {
+          fr: {
+            source: "Registre des abris et de la Rampe",
+            danger: "Sas logistique encombré par les réserves du Seuil",
+            controlePolitique:
+              "La coalition réclame une voix sur l’ouverture",
+          },
+          en: {
+            source: "Shelter and Ramp register",
+            danger: "Logistics airlock crowded with Threshold reserves",
+            controlePolitique:
+              "The coalition claims a voice over the opening",
+          },
+        },
+      },
+    ],
+  },
+  {
+    id: "passage-de-la-couronne-ouverte",
+    nom: {
+      fr: "Passage de la Couronne ouverte",
+      en: "Opened Crown Passage",
+    },
+    extremites: ["anneau-interieur", "noeud-central"],
+    originesAutorisees: ["anneau-interieur"],
+    dureeSecondes: 360,
+    etatInitial: "praticable",
+    consommationConnue: {
+      stock: "combustible",
+      quantite: 3,
+      unite: "litres",
+    },
+    consommationIncertaine: {
+      stock: "eau",
+      minimum: 2,
+      maximum: 4,
+      quantiteReelle: 3,
+      unite: "litres",
+      renseignementId: "passage-couronne-diagnostic",
+    },
+    renseignements: [
+      {
+        id: "passage-couronne-diagnostic",
+        tronconId: "passage-de-la-couronne-ouverte",
+        source: "socles-du-noeud-de-la-couronne",
+        releveA: 0,
+        fiabilite: "confirme",
+        etatAnnonce: "praticable",
+        meteo: "calme-filtre",
+        panache: "absent",
+        danger: "verrous-anciens",
+        controlePolitique: "conseil-pluriel",
+        libelles: {
+          fr: {
+            source: "Diagnostic public du dernier Conseil",
+            danger: "Verrous anciens ouverts par une voie préparée",
+            controlePolitique:
+              "Délégations représentées selon leurs conséquences",
+          },
+          en: {
+            source: "Public diagnosis from the final Council",
+            danger: "Ancient locks opened through a prepared route",
+            controlePolitique:
+              "Delegations represented according to their consequences",
+          },
+        },
+      },
+    ],
+  },
+  {
+    id: "breche-de-secours-du-noeud",
+    nom: {
+      fr: "Brèche de secours du Nœud",
+      en: "Node Emergency Breach",
+    },
+    extremites: ["anneau-interieur", "noeud-central"],
+    originesAutorisees: ["anneau-interieur"],
+    dureeSecondes: 420,
+    etatInitial: "degrade",
+    consommationConnue: {
+      stock: "combustible",
+      quantite: 6,
+      unite: "litres",
+    },
+    consommationIncertaine: {
+      stock: "eau",
+      minimum: 6,
+      maximum: 10,
+      quantiteReelle: 8,
+      unite: "litres",
+      renseignementId: "breche-noeud-dommages",
+    },
+    renseignements: [
+      {
+        id: "breche-noeud-dommages",
+        tronconId: "breche-de-secours-du-noeud",
+        source: "equipes-de-la-rampe",
+        releveA: 0,
+        fiabilite: "confirme",
+        etatAnnonce: "degrade",
+        meteo: "cendre-basse",
+        panache: "incertain",
+        danger: "regulation-endommagee",
+        controlePolitique: "aucun-mandat",
+        libelles: {
+          fr: {
+            source: "Plan de démolition de secours",
+            danger:
+              "La brèche atteint le Nœud mais détruit ses bus de réaccord",
+            controlePolitique:
+              "Aucune délégation ne peut revendiquer une ouverture propre",
+          },
+          en: {
+            source: "Emergency demolition plan",
+            danger:
+              "The breach reaches the Node but destroys its retuning buses",
+            controlePolitique:
+              "No delegation can claim a clean opening",
           },
         },
       },

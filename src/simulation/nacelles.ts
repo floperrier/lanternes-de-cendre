@@ -4,6 +4,7 @@ import type {
   IdentifiantDeLieu,
   IdentifiantDeTroncon,
 } from "./routes";
+import { passageFinalDeLaCouronneEstPrepare } from "./ouvertureCouronne";
 
 export type BrancheDesNacelles = "haut-puits" | "veille-basse";
 
@@ -197,7 +198,12 @@ export function routeAvalDesBassinsEstPreparee(
     tronconId !== "voie-de-tete-de-ligne" &&
     tronconId !== "chemin-des-trois-veilles" &&
     tronconId !== "piste-des-serres-de-verre" &&
-    tronconId !== "rampe-du-seuil"
+    tronconId !== "rampe-du-seuil" &&
+    tronconId !== "arc-ferroviaire-du-noeud" &&
+    tronconId !== "galerie-des-trois-phares" &&
+    tronconId !== "porte-logistique-du-seuil" &&
+    tronconId !== "passage-de-la-couronne-ouverte" &&
+    tronconId !== "breche-de-secours-du-noeud"
   ) {
     return true;
   }
@@ -218,6 +224,12 @@ export function routeAvalDesBassinsEstPreparee(
     evenementActif !== null
   ) {
     return false;
+  }
+  if (
+    tronconId === "passage-de-la-couronne-ouverte" ||
+    tronconId === "breche-de-secours-du-noeud"
+  ) {
+    return passageFinalDeLaCouronneEstPrepare(tronconId, faits);
   }
   const faitsAttendus =
     tronconId === "nacelles-de-veille-basse"
@@ -241,6 +253,17 @@ export function routeAvalDesBassinsEstPreparee(
             ? [
                 "couronne.serres-de-verre.coalition-ralliee",
                 "couronne.serres-de-verre.passage-force",
+              ]
+          : tronconId === "arc-ferroviaire-du-noeud" ||
+              tronconId === "galerie-des-trois-phares"
+            ? [
+                "couronne.approches.plans-confies-a-ilyana",
+                "couronne.approches.plans-repartis-aux-equipes",
+              ]
+          : tronconId === "porte-logistique-du-seuil"
+            ? [
+                "couronne.seuil.registre-confie-a-maelys",
+                "couronne.seuil.registre-commun",
               ]
           : FAITS_DE_PASSAGE_REGIONAL;
   return faitsAttendus.some((fait) => faits.includes(fait));

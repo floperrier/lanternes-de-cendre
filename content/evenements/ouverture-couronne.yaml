@@ -1,0 +1,261 @@
+version: 1
+evenements:
+  - id: couronne.ouverture.le-diagnostic-des-verrous
+    famille: mystere-des-phares
+    themes: [couronne-muette, noeud-central, diagnostic, reseau-ancien]
+    fonction: reveler-comment-les-trois-montages-et-la-breche-affectent-le-noeud
+    fenetre: couronne-ouverture
+    conditions:
+      requises:
+        - type: lieu-present
+          lieu: anneau-interieur
+      interdites: []
+    periode_eligibilite: { debut: 1200, fin: 2147483647 }
+    priorite: 200
+    epuisement: unique
+    acteurs:
+      - porte-lanterne
+      - equipes-de-l-anneau
+      - socles-du-noeud-de-la-couronne
+    origine: { cle: evenement.ouverture.diagnostic.origine, variables: [] }
+    libelle_intentions: { cle: evenement.ruban.intentions, variables: [] }
+    titre: { cle: evenement.ouverture.diagnostic.titre, variables: [] }
+    presentation: { cle: evenement.ouverture.diagnostic.presentation, variables: [] }
+    informations:
+      - source: equipes-de-l-anneau
+        texte: { cle: evenement.ouverture.diagnostic.information, variables: [] }
+    faits_lus:
+      - couronne.approches.berceau-amorce
+      - couronne.approches.preparatifs-reportes
+    choix:
+      - id: publier-diagnostic-des-verrous
+        intention: { cle: evenement.ouverture.diagnostic.choix.publier, variables: [] }
+        couts_connus:
+          - { cle: evenement.ouverture.diagnostic.choix.publier.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - { id: couronne.ouverture.diagnostic-public, cible: verrous-du-noeud }
+      - id: separer-diagnostic-des-verrous
+        intention: { cle: evenement.ouverture.diagnostic.choix.separer, variables: [] }
+        couts_connus:
+          - { cle: evenement.ouverture.diagnostic.choix.separer.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - { id: couronne.ouverture.diagnostic-separe, cible: verrous-du-noeud }
+    consequence_differee: { type: dommages-de-la-breche-rendus-explicites, cible: noeud-central-de-regulation }
+    recuperation: { type: aucune-lecture-ne-ferme-la-breche-de-secours }
+    variantes:
+      - id: trois-montages
+        condition: fait-present:couronne.approches.berceau-amorce
+        presentation: { cle: evenement.ouverture.diagnostic.variante.berceau, variables: [] }
+      - id: report
+        condition: fait-present:couronne.approches.preparatifs-reportes
+        presentation: { cle: evenement.ouverture.diagnostic.variante.report, variables: [] }
+      - id: standard
+        condition: toujours
+        presentation: { cle: evenement.ouverture.diagnostic.variante.standard, variables: [] }
+    destination_echo: journal-de-campagne
+    asset: couronne.ouverture.le-diagnostic-des-verrous
+
+  - id: couronne.ouverture.les-trois-montages-devant-la-porte
+    famille: consequences-systemiques
+    themes: [projets-de-transformation, diagnostic, preparation, couts]
+    fonction: faire-modifier-diagnostic-preparation-et-couts-par-les-trois-projets-sans-choisir-de-solution
+    fenetre: couronne-ouverture
+    conditions:
+      requises:
+        - type: un-des-faits-present
+          faits:
+            - couronne.ouverture.diagnostic-public
+            - couronne.ouverture.diagnostic-separe
+      interdites: []
+    periode_eligibilite: { debut: 1200, fin: 2147483647 }
+    priorite: 190
+    epuisement: unique
+    acteurs:
+      - porte-lanterne
+      - equipes-de-l-anneau
+      - plans-des-trois-montages
+    origine: { cle: evenement.ouverture.montages.origine, variables: [] }
+    libelle_intentions: { cle: evenement.ruban.intentions, variables: [] }
+    titre: { cle: evenement.ouverture.montages.titre, variables: [] }
+    presentation: { cle: evenement.ouverture.montages.presentation, variables: [] }
+    informations:
+      - source: plans-des-trois-montages
+        texte: { cle: evenement.ouverture.montages.information, variables: [] }
+    faits_lus:
+      - couronne.ouverture.diagnostic-public
+      - couronne.ouverture.diagnostic-separe
+      - couronne.approches.etalon-calibre
+      - couronne.approches.precipitateur-assemble
+    choix:
+      - id: maintenir-trois-preparatifs
+        intention: { cle: evenement.ouverture.montages.choix.maintenir, variables: [] }
+        couts_connus:
+          - { cle: evenement.ouverture.montages.choix.maintenir.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - { id: couronne.ouverture.trois-preparatifs-maintenus, cible: plans-des-trois-montages }
+      - id: affecter-marges-a-ouverture
+        intention: { cle: evenement.ouverture.montages.choix.marges, variables: [] }
+        couts_connus:
+          - { cle: evenement.ouverture.montages.choix.marges.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - { id: couronne.ouverture.marges-reservees, cible: anneau-interieur }
+    consequence_differee: { type: projets-conserves-pour-le-choix-final, cible: noeud-central-de-regulation }
+    recuperation: { type: aucune-solution-finale-selectionnee }
+    variantes:
+      - id: etalon
+        condition: fait-present:couronne.approches.etalon-calibre
+        presentation: { cle: evenement.ouverture.montages.variante.etalon, variables: [] }
+      - id: precipitateur
+        condition: fait-present:couronne.approches.precipitateur-assemble
+        presentation: { cle: evenement.ouverture.montages.variante.precipitateur, variables: [] }
+      - id: standard
+        condition: toujours
+        presentation: { cle: evenement.ouverture.montages.variante.standard, variables: [] }
+    destination_echo: journal-de-campagne
+    asset: couronne.ouverture.les-trois-montages-devant-la-porte
+
+  - id: couronne.ouverture.le-dernier-conseil-de-la-couronne
+    famille: conflits-regionaux
+    themes: [dernier-conseil, republique-du-rail, pelerins-de-cendre, puits-libres]
+    fonction: choisir-une-ouverture-causale-ou-la-breche-sans-creer-d-impasse
+    fenetre: couronne-ouverture
+    conditions:
+      requises:
+        - type: un-des-faits-present
+          faits:
+            - couronne.ouverture.trois-preparatifs-maintenus
+            - couronne.ouverture.marges-reservees
+      interdites: []
+    periode_eligibilite: { debut: 1200, fin: 2147483647 }
+    priorite: 180
+    epuisement: unique
+    acteurs:
+      - porte-lanterne
+      - equipes-de-l-anneau
+    origine: { cle: evenement.ouverture.conseil.origine, variables: [] }
+    libelle_intentions: { cle: evenement.ruban.intentions, variables: [] }
+    titre: { cle: evenement.ouverture.conseil.titre, variables: [] }
+    presentation: { cle: evenement.ouverture.conseil.presentation, variables: [] }
+    informations:
+      - source: equipes-de-l-anneau
+        texte: { cle: evenement.ouverture.conseil.information, variables: [] }
+    faits_lus:
+      - couronne.ouverture.trois-preparatifs-maintenus
+      - couronne.ouverture.marges-reservees
+      - couronne.tete-de-ligne.mandat-republicain
+      - couronne.colonies.voie-alliee-preparee
+    choix:
+      - id: ouvrir-par-les-rails
+        intention: { cle: evenement.ouverture.conseil.choix.rail, variables: [] }
+        couts_connus:
+          - { cle: evenement.ouverture.conseil.choix.rail.cout, variables: [] }
+        effets:
+          - { type: stock.modifier, stock: materiaux, valeur: -6 }
+        faits_produits:
+          - { id: couronne.ouverture.rail-ouverte, cible: verrous-du-noeud }
+      - id: ouvrir-par-les-phares
+        intention: { cle: evenement.ouverture.conseil.choix.phares, variables: [] }
+        couts_connus:
+          - { cle: evenement.ouverture.conseil.choix.phares.cout, variables: [] }
+        effets:
+          - { type: stock.modifier, stock: eau, valeur: -8 }
+        faits_produits:
+          - { id: couronne.ouverture.phares-ouvertes, cible: verrous-du-noeud }
+      - id: ouvrir-par-les-colonies
+        intention: { cle: evenement.ouverture.conseil.choix.colonies, variables: [] }
+        couts_connus:
+          - { cle: evenement.ouverture.conseil.choix.colonies.cout, variables: [] }
+        effets:
+          - { type: stock.modifier, stock: eau, valeur: -4 }
+          - { type: stock.modifier, stock: materiaux, valeur: -4 }
+        faits_produits:
+          - { id: couronne.ouverture.colonies-ouvertes, cible: verrous-du-noeud }
+      - id: ouvrir-breche-de-secours
+        intention: { cle: evenement.ouverture.conseil.choix.breche, variables: [] }
+        couts_connus:
+          - { cle: evenement.ouverture.conseil.choix.breche.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - { id: couronne.ouverture.breche-ouverte, cible: noeud-central-de-regulation }
+    consequence_differee: { type: acces-au-noeud-et-risques-des-solutions-fixes, cible: noeud-central-de-regulation }
+    recuperation: { type: breche-endommageante-toujours-disponible }
+    variantes:
+      - id: republique
+        condition: fait-present:couronne.tete-de-ligne.mandat-republicain
+        presentation: { cle: evenement.ouverture.conseil.variante.republique, variables: [] }
+      - id: coalition
+        condition: fait-present:couronne.colonies.voie-alliee-preparee
+        presentation: { cle: evenement.ouverture.conseil.variante.coalition, variables: [] }
+      - id: standard
+        condition: toujours
+        presentation: { cle: evenement.ouverture.conseil.variante.standard, variables: [] }
+    destination_echo: journal-de-campagne
+    asset: couronne.ouverture.le-dernier-conseil-de-la-couronne
+
+  - id: couronne.ouverture.ilyana-maelys-et-la-clef
+    famille: histoires-de-compagnons
+    themes: [ilyana-voss, maelys-rive, transmission, aucun-compagnon-obligatoire]
+    fonction: transmettre-la-clef-sans-rendre-un-compagnon-obligatoire
+    fenetre: couronne-ouverture
+    conditions:
+      requises:
+        - type: un-des-faits-present
+          faits:
+            - couronne.ouverture.rail-ouverte
+            - couronne.ouverture.phares-ouvertes
+            - couronne.ouverture.colonies-ouvertes
+            - couronne.ouverture.breche-ouverte
+      interdites: []
+    periode_eligibilite: { debut: 1200, fin: 2147483647 }
+    priorite: 170
+    epuisement: unique
+    acteurs:
+      - porte-lanterne
+      - equipes-de-l-anneau
+    origine: { cle: evenement.ouverture.clef.origine, variables: [] }
+    libelle_intentions: { cle: evenement.ruban.intentions, variables: [] }
+    titre: { cle: evenement.ouverture.clef.titre, variables: [] }
+    presentation: { cle: evenement.ouverture.clef.presentation, variables: [] }
+    informations:
+      - source: equipes-de-l-anneau
+        texte: { cle: evenement.ouverture.clef.information, variables: [] }
+    faits_lus:
+      - couronne.ouverture.rail-ouverte
+      - couronne.ouverture.phares-ouvertes
+      - couronne.ouverture.colonies-ouvertes
+      - couronne.ouverture.breche-ouverte
+      - couronne.approches.plans-confies-a-ilyana
+      - couronne.seuil.registre-confie-a-maelys
+    choix:
+      - id: confier-clef-aux-gardiennes
+        intention: { cle: evenement.ouverture.clef.choix.gardiennes, variables: [] }
+        couts_connus:
+          - { cle: evenement.ouverture.clef.choix.gardiennes.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - { id: couronne.ouverture.clef-confiee-aux-gardiennes, cible: clef-du-noeud }
+      - id: consigner-clef-collective
+        intention: { cle: evenement.ouverture.clef.choix.collective, variables: [] }
+        couts_connus:
+          - { cle: evenement.ouverture.clef.choix.collective.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - { id: couronne.ouverture.clef-collective, cible: clef-du-noeud }
+    consequence_differee: { type: garde-de-la-clef-transmissible, cible: clef-du-noeud }
+    recuperation: { type: equipes-collectives-toujours-disponibles }
+    variantes:
+      - id: ilyana
+        condition: fait-present:couronne.approches.plans-confies-a-ilyana
+        presentation: { cle: evenement.ouverture.clef.variante.ilyana, variables: [] }
+      - id: maelys
+        condition: fait-present:couronne.seuil.registre-confie-a-maelys
+        presentation: { cle: evenement.ouverture.clef.variante.maelys, variables: [] }
+      - id: standard
+        condition: toujours
+        presentation: { cle: evenement.ouverture.clef.variante.standard, variables: [] }
+    destination_echo: journal-de-campagne
+    asset: couronne.ouverture.ilyana-maelys-et-la-clef

@@ -1,0 +1,15 @@
+{
+  "asset": "serveur-commercial/assets/couronne-ouverture-montages.webp",
+  "sha256": "8f9461aeb48efbc99abd783dc0dbae5288cec8c959af7353a797ef4a5a41ab96",
+  "createdAt": "2026-07-23",
+  "tool": "Codex built-in image_gen",
+  "model": "built-in model (identifier not exposed)",
+  "useCase": "stylized-concept",
+  "input": "No input image; generated from the project’s established industrial ash-world art direction.",
+  "prompt": "Cradle, frequency Standard, and ash Precipitator stand as three distinct assemblies before the Node gate; cinematic painterly 16:9, no text or logos.",
+  "rights": "OpenAI Terms of Use — output assigned to the user",
+  "approval": {
+    "status": "pending-pull-request-review",
+    "reviewer": null
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "asset": "serveur-commercial/assets/couronne-ouverture-clef.webp",
+  "sha256": "6c2b8022a2180d6b076a5a3713d6e98a61f9dc1e2003b0bdadce33bf13ddec2c",
+  "createdAt": "2026-07-23",
+  "tool": "Codex built-in image_gen",
+  "model": "built-in model (identifier not exposed)",
+  "useCase": "stylized-concept",
+  "input": "No input image; generated from the project’s established industrial ash-world art direction.",
+  "prompt": "Ilyana, Maëlys, and multiple maintenance crews hold a large ancient technical key together before the Node passage; cinematic painterly 16:9, no text or logos.",
+  "rights": "OpenAI Terms of Use — output assigned to the user",
+  "approval": {
+    "status": "pending-pull-request-review",
+    "reviewer": null
+  }
+}

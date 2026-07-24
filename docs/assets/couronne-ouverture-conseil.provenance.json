@@ -1,0 +1,15 @@
+{
+  "asset": "serveur-commercial/assets/couronne-ouverture-conseil.webp",
+  "sha256": "4e1a4caeed1681df8f67b169f9ee7505ef593dc8884463c02a7bf061e408ece0",
+  "createdAt": "2026-07-23",
+  "tool": "Codex built-in image_gen",
+  "model": "built-in model (identifier not exposed)",
+  "useCase": "stylized-concept",
+  "input": "No input image; generated from the project’s established industrial ash-world art direction.",
+  "prompt": "Rail Republic, ash Pilgrims, and Free Well delegates occupy incomplete tiers at the final Crown Council before the sealed Node; cinematic painterly 16:9, no text or logos.",
+  "rights": "OpenAI Terms of Use — output assigned to the user",
+  "approval": {
+    "status": "pending-pull-request-review",
+    "reviewer": null
+  }
+}

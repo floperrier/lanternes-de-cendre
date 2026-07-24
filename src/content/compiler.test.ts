@@ -55,6 +55,10 @@ import provenanceCouronneSeuilMarche from "../../docs/assets/couronne-seuil-marc
 import provenanceCouronneSeuilReleves from "../../docs/assets/couronne-seuil-releves.provenance.json?raw";
 import provenanceCouronneRampeCouteuse from "../../docs/assets/couronne-rampe-couteuse.provenance.json?raw";
 import provenanceCouronneMaelysRegistre from "../../docs/assets/couronne-maelys-registre.provenance.json?raw";
+import provenanceCouronneOuvertureDiagnostic from "../../docs/assets/couronne-ouverture-diagnostic.provenance.json?raw";
+import provenanceCouronneOuvertureMontages from "../../docs/assets/couronne-ouverture-montages.provenance.json?raw";
+import provenanceCouronneOuvertureConseil from "../../docs/assets/couronne-ouverture-conseil.provenance.json?raw";
+import provenanceCouronneOuvertureClef from "../../docs/assets/couronne-ouverture-clef.provenance.json?raw";
 import {
   ErreurDeContenu,
   compilerCatalogue,
@@ -162,6 +166,14 @@ const sourcesValides: SourcesDuCatalogue = {
       provenanceCouronneRampeCouteuse,
     "docs/assets/couronne-maelys-registre.provenance.json":
       provenanceCouronneMaelysRegistre,
+    "docs/assets/couronne-ouverture-diagnostic.provenance.json":
+      provenanceCouronneOuvertureDiagnostic,
+    "docs/assets/couronne-ouverture-montages.provenance.json":
+      provenanceCouronneOuvertureMontages,
+    "docs/assets/couronne-ouverture-conseil.provenance.json":
+      provenanceCouronneOuvertureConseil,
+    "docs/assets/couronne-ouverture-clef.provenance.json":
+      provenanceCouronneOuvertureClef,
   },
   cheminDeProvenanceAsset: (chemin) =>
     chemin.startsWith("/api/commercial/assets/")
@@ -217,6 +229,10 @@ const sourcesValides: SourcesDuCatalogue = {
       "/api/commercial/assets/couronne-seuil-releves.webp",
       "/api/commercial/assets/couronne-rampe-couteuse.webp",
       "/api/commercial/assets/couronne-maelys-registre.webp",
+      "/api/commercial/assets/couronne-ouverture-diagnostic.webp",
+      "/api/commercial/assets/couronne-ouverture-montages.webp",
+      "/api/commercial/assets/couronne-ouverture-conseil.webp",
+      "/api/commercial/assets/couronne-ouverture-clef.webp",
     ].includes(chemin),
   empreinteAsset: (chemin) =>
     ({
@@ -316,6 +332,14 @@ const sourcesValides: SourcesDuCatalogue = {
         "28430bbd11b713ff6370b6d6de496dbe5527391f64e6801cf1f3386ad83d9d96",
       "/api/commercial/assets/couronne-maelys-registre.webp":
         "8f63e062243939aeb59523c4cb22a3110a0bc36fd015499f8cf42cc264538c92",
+      "/api/commercial/assets/couronne-ouverture-diagnostic.webp":
+        "3d2732baabb5df3d00da176251eafa7a859b0d81279ac19301bebbea3df7004a",
+      "/api/commercial/assets/couronne-ouverture-montages.webp":
+        "8f9461aeb48efbc99abd783dc0dbae5288cec8c959af7353a797ef4a5a41ab96",
+      "/api/commercial/assets/couronne-ouverture-conseil.webp":
+        "4e1a4caeed1681df8f67b169f9ee7505ef593dc8884463c02a7bf061e408ece0",
+      "/api/commercial/assets/couronne-ouverture-clef.webp":
+        "6c2b8022a2180d6b076a5a3713d6e98a61f9dc1e2003b0bdadce33bf13ddec2c",
     })[chemin] ?? "0".repeat(64),
   tailleAsset: () => 256_000,
 };

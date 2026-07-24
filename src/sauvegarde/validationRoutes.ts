@@ -344,6 +344,14 @@ const FAITS_OUVRANT_LA_RAMPE_DU_SEUIL = new Set([
   "couronne.serres-de-verre.coalition-ralliee",
   "couronne.serres-de-verre.passage-force",
 ]);
+const FAITS_OUVRANT_LES_ARCS_DE_LA_COURONNE = new Set([
+  "couronne.approches.plans-confies-a-ilyana",
+  "couronne.approches.plans-repartis-aux-equipes",
+]);
+const FAITS_OUVRANT_LA_PORTE_DU_SEUIL = new Set([
+  "couronne.seuil.registre-confie-a-maelys",
+  "couronne.seuil.registre-commun",
+]);
 const FAITS_D_INTERFACE_DE_SIGNAL_ZERO = new Set([
   "trame.signal-zero.interface-rail-lue",
   "trame.signal-zero.interface-libre-lue",
@@ -376,6 +384,25 @@ export function engagementsDuDeversoirSontCausaux(
           ))
       );
     }
+    if (
+      engagement.tronconId === "passage-de-la-couronne-ouverte" ||
+      engagement.tronconId === "breche-de-secours-du-noeud"
+    ) {
+      const ids = new Set(faitsAnterieurs.map(({ id }) => id));
+      const conseilTermine =
+        ids.has(
+          "couronne.ouverture.clef-confiee-aux-gardiennes",
+        ) || ids.has("couronne.ouverture.clef-collective");
+      const ouvertureCompatible =
+        engagement.tronconId === "breche-de-secours-du-noeud"
+          ? ids.has("couronne.ouverture.breche-ouverte")
+          : [
+              "couronne.ouverture.rail-ouverte",
+              "couronne.ouverture.phares-ouvertes",
+              "couronne.ouverture.colonies-ouvertes",
+            ].some((id) => ids.has(id));
+      return conseilTermine && ouvertureCompatible;
+    }
     const faitsRequis =
       engagement.tronconId === "conduite-du-deversoir"
         ? FAITS_OUVRANT_LA_CONDUITE_DU_DEVERSOIR
@@ -387,6 +414,11 @@ export function engagementsDuDeversoirSontCausaux(
           ? FAITS_OUVRANT_LE_PASSAGE_DE_LA_COURONNE
         : engagement.tronconId === "rampe-du-seuil"
           ? FAITS_OUVRANT_LA_RAMPE_DU_SEUIL
+        : engagement.tronconId === "arc-ferroviaire-du-noeud" ||
+            engagement.tronconId === "galerie-des-trois-phares"
+          ? FAITS_OUVRANT_LES_ARCS_DE_LA_COURONNE
+        : engagement.tronconId === "porte-logistique-du-seuil"
+          ? FAITS_OUVRANT_LA_PORTE_DU_SEUIL
         : engagement.tronconId === "passage-de-la-ligne-zero" ||
             engagement.tronconId === "piste-des-levees"
           ? FAITS_OUVRANT_LE_PASSAGE_REGIONAL

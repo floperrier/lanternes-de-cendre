@@ -38,6 +38,11 @@ function normaliserEnV9(etat: EtatCampagne) {
     "chemin-des-trois-veilles": cheminDesTroisVeilles,
     "piste-des-serres-de-verre": pisteDesSerresDeVerre,
     "rampe-du-seuil": rampeDuSeuil,
+    "arc-ferroviaire-du-noeud": arcFerroviaireDuNoeud,
+    "galerie-des-trois-phares": galerieDesTroisPhares,
+    "porte-logistique-du-seuil": porteLogistiqueDuSeuil,
+    "passage-de-la-couronne-ouverte": passageDeLaCouronneOuverte,
+    "breche-de-secours-du-noeud": brecheDeSecoursDuNoeud,
     ...etatsReels
   } = sansTraverse.routes.etatsReels;
   void embranchementDePompeNeuve;
@@ -55,6 +60,11 @@ function normaliserEnV9(etat: EtatCampagne) {
   void cheminDesTroisVeilles;
   void pisteDesSerresDeVerre;
   void rampeDuSeuil;
+  void arcFerroviaireDuNoeud;
+  void galerieDesTroisPhares;
+  void porteLogistiqueDuSeuil;
+  void passageDeLaCouronneOuverte;
+  void brecheDeSecoursDuNoeud;
   return {
     ...sansTraverse,
     version: VERSION_SIMULATION_AVANT_TRAVERSE_LIBRE,

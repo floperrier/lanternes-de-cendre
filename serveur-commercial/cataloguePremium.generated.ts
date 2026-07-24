@@ -13038,6 +13038,1298 @@ export default {
           }
         }
       }
+    },
+    {
+      "id": "couronne.ouverture.le-diagnostic-des-verrous",
+      "famille": "mystere-des-phares",
+      "themes": [
+        "couronne-muette",
+        "noeud-central",
+        "diagnostic",
+        "reseau-ancien"
+      ],
+      "fonction": "reveler-comment-les-trois-montages-et-la-breche-affectent-le-noeud",
+      "fenetre": "couronne-ouverture",
+      "conditions": {
+        "requises": [
+          {
+            "type": "lieu-present",
+            "lieu": "anneau-interieur"
+          }
+        ],
+        "interdites": []
+      },
+      "periodeEligibilite": {
+        "debut": 1200,
+        "fin": 2147483647
+      },
+      "priorite": 200,
+      "epuisement": "unique",
+      "acteurs": [
+        "porte-lanterne",
+        "equipes-de-l-anneau",
+        "socles-du-noeud-de-la-couronne"
+      ],
+      "sourcesInformations": [
+        "equipes-de-l-anneau"
+      ],
+      "faitsLus": [
+        "couronne.approches.berceau-amorce",
+        "couronne.approches.preparatifs-reportes"
+      ],
+      "choix": [
+        {
+          "id": "publier-diagnostic-des-verrous",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "couronne.ouverture.diagnostic-public",
+              "cible": "verrous-du-noeud"
+            }
+          ]
+        },
+        {
+          "id": "separer-diagnostic-des-verrous",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "couronne.ouverture.diagnostic-separe",
+              "cible": "verrous-du-noeud"
+            }
+          ]
+        }
+      ],
+      "consequenceDifferee": {
+        "type": "dommages-de-la-breche-rendus-explicites",
+        "cible": "noeud-central-de-regulation"
+      },
+      "recuperation": {
+        "type": "aucune-lecture-ne-ferme-la-breche-de-secours"
+      },
+      "variantes": [
+        {
+          "id": "trois-montages",
+          "condition": {
+            "type": "fait-present",
+            "fait": "couronne.approches.berceau-amorce"
+          }
+        },
+        {
+          "id": "report",
+          "condition": {
+            "type": "fait-present",
+            "fait": "couronne.approches.preparatifs-reportes"
+          }
+        },
+        {
+          "id": "standard",
+          "condition": {
+            "type": "toujours"
+          }
+        }
+      ],
+      "destinationEcho": "journal-de-campagne",
+      "asset": {
+        "id": "couronne.ouverture.le-diagnostic-des-verrous",
+        "fichier": "/api/commercial/assets/couronne-ouverture-diagnostic.webp",
+        "octetsTransferes": 134332,
+        "contientTexte": false,
+        "alternatives": {
+          "fr": "Des équipes examinent trois pupitres de diagnostic devant les immenses verrous circulaires du Nœud.",
+          "en": "Crews examine three diagnostic consoles before the Central Node’s immense circular locks."
+        },
+        "provenance": {
+          "fiche": "docs/assets/couronne-ouverture-diagnostic.provenance.json",
+          "creeLe": "2026-07-23",
+          "outil": "Codex built-in image_gen",
+          "modele": "built-in model (identifier not exposed)",
+          "usage": "stylized-concept",
+          "entree": "No input image; generated from the project’s established industrial ash-world art direction.",
+          "prompt": "Crews examine three diagnostic consoles inside the immense circular lock chamber of the Central Node; cinematic painterly 16:9, no text or logos.",
+          "droits": "OpenAI Terms of Use — output assigned to the user",
+          "empreinteSha256": "3d2732baabb5df3d00da176251eafa7a859b0d81279ac19301bebbea3df7004a",
+          "statutApprobation": "pending-pull-request-review",
+          "reviseur": null
+        }
+      },
+      "textes": {
+        "fr": {
+          "origine": {
+            "cle": "evenement.ouverture.diagnostic.origine",
+            "modele": "Chambre annulaire des verrous",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.ouverture.diagnostic.titre",
+            "modele": "Le diagnostic des verrous",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.ouverture.diagnostic.presentation",
+            "modele": "Les conduites du Nœud confirment l’ancienne dette du réseau : chaque ouverture propre préserve des organes différents, tandis que la brèche de secours détruirait les bus capables de réaccorder les Colonies.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.ouverture.diagnostic.information",
+              "modele": "Le Berceau mesure la portance, l’Étalon distingue les fréquences et le Précipitateur cartographie les décharges. Aucun ne choisit encore la Solution finale.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "trois-montages": {
+              "cle": "evenement.ouverture.diagnostic.variante.berceau",
+              "modele": "Le Berceau amorcé donne une mesure stable du tablier avant toute charge.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "report": {
+              "cle": "evenement.ouverture.diagnostic.variante.report",
+              "modele": "Les préparatifs reportés laissent des zones blanches ; la brèche reste lisible comme recours destructeur.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.ouverture.diagnostic.variante.standard",
+              "modele": "Les équipes tracent en rouge ce que chaque méthode préserve et ce qu’elle rend irréversible.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "publier-diagnostic-des-verrous": {
+              "intention": {
+                "cle": "evenement.ouverture.diagnostic.choix.publier",
+                "modele": "Rendre le diagnostic commun aux délégations",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.ouverture.diagnostic.choix.publier.cout",
+                  "modele": "Coût connu : aucun stock ; chaque délégation pourra contester les risques annoncés.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "separer-diagnostic-des-verrous": {
+              "intention": {
+                "cle": "evenement.ouverture.diagnostic.choix.separer",
+                "modele": "Conserver trois dossiers contradictoires",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.ouverture.diagnostic.choix.separer.cout",
+                  "modele": "Coût connu : aucun stock ; les responsabilités restent séparées mais consultables.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        },
+        "en": {
+          "origine": {
+            "cle": "evenement.ouverture.diagnostic.origine",
+            "modele": "Annular lock chamber",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.ouverture.diagnostic.titre",
+            "modele": "The lock diagnosis",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.ouverture.diagnostic.presentation",
+            "modele": "The Node conduits confirm the network’s old debt: each clean opening preserves different organs, while the emergency breach would destroy the buses capable of retuning the Colonies.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.ouverture.diagnostic.information",
+              "modele": "The Cradle measures load, the Standard separates frequencies, and the Precipitator maps discharges. None selects the final Solution.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "trois-montages": {
+              "cle": "evenement.ouverture.diagnostic.variante.berceau",
+              "modele": "The started Cradle provides a stable deck measurement before any load.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "report": {
+              "cle": "evenement.ouverture.diagnostic.variante.report",
+              "modele": "Deferred preparations leave blank areas; the breach remains legible as a destructive fallback.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.ouverture.diagnostic.variante.standard",
+              "modele": "Crews mark what every method preserves and makes irreversible.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "publier-diagnostic-des-verrous": {
+              "intention": {
+                "cle": "evenement.ouverture.diagnostic.choix.publier",
+                "modele": "Share the diagnosis with the delegations",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.ouverture.diagnostic.choix.publier.cout",
+                  "modele": "Known cost: no stock; every delegation may challenge the stated risks.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "separer-diagnostic-des-verrous": {
+              "intention": {
+                "cle": "evenement.ouverture.diagnostic.choix.separer",
+                "modele": "Keep three contradictory files",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.ouverture.diagnostic.choix.separer.cout",
+                  "modele": "Known cost: no stock; responsibilities remain separate but consultable.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "couronne.ouverture.les-trois-montages-devant-la-porte",
+      "famille": "consequences-systemiques",
+      "themes": [
+        "projets-de-transformation",
+        "diagnostic",
+        "preparation",
+        "couts"
+      ],
+      "fonction": "faire-modifier-diagnostic-preparation-et-couts-par-les-trois-projets-sans-choisir-de-solution",
+      "fenetre": "couronne-ouverture",
+      "conditions": {
+        "requises": [
+          {
+            "type": "un-des-faits-present",
+            "faits": [
+              "couronne.ouverture.diagnostic-public",
+              "couronne.ouverture.diagnostic-separe"
+            ]
+          }
+        ],
+        "interdites": []
+      },
+      "periodeEligibilite": {
+        "debut": 1200,
+        "fin": 2147483647
+      },
+      "priorite": 190,
+      "epuisement": "unique",
+      "acteurs": [
+        "porte-lanterne",
+        "equipes-de-l-anneau",
+        "plans-des-trois-montages"
+      ],
+      "sourcesInformations": [
+        "plans-des-trois-montages"
+      ],
+      "faitsLus": [
+        "couronne.ouverture.diagnostic-public",
+        "couronne.ouverture.diagnostic-separe",
+        "couronne.approches.etalon-calibre",
+        "couronne.approches.precipitateur-assemble"
+      ],
+      "choix": [
+        {
+          "id": "maintenir-trois-preparatifs",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "couronne.ouverture.trois-preparatifs-maintenus",
+              "cible": "plans-des-trois-montages"
+            }
+          ]
+        },
+        {
+          "id": "affecter-marges-a-ouverture",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "couronne.ouverture.marges-reservees",
+              "cible": "anneau-interieur"
+            }
+          ]
+        }
+      ],
+      "consequenceDifferee": {
+        "type": "projets-conserves-pour-le-choix-final",
+        "cible": "noeud-central-de-regulation"
+      },
+      "recuperation": {
+        "type": "aucune-solution-finale-selectionnee"
+      },
+      "variantes": [
+        {
+          "id": "etalon",
+          "condition": {
+            "type": "fait-present",
+            "fait": "couronne.approches.etalon-calibre"
+          }
+        },
+        {
+          "id": "precipitateur",
+          "condition": {
+            "type": "fait-present",
+            "fait": "couronne.approches.precipitateur-assemble"
+          }
+        },
+        {
+          "id": "standard",
+          "condition": {
+            "type": "toujours"
+          }
+        }
+      ],
+      "destinationEcho": "journal-de-campagne",
+      "asset": {
+        "id": "couronne.ouverture.les-trois-montages-devant-la-porte",
+        "fichier": "/api/commercial/assets/couronne-ouverture-montages.webp",
+        "octetsTransferes": 146082,
+        "contientTexte": false,
+        "alternatives": {
+          "fr": "Trois montages techniques distincts sont alignés devant une porte circulaire, chacun avec ses mesures et ses réserves.",
+          "en": "Three distinct technical assemblies stand before a circular gate, each with its measurements and reserves."
+        },
+        "provenance": {
+          "fiche": "docs/assets/couronne-ouverture-montages.provenance.json",
+          "creeLe": "2026-07-23",
+          "outil": "Codex built-in image_gen",
+          "modele": "built-in model (identifier not exposed)",
+          "usage": "stylized-concept",
+          "entree": "No input image; generated from the project’s established industrial ash-world art direction.",
+          "prompt": "Cradle, frequency Standard, and ash Precipitator stand as three distinct assemblies before the Node gate; cinematic painterly 16:9, no text or logos.",
+          "droits": "OpenAI Terms of Use — output assigned to the user",
+          "empreinteSha256": "8f9461aeb48efbc99abd783dc0dbae5288cec8c959af7353a797ef4a5a41ab96",
+          "statutApprobation": "pending-pull-request-review",
+          "reviseur": null
+        }
+      },
+      "textes": {
+        "fr": {
+          "origine": {
+            "cle": "evenement.ouverture.montages.origine",
+            "modele": "Atelier de l’Anneau intérieur",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.ouverture.montages.titre",
+            "modele": "Les trois montages devant la porte",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.ouverture.montages.presentation",
+            "modele": "Berceau, Étalon et Précipitateur modifient chacun un diagnostic, un degré de préparation et le coût d’une ouverture. Les conserver n’oblige pas à Ancrer, Réaccorder ou Précipiter.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.ouverture.montages.information",
+              "modele": "Un montage préparé réduit le coût de la voie qui l’éprouve ; un montage absent laisse cette voie risquée sans la confondre avec une Solution finale.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "etalon": {
+              "cle": "evenement.ouverture.montages.variante.etalon",
+              "modele": "L’Étalon calibré réduit l’eau nécessaire pour synchroniser les trois Phares.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "precipitateur": {
+              "cle": "evenement.ouverture.montages.variante.precipitateur",
+              "modele": "Le Précipitateur assemblé indique où décharger les conduites de la Porte du Seuil.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.ouverture.montages.variante.standard",
+              "modele": "Les pièces restent étiquetées par Projet afin qu’aucun montage ne devienne un vote secret.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "maintenir-trois-preparatifs": {
+              "intention": {
+                "cle": "evenement.ouverture.montages.choix.maintenir",
+                "modele": "Maintenir les trois dossiers de préparation",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.ouverture.montages.choix.maintenir.cout",
+                  "modele": "Coût connu : aucun stock ; chaque Projet reste disponible pour le Conseil final.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "affecter-marges-a-ouverture": {
+              "intention": {
+                "cle": "evenement.ouverture.montages.choix.marges",
+                "modele": "Réserver les marges aux équipes d’ouverture",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.ouverture.montages.choix.marges.cout",
+                  "modele": "Coût connu : aucun stock ; les montages restent distincts et leurs réductions de coût sont consignées.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        },
+        "en": {
+          "origine": {
+            "cle": "evenement.ouverture.montages.origine",
+            "modele": "Inner Ring workshop",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.ouverture.montages.titre",
+            "modele": "Three assemblies before the gate",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.ouverture.montages.presentation",
+            "modele": "Cradle, Standard, and Precipitator each change one diagnosis, one degree of preparation, and an opening cost. Keeping them does not require Anchoring, Retuning, or Precipitating.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.ouverture.montages.information",
+              "modele": "A prepared assembly reduces the cost of the route that tests it; a missing one leaves that route risky without turning it into a final Solution.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "etalon": {
+              "cle": "evenement.ouverture.montages.variante.etalon",
+              "modele": "The calibrated Standard reduces the water needed to synchronize the three Beacons.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "precipitateur": {
+              "cle": "evenement.ouverture.montages.variante.precipitateur",
+              "modele": "The assembled Precipitator shows where to discharge the Threshold Gate conduits.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.ouverture.montages.variante.standard",
+              "modele": "Parts remain labeled by Project so no assembly becomes a secret vote.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "maintenir-trois-preparatifs": {
+              "intention": {
+                "cle": "evenement.ouverture.montages.choix.maintenir",
+                "modele": "Maintain all three preparation files",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.ouverture.montages.choix.maintenir.cout",
+                  "modele": "Known cost: no stock; every Project remains available to the final Council.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "affecter-marges-a-ouverture": {
+              "intention": {
+                "cle": "evenement.ouverture.montages.choix.marges",
+                "modele": "Reserve margins for the opening crews",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.ouverture.montages.choix.marges.cout",
+                  "modele": "Known cost: no stock; the assemblies remain distinct and their cost reductions are recorded.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "couronne.ouverture.le-dernier-conseil-de-la-couronne",
+      "famille": "conflits-regionaux",
+      "themes": [
+        "dernier-conseil",
+        "republique-du-rail",
+        "pelerins-de-cendre",
+        "puits-libres"
+      ],
+      "fonction": "choisir-une-ouverture-causale-ou-la-breche-sans-creer-d-impasse",
+      "fenetre": "couronne-ouverture",
+      "conditions": {
+        "requises": [
+          {
+            "type": "un-des-faits-present",
+            "faits": [
+              "couronne.ouverture.trois-preparatifs-maintenus",
+              "couronne.ouverture.marges-reservees"
+            ]
+          }
+        ],
+        "interdites": []
+      },
+      "periodeEligibilite": {
+        "debut": 1200,
+        "fin": 2147483647
+      },
+      "priorite": 180,
+      "epuisement": "unique",
+      "acteurs": [
+        "porte-lanterne",
+        "equipes-de-l-anneau"
+      ],
+      "sourcesInformations": [
+        "equipes-de-l-anneau"
+      ],
+      "faitsLus": [
+        "couronne.ouverture.trois-preparatifs-maintenus",
+        "couronne.ouverture.marges-reservees",
+        "couronne.tete-de-ligne.mandat-republicain",
+        "couronne.colonies.voie-alliee-preparee"
+      ],
+      "choix": [
+        {
+          "id": "ouvrir-par-les-rails",
+          "effets": [
+            {
+              "type": "stock.modifier",
+              "stock": "materiaux",
+              "valeur": -6
+            }
+          ],
+          "faitsProduits": [
+            {
+              "id": "couronne.ouverture.rail-ouverte",
+              "cible": "verrous-du-noeud"
+            }
+          ]
+        },
+        {
+          "id": "ouvrir-par-les-phares",
+          "effets": [
+            {
+              "type": "stock.modifier",
+              "stock": "eau",
+              "valeur": -8
+            }
+          ],
+          "faitsProduits": [
+            {
+              "id": "couronne.ouverture.phares-ouvertes",
+              "cible": "verrous-du-noeud"
+            }
+          ]
+        },
+        {
+          "id": "ouvrir-par-les-colonies",
+          "effets": [
+            {
+              "type": "stock.modifier",
+              "stock": "eau",
+              "valeur": -4
+            },
+            {
+              "type": "stock.modifier",
+              "stock": "materiaux",
+              "valeur": -4
+            }
+          ],
+          "faitsProduits": [
+            {
+              "id": "couronne.ouverture.colonies-ouvertes",
+              "cible": "verrous-du-noeud"
+            }
+          ]
+        },
+        {
+          "id": "ouvrir-breche-de-secours",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "couronne.ouverture.breche-ouverte",
+              "cible": "noeud-central-de-regulation"
+            }
+          ]
+        }
+      ],
+      "consequenceDifferee": {
+        "type": "acces-au-noeud-et-risques-des-solutions-fixes",
+        "cible": "noeud-central-de-regulation"
+      },
+      "recuperation": {
+        "type": "breche-endommageante-toujours-disponible"
+      },
+      "variantes": [
+        {
+          "id": "republique",
+          "condition": {
+            "type": "fait-present",
+            "fait": "couronne.tete-de-ligne.mandat-republicain"
+          }
+        },
+        {
+          "id": "coalition",
+          "condition": {
+            "type": "fait-present",
+            "fait": "couronne.colonies.voie-alliee-preparee"
+          }
+        },
+        {
+          "id": "standard",
+          "condition": {
+            "type": "toujours"
+          }
+        }
+      ],
+      "destinationEcho": "journal-de-campagne",
+      "asset": {
+        "id": "couronne.ouverture.le-dernier-conseil-de-la-couronne",
+        "fichier": "/api/commercial/assets/couronne-ouverture-conseil.webp",
+        "octetsTransferes": 131190,
+        "contientTexte": false,
+        "alternatives": {
+          "fr": "Des sièges occupés et d’autres laissés vides entourent une porte circulaire et un plan de brèche marqué en rouge.",
+          "en": "Occupied seats and deliberately empty ones surround a circular gate and a breach plan marked in red."
+        },
+        "provenance": {
+          "fiche": "docs/assets/couronne-ouverture-conseil.provenance.json",
+          "creeLe": "2026-07-23",
+          "outil": "Codex built-in image_gen",
+          "modele": "built-in model (identifier not exposed)",
+          "usage": "stylized-concept",
+          "entree": "No input image; generated from the project’s established industrial ash-world art direction.",
+          "prompt": "Rail Republic, ash Pilgrims, and Free Well delegates occupy incomplete tiers at the final Crown Council before the sealed Node; cinematic painterly 16:9, no text or logos.",
+          "droits": "OpenAI Terms of Use — output assigned to the user",
+          "empreinteSha256": "4e1a4caeed1681df8f67b169f9ee7505ef593dc8884463c02a7bf061e408ece0",
+          "statutApprobation": "pending-pull-request-review",
+          "reviseur": null
+        }
+      },
+      "textes": {
+        "fr": {
+          "origine": {
+            "cle": "evenement.ouverture.conseil.origine",
+            "modele": "Gradins du dernier Conseil",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.ouverture.conseil.titre",
+            "modele": "Le dernier Conseil de la Couronne",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.ouverture.conseil.presentation",
+            "modele": "La République, les Pèlerins et les Puits Libres occupent seulement les sièges que leurs conséquences ont rendus crédibles. Les voies ferroviaire, des Phares et des Colonies proposent des ouvertures distinctes ; la brèche reste disponible sans mandat.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.ouverture.conseil.information",
+              "modele": "Chaque ouverture annonce ses acteurs et ses ressources. La brèche atteint toujours le Nœud, mais détruit ses bus de réaccord et rend cette Solution impossible.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "republique": {
+              "cle": "evenement.ouverture.conseil.variante.republique",
+              "modele": "La République présente son mandat comme un Engagement opposable, sous le regard des ateliers.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "coalition": {
+              "cle": "evenement.ouverture.conseil.variante.coalition",
+              "modele": "Les cinq Colonies déposent leurs registres sans prétendre parler d’une seule voix.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.ouverture.conseil.variante.standard",
+              "modele": "Les sièges vides restent visibles : aucune Faction absente n’est inventée pour compléter le Conseil.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "ouvrir-par-les-rails": {
+              "intention": {
+                "cle": "evenement.ouverture.conseil.choix.rail",
+                "modele": "Ouvrir par l’arc ferroviaire",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.ouverture.conseil.choix.rail.cout",
+                  "modele": "Coût connu : 2 Matériaux avec le Berceau amorcé, 6 sinon ; le Nœud reste accessible.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "ouvrir-par-les-phares": {
+              "intention": {
+                "cle": "evenement.ouverture.conseil.choix.phares",
+                "modele": "Synchroniser l’ouverture par les Phares",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.ouverture.conseil.choix.phares.cout",
+                  "modele": "Coût connu : 2 Eau avec l’Étalon calibré, 8 sinon ; les conduites restent accessibles.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "ouvrir-par-les-colonies": {
+              "intention": {
+                "cle": "evenement.ouverture.conseil.choix.colonies",
+                "modele": "Ouvrir la Porte avec la coalition",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.ouverture.conseil.choix.colonies.cout",
+                  "modele": "Coût connu : 2 Eau et 2 Matériaux avec le Précipitateur assemblé, 4 de chaque sinon.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "ouvrir-breche-de-secours": {
+              "intention": {
+                "cle": "evenement.ouverture.conseil.choix.breche",
+                "modele": "Ouvrir la brèche de secours",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.ouverture.conseil.choix.breche.cout",
+                  "modele": "Coût connu : aucun stock immédiat ; le Nœud est endommagé et Réaccorder le réseau devient impossible.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        },
+        "en": {
+          "origine": {
+            "cle": "evenement.ouverture.conseil.origine",
+            "modele": "Final Council tiers",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.ouverture.conseil.titre",
+            "modele": "The Crown’s final Council",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.ouverture.conseil.presentation",
+            "modele": "The Republic, Pilgrims, and Free Wells occupy only the seats made credible by their consequences. Rail, Beacon, and Colony routes offer distinct openings; the breach remains available without a mandate.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.ouverture.conseil.information",
+              "modele": "Every opening names its actors and resources. The breach always reaches the Node, but destroys its retuning buses and makes that Solution impossible.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "republique": {
+              "cle": "evenement.ouverture.conseil.variante.republique",
+              "modele": "The Republic presents its mandate as an enforceable Commitment under the workshops’ gaze.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "coalition": {
+              "cle": "evenement.ouverture.conseil.variante.coalition",
+              "modele": "The five Colonies place their registers without claiming to speak with one voice.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.ouverture.conseil.variante.standard",
+              "modele": "Empty seats remain visible: no absent Faction is invented to complete the Council.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "ouvrir-par-les-rails": {
+              "intention": {
+                "cle": "evenement.ouverture.conseil.choix.rail",
+                "modele": "Open through the rail arc",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.ouverture.conseil.choix.rail.cout",
+                  "modele": "Known cost: 2 Materials with the started Cradle, 6 otherwise; the Node remains accessible.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "ouvrir-par-les-phares": {
+              "intention": {
+                "cle": "evenement.ouverture.conseil.choix.phares",
+                "modele": "Synchronize the opening through the Beacons",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.ouverture.conseil.choix.phares.cout",
+                  "modele": "Known cost: 2 Water with the calibrated Standard, 8 otherwise; the conduits remain accessible.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "ouvrir-par-les-colonies": {
+              "intention": {
+                "cle": "evenement.ouverture.conseil.choix.colonies",
+                "modele": "Open the Gate with the coalition",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.ouverture.conseil.choix.colonies.cout",
+                  "modele": "Known cost: 2 Water and 2 Materials with the assembled Precipitator, 4 of each otherwise.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "ouvrir-breche-de-secours": {
+              "intention": {
+                "cle": "evenement.ouverture.conseil.choix.breche",
+                "modele": "Open the emergency breach",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.ouverture.conseil.choix.breche.cout",
+                  "modele": "Known cost: no immediate stock; the Node is damaged and Retuning the network becomes impossible.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "couronne.ouverture.ilyana-maelys-et-la-clef",
+      "famille": "histoires-de-compagnons",
+      "themes": [
+        "ilyana-voss",
+        "maelys-rive",
+        "transmission",
+        "aucun-compagnon-obligatoire"
+      ],
+      "fonction": "transmettre-la-clef-sans-rendre-un-compagnon-obligatoire",
+      "fenetre": "couronne-ouverture",
+      "conditions": {
+        "requises": [
+          {
+            "type": "un-des-faits-present",
+            "faits": [
+              "couronne.ouverture.rail-ouverte",
+              "couronne.ouverture.phares-ouvertes",
+              "couronne.ouverture.colonies-ouvertes",
+              "couronne.ouverture.breche-ouverte"
+            ]
+          }
+        ],
+        "interdites": []
+      },
+      "periodeEligibilite": {
+        "debut": 1200,
+        "fin": 2147483647
+      },
+      "priorite": 170,
+      "epuisement": "unique",
+      "acteurs": [
+        "porte-lanterne",
+        "equipes-de-l-anneau"
+      ],
+      "sourcesInformations": [
+        "equipes-de-l-anneau"
+      ],
+      "faitsLus": [
+        "couronne.ouverture.rail-ouverte",
+        "couronne.ouverture.phares-ouvertes",
+        "couronne.ouverture.colonies-ouvertes",
+        "couronne.ouverture.breche-ouverte",
+        "couronne.approches.plans-confies-a-ilyana",
+        "couronne.seuil.registre-confie-a-maelys"
+      ],
+      "choix": [
+        {
+          "id": "confier-clef-aux-gardiennes",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "couronne.ouverture.clef-confiee-aux-gardiennes",
+              "cible": "clef-du-noeud"
+            }
+          ]
+        },
+        {
+          "id": "consigner-clef-collective",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "couronne.ouverture.clef-collective",
+              "cible": "clef-du-noeud"
+            }
+          ]
+        }
+      ],
+      "consequenceDifferee": {
+        "type": "garde-de-la-clef-transmissible",
+        "cible": "clef-du-noeud"
+      },
+      "recuperation": {
+        "type": "equipes-collectives-toujours-disponibles"
+      },
+      "variantes": [
+        {
+          "id": "ilyana",
+          "condition": {
+            "type": "fait-present",
+            "fait": "couronne.approches.plans-confies-a-ilyana"
+          }
+        },
+        {
+          "id": "maelys",
+          "condition": {
+            "type": "fait-present",
+            "fait": "couronne.seuil.registre-confie-a-maelys"
+          }
+        },
+        {
+          "id": "standard",
+          "condition": {
+            "type": "toujours"
+          }
+        }
+      ],
+      "destinationEcho": "journal-de-campagne",
+      "asset": {
+        "id": "couronne.ouverture.ilyana-maelys-et-la-clef",
+        "fichier": "/api/commercial/assets/couronne-ouverture-clef.webp",
+        "octetsTransferes": 103778,
+        "contientTexte": false,
+        "alternatives": {
+          "fr": "Deux gardiennes possibles et plusieurs équipes entourent une grande clef technique devant le passage du Nœud.",
+          "en": "Two possible keepers and several crews surround a large technical key before the Node passage."
+        },
+        "provenance": {
+          "fiche": "docs/assets/couronne-ouverture-clef.provenance.json",
+          "creeLe": "2026-07-23",
+          "outil": "Codex built-in image_gen",
+          "modele": "built-in model (identifier not exposed)",
+          "usage": "stylized-concept",
+          "entree": "No input image; generated from the project’s established industrial ash-world art direction.",
+          "prompt": "Ilyana, Maëlys, and multiple maintenance crews hold a large ancient technical key together before the Node passage; cinematic painterly 16:9, no text or logos.",
+          "droits": "OpenAI Terms of Use — output assigned to the user",
+          "empreinteSha256": "6c2b8022a2180d6b076a5a3713d6e98a61f9dc1e2003b0bdadce33bf13ddec2c",
+          "statutApprobation": "pending-pull-request-review",
+          "reviseur": null
+        }
+      },
+      "textes": {
+        "fr": {
+          "origine": {
+            "cle": "evenement.ouverture.clef.origine",
+            "modele": "Relais de la clef du Nœud",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.ouverture.clef.titre",
+            "modele": "Ilyana, Maëlys et la clef",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.ouverture.clef.presentation",
+            "modele": "Ilyana et Maëlys peuvent croiser plans et registre si la Campagne leur en a confié la garde. Sinon, les équipes consignent collectivement la clef : aucun Compagnon n’est requis pour atteindre le Nœud.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.ouverture.clef.information",
+              "modele": "La garde change qui pourra contredire le prochain Conseil ; elle ne ferme ni le passage préparé ni la brèche.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "ilyana": {
+              "cle": "evenement.ouverture.clef.variante.ilyana",
+              "modele": "Ilyana compare la copie maîtresse à chaque modification des verrous.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "maelys": {
+              "cle": "evenement.ouverture.clef.variante.maelys",
+              "modele": "Maëlys ajoute à la clef les noms et refus conservés dans le registre des ralliés.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.ouverture.clef.variante.standard",
+              "modele": "Les équipes placent la clef dans un coffret dont chaque délégation possède l’empreinte.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "confier-clef-aux-gardiennes": {
+              "intention": {
+                "cle": "evenement.ouverture.clef.choix.gardiennes",
+                "modele": "Confier la clef aux gardiennes des plans et registres",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.ouverture.clef.choix.gardiennes.cout",
+                  "modele": "Coût connu : aucun stock ; la garde personnelle reste transmissible et documentée.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "consigner-clef-collective": {
+              "intention": {
+                "cle": "evenement.ouverture.clef.choix.collective",
+                "modele": "Consigner la clef entre les équipes",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.ouverture.clef.choix.collective.cout",
+                  "modele": "Coût connu : aucun stock ; aucune personne ne devient indispensable.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        },
+        "en": {
+          "origine": {
+            "cle": "evenement.ouverture.clef.origine",
+            "modele": "Node key relay",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.ouverture.clef.titre",
+            "modele": "Ilyana, Maëlys, and the key",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.ouverture.clef.presentation",
+            "modele": "Ilyana and Maëlys can cross-check plans and register if the Campaign entrusted them with custody. Otherwise, crews record the key collectively: no Companion is required to reach the Node.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.ouverture.clef.information",
+              "modele": "Custody changes who may challenge the next Council; it closes neither the prepared passage nor the breach.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "ilyana": {
+              "cle": "evenement.ouverture.clef.variante.ilyana",
+              "modele": "Ilyana checks the master copy against every lock modification.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "maelys": {
+              "cle": "evenement.ouverture.clef.variante.maelys",
+              "modele": "Maëlys adds the names and refusals preserved in the rallied parties register.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.ouverture.clef.variante.standard",
+              "modele": "Crews place the key in a case whose imprint is held by every delegation.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "confier-clef-aux-gardiennes": {
+              "intention": {
+                "cle": "evenement.ouverture.clef.choix.gardiennes",
+                "modele": "Entrust the key to the plan and register keepers",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.ouverture.clef.choix.gardiennes.cout",
+                  "modele": "Known cost: no stock; personal custody remains transferable and documented.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "consigner-clef-collective": {
+              "intention": {
+                "cle": "evenement.ouverture.clef.choix.collective",
+                "modele": "Record the key among the crews",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.ouverture.clef.choix.collective.cout",
+                  "modele": "Known cost: no stock; no person becomes indispensable.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        }
+      }
     }
   ],
   "conseils": [
@@ -14077,7 +15369,17 @@ export default {
           "couronne.colonies.voie-alliee-preparee": "Voie alliée vers le Nœud préparée",
           "couronne.colonies.breche-couteuse-preparee": "Brèche coûteuse vers le Nœud préparée",
           "couronne.seuil.registre-confie-a-maelys": "Registre des ralliés confié à Maëlys",
-          "couronne.seuil.registre-commun": "Registre commun des ralliés établi"
+          "couronne.seuil.registre-commun": "Registre commun des ralliés établi",
+          "couronne.ouverture.diagnostic-public": "Diagnostic des verrous rendu public",
+          "couronne.ouverture.diagnostic-separe": "Diagnostic des verrous conservé par dossiers",
+          "couronne.ouverture.trois-preparatifs-maintenus": "Trois préparatifs maintenus devant le Nœud",
+          "couronne.ouverture.marges-reservees": "Marges réservées à l’Ouverture",
+          "couronne.ouverture.rail-ouverte": "Couronne ouverte par l’arc ferroviaire",
+          "couronne.ouverture.phares-ouvertes": "Couronne ouverte par les Phares",
+          "couronne.ouverture.colonies-ouvertes": "Couronne ouverte par les Colonies",
+          "couronne.ouverture.breche-ouverte": "Brèche de secours ouverte dans le Nœud",
+          "couronne.ouverture.clef-confiee-aux-gardiennes": "Clef du Nœud confiée aux gardiennes",
+          "couronne.ouverture.clef-collective": "Clef du Nœud consignée collectivement"
         },
         "causes": {
           "bassins.haut-puits.pacte-des-citernes": "Le pacte des citernes",
@@ -14123,7 +15425,11 @@ export default {
           "couronne.seuil.le-marche-des-abris": "Décision prise au marché limité et aux abris du Seuil.",
           "couronne.seuil.les-releves-sous-la-porte": "Lecture décidée devant les conduites du Nœud.",
           "couronne.colonies.le-prix-de-la-rampe": "Accès préparé sur la rampe brisée du Seuil.",
-          "couronne.seuil.maelys-et-le-registre-des-rallies": "Garde du registre décidée avec Maëlys et les délégations."
+          "couronne.seuil.maelys-et-le-registre-des-rallies": "Garde du registre décidée avec Maëlys et les délégations.",
+          "couronne.ouverture.le-diagnostic-des-verrous": "Lecture décidée devant les verrous de la Couronne.",
+          "couronne.ouverture.les-trois-montages-devant-la-porte": "Préparation décidée devant les trois montages.",
+          "couronne.ouverture.le-dernier-conseil-de-la-couronne": "Ouverture décidée au dernier Conseil de la Couronne.",
+          "couronne.ouverture.ilyana-maelys-et-la-clef": "Garde de la clef décidée avec les équipes du dernier relais."
         },
         "acteurs": {
           "ilyana-voss": "Ilyana Voss",
@@ -14148,6 +15454,7 @@ export default {
           "mecaniciens-pompe-neuve": "Mécaniciens de Pompe-Neuve",
           "habitants-traverse-libre": "Habitants de Traverse-Libre",
           "reservoirs-traverse-libre": "Réservoirs de Traverse-Libre",
+          "eclaireurs-puits-libres": "Éclaireurs des Puits Libres",
           "delegues-puits-libres": "Délégués des Puits Libres",
           "traverse-libre": "Traverse-Libre",
           "commis-du-marche": "Commis du Marché des Traverses",
@@ -14165,7 +15472,8 @@ export default {
           "habitants-du-seuil": "Habitants du Seuil",
           "commis-du-marche-du-seuil": "Commis du marché du Seuil",
           "releveurs-du-seuil": "Releveurs du Seuil",
-          "equipes-de-la-rampe": "Équipes de la rampe"
+          "equipes-de-la-rampe": "Équipes de la rampe",
+          "equipes-de-l-anneau": "Équipes de l’Anneau intérieur"
         },
         "cibles": {
           "equipes-entretien": "Équipes d’entretien",
@@ -14224,7 +15532,10 @@ export default {
           "rampe-du-seuil": "Rampe du Seuil",
           "acces-du-noeud": "Accès du Nœud",
           "registre-des-rallies": "Registre des ralliés",
-          "noeud-central-de-regulation": "Nœud central de régulation"
+          "verrous-du-noeud": "Verrous du Nœud central",
+          "anneau-interieur": "Anneau intérieur",
+          "noeud-central-de-regulation": "Nœud central de régulation",
+          "clef-du-noeud": "Clef du Nœud"
         }
       }
     },
@@ -14330,7 +15641,17 @@ export default {
           "couronne.colonies.voie-alliee-preparee": "Allied route to the Node prepared",
           "couronne.colonies.breche-couteuse-preparee": "Costly breach to the Node prepared",
           "couronne.seuil.registre-confie-a-maelys": "Rallied parties register entrusted to Maëlys",
-          "couronne.seuil.registre-commun": "Shared register of rallied parties established"
+          "couronne.seuil.registre-commun": "Shared register of rallied parties established",
+          "couronne.ouverture.diagnostic-public": "Lock diagnosis made public",
+          "couronne.ouverture.diagnostic-separe": "Lock diagnosis kept in separate files",
+          "couronne.ouverture.trois-preparatifs-maintenus": "Three preparations maintained before the Node",
+          "couronne.ouverture.marges-reservees": "Margins reserved for the Opening",
+          "couronne.ouverture.rail-ouverte": "Crown opened through the rail arc",
+          "couronne.ouverture.phares-ouvertes": "Crown opened through the Beacons",
+          "couronne.ouverture.colonies-ouvertes": "Crown opened by the Colonies",
+          "couronne.ouverture.breche-ouverte": "Emergency breach opened into the Node",
+          "couronne.ouverture.clef-confiee-aux-gardiennes": "Node key entrusted to its keepers",
+          "couronne.ouverture.clef-collective": "Node key recorded collectively"
         },
         "causes": {
           "bassins.haut-puits.pacte-des-citernes": "The cistern pact",
@@ -14376,7 +15697,11 @@ export default {
           "couronne.seuil.le-marche-des-abris": "Decision made at Threshold’s limited market and shelters.",
           "couronne.seuil.les-releves-sous-la-porte": "Reading chosen before the Node’s conduits.",
           "couronne.colonies.le-prix-de-la-rampe": "Access prepared on Threshold’s broken ramp.",
-          "couronne.seuil.maelys-et-le-registre-des-rallies": "Custody of the register decided with Maëlys and the delegations."
+          "couronne.seuil.maelys-et-le-registre-des-rallies": "Custody of the register decided with Maëlys and the delegations.",
+          "couronne.ouverture.le-diagnostic-des-verrous": "Reading decided before the Crown locks.",
+          "couronne.ouverture.les-trois-montages-devant-la-porte": "Preparation decided before the three assemblies.",
+          "couronne.ouverture.le-dernier-conseil-de-la-couronne": "Opening decided at the Crown’s final Council.",
+          "couronne.ouverture.ilyana-maelys-et-la-clef": "Key custody decided with the last relay crews."
         },
         "acteurs": {
           "ilyana-voss": "Ilyana Voss",
@@ -14401,6 +15726,7 @@ export default {
           "mecaniciens-pompe-neuve": "New Pump Mechanics",
           "habitants-traverse-libre": "Free Crossing Inhabitants",
           "reservoirs-traverse-libre": "Free Crossing Reservoirs",
+          "eclaireurs-puits-libres": "Free Wells Scouts",
           "delegues-puits-libres": "Free Wells Delegates",
           "traverse-libre": "Free Crossing",
           "commis-du-marche": "Sleeper Market clerks",
@@ -14418,7 +15744,8 @@ export default {
           "habitants-du-seuil": "Threshold residents",
           "commis-du-marche-du-seuil": "Threshold market clerks",
           "releveurs-du-seuil": "Threshold surveyors",
-          "equipes-de-la-rampe": "Ramp crews"
+          "equipes-de-la-rampe": "Ramp crews",
+          "equipes-de-l-anneau": "Inner Ring crews"
         },
         "cibles": {
           "equipes-entretien": "Maintenance crews",
@@ -14477,7 +15804,10 @@ export default {
           "rampe-du-seuil": "Threshold Ramp",
           "acces-du-noeud": "Node access",
           "registre-des-rallies": "Rallied parties register",
-          "noeud-central-de-regulation": "Central Regulation Node"
+          "noeud-central-de-regulation": "Central Regulation Node",
+          "verrous-du-noeud": "Central Node locks",
+          "anneau-interieur": "Inner Ring",
+          "clef-du-noeud": "Node key"
         }
       }
     }

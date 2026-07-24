@@ -1301,6 +1301,102 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
   await expect(
     pageColonies.getByRole("region", { name: "Colony Route" }),
   ).toContainText("costly breach held by Inhabitants");
+
+  await activerAuClavier(
+    pageColonies,
+    pageColonies.getByRole("button", { name: "Français" }),
+  );
+  await activerAuClavier(
+    pageColonies,
+    atlasColonies.getByRole("button", {
+      name: "Étudier l’Engagement vers Porte logistique du Seuil",
+    }),
+  );
+  await activerAuClavier(
+    pageColonies,
+    pageColonies
+      .getByRole("dialog", {
+        name: "Engagement vers Anneau intérieur",
+      })
+      .getByRole("button", {
+        name:
+          "Confirmer l’Engagement sans retour vers Anneau intérieur",
+      }),
+  );
+  await activerAuClavier(
+    pageColonies,
+    pageColonies.getByRole("button", { name: "Vitesse 4×" }),
+  );
+  await pageColonies.clock.fastForward(105_000);
+
+  for (const [titre, choix] of [
+    [
+      "Le diagnostic des verrous",
+      "Rendre le diagnostic commun aux délégations",
+    ],
+    [
+      "Les trois montages devant la porte",
+      "Maintenir les trois dossiers de préparation",
+    ],
+    [
+      "Le dernier Conseil de la Couronne",
+      "Ouvrir la brèche de secours",
+    ],
+    [
+      "Ilyana, Maëlys et la clef",
+      "Consigner la clef entre les équipes",
+    ],
+  ] as const) {
+    const evenement = pageColonies.getByRole("region", { name: titre });
+    await expect(evenement.getByRole("img")).toBeVisible();
+    await activerAuClavier(
+      pageColonies,
+      evenement.getByRole("button", { name: choix }),
+    );
+    await pageColonies.clock.fastForward(1_000);
+  }
+
+  const ouvertureDeLaCouronne = pageColonies.getByRole("region", {
+    name: "Ouverture de la Couronne",
+  });
+  await expect(ouvertureDeLaCouronne).toContainText(
+    "Brèche de secours — recours toujours disponible",
+  );
+  await expect(ouvertureDeLaCouronne).toContainText(
+    "Nœud atteint mais bus de réaccord détruits",
+  );
+  await expect(ouvertureDeLaCouronne).toContainText(
+    "Réaccorder le réseau — issue rendue impossible",
+  );
+  await expect(ouvertureDeLaCouronne).toContainText(
+    "clef consignée entre les équipes",
+  );
+  await activerAuClavier(
+    pageColonies,
+    atlasColonies.getByRole("button", {
+      name: "Étudier l’Engagement vers Brèche de secours du Nœud",
+    }),
+  );
+  await activerAuClavier(
+    pageColonies,
+    pageColonies
+      .getByRole("dialog", { name: "Engagement vers Nœud central" })
+      .getByRole("button", {
+        name: "Confirmer l’Engagement sans retour vers Nœud central",
+      }),
+  );
+  await activerAuClavier(
+    pageColonies,
+    pageColonies.getByRole("button", { name: "Vitesse 4×" }),
+  );
+  await pageColonies.clock.fastForward(105_000);
+  await expect(
+    pageColonies.getByText("Nœud central", { exact: true }).first(),
+  ).toBeVisible();
+  await pageColonies.screenshot({
+    path: testInfo.outputPath("couronne-noeud-central-mobile.png"),
+    fullPage: true,
+  });
   await navigateurColonies.close();
   await navigateurTraverse.close();
 

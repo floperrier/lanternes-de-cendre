@@ -245,3 +245,23 @@ assets:
     alternative: evenement.colonies.maelys.asset.alt
     contient_texte: false
     provenance: docs/assets/couronne-maelys-registre.provenance.json
+  - id: couronne.ouverture.le-diagnostic-des-verrous
+    fichier: /api/commercial/assets/couronne-ouverture-diagnostic.webp
+    alternative: evenement.ouverture.diagnostic.asset.alt
+    contient_texte: false
+    provenance: docs/assets/couronne-ouverture-diagnostic.provenance.json
+  - id: couronne.ouverture.les-trois-montages-devant-la-porte
+    fichier: /api/commercial/assets/couronne-ouverture-montages.webp
+    alternative: evenement.ouverture.montages.asset.alt
+    contient_texte: false
+    provenance: docs/assets/couronne-ouverture-montages.provenance.json
+  - id: couronne.ouverture.le-dernier-conseil-de-la-couronne
+    fichier: /api/commercial/assets/couronne-ouverture-conseil.webp
+    alternative: evenement.ouverture.conseil.asset.alt
+    contient_texte: false
+    provenance: docs/assets/couronne-ouverture-conseil.provenance.json
+  - id: couronne.ouverture.ilyana-maelys-et-la-clef
+    fichier: /api/commercial/assets/couronne-ouverture-clef.webp
+    alternative: evenement.ouverture.clef.asset.alt
+    contient_texte: false
+    provenance: docs/assets/couronne-ouverture-clef.provenance.json

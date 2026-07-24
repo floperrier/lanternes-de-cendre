@@ -463,6 +463,11 @@ export function estCommandeV6(valeur: unknown): valeur is CommandeCampagne {
       "chemin-des-trois-veilles",
       "piste-des-serres-de-verre",
       "rampe-du-seuil",
+      "arc-ferroviaire-du-noeud",
+      "galerie-des-trois-phares",
+      "porte-logistique-du-seuil",
+      "passage-de-la-couronne-ouverte",
+      "breche-de-secours-du-noeud",
     ].includes(String(valeur.tronconId))
   ) {
     return false;
@@ -500,6 +505,11 @@ export function estCommandeV7(valeur: unknown): valeur is CommandeCampagne {
       "chemin-des-trois-veilles",
       "piste-des-serres-de-verre",
       "rampe-du-seuil",
+      "arc-ferroviaire-du-noeud",
+      "galerie-des-trois-phares",
+      "porte-logistique-du-seuil",
+      "passage-de-la-couronne-ouverte",
+      "breche-de-secours-du-noeud",
     ].includes(String(valeur.tronconId))
   ) {
     return false;
@@ -528,6 +538,11 @@ export function estCommandeV8(valeur: unknown): valeur is CommandeCampagne {
       "chemin-des-trois-veilles",
       "piste-des-serres-de-verre",
       "rampe-du-seuil",
+      "arc-ferroviaire-du-noeud",
+      "galerie-des-trois-phares",
+      "porte-logistique-du-seuil",
+      "passage-de-la-couronne-ouverte",
+      "breche-de-secours-du-noeud",
     ].includes(
       String(valeur.tronconId),
     )
@@ -563,6 +578,11 @@ export function estCommandeV9(valeur: unknown): valeur is CommandeCampagne {
       "chemin-des-trois-veilles",
       "piste-des-serres-de-verre",
       "rampe-du-seuil",
+      "arc-ferroviaire-du-noeud",
+      "galerie-des-trois-phares",
+      "porte-logistique-du-seuil",
+      "passage-de-la-couronne-ouverte",
+      "breche-de-secours-du-noeud",
     ].includes(String(valeur.tronconId))
   ) {
     return false;
@@ -761,7 +781,37 @@ function effetsMaterielsDynamiquesDeLAiguillageSontValides(
   return undefined;
 }
 
-function estFaitDeCampagneV2(valeur: unknown): boolean {
+function effetsMaterielsDynamiquesDeLOuvertureSontValides(
+  faitId: string,
+  effets: readonly unknown[],
+): boolean | undefined {
+  if (faitId === "couronne.ouverture.rail-ouverte") {
+    return (
+      effets.length === 1 &&
+      (estEffetStock(effets[0], -6, "materiaux") ||
+        estEffetStock(effets[0], -2, "materiaux"))
+    );
+  }
+  if (faitId === "couronne.ouverture.phares-ouvertes") {
+    return (
+      effets.length === 1 &&
+      (estEffetStock(effets[0], -8, "eau") ||
+        estEffetStock(effets[0], -2, "eau"))
+    );
+  }
+  if (faitId === "couronne.ouverture.colonies-ouvertes") {
+    return (
+      effets.length === 2 &&
+      ((estEffetStock(effets[0], -4, "eau") &&
+        estEffetStock(effets[1], -4, "materiaux")) ||
+        (estEffetStock(effets[0], -2, "eau") &&
+          estEffetStock(effets[1], -2, "materiaux")))
+    );
+  }
+  return undefined;
+}
+
+export function estFaitDeCampagneV2(valeur: unknown): boolean {
   if (!estFaitDeCampagne(valeur) || !estObjet(valeur)) {
     return false;
   }
@@ -810,6 +860,10 @@ function estFaitDeCampagneV2(valeur: unknown): boolean {
     );
     const effetsMaterielsDynamiquesValides =
       effetsMaterielsDynamiquesDeLAiguillageSontValides(
+        String(valeur.id),
+        materiels,
+      ) ??
+      effetsMaterielsDynamiquesDeLOuvertureSontValides(
         String(valeur.id),
         materiels,
       );
@@ -2257,6 +2311,181 @@ export function voieDesColoniesEstCausale(
   );
 }
 
+export function ouvertureDeLaCouronneEstCausale(
+  faits: readonly ObjetInconnu[],
+  infrastructure: EtatInfrastructure,
+  routes: EtatDesRoutes,
+  expeditions: EtatDesExpeditions,
+  hautPuits: EtatDeHautPuits,
+  veilleBasse: EtatDeVeilleBasse,
+): boolean {
+  const idsDOuverture = new Set([
+    "couronne.ouverture.rail-ouverte",
+    "couronne.ouverture.phares-ouvertes",
+    "couronne.ouverture.colonies-ouvertes",
+    "couronne.ouverture.breche-ouverte",
+  ]);
+  const ouvertures = faits
+    .map((fait, index) => ({ fait, index }))
+    .filter(({ fait }) => idsDOuverture.has(String(fait.id)));
+  if (ouvertures.length > 1) {
+    return false;
+  }
+  if (ouvertures.length === 1) {
+    const { fait: ouverture, index } = ouvertures[0]!;
+    if (!estNombreFini(ouverture.moment)) {
+      return false;
+    }
+    const faitsAvant = faits.slice(0, index);
+    const idsAvant = new Set(
+      faitsAvant.map((fait) => String(fait.id)),
+    );
+    const effets = ouverture.effets;
+    const verifierCoutExact = (
+      attendus: Readonly<
+        Partial<Record<"eau" | "materiaux", number>>
+      >,
+    ): boolean => {
+      if (
+        !estObjet(effets) ||
+        !Array.isArray(effets.materiels) ||
+        !Array.isArray(effets.humains) ||
+        effets.humains.length !== 0
+      ) {
+        return false;
+      }
+      const materiels = effets.materiels;
+      const entreesAttendues = Object.entries(attendus);
+      if (materiels.length !== entreesAttendues.length) {
+        return false;
+      }
+      return entreesAttendues.every(([stock, variation]) =>
+        materiels.some(
+          (effet) =>
+            estObjet(effet) &&
+            effet.type === "stock.modifie" &&
+            effet.stock === stock &&
+            effet.variation === variation,
+        ),
+      );
+    };
+    const verifierStock = (
+      stock: "eau" | "materiaux",
+      seuil: number,
+    ) =>
+      calculerStockAttendu(
+        stock,
+        ouverture.moment as number,
+        faitsAvant,
+        infrastructure,
+        routes,
+        expeditions,
+        hautPuits,
+        veilleBasse,
+      ).possibilites.some(({ quantite }) => quantite >= seuil);
+    if (ouverture.id === "couronne.ouverture.rail-ouverte") {
+      const acteursPresents =
+        idsAvant.has(
+          "couronne.tete-de-ligne.mandat-republicain",
+        ) ||
+        idsAvant.has("couronne.tete-de-ligne.atelier-commun");
+      const cout = idsAvant.has(
+        "couronne.approches.berceau-amorce",
+      )
+        ? 2
+        : 6;
+      if (
+        !acteursPresents ||
+        !verifierCoutExact({ materiaux: -cout }) ||
+        !verifierStock("materiaux", cout)
+      ) {
+        return false;
+      }
+    }
+    if (ouverture.id === "couronne.ouverture.phares-ouvertes") {
+      const acteursPresents =
+        idsAvant.has(
+          "couronne.veille-des-trois.sanctuaire-renforce",
+        ) ||
+        idsAvant.has(
+          "couronne.veille-des-trois.releves-evacues",
+        );
+      const cout = idsAvant.has(
+        "couronne.approches.etalon-calibre",
+      )
+        ? 2
+        : 8;
+      if (
+        !acteursPresents ||
+        !verifierCoutExact({ eau: -cout }) ||
+        !verifierStock("eau", cout)
+      ) {
+        return false;
+      }
+    }
+    if (
+      ouverture.id === "couronne.ouverture.colonies-ouvertes"
+    ) {
+      const cout = idsAvant.has(
+        "couronne.approches.precipitateur-assemble",
+      )
+        ? 2
+        : 4;
+      if (
+        !idsAvant.has(
+          "couronne.colonies.voie-alliee-preparee",
+        ) ||
+        !verifierCoutExact({
+          eau: -cout,
+          materiaux: -cout,
+        }) ||
+        !verifierStock("eau", cout) ||
+        !verifierStock("materiaux", cout)
+      ) {
+        return false;
+      }
+    }
+    if (
+      ouverture.id === "couronne.ouverture.breche-ouverte" &&
+      !verifierCoutExact({})
+    ) {
+      return false;
+    }
+  }
+
+  const gardes = faits
+    .map((fait, index) => ({ fait, index }))
+    .filter(({ fait }) =>
+      [
+        "couronne.ouverture.clef-confiee-aux-gardiennes",
+        "couronne.ouverture.clef-collective",
+      ].includes(String(fait.id)),
+    );
+  if (gardes.length > 1) {
+    return false;
+  }
+  if (gardes.length === 1) {
+    const { fait: garde, index } = gardes[0]!;
+    const idsAvant = new Set(
+      faits.slice(0, index).map((fait) => String(fait.id)),
+    );
+    if (![...idsDOuverture].some((id) => idsAvant.has(id))) {
+      return false;
+    }
+    if (
+      garde.id ===
+        "couronne.ouverture.clef-confiee-aux-gardiennes" &&
+      !idsAvant.has(
+        "couronne.approches.plans-confies-a-ilyana",
+      ) &&
+      !idsAvant.has("couronne.seuil.registre-confie-a-maelys")
+    ) {
+      return false;
+    }
+  }
+  return true;
+}
+
 function estEtatPilotage(
   valeur: unknown,
   secondesCourantes: number,
@@ -3271,6 +3500,14 @@ function lireEtatAvecSchemaCourant(
       trameDeFer as EtatDeLaTrameDeFer,
       traverseLibre as EtatDeTraverseLibre,
     ) ||
+    !ouvertureDeLaCouronneEstCausale(
+      narration.faitsDeCampagne,
+      infrastructure,
+      routes,
+      expeditions,
+      hautPuits,
+      veilleBasse,
+    ) ||
     !estCausaliteDeNarrationValide(
       parties,
       pilotage,
@@ -3347,6 +3584,11 @@ function lireEtatAvecSchemaV9(
       "chemin-des-trois-veilles",
       "piste-des-serres-de-verre",
       "rampe-du-seuil",
+      "arc-ferroviaire-du-noeud",
+      "galerie-des-trois-phares",
+      "porte-logistique-du-seuil",
+      "passage-de-la-couronne-ouverte",
+      "breche-de-secours-du-noeud",
     ].some(
       (id) =>
         Object.prototype.hasOwnProperty.call(
@@ -3442,6 +3684,11 @@ function lireEtatAvecSchemaV8(
       "chemin-des-trois-veilles",
       "piste-des-serres-de-verre",
       "rampe-du-seuil",
+      "arc-ferroviaire-du-noeud",
+      "galerie-des-trois-phares",
+      "porte-logistique-du-seuil",
+      "passage-de-la-couronne-ouverte",
+      "breche-de-secours-du-noeud",
     ].some((id) =>
       Object.prototype.hasOwnProperty.call(
         (valeur.routes as ObjetInconnu).etatsReels,
@@ -3531,6 +3778,11 @@ function lireEtatAvecSchemaV7(
       "chemin-des-trois-veilles",
       "piste-des-serres-de-verre",
       "rampe-du-seuil",
+      "arc-ferroviaire-du-noeud",
+      "galerie-des-trois-phares",
+      "porte-logistique-du-seuil",
+      "passage-de-la-couronne-ouverte",
+      "breche-de-secours-du-noeud",
     ].some((id) =>
       Object.prototype.hasOwnProperty.call(
         (valeur.routes as ObjetInconnu).etatsReels,
