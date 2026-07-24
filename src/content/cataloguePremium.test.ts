@@ -129,4 +129,41 @@ describe("installation du contenu narratif premium", () => {
       }),
     ).not.toThrow();
   });
+
+  it("exige la présentation des approches pour un lot de la Couronne", () => {
+    const presentationsSansCouronne = {
+      hautPuits: PRESENTATIONS_VALIDES.hautPuits,
+      veilleBasse: PRESENTATIONS_VALIDES.veilleBasse,
+    };
+    const lotCouronne = {
+      version: 1,
+      catalogue: {
+        evenements: [
+          {
+            id: "couronne.tete-de-ligne.le-decret-du-dernier-quai",
+          },
+        ],
+        presentations: presentationsSansCouronne,
+      },
+    };
+
+    expect(() =>
+      installerPresentationsPremium(lotCouronne),
+    ).toThrow("presentations-premium-invalides");
+    expect(() =>
+      installerPresentationsPremium({
+        ...lotCouronne,
+        catalogue: {
+          ...lotCouronne.catalogue,
+          presentations: {
+            ...presentationsSansCouronne,
+            couronne: {
+              fr: { titre: "Approches de la Couronne" },
+              en: { titre: "Silent Crown Approaches" },
+            },
+          },
+        },
+      }),
+    ).not.toThrow();
+  });
 });

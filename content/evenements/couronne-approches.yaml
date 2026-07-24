@@ -1,0 +1,308 @@
+version: 1
+evenements:
+  - id: couronne.tete-de-ligne.le-decret-du-dernier-quai
+    famille: conflits-regionaux
+    themes: [couronne-muette, republique-du-rail, atelier, delegation]
+    fonction: donner-a-tete-de-ligne-un-devenir-et-une-delegation-conditionnee-par-la-trame
+    fenetre: couronne-tete-de-ligne
+    conditions:
+      requises:
+        - type: lieu-present
+          lieu: tete-de-ligne
+      interdites: []
+    periode_eligibilite: { debut: 1200, fin: 2147483647 }
+    priorite: 190
+    epuisement: unique
+    acteurs: [porte-lanterne, delegation-republique-du-rail, habitants-tete-de-ligne]
+    origine: { cle: evenement.couronne.tete.origine, variables: [] }
+    libelle_intentions: { cle: evenement.ruban.intentions, variables: [] }
+    titre: { cle: evenement.couronne.tete.titre, variables: [] }
+    presentation: { cle: evenement.couronne.tete.presentation, variables: [] }
+    informations:
+      - source: delegation-republique-du-rail
+        texte: { cle: evenement.couronne.tete.information, variables: [] }
+    faits_lus:
+      - trame.aiguillage-zero.charte-partagee
+      - trame.aiguillage-zero.trace-du-vol
+    choix:
+      - id: ratifier-mandat
+        intention: { cle: evenement.couronne.tete.choix.mandat, variables: [] }
+        couts_connus:
+          - { cle: evenement.couronne.tete.choix.mandat.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - { id: couronne.tete-de-ligne.mandat-republicain, cible: tete-de-ligne }
+      - id: ouvrir-atelier-commun
+        intention: { cle: evenement.couronne.tete.choix.atelier, variables: [] }
+        couts_connus:
+          - { cle: evenement.couronne.tete.choix.atelier.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - { id: couronne.tete-de-ligne.atelier-commun, cible: atelier-de-tete-de-ligne }
+    consequence_differee: { type: devenir-de-tete-de-ligne-consigne, cible: tete-de-ligne }
+    recuperation: { type: les-deux-issues-laissent-les-montages-ouverts }
+    variantes:
+      - id: trace
+        condition: fait-present:trame.aiguillage-zero.trace-du-vol
+        presentation: { cle: evenement.couronne.tete.variante.trace, variables: [] }
+      - id: charte
+        condition: fait-present:trame.aiguillage-zero.charte-partagee
+        presentation: { cle: evenement.couronne.tete.variante.charte, variables: [] }
+      - id: standard
+        condition: toujours
+        presentation: { cle: evenement.couronne.tete.variante.standard, variables: [] }
+    destination_echo: journal-de-campagne
+    asset: couronne.tete-de-ligne.le-decret-du-dernier-quai
+
+  - id: couronne.veille-des-trois.les-filtres-sous-les-phares
+    famille: conflits-regionaux
+    themes: [couronne-muette, pelerins-de-cendre, sanctuaire, evacuation]
+    fonction: donner-a-veille-des-trois-un-devenir-et-une-delegation-conditionnee-par-les-bassins
+    fenetre: couronne-veille-des-trois
+    conditions:
+      requises:
+        - type: lieu-present
+          lieu: veille-des-trois
+      interdites: []
+    periode_eligibilite: { debut: 1200, fin: 2147483647 }
+    priorite: 190
+    epuisement: unique
+    acteurs: [porte-lanterne, gardiens-des-trois-veilles, pelerins-de-cendre]
+    origine: { cle: evenement.couronne.veille.origine, variables: [] }
+    libelle_intentions: { cle: evenement.ruban.intentions, variables: [] }
+    titre: { cle: evenement.couronne.veille.titre, variables: [] }
+    presentation: { cle: evenement.couronne.veille.presentation, variables: [] }
+    informations:
+      - source: gardiens-des-trois-veilles
+        texte: { cle: evenement.couronne.veille.information, variables: [] }
+    faits_lus:
+      - veille-basse.cohorte-accueillie
+      - veille-basse.registres-copies
+    choix:
+      - id: renforcer-sanctuaire
+        intention: { cle: evenement.couronne.veille.choix.sanctuaire, variables: [] }
+        couts_connus:
+          - { cle: evenement.couronne.veille.choix.sanctuaire.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - { id: couronne.veille-des-trois.sanctuaire-renforce, cible: veille-des-trois }
+      - id: evacuer-releves
+        intention: { cle: evenement.couronne.veille.choix.releves, variables: [] }
+        couts_connus:
+          - { cle: evenement.couronne.veille.choix.releves.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - { id: couronne.veille-des-trois.releves-evacues, cible: releves-des-trois-veilles }
+    consequence_differee: { type: devenir-de-veille-des-trois-consigne, cible: veille-des-trois }
+    recuperation: { type: les-deux-issues-preservent-les-diagnostics }
+    variantes:
+      - id: registres
+        condition: fait-present:veille-basse.registres-copies
+        presentation: { cle: evenement.couronne.veille.variante.registres, variables: [] }
+      - id: cohorte
+        condition: fait-present:veille-basse.cohorte-accueillie
+        presentation: { cle: evenement.couronne.veille.variante.cohorte, variables: [] }
+      - id: standard
+        condition: toujours
+        presentation: { cle: evenement.couronne.veille.variante.standard, variables: [] }
+    destination_echo: journal-de-campagne
+    asset: couronne.veille-des-trois.les-filtres-sous-les-phares
+
+  - id: couronne.approches.les-trois-socles-du-noeud
+    famille: mystere-des-phares
+    themes: [couronne-muette, trois-socles, ancrage, reaccord, precipitation]
+    fonction: reveler-trois-montages-compatibles-sans-en-selectionner-un
+    fenetre: couronne-approches
+    conditions:
+      requises:
+        - type: un-des-faits-present
+          faits:
+            - couronne.tete-de-ligne.mandat-republicain
+            - couronne.tete-de-ligne.atelier-commun
+            - couronne.veille-des-trois.sanctuaire-renforce
+            - couronne.veille-des-trois.releves-evacues
+      interdites: []
+    periode_eligibilite: { debut: 1200, fin: 2147483647 }
+    priorite: 180
+    epuisement: unique
+    acteurs: [porte-lanterne, socles-du-noeud-de-la-couronne, equipes-entretien]
+    origine: { cle: evenement.couronne.socles.origine, variables: [] }
+    libelle_intentions: { cle: evenement.ruban.intentions, variables: [] }
+    titre: { cle: evenement.couronne.socles.titre, variables: [] }
+    presentation: { cle: evenement.couronne.socles.presentation, variables: [] }
+    informations:
+      - source: socles-du-noeud-de-la-couronne
+        texte: { cle: evenement.couronne.socles.information, variables: [] }
+    faits_lus:
+      - couronne.tete-de-ligne.mandat-republicain
+      - couronne.tete-de-ligne.atelier-commun
+      - couronne.veille-des-trois.sanctuaire-renforce
+      - couronne.veille-des-trois.releves-evacues
+      - trame.signal-zero.interface-rail-lue
+      - bassins.deversoir.ligne-zero-relevee
+    choix:
+      - id: cartographier-socles
+        intention: { cle: evenement.couronne.socles.choix.cartographier, variables: [] }
+        couts_connus:
+          - { cle: evenement.couronne.socles.choix.cartographier.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - { id: couronne.approches.socles-cartographies, cible: socles-du-noeud-de-la-couronne }
+      - id: etablir-compatibilites
+        intention: { cle: evenement.couronne.socles.choix.compatibilites, variables: [] }
+        couts_connus:
+          - { cle: evenement.couronne.socles.choix.compatibilites.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - { id: couronne.approches.compatibilites-etablies, cible: socles-du-noeud-de-la-couronne }
+    consequence_differee: { type: trois-montages-documentes-sans-selection, cible: plans-des-trois-montages }
+    recuperation: { type: tous-les-montages-restent-etudiables }
+    variantes:
+      - id: ligne-zero
+        condition: fait-present:bassins.deversoir.ligne-zero-relevee
+        presentation: { cle: evenement.couronne.socles.variante.ligne-zero, variables: [] }
+      - id: interface
+        condition: fait-present:trame.signal-zero.interface-rail-lue
+        presentation: { cle: evenement.couronne.socles.variante.interface, variables: [] }
+      - id: standard
+        condition: toujours
+        presentation: { cle: evenement.couronne.socles.variante.standard, variables: [] }
+    destination_echo: journal-de-campagne
+    asset: couronne.approches.les-trois-socles-du-noeud
+
+  - id: couronne.approches.les-montages-de-la-couronne
+    famille: consequences-systemiques
+    themes: [preparatifs, ressources, specialistes, trois-montages]
+    fonction: amorcer-un-montage-selon-les-ressources-et-specialistes-sans-choisir-de-fin
+    fenetre: couronne-approches
+    conditions:
+      requises:
+        - type: un-des-faits-present
+          faits:
+            - couronne.approches.socles-cartographies
+            - couronne.approches.compatibilites-etablies
+      interdites: []
+    periode_eligibilite: { debut: 1200, fin: 2147483647 }
+    priorite: 170
+    epuisement: unique
+    acteurs: [porte-lanterne, equipes-entretien, plans-des-trois-montages]
+    origine: { cle: evenement.couronne.montages.origine, variables: [] }
+    libelle_intentions: { cle: evenement.ruban.intentions, variables: [] }
+    titre: { cle: evenement.couronne.montages.titre, variables: [] }
+    presentation: { cle: evenement.couronne.montages.presentation, variables: [] }
+    informations:
+      - source: equipes-entretien
+        texte: { cle: evenement.couronne.montages.information, variables: [] }
+    faits_lus:
+      - couronne.approches.socles-cartographies
+      - couronne.approches.compatibilites-etablies
+      - trame.grand-aiguillage.train-outil-annonce
+      - bassins.deversoir.ligne-zero-relevee
+    choix:
+      - id: amorcer-berceau
+        intention: { cle: evenement.couronne.montages.choix.berceau, variables: [] }
+        couts_connus:
+          - { cle: evenement.couronne.montages.choix.berceau.cout, variables: [] }
+        effets:
+          - { type: stock.modifier, stock: materiaux, valeur: -8 }
+        faits_produits:
+          - { id: couronne.approches.berceau-amorce, cible: berceau-d-ancrage }
+      - id: calibrer-etalon
+        intention: { cle: evenement.couronne.montages.choix.etalon, variables: [] }
+        couts_connus:
+          - { cle: evenement.couronne.montages.choix.etalon.cout, variables: [] }
+        effets:
+          - { type: stock.modifier, stock: materiaux, valeur: -6 }
+        faits_produits:
+          - { id: couronne.approches.etalon-calibre, cible: etalon-de-reaccord }
+      - id: assembler-precipitateur
+        intention: { cle: evenement.couronne.montages.choix.precipitateur, variables: [] }
+        couts_connus:
+          - { cle: evenement.couronne.montages.choix.precipitateur.cout, variables: [] }
+        effets:
+          - { type: stock.modifier, stock: materiaux, valeur: -10 }
+        faits_produits:
+          - { id: couronne.approches.precipitateur-assemble, cible: precipitateur-embarque }
+      - id: reporter-preparatifs
+        intention: { cle: evenement.couronne.montages.choix.reporter, variables: [] }
+        couts_connus:
+          - { cle: evenement.couronne.montages.choix.reporter.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - { id: couronne.approches.preparatifs-reportes, cible: plans-des-trois-montages }
+    consequence_differee: { type: montage-amorce-sans-selection-finale, cible: plans-des-trois-montages }
+    recuperation: { type: report-sans-cout-toujours-disponible }
+    variantes:
+      - id: rail
+        condition: fait-present:trame.grand-aiguillage.train-outil-annonce
+        presentation: { cle: evenement.couronne.montages.variante.rail, variables: [] }
+      - id: ligne-zero
+        condition: fait-present:bassins.deversoir.ligne-zero-relevee
+        presentation: { cle: evenement.couronne.montages.variante.ligne-zero, variables: [] }
+      - id: standard
+        condition: toujours
+        presentation: { cle: evenement.couronne.montages.variante.standard, variables: [] }
+    destination_echo: journal-de-campagne
+    asset: couronne.approches.les-montages-de-la-couronne
+
+  - id: couronne.approches.ilyana-et-les-plans-sous-cendre
+    famille: histoires-de-compagnons
+    themes: [ilyana-voss, transmission, responsabilite, plans]
+    fonction: confier-la-garde-des-plans-sans-rendre-ilyana-obligatoire
+    fenetre: couronne-approches
+    conditions:
+      requises:
+        - type: un-des-faits-present
+          faits:
+            - couronne.approches.berceau-amorce
+            - couronne.approches.etalon-calibre
+            - couronne.approches.precipitateur-assemble
+            - couronne.approches.preparatifs-reportes
+      interdites: []
+    periode_eligibilite: { debut: 1200, fin: 2147483647 }
+    priorite: 160
+    epuisement: unique
+    acteurs: [porte-lanterne, ilyana-voss, equipes-entretien, plans-des-trois-montages]
+    origine: { cle: evenement.couronne.ilyana.origine, variables: [] }
+    libelle_intentions: { cle: evenement.ruban.intentions, variables: [] }
+    titre: { cle: evenement.couronne.ilyana.titre, variables: [] }
+    presentation: { cle: evenement.couronne.ilyana.presentation, variables: [] }
+    informations:
+      - source: ilyana-voss
+        texte: { cle: evenement.couronne.ilyana.information, variables: [] }
+    faits_lus:
+      - couronne.approches.berceau-amorce
+      - couronne.approches.etalon-calibre
+      - couronne.approches.precipitateur-assemble
+      - couronne.approches.preparatifs-reportes
+      - bassins.haut-puits.ilyana-garante
+      - trame.signal-zero.trace-transmise
+    choix:
+      - id: confier-plans-a-ilyana
+        intention: { cle: evenement.couronne.ilyana.choix.confier, variables: [] }
+        couts_connus:
+          - { cle: evenement.couronne.ilyana.choix.confier.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - { id: couronne.approches.plans-confies-a-ilyana, cible: ilyana-voss }
+      - id: repartir-plans-aux-equipes
+        intention: { cle: evenement.couronne.ilyana.choix.repartir, variables: [] }
+        couts_connus:
+          - { cle: evenement.couronne.ilyana.choix.repartir.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - { id: couronne.approches.plans-repartis-aux-equipes, cible: equipes-entretien }
+    consequence_differee: { type: garde-des-plans-consignee, cible: plans-des-trois-montages }
+    recuperation: { type: expertise-transmissible-sans-compagnon-obligatoire }
+    variantes:
+      - id: garante
+        condition: fait-present:bassins.haut-puits.ilyana-garante
+        presentation: { cle: evenement.couronne.ilyana.variante.garante, variables: [] }
+      - id: transmission
+        condition: fait-present:trame.signal-zero.trace-transmise
+        presentation: { cle: evenement.couronne.ilyana.variante.transmission, variables: [] }
+      - id: standard
+        condition: toujours
+        presentation: { cle: evenement.couronne.ilyana.variante.standard, variables: [] }
+    destination_echo: journal-de-campagne
+    asset: couronne.approches.ilyana-et-les-plans-sous-cendre

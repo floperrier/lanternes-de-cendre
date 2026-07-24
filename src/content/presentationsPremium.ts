@@ -187,6 +187,25 @@ export interface TextesDeLAiguillageZero {
   readonly couts: DictionnaireDeTextes;
 }
 
+export interface TextesDesApprochesDeLaCouronne {
+  readonly titre: string;
+  readonly eyebrow: string;
+  readonly besoins: DictionnaireDeTextes;
+  readonly interactions: DictionnaireDeTextes;
+  readonly devenirs: DictionnaireDeTextes;
+  readonly delegations: DictionnaireDeTextes;
+  readonly diagnostics: DictionnaireDeTextes;
+  readonly projets: DictionnaireDeTextes;
+  readonly statutsDePreparation: DictionnaireDeTextes;
+  readonly gardesDesPlans: DictionnaireDeTextes;
+  readonly formats: {
+    readonly site: string;
+    readonly delegations: string;
+    readonly preparatif: string;
+  };
+  readonly libelles: DictionnaireDeTextes;
+}
+
 export interface PresentationsPremium {
   readonly hautPuits: Readonly<Record<Langue, TextesDeHautPuits>>;
   readonly veilleBasse: Readonly<Record<Langue, TextesDeVeilleBasse>>;
@@ -197,6 +216,9 @@ export interface PresentationsPremium {
   >;
   readonly aiguillage?: Readonly<
     Record<Langue, TextesDeLAiguillageZero>
+  >;
+  readonly couronne?: Readonly<
+    Record<Langue, TextesDesApprochesDeLaCouronne>
   >;
   readonly deversoir?: Readonly<
     Record<
@@ -296,6 +318,14 @@ export function installerPresentationsPremium(valeur: unknown): void {
         typeof evenement.id === "string" &&
         evenement.id.startsWith("trame.aiguillage-zero."),
     );
+  const inclutCouronne =
+    Array.isArray(evenements) &&
+    evenements.some(
+      (evenement) =>
+        estObjet(evenement) &&
+        typeof evenement.id === "string" &&
+        evenement.id.startsWith("couronne."),
+    );
   const surfacesAttendues = [
     "hautPuits",
     "veilleBasse",
@@ -304,6 +334,7 @@ export function installerPresentationsPremium(valeur: unknown): void {
     ...(inclutTraverse ? ["traverse"] : []),
     ...(inclutConvergence ? ["convergence"] : []),
     ...(inclutAiguillage ? ["aiguillage"] : []),
+    ...(inclutCouronne ? ["couronne"] : []),
   ];
   if (
     !estObjet(presentations) ||

@@ -1,0 +1,15 @@
+{
+  "asset": "serveur-commercial/assets/couronne-montages.webp",
+  "sha256": "a28fb1fccb0b7ba754077409d660661b144078de69c647db5c7537d656ccf189",
+  "createdAt": "2026-07-23",
+  "tool": "Codex built-in image_gen",
+  "model": "built-in model (identifier not exposed)",
+  "useCase": "stylized-concept",
+  "input": "No input image; generated from the project’s established industrial ash-world art direction.",
+  "prompt": "Field workshop comparing separate parts for an anchoring cradle, retuning gauge and caravan precipitator; cinematic painterly 16:9 industrial concept art, no text or logos.",
+  "rights": "OpenAI Terms of Use — output assigned to the user",
+  "approval": {
+    "status": "pending-pull-request-review",
+    "reviewer": null
+  }
+}

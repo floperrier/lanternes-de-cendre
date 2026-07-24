@@ -6,6 +6,7 @@ import type {
   EvenementDuCatalogue,
 } from "../content/types";
 import type { EffetsDeFait, FaitDeCampagne } from "./faits";
+import { choixDesApprochesDeLaCouronneEstDisponible } from "./couronne";
 import {
   creerFluxPseudoAleatoire,
   type FluxPseudoAleatoire,
@@ -443,6 +444,22 @@ function declencherSuiteNarrativeDeLaDemonstration(
   ) {
     return declencherEvenement(etat, "aiguillage-zero");
   }
+  if (
+    (etat.routes.position === "tete-de-ligne" ||
+      etat.routes.position === "veille-des-trois") &&
+    trouverEngagementDeRouteActif(etat.routes) === undefined
+  ) {
+    const evenementLocal = declencherEvenement(
+      etat,
+      etat.routes.position === "tete-de-ligne"
+        ? "couronne-tete-de-ligne"
+        : "couronne-veille-des-trois",
+    );
+    return (
+      evenementLocal ??
+      declencherEvenement(etat, "couronne-approches")
+    );
+  }
   return etat.routes.position === "haut-puits" &&
     trouverEngagementDeRouteActif(etat.routes) === undefined
     ? declencherEvenement(etat, "halte-haut-puits")
@@ -498,8 +515,17 @@ export function choixNarratifEstDisponible(
   evenementId: string,
   choix: Pick<ChoixDEvenement, "id" | "effets">,
 ): boolean {
-  if (!evenementId.startsWith("trame.")) {
+  if (
+    !evenementId.startsWith("trame.") &&
+    !evenementId.startsWith("couronne.")
+  ) {
     return true;
+  }
+  if (
+    evenementId.startsWith("couronne.") &&
+    !choixDesApprochesDeLaCouronneEstDisponible(etat, choix.id)
+  ) {
+    return false;
   }
   if (
     evenementId === "trame.aiguillage-zero.le-conseil-des-voies" &&

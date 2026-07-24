@@ -195,3 +195,28 @@ assets:
     alternative: evenement.aiguillage.passage.asset.alt
     contient_texte: false
     provenance: docs/assets/trame-aiguillage-passage.provenance.json
+  - id: couronne.tete-de-ligne.le-decret-du-dernier-quai
+    fichier: /api/commercial/assets/couronne-tete-de-ligne.webp
+    alternative: evenement.couronne.tete.asset.alt
+    contient_texte: false
+    provenance: docs/assets/couronne-tete-de-ligne.provenance.json
+  - id: couronne.veille-des-trois.les-filtres-sous-les-phares
+    fichier: /api/commercial/assets/couronne-veille-des-trois.webp
+    alternative: evenement.couronne.veille.asset.alt
+    contient_texte: false
+    provenance: docs/assets/couronne-veille-des-trois.provenance.json
+  - id: couronne.approches.les-trois-socles-du-noeud
+    fichier: /api/commercial/assets/couronne-trois-socles.webp
+    alternative: evenement.couronne.socles.asset.alt
+    contient_texte: false
+    provenance: docs/assets/couronne-trois-socles.provenance.json
+  - id: couronne.approches.les-montages-de-la-couronne
+    fichier: /api/commercial/assets/couronne-montages.webp
+    alternative: evenement.couronne.montages.asset.alt
+    contient_texte: false
+    provenance: docs/assets/couronne-montages.provenance.json
+  - id: couronne.approches.ilyana-et-les-plans-sous-cendre
+    fichier: /api/commercial/assets/couronne-ilyana-plans.webp
+    alternative: evenement.couronne.ilyana.asset.alt
+    contient_texte: false
+    provenance: docs/assets/couronne-ilyana-plans.provenance.json

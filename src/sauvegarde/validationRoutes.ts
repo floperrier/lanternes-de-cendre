@@ -377,6 +377,9 @@ export function engagementsDuDeversoirSontCausaux(
         ? FAITS_OUVRANT_LA_CONDUITE_DU_DEVERSOIR
         : engagement.tronconId === "passage-de-la-couronne-muette"
           ? FAITS_OUVRANT_LE_PASSAGE_DE_LA_COURONNE
+        : engagement.tronconId === "voie-de-tete-de-ligne" ||
+            engagement.tronconId === "chemin-des-trois-veilles"
+          ? FAITS_OUVRANT_LE_PASSAGE_DE_LA_COURONNE
         : engagement.tronconId === "passage-de-la-ligne-zero" ||
             engagement.tronconId === "piste-des-levees"
           ? FAITS_OUVRANT_LE_PASSAGE_REGIONAL

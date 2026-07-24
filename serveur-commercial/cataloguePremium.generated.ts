@@ -9942,6 +9942,1593 @@ export default {
           }
         }
       }
+    },
+    {
+      "id": "couronne.tete-de-ligne.le-decret-du-dernier-quai",
+      "famille": "conflits-regionaux",
+      "themes": [
+        "couronne-muette",
+        "republique-du-rail",
+        "atelier",
+        "delegation"
+      ],
+      "fonction": "donner-a-tete-de-ligne-un-devenir-et-une-delegation-conditionnee-par-la-trame",
+      "fenetre": "couronne-tete-de-ligne",
+      "conditions": {
+        "requises": [
+          {
+            "type": "lieu-present",
+            "lieu": "tete-de-ligne"
+          }
+        ],
+        "interdites": []
+      },
+      "periodeEligibilite": {
+        "debut": 1200,
+        "fin": 2147483647
+      },
+      "priorite": 190,
+      "epuisement": "unique",
+      "acteurs": [
+        "porte-lanterne",
+        "delegation-republique-du-rail",
+        "habitants-tete-de-ligne"
+      ],
+      "sourcesInformations": [
+        "delegation-republique-du-rail"
+      ],
+      "faitsLus": [
+        "trame.aiguillage-zero.charte-partagee",
+        "trame.aiguillage-zero.trace-du-vol"
+      ],
+      "choix": [
+        {
+          "id": "ratifier-mandat",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "couronne.tete-de-ligne.mandat-republicain",
+              "cible": "tete-de-ligne"
+            }
+          ]
+        },
+        {
+          "id": "ouvrir-atelier-commun",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "couronne.tete-de-ligne.atelier-commun",
+              "cible": "atelier-de-tete-de-ligne"
+            }
+          ]
+        }
+      ],
+      "consequenceDifferee": {
+        "type": "devenir-de-tete-de-ligne-consigne",
+        "cible": "tete-de-ligne"
+      },
+      "recuperation": {
+        "type": "les-deux-issues-laissent-les-montages-ouverts"
+      },
+      "variantes": [
+        {
+          "id": "trace",
+          "condition": {
+            "type": "fait-present",
+            "fait": "trame.aiguillage-zero.trace-du-vol"
+          }
+        },
+        {
+          "id": "charte",
+          "condition": {
+            "type": "fait-present",
+            "fait": "trame.aiguillage-zero.charte-partagee"
+          }
+        },
+        {
+          "id": "standard",
+          "condition": {
+            "type": "toujours"
+          }
+        }
+      ],
+      "destinationEcho": "journal-de-campagne",
+      "asset": {
+        "id": "couronne.tete-de-ligne.le-decret-du-dernier-quai",
+        "fichier": "/api/commercial/assets/couronne-tete-de-ligne.webp",
+        "octetsTransferes": 322094,
+        "contientTexte": false,
+        "alternatives": {
+          "fr": "Un camp ferroviaire fortifié entoure un dernier quai où une délégation et des ouvriers examinent des pièces de voie.",
+          "en": "A fortified railway camp surrounds a last platform where a delegation and workers inspect track parts."
+        },
+        "provenance": {
+          "fiche": "docs/assets/couronne-tete-de-ligne.provenance.json",
+          "creeLe": "2026-07-23",
+          "outil": "Codex built-in image_gen",
+          "modele": "built-in model (identifier not exposed)",
+          "usage": "stylized-concept",
+          "entree": "No input image; generated from the project’s established industrial ash-world art direction.",
+          "prompt": "Fortified Tête-de-Ligne railhead where a formal rail delegation faces local mechanics amid track parts; cinematic painterly 16:9 industrial concept art, no text or logos.",
+          "droits": "OpenAI Terms of Use — output assigned to the user",
+          "empreinteSha256": "a922184cae7da8e8bc57fbc3e06a6cff72722a0d860eb8abe95992275930c4be",
+          "statutApprobation": "pending-pull-request-review",
+          "reviseur": null
+        }
+      },
+      "textes": {
+        "fr": {
+          "origine": {
+            "cle": "evenement.couronne.tete.origine",
+            "modele": "Dernier quai de Tête-de-Ligne",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.couronne.tete.titre",
+            "modele": "Le décret du dernier quai",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.couronne.tete.presentation",
+            "modele": "La République du Rail tient ici un camp fortifié et réclame des pièces de voie. Elle propose un mandat exclusif ; les équipes du quai demandent plutôt un atelier commun dont personne ne pourrait fermer les portes.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.couronne.tete.information",
+              "modele": "La délégation venue de la Trame porte avec elle les Relations, Engagements et Soupçons laissés derrière le convoi.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "trace": {
+              "cle": "evenement.couronne.tete.variante.trace",
+              "modele": "La Trace du vol rend chaque promesse républicaine conditionnelle et chaque inventaire contesté.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "charte": {
+              "cle": "evenement.couronne.tete.variante.charte",
+              "modele": "La Charte partagée arrive avant le convoi et donne aux équipes locales un précédent public.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.couronne.tete.variante.standard",
+              "modele": "Les sceaux de la République font autorité, sans effacer la voix des équipes du quai.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "ratifier-mandat": {
+              "intention": {
+                "cle": "evenement.couronne.tete.choix.mandat",
+                "modele": "Ratifier le mandat de la République",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.couronne.tete.choix.mandat.cout",
+                  "modele": "Coût connu : aucun stock ; Tête-de-Ligne est absorbée dans le réseau républicain.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "ouvrir-atelier-commun": {
+              "intention": {
+                "cle": "evenement.couronne.tete.choix.atelier",
+                "modele": "Ouvrir l’atelier à toutes les délégations",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.couronne.tete.choix.atelier.cout",
+                  "modele": "Coût connu : aucun stock ; le Site reste actif sous responsabilité partagée.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        },
+        "en": {
+          "origine": {
+            "cle": "evenement.couronne.tete.origine",
+            "modele": "Railhead’s last platform",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.couronne.tete.titre",
+            "modele": "The last platform decree",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.couronne.tete.presentation",
+            "modele": "The Rail Republic holds a fortified camp here and demands track parts. It offers an exclusive mandate; platform crews instead ask for a shared workshop whose doors no delegation could close.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.couronne.tete.information",
+              "modele": "The delegation from the Weave carries the Relationships, Commitments and Suspicions left behind the caravan.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "trace": {
+              "cle": "evenement.couronne.tete.variante.trace",
+              "modele": "The theft Trace makes every Republic promise conditional and every inventory disputed.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "charte": {
+              "cle": "evenement.couronne.tete.variante.charte",
+              "modele": "The shared Charter arrives before the caravan and gives local crews a public precedent.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.couronne.tete.variante.standard",
+              "modele": "Republic seals carry authority without erasing the platform crews’ voice.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "ratifier-mandat": {
+              "intention": {
+                "cle": "evenement.couronne.tete.choix.mandat",
+                "modele": "Ratify the Republic’s mandate",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.couronne.tete.choix.mandat.cout",
+                  "modele": "Known cost: no stock; Railhead is absorbed into the Republic’s network.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "ouvrir-atelier-commun": {
+              "intention": {
+                "cle": "evenement.couronne.tete.choix.atelier",
+                "modele": "Open the workshop to every delegation",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.couronne.tete.choix.atelier.cout",
+                  "modele": "Known cost: no stock; the Site remains active under shared responsibility.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "couronne.veille-des-trois.les-filtres-sous-les-phares",
+      "famille": "conflits-regionaux",
+      "themes": [
+        "couronne-muette",
+        "pelerins-de-cendre",
+        "sanctuaire",
+        "evacuation"
+      ],
+      "fonction": "donner-a-veille-des-trois-un-devenir-et-une-delegation-conditionnee-par-les-bassins",
+      "fenetre": "couronne-veille-des-trois",
+      "conditions": {
+        "requises": [
+          {
+            "type": "lieu-present",
+            "lieu": "veille-des-trois"
+          }
+        ],
+        "interdites": []
+      },
+      "periodeEligibilite": {
+        "debut": 1200,
+        "fin": 2147483647
+      },
+      "priorite": 190,
+      "epuisement": "unique",
+      "acteurs": [
+        "porte-lanterne",
+        "gardiens-des-trois-veilles",
+        "pelerins-de-cendre"
+      ],
+      "sourcesInformations": [
+        "gardiens-des-trois-veilles"
+      ],
+      "faitsLus": [
+        "veille-basse.cohorte-accueillie",
+        "veille-basse.registres-copies"
+      ],
+      "choix": [
+        {
+          "id": "renforcer-sanctuaire",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "couronne.veille-des-trois.sanctuaire-renforce",
+              "cible": "veille-des-trois"
+            }
+          ]
+        },
+        {
+          "id": "evacuer-releves",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "couronne.veille-des-trois.releves-evacues",
+              "cible": "releves-des-trois-veilles"
+            }
+          ]
+        }
+      ],
+      "consequenceDifferee": {
+        "type": "devenir-de-veille-des-trois-consigne",
+        "cible": "veille-des-trois"
+      },
+      "recuperation": {
+        "type": "les-deux-issues-preservent-les-diagnostics"
+      },
+      "variantes": [
+        {
+          "id": "registres",
+          "condition": {
+            "type": "fait-present",
+            "fait": "veille-basse.registres-copies"
+          }
+        },
+        {
+          "id": "cohorte",
+          "condition": {
+            "type": "fait-present",
+            "fait": "veille-basse.cohorte-accueillie"
+          }
+        },
+        {
+          "id": "standard",
+          "condition": {
+            "type": "toujours"
+          }
+        }
+      ],
+      "destinationEcho": "journal-de-campagne",
+      "asset": {
+        "id": "couronne.veille-des-trois.les-filtres-sous-les-phares",
+        "fichier": "/api/commercial/assets/couronne-veille-des-trois.webp",
+        "octetsTransferes": 224460,
+        "contientTexte": false,
+        "alternatives": {
+          "fr": "Trois phares éteints dominent un sanctuaire de filtres où des gardiens protègent des rouleaux de relevés.",
+          "en": "Three dark beacons loom above a filter sanctuary where keepers protect rolls of surveys."
+        },
+        "provenance": {
+          "fiche": "docs/assets/couronne-veille-des-trois.provenance.json",
+          "creeLe": "2026-07-23",
+          "outil": "Codex built-in image_gen",
+          "modele": "built-in model (identifier not exposed)",
+          "usage": "stylized-concept",
+          "entree": "A prior image_gen output was edited to extinguish the three beacon rooms while preserving the sanctuary scene.",
+          "prompt": "Veille-des-Trois filter sanctuary beneath three completely dark dead beacons; cinematic painterly 16:9 industrial concept art, no text or logos.",
+          "droits": "OpenAI Terms of Use — output assigned to the user",
+          "empreinteSha256": "1b0d5b00de63acbb6804e607ce5519a9cccc21c5ab65ad167e9f76eb4104cdac",
+          "statutApprobation": "pending-pull-request-review",
+          "reviseur": null
+        }
+      },
+      "textes": {
+        "fr": {
+          "origine": {
+            "cle": "evenement.couronne.veille.origine",
+            "modele": "Sanctuaire de Veille-des-Trois",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.couronne.veille.titre",
+            "modele": "Les filtres sous les phares",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.couronne.veille.presentation",
+            "modele": "Sous trois balises mortes, les Pèlerins de Cendre maintiennent un sanctuaire technique. Ses filtres ne suffiront pas à protéger à la fois les gardiens et les relevés accumulés depuis la chute des phares.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.couronne.veille.information",
+              "modele": "Les décisions prises à Veille-Basse déterminent qui accepte de rester, qui peut partir et quels registres sont encore crédibles.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "registres": {
+              "cle": "evenement.couronne.veille.variante.registres",
+              "modele": "Les copies de Veille-Basse permettent de distinguer les mesures anciennes des ajouts récents.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "cohorte": {
+              "cle": "evenement.couronne.veille.variante.cohorte",
+              "modele": "La cohorte accueillie envoie assez de bras pour maintenir une veille sous deux balises.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.couronne.veille.variante.standard",
+              "modele": "Les gardiens comptent les filtres en silence, sans renoncer à transmettre leurs relevés.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "renforcer-sanctuaire": {
+              "intention": {
+                "cle": "evenement.couronne.veille.choix.sanctuaire",
+                "modele": "Renforcer le sanctuaire et ses gardiens",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.couronne.veille.choix.sanctuaire.cout",
+                  "modele": "Coût connu : aucun stock ; Veille-des-Trois reste active autour de ses filtres.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "evacuer-releves": {
+              "intention": {
+                "cle": "evenement.couronne.veille.choix.releves",
+                "modele": "Évacuer les relevés avant la prochaine cendre",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.couronne.veille.choix.releves.cout",
+                  "modele": "Coût connu : aucun stock ; le Site est évacué mais son renseignement demeure.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        },
+        "en": {
+          "origine": {
+            "cle": "evenement.couronne.veille.origine",
+            "modele": "Threefold Watch sanctuary",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.couronne.veille.titre",
+            "modele": "Filters beneath the beacons",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.couronne.veille.presentation",
+            "modele": "Beneath three dead beacons, the Ash Pilgrims maintain a technical sanctuary. Its filters cannot protect both the keepers and the surveys gathered since the beacons fell.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.couronne.veille.information",
+              "modele": "Decisions made at Low Watch determine who agrees to stay, who can leave and which registers remain credible.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "registres": {
+              "cle": "evenement.couronne.veille.variante.registres",
+              "modele": "Low Watch copies distinguish old measurements from recent additions.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "cohorte": {
+              "cle": "evenement.couronne.veille.variante.cohorte",
+              "modele": "The welcomed cohort sends enough hands to maintain a watch beneath two beacons.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.couronne.veille.variante.standard",
+              "modele": "The keepers count filters in silence without abandoning their surveys.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "renforcer-sanctuaire": {
+              "intention": {
+                "cle": "evenement.couronne.veille.choix.sanctuaire",
+                "modele": "Reinforce the sanctuary and its keepers",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.couronne.veille.choix.sanctuaire.cout",
+                  "modele": "Known cost: no stock; Threefold Watch remains active around its filters.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "evacuer-releves": {
+              "intention": {
+                "cle": "evenement.couronne.veille.choix.releves",
+                "modele": "Evacuate the surveys before the next ashfall",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.couronne.veille.choix.releves.cout",
+                  "modele": "Known cost: no stock; the Site is evacuated but its intelligence remains.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "couronne.approches.les-trois-socles-du-noeud",
+      "famille": "mystere-des-phares",
+      "themes": [
+        "couronne-muette",
+        "trois-socles",
+        "ancrage",
+        "reaccord",
+        "precipitation"
+      ],
+      "fonction": "reveler-trois-montages-compatibles-sans-en-selectionner-un",
+      "fenetre": "couronne-approches",
+      "conditions": {
+        "requises": [
+          {
+            "type": "un-des-faits-present",
+            "faits": [
+              "couronne.tete-de-ligne.mandat-republicain",
+              "couronne.tete-de-ligne.atelier-commun",
+              "couronne.veille-des-trois.sanctuaire-renforce",
+              "couronne.veille-des-trois.releves-evacues"
+            ]
+          }
+        ],
+        "interdites": []
+      },
+      "periodeEligibilite": {
+        "debut": 1200,
+        "fin": 2147483647
+      },
+      "priorite": 180,
+      "epuisement": "unique",
+      "acteurs": [
+        "porte-lanterne",
+        "socles-du-noeud-de-la-couronne",
+        "equipes-entretien"
+      ],
+      "sourcesInformations": [
+        "socles-du-noeud-de-la-couronne"
+      ],
+      "faitsLus": [
+        "couronne.tete-de-ligne.mandat-republicain",
+        "couronne.tete-de-ligne.atelier-commun",
+        "couronne.veille-des-trois.sanctuaire-renforce",
+        "couronne.veille-des-trois.releves-evacues",
+        "trame.signal-zero.interface-rail-lue",
+        "bassins.deversoir.ligne-zero-relevee"
+      ],
+      "choix": [
+        {
+          "id": "cartographier-socles",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "couronne.approches.socles-cartographies",
+              "cible": "socles-du-noeud-de-la-couronne"
+            }
+          ]
+        },
+        {
+          "id": "etablir-compatibilites",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "couronne.approches.compatibilites-etablies",
+              "cible": "socles-du-noeud-de-la-couronne"
+            }
+          ]
+        }
+      ],
+      "consequenceDifferee": {
+        "type": "trois-montages-documentes-sans-selection",
+        "cible": "plans-des-trois-montages"
+      },
+      "recuperation": {
+        "type": "tous-les-montages-restent-etudiables"
+      },
+      "variantes": [
+        {
+          "id": "ligne-zero",
+          "condition": {
+            "type": "fait-present",
+            "fait": "bassins.deversoir.ligne-zero-relevee"
+          }
+        },
+        {
+          "id": "interface",
+          "condition": {
+            "type": "fait-present",
+            "fait": "trame.signal-zero.interface-rail-lue"
+          }
+        },
+        {
+          "id": "standard",
+          "condition": {
+            "type": "toujours"
+          }
+        }
+      ],
+      "destinationEcho": "journal-de-campagne",
+      "asset": {
+        "id": "couronne.approches.les-trois-socles-du-noeud",
+        "fichier": "/api/commercial/assets/couronne-trois-socles.webp",
+        "octetsTransferes": 368868,
+        "contientTexte": false,
+        "alternatives": {
+          "fr": "Des équipes éclairent un nœud souterrain muni de trois socles mécaniques distincts et encore démontés.",
+          "en": "Crews illuminate an underground node fitted with three distinct mechanical mounts, all still unassembled."
+        },
+        "provenance": {
+          "fiche": "docs/assets/couronne-trois-socles.provenance.json",
+          "creeLe": "2026-07-23",
+          "outil": "Codex built-in image_gen",
+          "modele": "built-in model (identifier not exposed)",
+          "usage": "stylized-concept",
+          "entree": "No input image; generated from the project’s established industrial ash-world art direction.",
+          "prompt": "Buried Crown node with exactly three distinct empty mechanical mounts mapped by lantern-bearing crews; cinematic painterly 16:9 industrial concept art, no text or logos.",
+          "droits": "OpenAI Terms of Use — output assigned to the user",
+          "empreinteSha256": "df8b3217ef846c7e432c3babe6e3f989d9c15cd9abfde839f66c6544a0b5a5bd",
+          "statutApprobation": "pending-pull-request-review",
+          "reviseur": null
+        }
+      },
+      "textes": {
+        "fr": {
+          "origine": {
+            "cle": "evenement.couronne.socles.origine",
+            "modele": "Nœud enfoui de la Couronne",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.couronne.socles.titre",
+            "modele": "Les trois socles du nœud",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.couronne.socles.presentation",
+            "modele": "Sous l’approche choisie, un nœud enfoui porte trois socles incompatibles en apparence : un berceau d’ancrage, un étalon de réaccord et les conduites d’un précipitateur embarqué. Ce sont des montages préparables, pas des fins déjà choisies.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.couronne.socles.information",
+              "modele": "Chaque socle reprend une interface rencontrée dans les régions précédentes ; aucun ne fonctionne sans ressources et spécialistes adaptés.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "ligne-zero": {
+              "cle": "evenement.couronne.socles.variante.ligne-zero",
+              "modele": "Le relevé de la Ligne Zéro identifie immédiatement les conduites du précipitateur.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "interface": {
+              "cle": "evenement.couronne.socles.variante.interface",
+              "modele": "L’interface lue à Signal-Zéro donne une échelle fiable à l’étalon.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.couronne.socles.variante.standard",
+              "modele": "La forme des boulons suffit à distinguer trois familles de montage.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "cartographier-socles": {
+              "intention": {
+                "cle": "evenement.couronne.socles.choix.cartographier",
+                "modele": "Cartographier les trois socles",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.couronne.socles.choix.cartographier.cout",
+                  "modele": "Coût connu : aucun stock ; les contraintes mécaniques deviennent comparables.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "etablir-compatibilites": {
+              "intention": {
+                "cle": "evenement.couronne.socles.choix.compatibilites",
+                "modele": "Établir la table des compatibilités",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.couronne.socles.choix.compatibilites.cout",
+                  "modele": "Coût connu : aucun stock ; les interfaces régionales deviennent transmissibles.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        },
+        "en": {
+          "origine": {
+            "cle": "evenement.couronne.socles.origine",
+            "modele": "The Crown’s buried node",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.couronne.socles.titre",
+            "modele": "The node’s three mounts",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.couronne.socles.presentation",
+            "modele": "Beneath the chosen approach, a buried node carries three seemingly incompatible mounts: an anchoring cradle, a retuning gauge and ducts for a caravan precipitator. They are preparable assemblies, not endings already chosen.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.couronne.socles.information",
+              "modele": "Each mount reuses an interface encountered in earlier regions; none works without suitable resources and specialists.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "ligne-zero": {
+              "cle": "evenement.couronne.socles.variante.ligne-zero",
+              "modele": "The Zero Line survey immediately identifies the precipitator ducts.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "interface": {
+              "cle": "evenement.couronne.socles.variante.interface",
+              "modele": "The interface read at Zero Signal gives the gauge a reliable scale.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.couronne.socles.variante.standard",
+              "modele": "Bolt shapes alone distinguish three families of assembly.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "cartographier-socles": {
+              "intention": {
+                "cle": "evenement.couronne.socles.choix.cartographier",
+                "modele": "Map the three mounts",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.couronne.socles.choix.cartographier.cout",
+                  "modele": "Known cost: no stock; mechanical constraints become comparable.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "etablir-compatibilites": {
+              "intention": {
+                "cle": "evenement.couronne.socles.choix.compatibilites",
+                "modele": "Build the compatibility table",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.couronne.socles.choix.compatibilites.cout",
+                  "modele": "Known cost: no stock; regional interfaces become transferable.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "couronne.approches.les-montages-de-la-couronne",
+      "famille": "consequences-systemiques",
+      "themes": [
+        "preparatifs",
+        "ressources",
+        "specialistes",
+        "trois-montages"
+      ],
+      "fonction": "amorcer-un-montage-selon-les-ressources-et-specialistes-sans-choisir-de-fin",
+      "fenetre": "couronne-approches",
+      "conditions": {
+        "requises": [
+          {
+            "type": "un-des-faits-present",
+            "faits": [
+              "couronne.approches.socles-cartographies",
+              "couronne.approches.compatibilites-etablies"
+            ]
+          }
+        ],
+        "interdites": []
+      },
+      "periodeEligibilite": {
+        "debut": 1200,
+        "fin": 2147483647
+      },
+      "priorite": 170,
+      "epuisement": "unique",
+      "acteurs": [
+        "porte-lanterne",
+        "equipes-entretien",
+        "plans-des-trois-montages"
+      ],
+      "sourcesInformations": [
+        "equipes-entretien"
+      ],
+      "faitsLus": [
+        "couronne.approches.socles-cartographies",
+        "couronne.approches.compatibilites-etablies",
+        "trame.grand-aiguillage.train-outil-annonce",
+        "bassins.deversoir.ligne-zero-relevee"
+      ],
+      "choix": [
+        {
+          "id": "amorcer-berceau",
+          "effets": [
+            {
+              "type": "stock.modifier",
+              "stock": "materiaux",
+              "valeur": -8
+            }
+          ],
+          "faitsProduits": [
+            {
+              "id": "couronne.approches.berceau-amorce",
+              "cible": "berceau-d-ancrage"
+            }
+          ]
+        },
+        {
+          "id": "calibrer-etalon",
+          "effets": [
+            {
+              "type": "stock.modifier",
+              "stock": "materiaux",
+              "valeur": -6
+            }
+          ],
+          "faitsProduits": [
+            {
+              "id": "couronne.approches.etalon-calibre",
+              "cible": "etalon-de-reaccord"
+            }
+          ]
+        },
+        {
+          "id": "assembler-precipitateur",
+          "effets": [
+            {
+              "type": "stock.modifier",
+              "stock": "materiaux",
+              "valeur": -10
+            }
+          ],
+          "faitsProduits": [
+            {
+              "id": "couronne.approches.precipitateur-assemble",
+              "cible": "precipitateur-embarque"
+            }
+          ]
+        },
+        {
+          "id": "reporter-preparatifs",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "couronne.approches.preparatifs-reportes",
+              "cible": "plans-des-trois-montages"
+            }
+          ]
+        }
+      ],
+      "consequenceDifferee": {
+        "type": "montage-amorce-sans-selection-finale",
+        "cible": "plans-des-trois-montages"
+      },
+      "recuperation": {
+        "type": "report-sans-cout-toujours-disponible"
+      },
+      "variantes": [
+        {
+          "id": "rail",
+          "condition": {
+            "type": "fait-present",
+            "fait": "trame.grand-aiguillage.train-outil-annonce"
+          }
+        },
+        {
+          "id": "ligne-zero",
+          "condition": {
+            "type": "fait-present",
+            "fait": "bassins.deversoir.ligne-zero-relevee"
+          }
+        },
+        {
+          "id": "standard",
+          "condition": {
+            "type": "toujours"
+          }
+        }
+      ],
+      "destinationEcho": "journal-de-campagne",
+      "asset": {
+        "id": "couronne.approches.les-montages-de-la-couronne",
+        "fichier": "/api/commercial/assets/couronne-montages.webp",
+        "octetsTransferes": 344070,
+        "contientTexte": false,
+        "alternatives": {
+          "fr": "Un atelier de campagne présente les plans et pièces séparées d’un berceau, d’un étalon et d’un précipitateur.",
+          "en": "A field workshop displays separate plans and parts for a cradle, a gauge and a precipitator."
+        },
+        "provenance": {
+          "fiche": "docs/assets/couronne-montages.provenance.json",
+          "creeLe": "2026-07-23",
+          "outil": "Codex built-in image_gen",
+          "modele": "built-in model (identifier not exposed)",
+          "usage": "stylized-concept",
+          "entree": "No input image; generated from the project’s established industrial ash-world art direction.",
+          "prompt": "Field workshop comparing separate parts for an anchoring cradle, retuning gauge and caravan precipitator; cinematic painterly 16:9 industrial concept art, no text or logos.",
+          "droits": "OpenAI Terms of Use — output assigned to the user",
+          "empreinteSha256": "a28fb1fccb0b7ba754077409d660661b144078de69c647db5c7537d656ccf189",
+          "statutApprobation": "pending-pull-request-review",
+          "reviseur": null
+        }
+      },
+      "textes": {
+        "fr": {
+          "origine": {
+            "cle": "evenement.couronne.montages.origine",
+            "modele": "Atelier provisoire de la Couronne",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.couronne.montages.titre",
+            "modele": "Les montages de la Couronne",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.couronne.montages.presentation",
+            "modele": "Les plans sont assez précis pour amorcer un montage si les matériaux et spécialistes hérités de la route le permettent. Amorcer prépare une possibilité ; cela ne sélectionne ni doctrine ni issue finale.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.couronne.montages.information",
+              "modele": "Le berceau demande un savoir ferroviaire, l’étalon les lectures complètes de Signal-Zéro et le précipitateur un relevé hydraulique ou un Décanteur documenté.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "rail": {
+              "cle": "evenement.couronne.montages.variante.rail",
+              "modele": "Le Train-outil annoncé fournit des spécialistes capables d’amorcer le Berceau.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "ligne-zero": {
+              "cle": "evenement.couronne.montages.variante.ligne-zero",
+              "modele": "La Ligne Zéro relevée donne au Précipitateur des tolérances vérifiables.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.couronne.montages.variante.standard",
+              "modele": "Les équipes distinguent ce qu’elles peuvent préparer maintenant de ce qui exige encore un spécialiste.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "amorcer-berceau": {
+              "intention": {
+                "cle": "evenement.couronne.montages.choix.berceau",
+                "modele": "Amorcer le Berceau d’ancrage",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.couronne.montages.choix.berceau.cout",
+                  "modele": "Coût connu : 8 Matériaux et une expertise ferroviaire disponible.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "calibrer-etalon": {
+              "intention": {
+                "cle": "evenement.couronne.montages.choix.etalon",
+                "modele": "Calibrer l’Étalon de réaccord",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.couronne.montages.choix.etalon.cout",
+                  "modele": "Coût connu : 6 Matériaux et les deux lectures de Signal-Zéro.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "assembler-precipitateur": {
+              "intention": {
+                "cle": "evenement.couronne.montages.choix.precipitateur",
+                "modele": "Assembler le Précipitateur embarqué",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.couronne.montages.choix.precipitateur.cout",
+                  "modele": "Coût connu : 10 Matériaux et une référence hydraulique documentée.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "reporter-preparatifs": {
+              "intention": {
+                "cle": "evenement.couronne.montages.choix.reporter",
+                "modele": "Reporter les préparatifs et conserver les plans",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.couronne.montages.choix.reporter.cout",
+                  "modele": "Coût connu : aucun stock ; les trois possibilités restent documentées.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        },
+        "en": {
+          "origine": {
+            "cle": "evenement.couronne.montages.origine",
+            "modele": "The Crown’s field workshop",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.couronne.montages.titre",
+            "modele": "The Crown assemblies",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.couronne.montages.presentation",
+            "modele": "Plans are precise enough to begin one assembly if materials and specialists inherited from the road allow it. Beginning prepares a possibility; it selects neither doctrine nor final outcome.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.couronne.montages.information",
+              "modele": "The cradle needs railway knowledge, the gauge complete Zero Signal readings, and the precipitator a hydraulic survey or documented settling unit.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "rail": {
+              "cle": "evenement.couronne.montages.variante.rail",
+              "modele": "The announced Tool Train provides specialists able to begin the Cradle.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "ligne-zero": {
+              "cle": "evenement.couronne.montages.variante.ligne-zero",
+              "modele": "The surveyed Zero Line gives the Precipitator verifiable tolerances.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.couronne.montages.variante.standard",
+              "modele": "Crews distinguish what they can prepare now from what still needs a specialist.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "amorcer-berceau": {
+              "intention": {
+                "cle": "evenement.couronne.montages.choix.berceau",
+                "modele": "Begin the Anchoring Cradle",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.couronne.montages.choix.berceau.cout",
+                  "modele": "Known cost: 8 Materials and available railway expertise.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "calibrer-etalon": {
+              "intention": {
+                "cle": "evenement.couronne.montages.choix.etalon",
+                "modele": "Calibrate the Retuning Gauge",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.couronne.montages.choix.etalon.cout",
+                  "modele": "Known cost: 6 Materials and both Zero Signal readings.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "assembler-precipitateur": {
+              "intention": {
+                "cle": "evenement.couronne.montages.choix.precipitateur",
+                "modele": "Assemble the Caravan Precipitator",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.couronne.montages.choix.precipitateur.cout",
+                  "modele": "Known cost: 10 Materials and a documented hydraulic reference.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "reporter-preparatifs": {
+              "intention": {
+                "cle": "evenement.couronne.montages.choix.reporter",
+                "modele": "Postpone preparations and retain the plans",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.couronne.montages.choix.reporter.cout",
+                  "modele": "Known cost: no stock; all three possibilities remain documented.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "couronne.approches.ilyana-et-les-plans-sous-cendre",
+      "famille": "histoires-de-compagnons",
+      "themes": [
+        "ilyana-voss",
+        "transmission",
+        "responsabilite",
+        "plans"
+      ],
+      "fonction": "confier-la-garde-des-plans-sans-rendre-ilyana-obligatoire",
+      "fenetre": "couronne-approches",
+      "conditions": {
+        "requises": [
+          {
+            "type": "un-des-faits-present",
+            "faits": [
+              "couronne.approches.berceau-amorce",
+              "couronne.approches.etalon-calibre",
+              "couronne.approches.precipitateur-assemble",
+              "couronne.approches.preparatifs-reportes"
+            ]
+          }
+        ],
+        "interdites": []
+      },
+      "periodeEligibilite": {
+        "debut": 1200,
+        "fin": 2147483647
+      },
+      "priorite": 160,
+      "epuisement": "unique",
+      "acteurs": [
+        "porte-lanterne",
+        "ilyana-voss",
+        "equipes-entretien",
+        "plans-des-trois-montages"
+      ],
+      "sourcesInformations": [
+        "ilyana-voss"
+      ],
+      "faitsLus": [
+        "couronne.approches.berceau-amorce",
+        "couronne.approches.etalon-calibre",
+        "couronne.approches.precipitateur-assemble",
+        "couronne.approches.preparatifs-reportes",
+        "bassins.haut-puits.ilyana-garante",
+        "trame.signal-zero.trace-transmise"
+      ],
+      "choix": [
+        {
+          "id": "confier-plans-a-ilyana",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "couronne.approches.plans-confies-a-ilyana",
+              "cible": "ilyana-voss"
+            }
+          ]
+        },
+        {
+          "id": "repartir-plans-aux-equipes",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "couronne.approches.plans-repartis-aux-equipes",
+              "cible": "equipes-entretien"
+            }
+          ]
+        }
+      ],
+      "consequenceDifferee": {
+        "type": "garde-des-plans-consignee",
+        "cible": "plans-des-trois-montages"
+      },
+      "recuperation": {
+        "type": "expertise-transmissible-sans-compagnon-obligatoire"
+      },
+      "variantes": [
+        {
+          "id": "garante",
+          "condition": {
+            "type": "fait-present",
+            "fait": "bassins.haut-puits.ilyana-garante"
+          }
+        },
+        {
+          "id": "transmission",
+          "condition": {
+            "type": "fait-present",
+            "fait": "trame.signal-zero.trace-transmise"
+          }
+        },
+        {
+          "id": "standard",
+          "condition": {
+            "type": "toujours"
+          }
+        }
+      ],
+      "destinationEcho": "journal-de-campagne",
+      "asset": {
+        "id": "couronne.approches.ilyana-et-les-plans-sous-cendre",
+        "fichier": "/api/commercial/assets/couronne-ilyana-plans.webp",
+        "octetsTransferes": 288792,
+        "contientTexte": false,
+        "alternatives": {
+          "fr": "Ilyana et plusieurs équipes protègent sous une toile les plans de trois montages couverts de cendre.",
+          "en": "Ilyana and several crews protect plans for three assemblies beneath a canvas, all covered in ash."
+        },
+        "provenance": {
+          "fiche": "docs/assets/couronne-ilyana-plans.provenance.json",
+          "creeLe": "2026-07-23",
+          "outil": "Codex built-in image_gen",
+          "modele": "built-in model (identifier not exposed)",
+          "usage": "stylized-concept",
+          "entree": "No input image; generated from the project’s established industrial ash-world art direction.",
+          "prompt": "Ilyana and maintenance teams deliberately share weatherproof copies of three mechanical plans under canvas; cinematic painterly 16:9 industrial concept art, no text or logos.",
+          "droits": "OpenAI Terms of Use — output assigned to the user",
+          "empreinteSha256": "8da26e9043037e64804279cdd1565280420bc1b5e2b7439691d2804487e8707f",
+          "statutApprobation": "pending-pull-request-review",
+          "reviseur": null
+        }
+      },
+      "textes": {
+        "fr": {
+          "origine": {
+            "cle": "evenement.couronne.ilyana.origine",
+            "modele": "Table des plans sous la cendre",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.couronne.ilyana.titre",
+            "modele": "Ilyana et les plans sous cendre",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.couronne.ilyana.presentation",
+            "modele": "Ilyana propose de garder la copie maîtresse tout en enseignant son classement. Les équipes peuvent aussi répartir chaque plan entre plusieurs ateliers : son expertise compte, sa présence ne doit jamais devenir obligatoire.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.couronne.ilyana.information",
+              "modele": "Les deux gardes préservent les trois montages et consignent qui répondra des modifications.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "garante": {
+              "cle": "evenement.couronne.ilyana.variante.garante",
+              "modele": "Son registre de Haut-Puits donne déjà une méthode de garde et de contradiction.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "transmission": {
+              "cle": "evenement.couronne.ilyana.variante.transmission",
+              "modele": "La Trace transmise à Signal-Zéro lui rappelle qu’un registre doit pouvoir changer de mains.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.couronne.ilyana.variante.standard",
+              "modele": "Elle laisse les plans ouverts sur la table avant de demander qui en répondra.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "confier-plans-a-ilyana": {
+              "intention": {
+                "cle": "evenement.couronne.ilyana.choix.confier",
+                "modele": "Confier la copie maîtresse à Ilyana",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.couronne.ilyana.choix.confier.cout",
+                  "modele": "Coût connu : aucun stock ; Ilyana devient garante d’une copie transmissible.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "repartir-plans-aux-equipes": {
+              "intention": {
+                "cle": "evenement.couronne.ilyana.choix.repartir",
+                "modele": "Répartir les plans entre les équipes",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.couronne.ilyana.choix.repartir.cout",
+                  "modele": "Coût connu : aucun stock ; aucune personne ne devient indispensable.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        },
+        "en": {
+          "origine": {
+            "cle": "evenement.couronne.ilyana.origine",
+            "modele": "Ash-covered plans table",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.couronne.ilyana.titre",
+            "modele": "Ilyana and the plans beneath ash",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.couronne.ilyana.presentation",
+            "modele": "Ilyana offers to keep the master copy while teaching its filing system. Crews may instead distribute each plan among several workshops: her expertise matters, but her presence must never become mandatory.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.couronne.ilyana.information",
+              "modele": "Both forms of custody preserve the three assemblies and record who answers for modifications.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "garante": {
+              "cle": "evenement.couronne.ilyana.variante.garante",
+              "modele": "Her High Well register already provides a method for custody and challenge.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "transmission": {
+              "cle": "evenement.couronne.ilyana.variante.transmission",
+              "modele": "The Trace transmitted at Zero Signal reminds her that a register must be able to change hands.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.couronne.ilyana.variante.standard",
+              "modele": "She leaves the plans open on the table before asking who will answer for them.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "confier-plans-a-ilyana": {
+              "intention": {
+                "cle": "evenement.couronne.ilyana.choix.confier",
+                "modele": "Entrust the master copy to Ilyana",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.couronne.ilyana.choix.confier.cout",
+                  "modele": "Known cost: no stock; Ilyana becomes custodian of a transferable copy.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "repartir-plans-aux-equipes": {
+              "intention": {
+                "cle": "evenement.couronne.ilyana.choix.repartir",
+                "modele": "Distribute plans among the crews",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.couronne.ilyana.choix.repartir.cout",
+                  "modele": "Known cost: no stock; no individual becomes indispensable.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        }
+      }
     }
   ],
   "conseils": [
@@ -10959,7 +12546,19 @@ export default {
           "trame.aiguillage-zero.engagement-transport-autonome": "Engagement de transport autonome consigné",
           "trame.aiguillage-zero.passage-consigne": "Passage vers la Couronne consigné",
           "trame.aiguillage-zero.passage-transmis": "Registre du passage transmis",
-          "trame.aiguillage-zero.retours-couronne-planifies": "Retours de la Couronne planifiés"
+          "trame.aiguillage-zero.retours-couronne-planifies": "Retours de la Couronne planifiés",
+          "couronne.tete-de-ligne.mandat-republicain": "Mandat républicain ratifié à Tête-de-Ligne",
+          "couronne.tete-de-ligne.atelier-commun": "Atelier commun ouvert à Tête-de-Ligne",
+          "couronne.veille-des-trois.sanctuaire-renforce": "Sanctuaire de Veille-des-Trois renforcé",
+          "couronne.veille-des-trois.releves-evacues": "Relevés de Veille-des-Trois évacués",
+          "couronne.approches.socles-cartographies": "Trois socles de la Couronne cartographiés",
+          "couronne.approches.compatibilites-etablies": "Compatibilités des trois montages établies",
+          "couronne.approches.berceau-amorce": "Berceau d’ancrage amorcé",
+          "couronne.approches.etalon-calibre": "Étalon de réaccord calibré",
+          "couronne.approches.precipitateur-assemble": "Précipitateur embarqué assemblé",
+          "couronne.approches.preparatifs-reportes": "Préparatifs de la Couronne reportés",
+          "couronne.approches.plans-confies-a-ilyana": "Plans de la Couronne confiés à Ilyana",
+          "couronne.approches.plans-repartis-aux-equipes": "Plans de la Couronne répartis aux équipes"
         },
         "causes": {
           "bassins.haut-puits.pacte-des-citernes": "Le pacte des citernes",
@@ -10995,7 +12594,12 @@ export default {
           "trame.signal-zero.ilyana-et-la-trace": "Décision prise avec Ilyana au poste de Signal-Zéro.",
           "trame.aiguillage-zero.la-piece-et-le-coeur-mobile": "Révélation obtenue devant le cœur mobile de l’Aiguillage Zéro.",
           "trame.aiguillage-zero.le-conseil-des-voies": "Accord régional tranché au Conseil de l’Aiguillage Zéro.",
-          "trame.aiguillage-zero.le-passage-de-la-couronne": "États de sortie consignés avant le passage irréversible."
+          "trame.aiguillage-zero.le-passage-de-la-couronne": "États de sortie consignés avant le passage irréversible.",
+          "couronne.tete-de-ligne.le-decret-du-dernier-quai": "Décision prise devant le dernier quai de Tête-de-Ligne.",
+          "couronne.veille-des-trois.les-filtres-sous-les-phares": "Décision prise sous les trois phares éteints de Veille-des-Trois.",
+          "couronne.approches.les-trois-socles-du-noeud": "Diagnostic établi dans le Nœud enfoui de la Couronne.",
+          "couronne.approches.les-montages-de-la-couronne": "Préparation décidée dans l’atelier provisoire de la Couronne.",
+          "couronne.approches.ilyana-et-les-plans-sous-cendre": "Garde des plans décidée avec Ilyana et les équipes."
         },
         "acteurs": {
           "ilyana-voss": "Ilyana Voss",
@@ -11027,7 +12631,12 @@ export default {
           "techniciens-signal-zero": "Techniciens de Signal-Zéro",
           "ligne-zero": "Ligne Zéro",
           "conseil-de-l-aiguillage-zero": "Conseil de l’Aiguillage Zéro",
-          "passage-vers-la-couronne": "Passage vers la Couronne"
+          "passage-vers-la-couronne": "Passage vers la Couronne",
+          "delegation-republique-du-rail": "Délégation de la République du Rail",
+          "habitants-tete-de-ligne": "Habitants de Tête-de-Ligne",
+          "gardiens-des-trois-veilles": "Gardiens des Trois Veilles",
+          "socles-du-noeud-de-la-couronne": "Socles du Nœud de la Couronne",
+          "plans-des-trois-montages": "Plans des trois montages"
         },
         "cibles": {
           "equipes-entretien": "Équipes d’entretien",
@@ -11070,7 +12679,16 @@ export default {
           "soupcons-de-l-aiguillage": "Soupçons de l’Aiguillage",
           "engagements-de-la-trame": "Engagements de la Trame",
           "couronne-muette": "Couronne muette",
-          "registre-de-sortie-de-la-trame": "Registre de sortie de la Trame"
+          "registre-de-sortie-de-la-trame": "Registre de sortie de la Trame",
+          "tete-de-ligne": "Tête-de-Ligne",
+          "atelier-de-tete-de-ligne": "Atelier de Tête-de-Ligne",
+          "veille-des-trois": "Veille-des-Trois",
+          "releves-des-trois-veilles": "Relevés des Trois Veilles",
+          "socles-du-noeud-de-la-couronne": "Socles du Nœud de la Couronne",
+          "plans-des-trois-montages": "Plans des trois montages",
+          "berceau-d-ancrage": "Berceau d’ancrage",
+          "etalon-de-reaccord": "Étalon de réaccord",
+          "precipitateur-embarque": "Précipitateur embarqué"
         }
       }
     },
@@ -11154,7 +12772,19 @@ export default {
           "trame.aiguillage-zero.engagement-transport-autonome": "Autonomous transport commitment recorded",
           "trame.aiguillage-zero.passage-consigne": "Passage to the Crown recorded",
           "trame.aiguillage-zero.passage-transmis": "Passage register transmitted",
-          "trame.aiguillage-zero.retours-couronne-planifies": "Silent Crown returns planned"
+          "trame.aiguillage-zero.retours-couronne-planifies": "Silent Crown returns planned",
+          "couronne.tete-de-ligne.mandat-republicain": "Republic mandate ratified at Railhead",
+          "couronne.tete-de-ligne.atelier-commun": "Shared workshop opened at Railhead",
+          "couronne.veille-des-trois.sanctuaire-renforce": "Threefold Watch sanctuary reinforced",
+          "couronne.veille-des-trois.releves-evacues": "Threefold Watch surveys evacuated",
+          "couronne.approches.socles-cartographies": "Three Crown mounts mapped",
+          "couronne.approches.compatibilites-etablies": "Compatibility of the three assemblies established",
+          "couronne.approches.berceau-amorce": "Anchoring Cradle begun",
+          "couronne.approches.etalon-calibre": "Retuning Gauge calibrated",
+          "couronne.approches.precipitateur-assemble": "Caravan Precipitator assembled",
+          "couronne.approches.preparatifs-reportes": "Crown preparations postponed",
+          "couronne.approches.plans-confies-a-ilyana": "Crown plans entrusted to Ilyana",
+          "couronne.approches.plans-repartis-aux-equipes": "Crown plans distributed among crews"
         },
         "causes": {
           "bassins.haut-puits.pacte-des-citernes": "The cistern pact",
@@ -11190,7 +12820,12 @@ export default {
           "trame.signal-zero.ilyana-et-la-trace": "Decision made with Ilyana at the Zero Signal post.",
           "trame.aiguillage-zero.la-piece-et-le-coeur-mobile": "Revelation obtained before Zero Junction’s mobile heart.",
           "trame.aiguillage-zero.le-conseil-des-voies": "Regional agreement settled at the Zero Junction Council.",
-          "trame.aiguillage-zero.le-passage-de-la-couronne": "Exit states recorded before the irreversible passage."
+          "trame.aiguillage-zero.le-passage-de-la-couronne": "Exit states recorded before the irreversible passage.",
+          "couronne.tete-de-ligne.le-decret-du-dernier-quai": "Decision made at Railhead’s last platform.",
+          "couronne.veille-des-trois.les-filtres-sous-les-phares": "Decision made beneath Threefold Watch’s three dead beacons.",
+          "couronne.approches.les-trois-socles-du-noeud": "Diagnostic established in the Crown’s buried Node.",
+          "couronne.approches.les-montages-de-la-couronne": "Preparation decided in the Crown’s field workshop.",
+          "couronne.approches.ilyana-et-les-plans-sous-cendre": "Custody of the plans decided with Ilyana and the crews."
         },
         "acteurs": {
           "ilyana-voss": "Ilyana Voss",
@@ -11222,7 +12857,12 @@ export default {
           "techniciens-signal-zero": "Zero Signal technicians",
           "ligne-zero": "Zero Line",
           "conseil-de-l-aiguillage-zero": "Zero Junction Council",
-          "passage-vers-la-couronne": "Passage to the Crown"
+          "passage-vers-la-couronne": "Passage to the Crown",
+          "delegation-republique-du-rail": "Rail Republic delegation",
+          "habitants-tete-de-ligne": "Railhead inhabitants",
+          "gardiens-des-trois-veilles": "Three Watches keepers",
+          "socles-du-noeud-de-la-couronne": "Crown Node mounts",
+          "plans-des-trois-montages": "Plans for the three assemblies"
         },
         "cibles": {
           "equipes-entretien": "Maintenance crews",
@@ -11265,7 +12905,16 @@ export default {
           "soupcons-de-l-aiguillage": "Junction suspicions",
           "engagements-de-la-trame": "Iron Weave commitments",
           "couronne-muette": "Silent Crown",
-          "registre-de-sortie-de-la-trame": "Iron Weave exit register"
+          "registre-de-sortie-de-la-trame": "Iron Weave exit register",
+          "tete-de-ligne": "Railhead",
+          "atelier-de-tete-de-ligne": "Railhead workshop",
+          "veille-des-trois": "Threefold Watch",
+          "releves-des-trois-veilles": "Three Watches surveys",
+          "socles-du-noeud-de-la-couronne": "Crown Node mounts",
+          "plans-des-trois-montages": "Plans for the three assemblies",
+          "berceau-d-ancrage": "Anchoring Cradle",
+          "etalon-de-reaccord": "Retuning Gauge",
+          "precipitateur-embarque": "Caravan Precipitator"
         }
       }
     }

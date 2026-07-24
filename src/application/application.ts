@@ -352,7 +352,8 @@ function projeterEvenementNarratif(
           (!(
             evenement.id.startsWith("trame.marche.") ||
             evenement.id ===
-              "trame.aiguillage-zero.le-conseil-des-voies"
+              "trame.aiguillage-zero.le-conseil-des-voies" ||
+            evenement.id.startsWith("couronne.")
           ) ||
             choixNarratifEstDisponible(etat, evenement.id, {
               id: choix.id,
@@ -391,7 +392,8 @@ function projeterEvenementNarratif(
               : textesDuChoix.coutsConnus.map((cout) =>
                   rendreTexte(cout, contexte),
                 ),
-          ...(evenement.id.startsWith("trame.")
+          ...(evenement.id.startsWith("trame.") ||
+          evenement.id.startsWith("couronne.")
             ? {
                 disponible,
                 ...(!disponible

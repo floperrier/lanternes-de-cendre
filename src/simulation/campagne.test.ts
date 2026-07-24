@@ -162,6 +162,8 @@ describe("Graine de campagne", () => {
           "derivation-des-puits": "degrade",
           "faisceau-de-l-aiguillage-zero": "praticable",
           "passage-de-la-couronne-muette": "praticable",
+          "voie-de-tete-de-ligne": "praticable",
+          "chemin-des-trois-veilles": "degrade",
         },
         engagements: [],
         jalons: [],

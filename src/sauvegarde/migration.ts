@@ -582,6 +582,8 @@ function normaliserEtatCourantEnV6(
     "derivation-des-puits": derivationDesPuits,
     "faisceau-de-l-aiguillage-zero": faisceauDeLAiguillageZero,
     "passage-de-la-couronne-muette": passageDeLaCouronneMuette,
+    "voie-de-tete-de-ligne": voieDeTeteDeLigne,
+    "chemin-des-trois-veilles": cheminDesTroisVeilles,
     ...etatsReelsV6
   } = sansTrame.routes.etatsReels;
   void routeAjoutee;
@@ -603,6 +605,8 @@ function normaliserEtatCourantEnV6(
   void derivationDesPuits;
   void faisceauDeLAiguillageZero;
   void passageDeLaCouronneMuette;
+  void voieDeTeteDeLigne;
+  void cheminDesTroisVeilles;
   return {
     ...sansTrame,
     version: VERSION_SIMULATION_AVANT_NACELLES,
@@ -831,6 +835,8 @@ function normaliserEtatCourantEnV7(
     "derivation-des-puits": derivationDesPuits,
     "faisceau-de-l-aiguillage-zero": faisceauDeLAiguillageZero,
     "passage-de-la-couronne-muette": passageDeLaCouronneMuette,
+    "voie-de-tete-de-ligne": voieDeTeteDeLigne,
+    "chemin-des-trois-veilles": cheminDesTroisVeilles,
     ...etatsReelsV7
   } = sansDevenirs.routes.etatsReels;
   void cheminDeLHospice;
@@ -851,6 +857,8 @@ function normaliserEtatCourantEnV7(
   void derivationDesPuits;
   void faisceauDeLAiguillageZero;
   void passageDeLaCouronneMuette;
+  void voieDeTeteDeLigne;
+  void cheminDesTroisVeilles;
   const { topologieHistorique, ...routesV7 } = sansDevenirs.routes;
   void topologieHistorique;
   return {
@@ -1032,6 +1040,8 @@ function normaliserEtatCourantEnV8(
     "derivation-des-puits": derivationDesPuits,
     "faisceau-de-l-aiguillage-zero": faisceauDeLAiguillageZero,
     "passage-de-la-couronne-muette": passageDeLaCouronneMuette,
+    "voie-de-tete-de-ligne": voieDeTeteDeLigne,
+    "chemin-des-trois-veilles": cheminDesTroisVeilles,
     ...etatsReelsV8
   } = sansTrame.routes.etatsReels;
   void rampeDeBarriereNeuve;
@@ -1047,6 +1057,8 @@ function normaliserEtatCourantEnV8(
   void derivationDesPuits;
   void faisceauDeLAiguillageZero;
   void passageDeLaCouronneMuette;
+  void voieDeTeteDeLigne;
+  void cheminDesTroisVeilles;
   return {
     ...sansTrame,
     version: VERSION_SIMULATION_AVANT_TRAME_DE_FER,
@@ -1185,6 +1197,8 @@ function normaliserEtatCourantEnV9(
     "derivation-des-puits": derivationDesPuits,
     "faisceau-de-l-aiguillage-zero": faisceauDeLAiguillageZero,
     "passage-de-la-couronne-muette": passageDeLaCouronneMuette,
+    "voie-de-tete-de-ligne": voieDeTeteDeLigne,
+    "chemin-des-trois-veilles": cheminDesTroisVeilles,
     ...etatsReelsV9
   } = sansTraverse.routes.etatsReels;
   void embranchementDePompeNeuve;
@@ -1198,6 +1212,8 @@ function normaliserEtatCourantEnV9(
   void derivationDesPuits;
   void faisceauDeLAiguillageZero;
   void passageDeLaCouronneMuette;
+  void voieDeTeteDeLigne;
+  void cheminDesTroisVeilles;
   return {
     ...sansTraverse,
     version: VERSION_SIMULATION_AVANT_TRAVERSE_LIBRE,

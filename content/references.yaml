@@ -56,6 +56,18 @@ acteurs:
   - passage-vers-la-couronne
   - couronne-muette
   - registre-de-sortie-de-la-trame
+  - delegation-republique-du-rail
+  - habitants-tete-de-ligne
+  - atelier-de-tete-de-ligne
+  - gardiens-des-trois-veilles
+  - releves-des-trois-veilles
+  - socles-du-noeud-de-la-couronne
+  - plans-des-trois-montages
+  - berceau-d-ancrage
+  - etalon-de-reaccord
+  - precipitateur-embarque
+  - tete-de-ligne
+  - veille-des-trois
 quartiers:
   - intendance
   - foyers
@@ -75,6 +87,9 @@ fenetres:
   - marche-des-traverses
   - signal-zero
   - aiguillage-zero
+  - couronne-tete-de-ligne
+  - couronne-veille-des-trois
+  - couronne-approches
 lieux:
   - halte-du-puits-sec
   - haut-puits
@@ -91,6 +106,8 @@ lieux:
   - signal-zero
   - aiguillage-zero
   - couronne-muette
+  - tete-de-ligne
+  - veille-des-trois
 destinations_echo:
   - journal-de-campagne
 faits:
@@ -189,3 +206,15 @@ faits:
   - trame.aiguillage-zero.passage-consigne
   - trame.aiguillage-zero.passage-transmis
   - trame.aiguillage-zero.retours-couronne-planifies
+  - couronne.tete-de-ligne.mandat-republicain
+  - couronne.tete-de-ligne.atelier-commun
+  - couronne.veille-des-trois.sanctuaire-renforce
+  - couronne.veille-des-trois.releves-evacues
+  - couronne.approches.socles-cartographies
+  - couronne.approches.compatibilites-etablies
+  - couronne.approches.berceau-amorce
+  - couronne.approches.etalon-calibre
+  - couronne.approches.precipitateur-assemble
+  - couronne.approches.preparatifs-reportes
+  - couronne.approches.plans-confies-a-ilyana
+  - couronne.approches.plans-repartis-aux-equipes

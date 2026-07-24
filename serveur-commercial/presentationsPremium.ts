@@ -876,6 +876,136 @@ export const PRESENTATIONS_PREMIUM = {
       },
     },
   },
+  couronne: {
+    fr: {
+      titre: "Approches de la Couronne",
+      eyebrow: "Couronne muette · Deux voies",
+      besoins: {
+        "pieces-de-voie": "Pièces de voie et abris de quai",
+        "filtres-de-sanctuaire": "Filtres du sanctuaire et relevés étanches",
+      },
+      interactions: {
+        "en-attente": "interaction principale en attente",
+        "mandat-republicain": "mandat ferroviaire ratifié",
+        "atelier-commun": "atelier de voie commun ouvert",
+        "sanctuaire-renforce": "sanctuaire renforcé",
+        "releves-evacues": "relevés et gardiens évacués",
+      },
+      devenirs: {
+        indetermine: "devenir encore indéterminé",
+        actif: "actif",
+        evacue: "évacué",
+        absorbe: "absorbé",
+        abandonne: "abandonné",
+      },
+      delegations: {
+        absente: "absente",
+        conditionnelle: "sous conditions",
+        mandatee: "mandatée",
+      },
+      diagnostics: {
+        inconnu: "Les trois montages du Nœud restent à comparer.",
+        "socles-cartographies":
+          "Berceau, Étalon et Précipitateur sont cartographiés sans sélection finale.",
+        "compatibilites-etablies":
+          "Les compatibilités des trois montages sont établies sans sélection finale.",
+      },
+      projets: {
+        berceauDAncrage: "Berceau d’ancrage",
+        etalonDeReaccord: "Étalon de réaccord",
+        precipitateurEmbarque: "Précipitateur embarqué",
+      },
+      statutsDePreparation: {
+        indisponible: "indisponible avec les moyens préservés",
+        preparable: "préparable",
+        amorce: "amorcé",
+        reporte: "plans conservés pour une préparation ultérieure",
+      },
+      gardesDesPlans: {
+        indecise: "Garde des plans encore indécise",
+        ilyana: "Plans confiés à Ilyana sous scellés",
+        equipes: "Plans répartis entre les équipes de la Cité-caravane",
+      },
+      formats: {
+        site: "{besoin} · {interaction} · {devenir}",
+        delegations:
+          "République : {republique} · Pèlerins : {pelerins} · Puits Libres : {puits}",
+        preparatif: "{projet} : {statut}",
+      },
+      libelles: {
+        teteDeLigne: "Tête-de-Ligne",
+        veilleDesTrois: "Veille-des-Trois",
+        delegations: "Délégations héritées",
+        diagnostic: "Diagnostic du Nœud",
+        preparatifs: "Projets de transformation",
+        gardeDesPlans: "Histoire de Compagnon",
+      },
+    },
+    en: {
+      titre: "Silent Crown Approaches",
+      eyebrow: "Silent Crown · Two routes",
+      besoins: {
+        "pieces-de-voie": "Track parts and platform shelters",
+        "filtres-de-sanctuaire": "Sanctuary filters and sealed surveys",
+      },
+      interactions: {
+        "en-attente": "main interaction pending",
+        "mandat-republicain": "rail mandate ratified",
+        "atelier-commun": "shared track workshop opened",
+        "sanctuaire-renforce": "sanctuary reinforced",
+        "releves-evacues": "surveys and keepers evacuated",
+      },
+      devenirs: {
+        indetermine: "future still undetermined",
+        actif: "active",
+        evacue: "evacuated",
+        absorbe: "absorbed",
+        abandonne: "abandoned",
+      },
+      delegations: {
+        absente: "absent",
+        conditionnelle: "conditional",
+        mandatee: "mandated",
+      },
+      diagnostics: {
+        inconnu: "The Node’s three assemblies still need comparison.",
+        "socles-cartographies":
+          "Cradle, Standard and Precipitator are mapped without selecting a final Solution.",
+        "compatibilites-etablies":
+          "Compatibility for all three assemblies is established without selecting a final Solution.",
+      },
+      projets: {
+        berceauDAncrage: "Anchoring Cradle",
+        etalonDeReaccord: "Retuning Standard",
+        precipitateurEmbarque: "Mobile Precipitator",
+      },
+      statutsDePreparation: {
+        indisponible: "unavailable with preserved means",
+        preparable: "ready to prepare",
+        amorce: "started",
+        reporte: "plans retained for later preparation",
+      },
+      gardesDesPlans: {
+        indecise: "Custody of the plans remains undecided",
+        ilyana: "Plans entrusted to Ilyana under seal",
+        equipes: "Plans distributed among Caravan-city teams",
+      },
+      formats: {
+        site: "{besoin} · {interaction} · {devenir}",
+        delegations:
+          "Republic: {republique} · Pilgrims: {pelerins} · Free Wells: {puits}",
+        preparatif: "{projet}: {statut}",
+      },
+      libelles: {
+        teteDeLigne: "Railhead",
+        veilleDesTrois: "Threefold Watch",
+        delegations: "Inherited delegations",
+        diagnostic: "Node diagnostic",
+        preparatifs: "Transformation Projects",
+        gardeDesPlans: "Companion Story",
+      },
+    },
+  },
   deversoir: {
     fr: {
       nomsDesLieux: {

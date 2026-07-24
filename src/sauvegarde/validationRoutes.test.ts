@@ -452,4 +452,40 @@ describe("validation persistante des routes", () => {
       ]),
     ).toBe(true);
   });
+
+  it("refuse les approches de la Couronne avant le registre de sortie", () => {
+    const aLaCouronne = {
+      ...creerEtatDesRoutesInitial(),
+      position: "couronne-muette" as const,
+    };
+    for (const tronconId of [
+      "voie-de-tete-de-ligne",
+      "chemin-des-trois-veilles",
+    ] as const) {
+      const engagement = confirmerEngagementDeRoute(
+        aLaCouronne,
+        tronconId,
+        300,
+      ).etat;
+      expect(
+        engagementsDuDeversoirSontCausaux(engagement, []),
+      ).toBe(false);
+      expect(
+        engagementsDuDeversoirSontCausaux(engagement, [
+          {
+            id: "trame.aiguillage-zero.passage-transmis",
+            moment: 301,
+          },
+        ]),
+      ).toBe(false);
+      expect(
+        engagementsDuDeversoirSontCausaux(engagement, [
+          {
+            id: "trame.aiguillage-zero.passage-transmis",
+            moment: 300,
+          },
+        ]),
+      ).toBe(true);
+    }
+  });
 });

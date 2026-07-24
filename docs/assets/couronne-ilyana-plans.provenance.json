@@ -1,0 +1,15 @@
+{
+  "asset": "serveur-commercial/assets/couronne-ilyana-plans.webp",
+  "sha256": "8da26e9043037e64804279cdd1565280420bc1b5e2b7439691d2804487e8707f",
+  "createdAt": "2026-07-23",
+  "tool": "Codex built-in image_gen",
+  "model": "built-in model (identifier not exposed)",
+  "useCase": "stylized-concept",
+  "input": "No input image; generated from the project’s established industrial ash-world art direction.",
+  "prompt": "Ilyana and maintenance teams deliberately share weatherproof copies of three mechanical plans under canvas; cinematic painterly 16:9 industrial concept art, no text or logos.",
+  "rights": "OpenAI Terms of Use — output assigned to the user",
+  "approval": {
+    "status": "pending-pull-request-review",
+    "reviewer": null
+  }
+}

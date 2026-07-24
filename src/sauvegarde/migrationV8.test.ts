@@ -39,6 +39,8 @@ function normaliserEnV8(etat: EtatCampagne) {
     "derivation-des-puits": derivationDesPuits,
     "faisceau-de-l-aiguillage-zero": faisceauDeLAiguillageZero,
     "passage-de-la-couronne-muette": passageDeLaCouronneMuette,
+    "voie-de-tete-de-ligne": voieDeTeteDeLigne,
+    "chemin-des-trois-veilles": cheminDesTroisVeilles,
     ...etatsReels
   } = sansTrame.routes.etatsReels;
   void rampeDeBarriereNeuve;
@@ -54,6 +56,8 @@ function normaliserEnV8(etat: EtatCampagne) {
   void derivationDesPuits;
   void faisceauDeLAiguillageZero;
   void passageDeLaCouronneMuette;
+  void voieDeTeteDeLigne;
+  void cheminDesTroisVeilles;
   return {
     ...sansTrame,
     version: VERSION_SIMULATION_AVANT_TRAME_DE_FER,

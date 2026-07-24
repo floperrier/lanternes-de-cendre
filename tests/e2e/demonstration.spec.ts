@@ -1054,6 +1054,84 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
   );
   await pageTraverse.clock.fastForward(180_000);
   await expect(atlasTraverse).toContainText("Couronne muette");
+  await expect(atlasTraverse).toContainText("Voie de Tête-de-Ligne");
+  await expect(atlasTraverse).toContainText("Chemin des Trois Veilles");
+
+  await activerAuClavier(
+    pageTraverse,
+    atlasTraverse.getByRole("button", {
+      name: "Étudier l’Engagement vers Voie de Tête-de-Ligne",
+    }),
+  );
+  await activerAuClavier(
+    pageTraverse,
+    pageTraverse
+      .getByRole("dialog", { name: "Engagement vers Tête-de-Ligne" })
+      .getByRole("button", {
+        name: "Confirmer l’Engagement sans retour vers Tête-de-Ligne",
+      }),
+  );
+  await activerAuClavier(
+    pageTraverse,
+    pageTraverse.getByRole("button", { name: "Vitesse 4×" }),
+  );
+  await pageTraverse.clock.fastForward(165_000);
+
+  for (const [titre, choix] of [
+    [
+      "Le décret du dernier quai",
+      "Ouvrir l’atelier à toutes les délégations",
+    ],
+    ["Les trois socles du nœud", "Cartographier les trois socles"],
+    [
+      "Les montages de la Couronne",
+      "Reporter les préparatifs et conserver les plans",
+    ],
+    [
+      "Ilyana et les plans sous cendre",
+      "Répartir les plans entre les équipes",
+    ],
+  ] as const) {
+    const evenement = pageTraverse.getByRole("region", { name: titre });
+    await expect(evenement.getByRole("img")).toBeVisible();
+    await activerAuClavier(
+      pageTraverse,
+      evenement.getByRole("button", { name: choix }),
+    );
+    await pageTraverse.clock.fastForward(1_000);
+  }
+
+  const approchesDeLaCouronne = pageTraverse.getByRole("region", {
+    name: "Approches de la Couronne",
+  });
+  await expect(approchesDeLaCouronne).toContainText(
+    "atelier de voie commun ouvert",
+  );
+  await expect(approchesDeLaCouronne).toContainText(
+    "Berceau, Étalon et Précipitateur sont cartographiés",
+  );
+  await expect(approchesDeLaCouronne).toContainText(
+    "Plans répartis entre les équipes",
+  );
+  await pageTraverse.screenshot({
+    path: testInfo.outputPath("couronne-tete-de-ligne-mobile.png"),
+    fullPage: true,
+  });
+
+  await activerAuClavier(
+    pageTraverse,
+    pageTraverse.getByRole("button", { name: "English" }),
+  );
+  await expect(
+    pageTraverse.getByRole("region", {
+      name: "Silent Crown Approaches",
+    }),
+  ).toContainText("shared track workshop opened");
+  await expect(
+    pageTraverse.getByRole("region", {
+      name: "Silent Crown Approaches",
+    }),
+  ).toContainText("Plans distributed among Caravan-city teams");
   await navigateurTraverse.close();
 
   await page.screenshot({

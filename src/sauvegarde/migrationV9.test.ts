@@ -34,6 +34,8 @@ function normaliserEnV9(etat: EtatCampagne) {
     "derivation-des-puits": derivationDesPuits,
     "faisceau-de-l-aiguillage-zero": faisceauDeLAiguillageZero,
     "passage-de-la-couronne-muette": passageDeLaCouronneMuette,
+    "voie-de-tete-de-ligne": voieDeTeteDeLigne,
+    "chemin-des-trois-veilles": cheminDesTroisVeilles,
     ...etatsReels
   } = sansTraverse.routes.etatsReels;
   void embranchementDePompeNeuve;
@@ -47,6 +49,8 @@ function normaliserEnV9(etat: EtatCampagne) {
   void derivationDesPuits;
   void faisceauDeLAiguillageZero;
   void passageDeLaCouronneMuette;
+  void voieDeTeteDeLigne;
+  void cheminDesTroisVeilles;
   return {
     ...sansTraverse,
     version: VERSION_SIMULATION_AVANT_TRAVERSE_LIBRE,

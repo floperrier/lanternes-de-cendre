@@ -43,6 +43,8 @@ function sansRouteBasse(etat: EtatCampagne) {
     "derivation-des-puits": derivationDesPuits,
     "faisceau-de-l-aiguillage-zero": faisceauDeLAiguillageZero,
     "passage-de-la-couronne-muette": passageDeLaCouronneMuette,
+    "voie-de-tete-de-ligne": voieDeTeteDeLigne,
+    "chemin-des-trois-veilles": cheminDesTroisVeilles,
     ...etatsReelsV6
   } = sansTrame.routes.etatsReels;
   void routeBasse;
@@ -64,6 +66,8 @@ function sansRouteBasse(etat: EtatCampagne) {
   void derivationDesPuits;
   void faisceauDeLAiguillageZero;
   void passageDeLaCouronneMuette;
+  void voieDeTeteDeLigne;
+  void cheminDesTroisVeilles;
   return {
     ...sansTrame,
     version: VERSION_SIMULATION_AVANT_NACELLES,

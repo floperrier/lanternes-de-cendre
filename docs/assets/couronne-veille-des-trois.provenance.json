@@ -1,0 +1,15 @@
+{
+  "asset": "serveur-commercial/assets/couronne-veille-des-trois.webp",
+  "sha256": "1b0d5b00de63acbb6804e607ce5519a9cccc21c5ab65ad167e9f76eb4104cdac",
+  "createdAt": "2026-07-23",
+  "tool": "Codex built-in image_gen",
+  "model": "built-in model (identifier not exposed)",
+  "useCase": "stylized-concept",
+  "input": "A prior image_gen output was edited to extinguish the three beacon rooms while preserving the sanctuary scene.",
+  "prompt": "Veille-des-Trois filter sanctuary beneath three completely dark dead beacons; cinematic painterly 16:9 industrial concept art, no text or logos.",
+  "rights": "OpenAI Terms of Use — output assigned to the user",
+  "approval": {
+    "status": "pending-pull-request-review",
+    "reviewer": null
+  }
+}

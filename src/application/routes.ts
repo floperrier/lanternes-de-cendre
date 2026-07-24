@@ -12,6 +12,7 @@ import {
   calculerOffreDesNacelles,
   routeAvalDesBassinsEstPreparee,
 } from "../simulation/nacelles";
+import { renseignementHeriteDeLaCouronneEstDisponible } from "../simulation/couronne";
 
 export interface RenseignementDeRouteProjete {
   readonly source: string;
@@ -364,6 +365,10 @@ export function projeterAtlas(
               (offreContextuelle === null ||
                 renseignement.id ===
                   offreContextuelle.renseignementId) &&
+              renseignementHeriteDeLaCouronneEstDisponible(
+                etat,
+                renseignement.id,
+              ) &&
               !renseignementsPersistes.some(
                 (persistant) => persistant.id === renseignement.id,
               ),

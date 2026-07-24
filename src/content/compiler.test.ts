@@ -45,6 +45,11 @@ import provenanceVeilleBasseArchives from "../../docs/assets/veille-basse-archiv
 import provenanceVeilleBasseCohorte from "../../docs/assets/veille-basse-cohorte.provenance.json?raw";
 import provenanceVeilleBasseMaelys from "../../docs/assets/veille-basse-maelys.provenance.json?raw";
 import provenanceVeilleBassePorte from "../../docs/assets/veille-basse-porte.provenance.json?raw";
+import provenanceCouronneTeteDeLigne from "../../docs/assets/couronne-tete-de-ligne.provenance.json?raw";
+import provenanceCouronneVeilleDesTrois from "../../docs/assets/couronne-veille-des-trois.provenance.json?raw";
+import provenanceCouronneTroisSocles from "../../docs/assets/couronne-trois-socles.provenance.json?raw";
+import provenanceCouronneMontages from "../../docs/assets/couronne-montages.provenance.json?raw";
+import provenanceCouronneIlyanaPlans from "../../docs/assets/couronne-ilyana-plans.provenance.json?raw";
 import {
   ErreurDeContenu,
   compilerCatalogue,
@@ -132,6 +137,16 @@ const sourcesValides: SourcesDuCatalogue = {
       provenanceTrameAiguillageConseil,
     "docs/assets/trame-aiguillage-passage.provenance.json":
       provenanceTrameAiguillagePassage,
+    "docs/assets/couronne-tete-de-ligne.provenance.json":
+      provenanceCouronneTeteDeLigne,
+    "docs/assets/couronne-veille-des-trois.provenance.json":
+      provenanceCouronneVeilleDesTrois,
+    "docs/assets/couronne-trois-socles.provenance.json":
+      provenanceCouronneTroisSocles,
+    "docs/assets/couronne-montages.provenance.json":
+      provenanceCouronneMontages,
+    "docs/assets/couronne-ilyana-plans.provenance.json":
+      provenanceCouronneIlyanaPlans,
   },
   cheminDeProvenanceAsset: (chemin) =>
     chemin.startsWith("/api/commercial/assets/")
@@ -177,6 +192,11 @@ const sourcesValides: SourcesDuCatalogue = {
       "/api/commercial/assets/trame-aiguillage-revelation.webp",
       "/api/commercial/assets/trame-aiguillage-conseil.webp",
       "/api/commercial/assets/trame-aiguillage-passage.webp",
+      "/api/commercial/assets/couronne-tete-de-ligne.webp",
+      "/api/commercial/assets/couronne-veille-des-trois.webp",
+      "/api/commercial/assets/couronne-trois-socles.webp",
+      "/api/commercial/assets/couronne-montages.webp",
+      "/api/commercial/assets/couronne-ilyana-plans.webp",
     ].includes(chemin),
   empreinteAsset: (chemin) =>
     ({
@@ -256,6 +276,16 @@ const sourcesValides: SourcesDuCatalogue = {
         "aa050b9be384a6bce66736fc74b3632f2367ec14266f09a523a68ea8ba9b42f0",
       "/api/commercial/assets/trame-aiguillage-passage.webp":
         "6b2d309c43c75866a62d055ec91810b0b3aecb756738e6a47fdb844546e94476",
+      "/api/commercial/assets/couronne-tete-de-ligne.webp":
+        "a922184cae7da8e8bc57fbc3e06a6cff72722a0d860eb8abe95992275930c4be",
+      "/api/commercial/assets/couronne-veille-des-trois.webp":
+        "1b0d5b00de63acbb6804e607ce5519a9cccc21c5ab65ad167e9f76eb4104cdac",
+      "/api/commercial/assets/couronne-trois-socles.webp":
+        "df8b3217ef846c7e432c3babe6e3f989d9c15cd9abfde839f66c6544a0b5a5bd",
+      "/api/commercial/assets/couronne-montages.webp":
+        "a28fb1fccb0b7ba754077409d660661b144078de69c647db5c7537d656ccf189",
+      "/api/commercial/assets/couronne-ilyana-plans.webp":
+        "8da26e9043037e64804279cdd1565280420bc1b5e2b7439691d2804487e8707f",
     })[chemin] ?? "0".repeat(64),
   tailleAsset: () => 256_000,
 };

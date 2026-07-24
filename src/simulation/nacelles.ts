@@ -193,7 +193,9 @@ export function routeAvalDesBassinsEstPreparee(
     tronconId !== "passage-de-la-ligne-zero" &&
     tronconId !== "piste-des-levees" &&
     tronconId !== "faisceau-de-l-aiguillage-zero" &&
-    tronconId !== "passage-de-la-couronne-muette"
+    tronconId !== "passage-de-la-couronne-muette" &&
+    tronconId !== "voie-de-tete-de-ligne" &&
+    tronconId !== "chemin-des-trois-veilles"
   ) {
     return true;
   }
@@ -228,6 +230,9 @@ export function routeAvalDesBassinsEstPreparee(
         : tronconId === "conduite-du-deversoir"
           ? FAITS_D_ACCORD_DU_RELAIS
           : tronconId === "passage-de-la-couronne-muette"
+            ? FAITS_DE_PASSAGE_VERS_LA_COURONNE
+          : tronconId === "voie-de-tete-de-ligne" ||
+              tronconId === "chemin-des-trois-veilles"
             ? FAITS_DE_PASSAGE_VERS_LA_COURONNE
           : FAITS_DE_PASSAGE_REGIONAL;
   return faitsAttendus.some((fait) => faits.includes(fait));

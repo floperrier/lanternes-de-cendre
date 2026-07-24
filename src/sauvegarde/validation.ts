@@ -455,14 +455,19 @@ export function estCommandeV6(valeur: unknown): valeur is CommandeCampagne {
   }
   if (
     valeur.type === "engagement-de-route.confirmer" &&
-    valeur.tronconId === "nacelles-de-veille-basse"
+    [
+      "nacelles-de-veille-basse",
+      "voie-de-tete-de-ligne",
+      "chemin-des-trois-veilles",
+    ].includes(String(valeur.tronconId))
   ) {
     return false;
   }
   return !(
     valeur.type === "evenement-narratif.choisir" &&
     typeof valeur.evenementId === "string" &&
-    valeur.evenementId.startsWith("bassins.nacelles.")
+    (valeur.evenementId.startsWith("bassins.nacelles.") ||
+      valeur.evenementId.startsWith("couronne."))
   );
 }
 
@@ -487,6 +492,8 @@ export function estCommandeV7(valeur: unknown): valeur is CommandeCampagne {
       "conduite-du-deversoir",
       "passage-de-la-ligne-zero",
       "piste-des-levees",
+      "voie-de-tete-de-ligne",
+      "chemin-des-trois-veilles",
     ].includes(String(valeur.tronconId))
   ) {
     return false;
@@ -494,7 +501,8 @@ export function estCommandeV7(valeur: unknown): valeur is CommandeCampagne {
   if (
     valeur.type === "evenement-narratif.choisir" &&
     typeof valeur.evenementId === "string" &&
-    valeur.evenementId.startsWith("bassins.deversoir.")
+    (valeur.evenementId.startsWith("bassins.deversoir.") ||
+      valeur.evenementId.startsWith("couronne."))
   ) {
     return false;
   }
@@ -507,7 +515,12 @@ export function estCommandeV8(valeur: unknown): valeur is CommandeCampagne {
   }
   if (
     valeur.type === "engagement-de-route.confirmer" &&
-    ["rampe-de-barriere-neuve", "voie-des-ponts-lourds"].includes(
+    [
+      "rampe-de-barriere-neuve",
+      "voie-des-ponts-lourds",
+      "voie-de-tete-de-ligne",
+      "chemin-des-trois-veilles",
+    ].includes(
       String(valeur.tronconId),
     )
   ) {
@@ -515,7 +528,8 @@ export function estCommandeV8(valeur: unknown): valeur is CommandeCampagne {
   }
   return !(
     valeur.type === "evenement-narratif.choisir" &&
-    valeur.evenementId.startsWith("trame.")
+    (valeur.evenementId.startsWith("trame.") ||
+      valeur.evenementId.startsWith("couronne."))
   );
 }
 
@@ -537,13 +551,16 @@ export function estCommandeV9(valeur: unknown): valeur is CommandeCampagne {
       "derivation-des-puits",
       "faisceau-de-l-aiguillage-zero",
       "passage-de-la-couronne-muette",
+      "voie-de-tete-de-ligne",
+      "chemin-des-trois-veilles",
     ].includes(String(valeur.tronconId))
   ) {
     return false;
   }
   return !(
     valeur.type === "evenement-narratif.choisir" &&
-    (valeur.evenementId.startsWith("trame.pompe-neuve.") ||
+    (valeur.evenementId.startsWith("couronne.") ||
+      valeur.evenementId.startsWith("trame.pompe-neuve.") ||
       valeur.evenementId.startsWith("trame.traverse-libre.") ||
       valeur.evenementId.startsWith("trame.marche.") ||
       valeur.evenementId.startsWith("trame.signal-zero.") ||
@@ -1983,6 +2000,148 @@ function coutsDeLAiguillageSontCausaux(
   });
 }
 
+export function preparatifsDeLaCouronneSontCausaux(
+  faits: readonly ObjetInconnu[],
+  infrastructure: EtatInfrastructure,
+  routes: EtatDesRoutes,
+  expeditions: EtatDesExpeditions,
+  hautPuits: EtatDeHautPuits,
+  veilleBasse: EtatDeVeilleBasse,
+): boolean {
+  const indexDuMandatRepublicain = faits.findIndex(
+    (fait) => fait.id === "couronne.tete-de-ligne.mandat-republicain",
+  );
+  if (indexDuMandatRepublicain >= 0) {
+    const mandatRepublicain = faits[indexDuMandatRepublicain]!;
+    if (!estNombreFini(mandatRepublicain.moment)) {
+      return false;
+    }
+    const faitsAvantMandat = faits.slice(0, indexDuMandatRepublicain);
+    const trameAvantMandat = reconstruireEtatDeLaTrameDeFer(
+      faitsAvantMandat as unknown as readonly {
+        readonly id: string;
+        readonly moment: number;
+      }[],
+    );
+    if (
+      trameAvantMandat.relationRepublique === "fermee" ||
+      faitsAvantMandat.some(
+        (fait) =>
+          fait.id === "trame.aiguillage-zero.trace-du-vol",
+      )
+    ) {
+      return false;
+    }
+  }
+
+  const sanctuaireRenforce = faits.find(
+    (fait) =>
+      fait.id === "couronne.veille-des-trois.sanctuaire-renforce",
+  );
+  if (sanctuaireRenforce !== undefined) {
+    if (!estNombreFini(sanctuaireRenforce.moment)) {
+      return false;
+    }
+    const momentDuRenforcement = sanctuaireRenforce.moment as number;
+    if (
+      veilleBasse.consequencesDifferees.some(
+        (consequence) =>
+          consequence.id ===
+            "veille-basse.perte-apres-intervention-refusee" &&
+          consequence.manifesteeA !== null &&
+          consequence.manifesteeA <= momentDuRenforcement,
+      )
+    ) {
+      return false;
+    }
+  }
+
+  const groupes = [
+    {
+      id: "couronne.approches.berceau-amorce",
+      cout: 8,
+      specialiste: (
+        faitsAvant: readonly ObjetInconnu[],
+        trameAvant: ReturnType<typeof reconstruireEtatDeLaTrameDeFer>,
+      ) =>
+        trameAvant.relationRepublique === "cooperative" ||
+        trameAvant.occasions.trainOutil.statut !== "inconnue",
+    },
+    {
+      id: "couronne.approches.etalon-calibre",
+      cout: 6,
+      specialiste: (faitsAvant: readonly ObjetInconnu[]) => {
+        const ids = new Set(faitsAvant.map((fait) => String(fait.id)));
+        return (
+          (ids.has("trame.signal-zero.interface-rail-lue") ||
+            ids.has("trame.signal-zero.interface-libre-lue")) &&
+          (ids.has("trame.signal-zero.echos-conserves") ||
+            ids.has("trame.signal-zero.frequences-separees"))
+        );
+      },
+    },
+    {
+      id: "couronne.approches.precipitateur-assemble",
+      cout: 10,
+      specialiste: (faitsAvant: readonly ObjetInconnu[]) =>
+        faitsAvant.some(
+          (fait) =>
+            fait.id === "bassins.deversoir.ligne-zero-relevee",
+        ) ||
+        hautPuits.projetRegional?.id === "decanteur-itinerant",
+    },
+  ] as const;
+
+  return groupes.every((groupe) => {
+    const index = faits.findIndex((fait) => fait.id === groupe.id);
+    if (index < 0) {
+      return true;
+    }
+    const fait = faits[index]!;
+    if (!estNombreFini(fait.moment)) {
+      return false;
+    }
+    const effets = fait.effets;
+    if (
+      !estObjet(effets) ||
+      !Array.isArray(effets.materiels) ||
+      effets.materiels.length !== 1
+    ) {
+      return false;
+    }
+    const effet = effets.materiels[0];
+    if (
+      !estObjet(effet) ||
+      effet.type !== "stock.modifie" ||
+      effet.stock !== "materiaux" ||
+      effet.variation !== -groupe.cout
+    ) {
+      return false;
+    }
+
+    const faitsAvant = faits.slice(0, index);
+    const trameAvant = reconstruireEtatDeLaTrameDeFer(
+      faitsAvant as unknown as readonly {
+        readonly id: string;
+        readonly moment: number;
+      }[],
+    );
+    if (!groupe.specialiste(faitsAvant, trameAvant)) {
+      return false;
+    }
+    return calculerStockAttendu(
+      "materiaux",
+      fait.moment,
+      faitsAvant,
+      infrastructure,
+      routes,
+      expeditions,
+      hautPuits,
+      veilleBasse,
+    ).possibilites.some(({ quantite }) => quantite >= groupe.cout);
+  });
+}
+
 function estEtatPilotage(
   valeur: unknown,
   secondesCourantes: number,
@@ -2979,6 +3138,14 @@ function lireEtatAvecSchemaCourant(
       hautPuits,
       veilleBasse,
     ) ||
+    !preparatifsDeLaCouronneSontCausaux(
+      narration.faitsDeCampagne,
+      infrastructure,
+      routes,
+      expeditions,
+      hautPuits,
+      veilleBasse,
+    ) ||
     !estCausaliteDeNarrationValide(
       parties,
       pilotage,
@@ -3031,6 +3198,7 @@ function lireEtatAvecSchemaV9(
     "trame.marche.",
     "trame.signal-zero.",
     "trame.aiguillage-zero.",
+    "couronne.",
   ];
   if (
     !estObjet(valeur) ||
@@ -3050,6 +3218,8 @@ function lireEtatAvecSchemaV9(
       "derivation-des-puits",
       "faisceau-de-l-aiguillage-zero",
       "passage-de-la-couronne-muette",
+      "voie-de-tete-de-ligne",
+      "chemin-des-trois-veilles",
     ].some(
       (id) =>
         Object.prototype.hasOwnProperty.call(
@@ -3141,6 +3311,8 @@ function lireEtatAvecSchemaV8(
       "derivation-des-puits",
       "faisceau-de-l-aiguillage-zero",
       "passage-de-la-couronne-muette",
+      "voie-de-tete-de-ligne",
+      "chemin-des-trois-veilles",
     ].some((id) =>
       Object.prototype.hasOwnProperty.call(
         (valeur.routes as ObjetInconnu).etatsReels,
@@ -3150,16 +3322,20 @@ function lireEtatAvecSchemaV8(
     !estObjet(valeur.narration) ||
     !Array.isArray(valeur.narration.evenementsJoues) ||
     valeur.narration.evenementsJoues.some(
-      (id) => typeof id === "string" && id.startsWith("trame."),
+      (id) =>
+        typeof id === "string" &&
+        (id.startsWith("trame.") || id.startsWith("couronne.")),
     ) ||
     (typeof valeur.narration.evenementActif === "string" &&
-      valeur.narration.evenementActif.startsWith("trame.")) ||
+      (valeur.narration.evenementActif.startsWith("trame.") ||
+        valeur.narration.evenementActif.startsWith("couronne."))) ||
     !Array.isArray(valeur.narration.faitsDeCampagne) ||
     valeur.narration.faitsDeCampagne.some(
       (fait) =>
         estObjet(fait) &&
         typeof fait.id === "string" &&
-        fait.id.startsWith("trame."),
+        (fait.id.startsWith("trame.") ||
+          fait.id.startsWith("couronne.")),
     )
   ) {
     return undefined;
@@ -3222,6 +3398,8 @@ function lireEtatAvecSchemaV7(
       "piste-des-levees",
       "faisceau-de-l-aiguillage-zero",
       "passage-de-la-couronne-muette",
+      "voie-de-tete-de-ligne",
+      "chemin-des-trois-veilles",
     ].some((id) =>
       Object.prototype.hasOwnProperty.call(
         (valeur.routes as ObjetInconnu).etatsReels,
