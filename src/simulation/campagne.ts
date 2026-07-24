@@ -17,7 +17,7 @@ import {
   type FluxPseudoAleatoire,
 } from "./aleatoire";
 import type { GraineDeCampagne } from "./graine";
-import { formaterEmpreinteFnv1a32V1 } from "./empreinte";
+import { empreinteValeurDeterministe } from "./empreinte";
 import {
   appliquerVariationAUnStock,
   creerPilotageInitial,
@@ -1744,26 +1744,6 @@ export function appliquerCommande(
   };
 }
 
-function serialiserCanonicalement(valeur: unknown): string {
-  if (Array.isArray(valeur)) {
-    return `[${valeur.map(serialiserCanonicalement).join(",")}]`;
-  }
-
-  if (valeur !== null && typeof valeur === "object") {
-    const objet = valeur as Record<string, unknown>;
-    const membres = Object.keys(objet)
-      .sort()
-      .map(
-        (cle) =>
-          `${JSON.stringify(cle)}:${serialiserCanonicalement(objet[cle])}`,
-      );
-
-    return `{${membres.join(",")}}`;
-  }
-
-  return JSON.stringify(valeur);
-}
-
 export function empreinteEtat(etat: EtatCampagne): string {
-  return formaterEmpreinteFnv1a32V1(serialiserCanonicalement(etat));
+  return empreinteValeurDeterministe(etat);
 }

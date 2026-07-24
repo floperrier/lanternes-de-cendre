@@ -14,11 +14,18 @@
     "eslint.config.js",
     "scripts/**/*.ts",
     "serveur-commercial/**/*.ts",
+    "src/commercial/contenuPremium.ts",
+    "src/content/catalogue.generated.ts",
+    "src/content/catalogue.ts",
     "src/content/compiler.ts",
     "src/content/presentationsPremium.ts",
     "src/content/texte.ts",
     "src/content/types.ts",
     "src/commercial/recu.ts",
+    "src/diagnostic/*.ts",
+    "src/sauvegarde/version.ts",
+    "src/simulation/*.ts",
     "src/vite-env.d.ts"
-  ]
+  ],
+  "exclude": ["src/**/*.test.ts"]
 }

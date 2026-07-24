@@ -3,12 +3,10 @@ import { describe, expect, it } from "vitest";
 import { appliquerCommande, creerCampagneInitiale } from "./campagne";
 import {
   COMPAGNON_DE_REFERENCE,
+  FAIT_D_INDISPONIBILITE_DU_COMPAGNON,
   selectionnerVoixPertinentes,
 } from "./conseil";
-import {
-  QUARTIER_INTENDANCE,
-  QUARTIERS_MOBILES_CANONIQUES,
-} from "./quartiers";
+import { QUARTIER_INTENDANCE, QUARTIERS_MOBILES_CANONIQUES } from "./quartiers";
 
 describe("Compagnon de référence", () => {
   it("porte une identité narrative complète sans jauge d’affinité", () => {
@@ -72,6 +70,42 @@ describe("Compagnon de référence", () => {
       },
     ]);
   });
+
+  it("refuse une Compagne indisponible sans bloquer une décision collective", () => {
+    const initial = creerCampagneInitiale("CENDRE-INDISPONIBLE");
+    const indisponible = {
+      ...initial,
+      narration: {
+        ...initial.narration,
+        faitsDeCampagne: [
+          {
+            id: FAIT_D_INDISPONIBILITE_DU_COMPAGNON,
+            cause: "scenario.test",
+            acteurs: ["porte-lanterne", "ilyana-voss"],
+            cible: "intendance",
+            moment: 0,
+            effets: { materiels: [], humains: [] },
+          },
+        ],
+      },
+    };
+
+    expect(() =>
+      appliquerCommande(indisponible, {
+        type: "compagnon.affecter",
+        compagnonId: "ilyana-voss",
+        quartierId: "intendance",
+      }),
+    ).toThrow("Ilyana Voss est indisponible.");
+
+    expect(
+      appliquerCommande(indisponible, {
+        type: "incident.ordonner",
+        incidentId: "purification.pompe-instable",
+        ordre: "securiser-pompe",
+      }).evenements,
+    ).not.toHaveLength(0);
+  });
 });
 
 describe("pertinence des voix au Conseil", () => {
@@ -98,14 +132,11 @@ describe("pertinence des voix au Conseil", () => {
 
 describe("premier Conseil", () => {
   it("inscrit la décision du Porte-Lanterne comme Fait causal", () => {
-    const etatAffecte = appliquerCommande(
-      creerCampagneInitiale("CENDRE-01"),
-      {
-        type: "compagnon.affecter",
-        compagnonId: "ilyana-voss",
-        quartierId: "intendance",
-      },
-    ).etat;
+    const etatAffecte = appliquerCommande(creerCampagneInitiale("CENDRE-01"), {
+      type: "compagnon.affecter",
+      compagnonId: "ilyana-voss",
+      quartierId: "intendance",
+    }).etat;
 
     const transition = appliquerCommande(etatAffecte, {
       type: "conseil.decider",

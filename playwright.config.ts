@@ -16,7 +16,26 @@ export default defineConfig({
   projects: [
     {
       name: "chromium",
+      testIgnore: /scenarios-sentinelles\.spec\.ts/,
       use: { ...devices["Desktop Chrome"] },
+    },
+    {
+      name: "chromium-sentinelles",
+      retries: 0,
+      testMatch: /scenarios-sentinelles\.spec\.ts/,
+      use: { ...devices["Desktop Chrome"] },
+    },
+    {
+      name: "firefox-sentinelles",
+      retries: 0,
+      testMatch: /scenarios-sentinelles\.spec\.ts/,
+      use: { ...devices["Desktop Firefox"] },
+    },
+    {
+      name: "webkit-sentinelles",
+      retries: 0,
+      testMatch: /scenarios-sentinelles\.spec\.ts/,
+      use: { ...devices["Desktop Safari"] },
     },
   ],
   webServer: {

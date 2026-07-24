@@ -1,9 +1,9 @@
-import {
-  catalogueDEvenements,
-  trouverConseil,
-} from "../content/catalogue";
+import { catalogueDEvenements, trouverConseil } from "../content/catalogue";
 import type { FaitDeCampagne } from "./faits";
-import { QUARTIER_INTENDANCE, trouverQuartierMobileCanonique } from "./quartiers";
+import {
+  QUARTIER_INTENDANCE,
+  trouverQuartierMobileCanonique,
+} from "./quartiers";
 import type { IdentifiantDeLieu } from "./routes";
 
 const conseilCompile = catalogueDEvenements.conseils[0];
@@ -34,6 +34,8 @@ export const FAIT_D_AFFECTATION_DU_COMPAGNON = Object.freeze({
   acteurs: ["porte-lanterne", COMPAGNON_DE_REFERENCE.id] as const,
   cible: conseilCompile.compagnon.affectation.quartier,
 });
+export const FAIT_D_INDISPONIBILITE_DU_COMPAGNON =
+  "compagnon.ilyana-voss.indisponible" as const;
 
 export const PREMIER_CONSEIL = conseilCompile;
 export const IDENTIFIANT_DU_CONSEIL_DES_VANNES = "conseil.des-vannes";
@@ -119,17 +121,11 @@ export function selectionnerVoixPertinentes<Voix extends VoixPertinente>(
     .slice(0, 2);
 }
 
-export function compagnonEstAffecte(
-  faits: readonly FaitDeCampagne[],
-): boolean {
-  return faits.some(
-    (fait) => fait.id === FAIT_D_AFFECTATION_DU_COMPAGNON.id,
-  );
+export function compagnonEstAffecte(faits: readonly FaitDeCampagne[]): boolean {
+  return faits.some((fait) => fait.id === FAIT_D_AFFECTATION_DU_COMPAGNON.id);
 }
 
-export function conseilEstTermine(
-  faits: readonly FaitDeCampagne[],
-): boolean {
+export function conseilEstTermine(faits: readonly FaitDeCampagne[]): boolean {
   const identifiantsDesDecisions = PREMIER_CONSEIL.sujets.flatMap((sujet) =>
     sujet.decisions.map((decision) => decision.faitProduit),
   );
@@ -147,7 +143,7 @@ export function conseilDesVannesEstConvoque(
 ): boolean {
   const ids = idsDesFaits(faits);
   return FAITS_DE_CONVOCATION_DU_CONSEIL_DES_VANNES.some((id) =>
-    ids.includes(id)
+    ids.includes(id),
   );
 }
 
@@ -155,9 +151,7 @@ export function conseilDesVannesEstTermine(
   faits: readonly FaitDeCampagne[],
 ): boolean {
   const ids = idsDesFaits(faits);
-  return FAITS_DE_DECISION_DU_CONSEIL_DES_VANNES.some((id) =>
-    ids.includes(id)
-  );
+  return FAITS_DE_DECISION_DU_CONSEIL_DES_VANNES.some((id) => ids.includes(id));
 }
 
 export function decisionDuConseilDesVannesEstDisponible(
@@ -196,6 +190,9 @@ export function affecterCompagnon(
       "tete-de-quartier"
   ) {
     throw new Error("Cette Affectation de Compagnon est inconnue.");
+  }
+  if (faits.some(({ id }) => id === FAIT_D_INDISPONIBILITE_DU_COMPAGNON)) {
+    throw new Error(`${COMPAGNON_DE_REFERENCE.nom} est indisponible.`);
   }
   if (compagnonEstAffecte(faits)) {
     throw new Error(`${COMPAGNON_DE_REFERENCE.nom} est déjà affectée.`);
@@ -247,38 +244,21 @@ export function deciderAuConseil(
   ) {
     throw new Error("Cette décision du Conseil est inconnue.");
   }
-  if (
-    definition.id === PREMIER_CONSEIL.id &&
-    !compagnonEstAffecte(faits)
-  ) {
-    throw new Error(
-      "L’Affectation d’Ilyana à l’Intendance est requise.",
-    );
+  if (definition.id === PREMIER_CONSEIL.id && !compagnonEstAffecte(faits)) {
+    throw new Error("L’Affectation d’Ilyana à l’Intendance est requise.");
   }
-  if (
-    definition.id === PREMIER_CONSEIL.id &&
-    conseilEstTermine(faits)
-  ) {
+  if (definition.id === PREMIER_CONSEIL.id && conseilEstTermine(faits)) {
     throw new Error("Ce Conseil possède déjà une décision.");
   }
   if (definition.id === IDENTIFIANT_DU_CONSEIL_DES_VANNES) {
-    if (
-      position !== "deversoir-noir" ||
-      !conseilDesVannesEstConvoque(faits)
-    ) {
-      throw new Error(
-        `Le Conseil « ${definition.id} » n’est pas convoqué.`,
-      );
+    if (position !== "deversoir-noir" || !conseilDesVannesEstConvoque(faits)) {
+      throw new Error(`Le Conseil « ${definition.id} » n’est pas convoqué.`);
     }
     if (conseilDesVannesEstTermine(faits)) {
       throw new Error("Ce Conseil possède déjà une décision.");
     }
-    if (
-      !decisionDuConseilDesVannesEstDisponible(decision.id, faits)
-    ) {
-      throw new Error(
-        "Cette option n’a pas été préparée dans les Colonies.",
-      );
+    if (!decisionDuConseilDesVannesEstDisponible(decision.id, faits)) {
+      throw new Error("Cette option n’a pas été préparée dans les Colonies.");
     }
   }
 
