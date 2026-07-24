@@ -57,6 +57,7 @@ const CHEMINS_D_EVENEMENTS_PREMIUM = [
   "content/evenements/ouverture-couronne.yaml",
   "content/evenements/finale-ancrage.yaml",
   "content/evenements/finale-reaccord.yaml",
+  "content/evenements/finale-precipitation.yaml",
 ] as const;
 const provenances = {
   "docs/assets/cite-caravane.provenance.json": lire(
@@ -226,6 +227,9 @@ const provenances = {
   ),
   "docs/assets/finale-reaccord-conflit.provenance.json": lire(
     "docs/assets/finale-reaccord-conflit.provenance.json",
+  ),
+  "docs/assets/finale-precipitation-consequence.provenance.json": lire(
+    "docs/assets/finale-precipitation-consequence.provenance.json",
   ),
 };
 

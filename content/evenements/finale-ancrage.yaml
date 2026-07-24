@@ -59,8 +59,8 @@ evenements:
 
   - id: finale.ancrage.choisir-d-ancrer-le-coeur
     famille: conflits-regionaux
-    themes: [ancrage, reaccord, choix-final, cout-determine, irreversibilite]
-    fonction: choisir-l-ancrage-ou-le-reaccord-prepare-ou-risque-sans-tirage
+    themes: [ancrage, reaccord, precipitation, choix-final, cout-determine, irreversibilite]
+    fonction: choisir-l-une-des-trois-solutions-preparee-ou-risquee-sans-tirage
     fenetre: finale-ancrage
     conditions:
       requises:
@@ -87,6 +87,7 @@ evenements:
       - finale.contrat.causes-consignees
       - couronne.approches.berceau-amorce
       - couronne.approches.etalon-calibre
+      - couronne.approches.precipitateur-assemble
       - couronne.ouverture.breche-ouverte
     choix:
       - id: selectionner-ancrage-prepare
@@ -124,6 +125,25 @@ evenements:
           - { type: stock.modifier, stock: materiaux, valeur: -8 }
         faits_produits:
           - { id: finale.reaccord.selection-risquee, cible: etalon-de-reaccord }
+      - id: selectionner-precipitation-preparee
+        intention: { cle: evenement.finale.selection.choix.precipitation.preparee, variables: [] }
+        couts_connus:
+          - { cle: evenement.finale.selection.choix.precipitation.preparee.cout, variables: [] }
+        effets:
+          - { type: stock.modifier, stock: eau, valeur: -6 }
+          - { type: stock.modifier, stock: materiaux, valeur: -6 }
+        faits_produits:
+          - { id: finale.precipitation.selection-preparee, cible: precipitateur-embarque }
+      - id: selectionner-precipitation-risquee
+        intention: { cle: evenement.finale.selection.choix.precipitation.risquee, variables: [] }
+        couts_connus:
+          - { cle: evenement.finale.selection.choix.precipitation.risquee.cout, variables: [] }
+        effets:
+          - { type: stock.modifier, stock: eau, valeur: -12 }
+          - { type: stock.modifier, stock: materiaux, valeur: -10 }
+          - { type: habitants.modifier, valeur: -6 }
+        faits_produits:
+          - { id: finale.precipitation.selection-risquee, cible: precipitateur-embarque }
     consequence_differee: { type: solution-rendue-irreversible-avant-la-derniere-negociation, cible: coeur-du-noeud }
     recuperation: { type: solution-impossible-reste-non-selectionnable }
     variantes:
@@ -133,6 +153,9 @@ evenements:
       - id: etalon
         condition: fait-present:couronne.approches.etalon-calibre
         presentation: { cle: evenement.finale.selection.variante.etalon, variables: [] }
+      - id: precipitateur
+        condition: fait-present:couronne.approches.precipitateur-assemble
+        presentation: { cle: evenement.finale.selection.variante.precipitateur, variables: [] }
       - id: breche
         condition: fait-present:couronne.ouverture.breche-ouverte
         presentation: { cle: evenement.finale.selection.variante.breche, variables: [] }

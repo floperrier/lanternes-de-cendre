@@ -131,11 +131,14 @@ import {
 import {
   ancrageEstPrepare,
   citadelleDeCendreEstCredible,
+  cielRenduEstCredible,
   constellationEstCredible,
   COUTS_DES_SOLUTIONS_FINALES,
+  precipitationEstPreparee,
   reaccordEstPrepare,
   reseauDeFerEstCredible,
   refugeCommunEstCredible,
+  terreDesSacrifiesEstCredible,
 } from "../simulation/finale";
 
 const EMPREINTE = /^[0-9a-f]{8}$/;
@@ -2504,6 +2507,8 @@ const IDS_DE_SELECTION_FINALE = new Set([
   "finale.ancrage.selection-risquee",
   "finale.reaccord.selection-preparee",
   "finale.reaccord.selection-risquee",
+  "finale.precipitation.selection-preparee",
+  "finale.precipitation.selection-risquee",
 ]);
 const IDS_DE_VARIANTE_FINALE = new Set([
   "finale.ancrage.refuge-commun",
@@ -2512,6 +2517,9 @@ const IDS_DE_VARIANTE_FINALE = new Set([
   "finale.reaccord.constellation",
   "finale.reaccord.reseau-de-fer",
   "finale.reaccord.veilles-dispersees",
+  "finale.precipitation.ciel-rendu",
+  "finale.precipitation.terre-des-sacrifies",
+  "finale.precipitation.pluie-noire",
 ]);
 
 function effetsDeFaitSontExactement(
@@ -2605,16 +2613,21 @@ export function contratFinalEstCausal(
     const idsAvant = new Set(
       faitsAvant.map((fait) => String(fait.id)),
     );
-    const estAncrage = String(selection.fait.id).startsWith(
-      "finale.ancrage.",
+    const selectionId = String(selection.fait.id);
+    const solution = selectionId.startsWith("finale.ancrage.")
+      ? "ancrer"
+      : selectionId.startsWith("finale.reaccord.")
+        ? "reaccorder"
+        : "precipiter";
+    const estPrepare = selectionId.endsWith(
+      "selection-preparee",
     );
-    const estPrepare =
-      selection.fait.id === "finale.ancrage.selection-preparee" ||
-      selection.fait.id === "finale.reaccord.selection-preparee";
-    const preparationAttendue = estAncrage
-      ? ancrageEstPrepare(idsAvant)
-      : reaccordEstPrepare(idsAvant);
-    const solution = estAncrage ? "ancrer" : "reaccorder";
+    const preparationAttendue =
+      solution === "ancrer"
+        ? ancrageEstPrepare(idsAvant)
+        : solution === "reaccorder"
+          ? reaccordEstPrepare(idsAvant)
+          : precipitationEstPreparee(idsAvant);
     const cout =
       COUTS_DES_SOLUTIONS_FINALES[solution][
         estPrepare ? "preparee" : "risquee"
@@ -2647,7 +2660,7 @@ export function contratFinalEstCausal(
       );
     if (
       estPrepare !== preparationAttendue ||
-      (!estAncrage &&
+      (solution !== "ancrer" &&
         idsAvant.has("couronne.ouverture.breche-ouverte")) ||
       !effetsDeFaitSontExactement(
         selection.fait,
@@ -2677,13 +2690,16 @@ export function contratFinalEstCausal(
       .slice(0, variante.index)
       .map((fait) => String(fait.id)),
   );
-  const selectionDAncrage = String(selection.fait.id).startsWith(
-    "finale.ancrage.",
-  );
-  const varianteDAncrage = String(variante.fait.id).startsWith(
-    "finale.ancrage.",
-  );
-  if (selectionDAncrage !== varianteDAncrage) {
+  const familleFinale = (id: string) =>
+    id.startsWith("finale.ancrage.")
+      ? "ancrage"
+      : id.startsWith("finale.reaccord.")
+        ? "reaccord"
+        : "precipitation";
+  if (
+    familleFinale(String(selection.fait.id)) !==
+    familleFinale(String(variante.fait.id))
+  ) {
     return false;
   }
   if (variante.fait.id === "finale.ancrage.refuge-commun") {
@@ -2710,7 +2726,23 @@ export function contratFinalEstCausal(
   if (variante.fait.id === "finale.reaccord.reseau-de-fer") {
     return reseauDeFerEstCredible(idsAvant);
   }
-  return variante.fait.id === "finale.reaccord.veilles-dispersees";
+  if (variante.fait.id === "finale.reaccord.veilles-dispersees") {
+    return true;
+  }
+  if (variante.fait.id === "finale.precipitation.ciel-rendu") {
+    return (
+      selection.fait.id ===
+        "finale.precipitation.selection-preparee" &&
+      cielRenduEstCredible(idsAvant)
+    );
+  }
+  if (
+    variante.fait.id ===
+    "finale.precipitation.terre-des-sacrifies"
+  ) {
+    return terreDesSacrifiesEstCredible(idsAvant);
+  }
+  return variante.fait.id === "finale.precipitation.pluie-noire";
 }
 
 function estEtatPilotage(

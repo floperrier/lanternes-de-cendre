@@ -1,0 +1,15 @@
+{
+  "asset": "serveur-commercial/assets/finale-precipitation-consequence.webp",
+  "sha256": "9941068d5d6dc6f5bc5882ca6fecd4c8875f3f4d6f055d493066ed6ef0258a45",
+  "createdAt": "2026-07-24",
+  "tool": "Codex built-in image_gen",
+  "model": "built-in model (identifier not exposed)",
+  "useCase": "stylized-concept",
+  "input": "No input image; generated from the project’s established industrial ash-world art direction.",
+  "prompt": "Crews and basin delegates negotiate around an assembled Precipitator and relief map while ash curtains threaten a Colony and evacuating families; painterly 16:9, costly and morally tense, no text or logos.",
+  "rights": "OpenAI Terms of Use — output assigned to the user",
+  "approval": {
+    "status": "pending-pull-request-review",
+    "reviewer": null
+  }
+}

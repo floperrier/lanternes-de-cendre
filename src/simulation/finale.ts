@@ -29,8 +29,15 @@ export type CauseDeSolutionFinale =
   | "specialistes-reaccord-absents"
   | "engagements-reaccord-actifs"
   | "engagements-reaccord-absents"
+  | "connaissance-reseau-etablie"
+  | "connaissance-reseau-absente"
   | "ligne-zero-relevee"
   | "ligne-zero-absente"
+  | "confinement-bassins-prepare"
+  | "confinement-bassins-absent"
+  | "gouvernance-bassins-partagee"
+  | "gouvernance-bassins-contrainte"
+  | "gouvernance-bassins-absente"
   | "ressources-suffisantes"
   | "materiaux-insuffisants"
   | "eau-insuffisante"
@@ -59,16 +66,24 @@ export type VarianteDeReaccord =
   | "reseau-de-fer"
   | "veilles-dispersees";
 
+export type VarianteDePrecipitation =
+  | "ciel-rendu"
+  | "terre-des-sacrifies"
+  | "pluie-noire";
+
 export type VarianteFinale =
   | VarianteDAncrage
-  | VarianteDeReaccord;
+  | VarianteDeReaccord
+  | VarianteDePrecipitation;
 
 export type SelectionDeSolutionFinale =
   | "aucune"
   | "ancrage-prepare"
   | "ancrage-risque"
   | "reaccord-prepare"
-  | "reaccord-risque";
+  | "reaccord-risque"
+  | "precipitation-preparee"
+  | "precipitation-risquee";
 
 export interface EtatDuContratFinal {
   readonly solutions: Readonly<
@@ -85,14 +100,30 @@ export interface EtatDuContratFinal {
           | "sous-contrainte"
           | "maillee"
           | "rigide"
-          | "fragmentee";
+          | "fragmentee"
+          | "progressive"
+          | "forcee"
+          | "dispersee";
         readonly controle:
           | "partage"
           | "centralise"
           | "equipes"
           | "coalition"
           | "republique"
-          | "sans-proprietaire";
+          | "sans-proprietaire"
+          | "conseil-des-bassins"
+          | "autorite-du-noeud"
+          | "fracture";
+        readonly sortDuCoeur:
+          | "immobilise"
+          | "verrouille"
+          | "sollicite"
+          | "relaye"
+          | "subordonne"
+          | "fragmente"
+          | "preserve"
+          | "expose"
+          | "consume";
         readonly coutHumain: "contenu" | "inegal" | "eleve";
       }
     | undefined;
@@ -217,6 +248,77 @@ export function reseauDeFerEstCredible(
   );
 }
 
+function connaissanceDuReseauEstEtablie(
+  faits: ReadonlySet<string>,
+): boolean {
+  return (
+    faits.has("couronne.approches.socles-cartographies") ||
+    faits.has("couronne.approches.compatibilites-etablies") ||
+    faits.has("veille-basse.registres-copies") ||
+    faits.has("veille-basse.registres-laisses")
+  );
+}
+
+function confinementDesBassinsEstPrepare(
+  faits: ReadonlySet<string>,
+): boolean {
+  return (
+    faits.has("bassins.haut-puits.panache-confine") &&
+    (faits.has("bassins.haut-puits.decanteur-documente") ||
+      faits.has("bassins.conseil.decanteur-repare"))
+  );
+}
+
+function gouvernanceDesBassinsEstPartagee(
+  faits: ReadonlySet<string>,
+): boolean {
+  return (
+    faits.has("bassins.haut-puits.pacte-partage") ||
+    faits.has("bassins.deversoir.conseil-public") ||
+    faits.has("bassins.conseil.reserves-partagees") ||
+    faits.has("bassins.deversoir.passage-transmis")
+  );
+}
+
+function gouvernanceDesBassinsEstContrainte(
+  faits: ReadonlySet<string>,
+): boolean {
+  return (
+    faits.has("bassins.conseil.vannes-contraintes") ||
+    faits.has("bassins.haut-puits.panache-derive") ||
+    faits.has("veille-basse.intervention-refusee") ||
+    faits.has("bassins.haut-puits.pacte-autonomie")
+  );
+}
+
+export function precipitationEstPreparee(
+  faits: ReadonlySet<string>,
+): boolean {
+  return (
+    faits.has("couronne.approches.precipitateur-assemble") &&
+    connaissanceDuReseauEstEtablie(faits) &&
+    faits.has("bassins.deversoir.ligne-zero-relevee") &&
+    confinementDesBassinsEstPrepare(faits) &&
+    !faits.has("couronne.ouverture.breche-ouverte")
+  );
+}
+
+export function cielRenduEstCredible(
+  faits: ReadonlySet<string>,
+): boolean {
+  return (
+    precipitationEstPreparee(faits) &&
+    gouvernanceDesBassinsEstPartagee(faits) &&
+    !gouvernanceDesBassinsEstContrainte(faits)
+  );
+}
+
+export function terreDesSacrifiesEstCredible(
+  faits: ReadonlySet<string>,
+): boolean {
+  return gouvernanceDesBassinsEstContrainte(faits);
+}
+
 function idsDeFaits(
   contexte: ContexteDeFinale,
 ): ReadonlySet<string> {
@@ -281,7 +383,18 @@ function exclureCoutFinalDejaPaye(
         ? ({ solution: "reaccorder", statut: "preparee" } as const)
         : faits.has("finale.reaccord.selection-risquee")
           ? ({ solution: "reaccorder", statut: "risquee" } as const)
-          : undefined;
+          : faits.has(
+                "finale.precipitation.selection-preparee",
+              )
+            ? ({ solution: "precipiter", statut: "preparee" } as const)
+            : faits.has(
+                  "finale.precipitation.selection-risquee",
+                )
+              ? ({
+                  solution: "precipiter",
+                  statut: "risquee",
+                } as const)
+              : undefined;
   if (selection === undefined) {
     return contexte;
   }
@@ -365,8 +478,17 @@ function trouverVariante(
   if (faits.has("finale.reaccord.reseau-de-fer")) {
     return "reseau-de-fer";
   }
-  return faits.has("finale.reaccord.veilles-dispersees")
-    ? "veilles-dispersees"
+  if (faits.has("finale.reaccord.veilles-dispersees")) {
+    return "veilles-dispersees";
+  }
+  if (faits.has("finale.precipitation.ciel-rendu")) {
+    return "ciel-rendu";
+  }
+  if (faits.has("finale.precipitation.terre-des-sacrifies")) {
+    return "terre-des-sacrifies";
+  }
+  return faits.has("finale.precipitation.pluie-noire")
+    ? "pluie-noire"
     : "aucune";
 }
 
@@ -401,6 +523,14 @@ export function reconstruireEtatDuContratFinal(
   const ligneZero = faits.has(
     "bassins.deversoir.ligne-zero-relevee",
   );
+  const connaissanceDuReseau =
+    connaissanceDuReseauEstEtablie(faits);
+  const confinementDesBassins =
+    confinementDesBassinsEstPrepare(faits);
+  const gouvernancePartagee =
+    gouvernanceDesBassinsEstPartagee(faits);
+  const gouvernanceContrainte =
+    gouvernanceDesBassinsEstContrainte(faits);
   const noeudEndommage = ouverture.noeud === "endommage";
 
   const solutions = {
@@ -431,13 +561,28 @@ export function reconstruireEtatDuContratFinal(
     ),
     precipiter: construireSolution(
       contexteDuDiagnostic,
-      precipitateur && ligneZero && !noeudEndommage,
-      false,
+      precipitationEstPreparee(faits),
+      noeudEndommage,
       [
         precipitateur
           ? "precipitateur-assemble"
           : "precipitateur-absent",
+        connaissanceDuReseau
+          ? "connaissance-reseau-etablie"
+          : "connaissance-reseau-absente",
         ligneZero ? "ligne-zero-relevee" : "ligne-zero-absente",
+        confinementDesBassins
+          ? "confinement-bassins-prepare"
+          : "confinement-bassins-absent",
+        ...(gouvernancePartagee
+          ? (["gouvernance-bassins-partagee"] as const)
+          : []),
+        ...(gouvernanceContrainte
+          ? (["gouvernance-bassins-contrainte"] as const)
+          : []),
+        ...(!gouvernancePartagee && !gouvernanceContrainte
+          ? (["gouvernance-bassins-absente"] as const)
+          : []),
         noeud,
       ],
       COUTS_DES_SOLUTIONS_FINALES.precipiter,
@@ -454,9 +599,19 @@ export function reconstruireEtatDuContratFinal(
         ? "reaccord-prepare"
         : faits.has("finale.reaccord.selection-risquee")
           ? "reaccord-risque"
-          : "aucune";
+          : faits.has(
+                "finale.precipitation.selection-preparee",
+              )
+            ? "precipitation-preparee"
+            : faits.has(
+                  "finale.precipitation.selection-risquee",
+                )
+              ? "precipitation-risquee"
+              : "aucune";
   const ancrageSelectionne = selection.startsWith("ancrage-");
   const reaccordSelectionne = selection.startsWith("reaccord-");
+  const precipitationSelectionnee =
+    selection.startsWith("precipitation-");
   const partageCredible = refugeCommunEstCredible(faits);
   const citadelleCredible = citadelleDeCendreEstCredible(faits);
   const optionsDeNegociation: VarianteFinale[] = ancrageSelectionne
@@ -480,37 +635,72 @@ export function reconstruireEtatDuContratFinal(
             : []),
           "veilles-dispersees",
         ] as const)
-      : [];
+      : precipitationSelectionnee
+        ? ([
+            ...(selection === "precipitation-preparee" &&
+            cielRenduEstCredible(faits)
+              ? (["ciel-rendu"] as const)
+              : []),
+            ...(terreDesSacrifiesEstCredible(faits)
+              ? (["terre-des-sacrifies"] as const)
+              : []),
+            "pluie-noire",
+          ] as const)
+        : [];
   const varianteFinale = trouverVariante(faits);
   const bilans = {
     "refuge-commun": {
       stabilite: "stable",
       controle: "partage",
+      sortDuCoeur: "immobilise",
       coutHumain: "contenu",
     },
     "citadelle-de-cendre": {
       stabilite: "fortifiee",
       controle: "centralise",
+      sortDuCoeur: "verrouille",
       coutHumain: "inegal",
     },
     "dernier-rempart": {
       stabilite: "sous-contrainte",
       controle: "equipes",
+      sortDuCoeur: "sollicite",
       coutHumain: "eleve",
     },
     constellation: {
       stabilite: "maillee",
       controle: "coalition",
+      sortDuCoeur: "relaye",
       coutHumain: "contenu",
     },
     "reseau-de-fer": {
       stabilite: "rigide",
       controle: "republique",
+      sortDuCoeur: "subordonne",
       coutHumain: "inegal",
     },
     "veilles-dispersees": {
       stabilite: "fragmentee",
       controle: "sans-proprietaire",
+      sortDuCoeur: "fragmente",
+      coutHumain: "eleve",
+    },
+    "ciel-rendu": {
+      stabilite: "progressive",
+      controle: "conseil-des-bassins",
+      sortDuCoeur: "preserve",
+      coutHumain: "inegal",
+    },
+    "terre-des-sacrifies": {
+      stabilite: "forcee",
+      controle: "autorite-du-noeud",
+      sortDuCoeur: "expose",
+      coutHumain: "eleve",
+    },
+    "pluie-noire": {
+      stabilite: "dispersee",
+      controle: "fracture",
+      sortDuCoeur: "consume",
       coutHumain: "eleve",
     },
   } as const;
@@ -544,6 +734,12 @@ export function choixDeFinaleEstDisponible(
   if (choixId === "selectionner-reaccord-risque") {
     return finale.solutions.reaccorder.statut === "risquee";
   }
+  if (choixId === "selectionner-precipitation-preparee") {
+    return finale.solutions.precipiter.statut === "preparee";
+  }
+  if (choixId === "selectionner-precipitation-risquee") {
+    return finale.solutions.precipiter.statut === "risquee";
+  }
   const variantes: Readonly<Record<string, VarianteFinale>> = {
     "negocier-refuge-commun": "refuge-commun",
     "negocier-citadelle-de-cendre": "citadelle-de-cendre",
@@ -551,6 +747,9 @@ export function choixDeFinaleEstDisponible(
     "mailler-la-constellation": "constellation",
     "confier-le-reseau-de-fer": "reseau-de-fer",
     "separer-les-veilles": "veilles-dispersees",
+    "administrer-le-ciel-rendu": "ciel-rendu",
+    "assigner-la-terre-des-sacrifies": "terre-des-sacrifies",
+    "rompre-le-front-en-pluie-noire": "pluie-noire",
   };
   const variante = variantes[choixId];
   return variante === undefined

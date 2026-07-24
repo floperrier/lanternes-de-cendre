@@ -285,3 +285,8 @@ assets:
     alternative: evenement.finale.reaccord.asset.alt
     contient_texte: false
     provenance: docs/assets/finale-reaccord-conflit.provenance.json
+  - id: finale.precipitation.la-derniere-negociation-des-bassins
+    fichier: /api/commercial/assets/finale-precipitation-consequence.webp
+    alternative: evenement.finale.precipitation.asset.alt
+    contient_texte: false
+    provenance: docs/assets/finale-precipitation-consequence.provenance.json

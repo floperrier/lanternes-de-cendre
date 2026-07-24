@@ -1,0 +1,101 @@
+version: 1
+evenements:
+  - id: finale.precipitation.la-derniere-negociation-des-bassins
+    famille: consequences-systemiques
+    themes: [precipitation, derniere-negociation, bassins, depots, cout-humain]
+    fonction: attribuer-les-bassins-et-nommer-les-populations-qui-portent-les-depots
+    fenetre: finale-ancrage
+    conditions:
+      requises:
+        - type: un-des-faits-present
+          faits:
+            - finale.precipitation.selection-preparee
+            - finale.precipitation.selection-risquee
+      interdites: []
+    periode_eligibilite: { debut: 1200, fin: 2147483647 }
+    priorite: 180
+    epuisement: unique
+    acteurs:
+      - porte-lanterne
+      - habitants-des-bassins
+      - habitants-haut-puits
+      - habitants-veille-basse
+      - puits-libres
+      - equipes-de-l-anneau
+      - precipitateur-embarque
+    origine: { cle: evenement.finale.precipitation.origine, variables: [] }
+    libelle_intentions: { cle: evenement.ruban.intentions, variables: [] }
+    titre: { cle: evenement.finale.precipitation.titre, variables: [] }
+    presentation: { cle: evenement.finale.precipitation.presentation, variables: [] }
+    informations:
+      - source: habitants-des-bassins
+        texte: { cle: evenement.finale.precipitation.information, variables: [] }
+    faits_lus:
+      - finale.precipitation.selection-preparee
+      - finale.precipitation.selection-risquee
+      - bassins.haut-puits.pacte-partage
+      - bassins.haut-puits.pacte-autonomie
+      - bassins.haut-puits.panache-confine
+      - bassins.haut-puits.panache-derive
+      - bassins.deversoir.conseil-public
+      - bassins.conseil.reserves-partagees
+      - bassins.conseil.vannes-contraintes
+      - bassins.deversoir.passage-transmis
+      - veille-basse.intervention-refusee
+    choix:
+      - id: administrer-le-ciel-rendu
+        intention: { cle: evenement.finale.precipitation.choix.ciel, variables: [] }
+        couts_connus:
+          - { cle: evenement.finale.precipitation.choix.ciel.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - { id: finale.precipitation.ciel-rendu, cible: precipitateur-embarque }
+      - id: assigner-la-terre-des-sacrifies
+        intention: { cle: evenement.finale.precipitation.choix.terre, variables: [] }
+        couts_connus:
+          - { cle: evenement.finale.precipitation.choix.terre.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - { id: finale.precipitation.terre-des-sacrifies, cible: precipitateur-embarque }
+      - id: rompre-le-front-en-pluie-noire
+        intention: { cle: evenement.finale.precipitation.choix.pluie, variables: [] }
+        couts_connus:
+          - { cle: evenement.finale.precipitation.choix.pluie.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - { id: finale.precipitation.pluie-noire, cible: precipitateur-embarque }
+    consequence_differee: { type: stabilite-controle-sort-du-coeur-et-victimes-consignes, cible: precipitateur-embarque }
+    recuperation: { type: aucun-ciel-clair-sans-confinement-depots-ni-dette-humaine }
+    variantes:
+      - id: vannes-contraintes
+        condition: fait-present:bassins.conseil.vannes-contraintes
+        presentation: { cle: evenement.finale.precipitation.variante.contrainte, variables: [] }
+      - id: panache-derive
+        condition: fait-present:bassins.haut-puits.panache-derive
+        presentation: { cle: evenement.finale.precipitation.variante.vanniers, variables: [] }
+      - id: veille-abandonnee
+        condition: fait-present:veille-basse.intervention-refusee
+        presentation: { cle: evenement.finale.precipitation.variante.veille, variables: [] }
+      - id: autonomie-fermee
+        condition: fait-present:bassins.haut-puits.pacte-autonomie
+        presentation: { cle: evenement.finale.precipitation.variante.autonomie, variables: [] }
+      - id: pacte-partage
+        condition: fait-present:bassins.haut-puits.pacte-partage
+        presentation: { cle: evenement.finale.precipitation.variante.partage, variables: [] }
+      - id: conseil-public
+        condition: fait-present:bassins.deversoir.conseil-public
+        presentation: { cle: evenement.finale.precipitation.variante.partage, variables: [] }
+      - id: reserves-partagees
+        condition: fait-present:bassins.conseil.reserves-partagees
+        presentation: { cle: evenement.finale.precipitation.variante.partage, variables: [] }
+      - id: registres-transmis
+        condition: fait-present:bassins.deversoir.passage-transmis
+        presentation: { cle: evenement.finale.precipitation.variante.partage, variables: [] }
+      - id: panache-confine
+        condition: fait-present:bassins.haut-puits.panache-confine
+        presentation: { cle: evenement.finale.precipitation.variante.confinement, variables: [] }
+      - id: standard
+        condition: toujours
+        presentation: { cle: evenement.finale.precipitation.variante.standard, variables: [] }
+    destination_echo: journal-de-campagne
+    asset: finale.precipitation.la-derniere-negociation-des-bassins

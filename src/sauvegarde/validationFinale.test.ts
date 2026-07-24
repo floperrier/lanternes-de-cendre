@@ -250,4 +250,128 @@ describe("validation causale du contrat final", () => {
       ]),
     ).toBe(true);
   });
+
+  it("accepte les coûts exacts des Précipitations préparée et risquée", () => {
+    expect(
+      valider([
+        fait("couronne.approches.precipitateur-assemble", 20),
+        fait("couronne.approches.socles-cartographies", 30),
+        fait("bassins.deversoir.ligne-zero-relevee", 40),
+        fait("bassins.haut-puits.panache-confine", 50),
+        fait("bassins.haut-puits.decanteur-documente", 60),
+        fait("bassins.haut-puits.pacte-partage", 70),
+        fait("finale.contrat.causes-publiees", 200),
+        fait(
+          "finale.precipitation.selection-preparee",
+          300,
+          [eau(-6), materiaux(-6)],
+        ),
+        fait("finale.precipitation.ciel-rendu", 400),
+      ]),
+    ).toBe(true);
+    expect(
+      valider(
+        [
+          fait("couronne.approches.precipitateur-assemble", 50),
+          fait("finale.contrat.causes-consignees", 200),
+          fait(
+            "finale.precipitation.selection-risquee",
+            300,
+            [eau(-12), materiaux(-10)],
+            [habitants(-6)],
+          ),
+          fait("finale.precipitation.pluie-noire", 400),
+        ],
+        178,
+      ),
+    ).toBe(true);
+  });
+
+  it("rejette la Précipitation bréchée, falsifiée ou politiquement impossible", () => {
+    const preparation = [
+      fait("couronne.approches.precipitateur-assemble", 20),
+      fait("couronne.approches.socles-cartographies", 30),
+      fait("bassins.deversoir.ligne-zero-relevee", 40),
+      fait("bassins.haut-puits.panache-confine", 50),
+      fait("bassins.haut-puits.decanteur-documente", 60),
+      fait("bassins.haut-puits.pacte-partage", 70),
+      fait("finale.contrat.causes-publiees", 200),
+    ];
+    expect(
+      valider([
+        ...preparation.slice(0, -1),
+        fait("couronne.ouverture.breche-ouverte", 100),
+        preparation.at(-1)!,
+        fait(
+          "finale.precipitation.selection-risquee",
+          300,
+          [eau(-12), materiaux(-10)],
+          [habitants(-6)],
+        ),
+      ]),
+    ).toBe(false);
+    expect(
+      valider([
+        fait("finale.contrat.causes-publiees", 200),
+        fait(
+          "finale.precipitation.selection-risquee",
+          300,
+          [eau(-11), materiaux(-10)],
+          [habitants(-6)],
+        ),
+      ]),
+    ).toBe(false);
+    expect(
+      valider([
+        fait("finale.contrat.causes-publiees", 200),
+        fait(
+          "finale.precipitation.selection-risquee",
+          300,
+          [eau(-12), materiaux(-10)],
+          [habitants(-6)],
+        ),
+        fait("finale.precipitation.ciel-rendu", 400),
+      ]),
+    ).toBe(false);
+    expect(
+      valider([
+        ...preparation,
+        fait("bassins.conseil.vannes-contraintes", 250),
+        fait(
+          "finale.precipitation.selection-preparee",
+          300,
+          [eau(-6), materiaux(-6)],
+        ),
+        fait("finale.precipitation.ciel-rendu", 400),
+      ]),
+    ).toBe(false);
+    expect(
+      valider([
+        ...preparation,
+        fait(
+          "finale.precipitation.selection-preparee",
+          300,
+          [eau(-6), materiaux(-6)],
+        ),
+        fait("finale.precipitation.terre-des-sacrifies", 400),
+      ]),
+    ).toBe(false);
+    expect(
+      valider([
+        fait("couronne.approches.precipitateur-assemble", 20),
+        fait("veille-basse.registres-laisses", 30),
+        fait("bassins.deversoir.ligne-zero-relevee", 40),
+        fait("bassins.haut-puits.panache-confine", 50),
+        fait("bassins.conseil.decanteur-repare", 60),
+        fait("bassins.conseil.vannes-contraintes", 70),
+        fait("finale.contrat.causes-publiees", 200),
+        fait(
+          "finale.precipitation.selection-preparee",
+          300,
+          [eau(-6), materiaux(-6)],
+        ),
+        fait("finale.precipitation.terre-des-sacrifies", 400),
+      ]),
+    ).toBe(true);
+  });
 });

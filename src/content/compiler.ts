@@ -738,8 +738,17 @@ function compilerEvenement(
       valeur: objet(choix, `${chemin}/choix/${choixIndex}`),
     }),
   );
-  if (choixSources.length < 2 || choixSources.length > 4) {
-    echouer("schema", `${chemin}/choix`, "deux à quatre intentions requises");
+  const maximumDIntentions =
+    id === "finale.ancrage.choisir-d-ancrer-le-coeur" ? 6 : 4;
+  if (
+    choixSources.length < 2 ||
+    choixSources.length > maximumDIntentions
+  ) {
+    echouer(
+      "schema",
+      `${chemin}/choix`,
+      `deux à ${maximumDIntentions} intentions requises`,
+    );
   }
   const choix: ChoixDEvenement[] = choixSources.map(
     ({ valeur, chemin: cheminChoix }) => {

@@ -63,7 +63,7 @@ export interface EtatDeLOuvertureDeLaCouronne {
   readonly solutions: {
     readonly ancrer: "preparee" | "risquee";
     readonly reaccorder: "preparee" | "risquee" | "impossible";
-    readonly precipiter: "preparee" | "risquee";
+    readonly precipiter: "preparee" | "risquee" | "impossible";
   };
   readonly gardeDeLaClef: "indecise" | "gardiennes" | "collective";
 }
@@ -247,9 +247,11 @@ export function reconstruireEtatDeLOuvertureDeLaCouronne(
           ? "preparee"
           : "risquee",
       precipiter:
-        precipitateurAssemble && !brecheOuverte
-          ? "preparee"
-          : "risquee",
+        brecheOuverte
+          ? "impossible"
+          : precipitateurAssemble
+            ? "preparee"
+            : "risquee",
     },
     gardeDeLaClef: faits.has(
       "couronne.ouverture.clef-confiee-aux-gardiennes",

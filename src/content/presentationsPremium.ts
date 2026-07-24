@@ -272,6 +272,7 @@ export interface TextesDuContratFinal {
   readonly variantes: DictionnaireDeTextes;
   readonly stabilites: DictionnaireDeTextes;
   readonly controles: DictionnaireDeTextes;
+  readonly sortsDuCoeur: DictionnaireDeTextes;
   readonly coutsHumains: DictionnaireDeTextes;
   readonly aucunBilan: string;
   readonly formats: {
@@ -477,8 +478,19 @@ function estPresentationDuContratFinal(valeur: unknown): boolean {
         "coalition-absente",
         "accord-partage",
         "accord-ferme",
+        "specialistes-reaccord-reunis",
+        "specialistes-reaccord-absents",
+        "engagements-reaccord-actifs",
+        "engagements-reaccord-absents",
+        "connaissance-reseau-etablie",
+        "connaissance-reseau-absente",
         "ligne-zero-relevee",
         "ligne-zero-absente",
+        "confinement-bassins-prepare",
+        "confinement-bassins-absent",
+        "gouvernance-bassins-partagee",
+        "gouvernance-bassins-contrainte",
+        "gouvernance-bassins-absente",
         "ressources-suffisantes",
         "materiaux-insuffisants",
         "eau-insuffisante",
@@ -488,7 +500,15 @@ function estPresentationDuContratFinal(valeur: unknown): boolean {
     ["ressources", ["eau", "materiaux", "habitants"]],
     [
       "selections",
-      ["aucune", "ancrage-prepare", "ancrage-risque"],
+      [
+        "aucune",
+        "ancrage-prepare",
+        "ancrage-risque",
+        "reaccord-prepare",
+        "reaccord-risque",
+        "precipitation-preparee",
+        "precipitation-risquee",
+      ],
     ],
     [
       "variantes",
@@ -497,10 +517,56 @@ function estPresentationDuContratFinal(valeur: unknown): boolean {
         "refuge-commun",
         "citadelle-de-cendre",
         "dernier-rempart",
+        "constellation",
+        "reseau-de-fer",
+        "veilles-dispersees",
+        "ciel-rendu",
+        "terre-des-sacrifies",
+        "pluie-noire",
       ],
     ],
-    ["stabilites", ["stable", "fortifiee", "sous-contrainte"]],
-    ["controles", ["partage", "centralise", "equipes"]],
+    [
+      "stabilites",
+      [
+        "stable",
+        "fortifiee",
+        "sous-contrainte",
+        "maillee",
+        "rigide",
+        "fragmentee",
+        "progressive",
+        "forcee",
+        "dispersee",
+      ],
+    ],
+    [
+      "controles",
+      [
+        "partage",
+        "centralise",
+        "equipes",
+        "coalition",
+        "republique",
+        "sans-proprietaire",
+        "conseil-des-bassins",
+        "autorite-du-noeud",
+        "fracture",
+      ],
+    ],
+    [
+      "sortsDuCoeur",
+      [
+        "immobilise",
+        "verrouille",
+        "sollicite",
+        "relaye",
+        "subordonne",
+        "fragmente",
+        "preserve",
+        "expose",
+        "consume",
+      ],
+    ],
     ["coutsHumains", ["contenu", "inegal", "eleve"]],
     ["formats", ["solution", "cout", "bilan"]],
     [

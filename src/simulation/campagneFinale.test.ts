@@ -538,3 +538,311 @@ describe("finale — Réaccorder le réseau", () => {
     },
   );
 });
+
+describe("finale — Faire tomber la cendre", () => {
+  const preparationPartagee = [
+    "couronne.approches.precipitateur-assemble",
+    "couronne.approches.socles-cartographies",
+    "bassins.deversoir.ligne-zero-relevee",
+    "bassins.haut-puits.panache-confine",
+    "bassins.haut-puits.decanteur-documente",
+    "bassins.haut-puits.pacte-partage",
+  ] as const;
+  const preparationContrainte = [
+    "couronne.approches.precipitateur-assemble",
+    "veille-basse.registres-copies",
+    "bassins.deversoir.ligne-zero-relevee",
+    "bassins.haut-puits.panache-confine",
+    "bassins.conseil.decanteur-repare",
+    "bassins.haut-puits.pacte-partage",
+    "bassins.conseil.vannes-contraintes",
+  ] as const;
+
+  it("dépend du Réseau, des Bassins, du confinement et du Précipitateur", () => {
+    expect(
+      reconstruireEtatDuContratFinal(
+        preparer(preparationPartagee),
+      ).solutions.precipiter,
+    ).toMatchObject({
+      statut: "preparee",
+      causes: expect.arrayContaining([
+        "precipitateur-assemble",
+        "connaissance-reseau-etablie",
+        "ligne-zero-relevee",
+        "confinement-bassins-prepare",
+        "gouvernance-bassins-partagee",
+      ]),
+    });
+    expect(
+      reconstruireEtatDuContratFinal(
+        preparer(preparationContrainte),
+      ).solutions.precipiter,
+    ).toMatchObject({
+      statut: "preparee",
+      causes: expect.arrayContaining([
+        "gouvernance-bassins-partagee",
+        "gouvernance-bassins-contrainte",
+      ]),
+    });
+    expect(
+      reconstruireEtatDuContratFinal(
+        preparer([
+          "couronne.approches.precipitateur-assemble",
+          "couronne.approches.socles-cartographies",
+          "bassins.deversoir.ligne-zero-relevee",
+          "bassins.haut-puits.pacte-partage",
+        ]),
+      ).solutions.precipiter,
+    ).toMatchObject({
+      statut: "risquee",
+      causes: expect.arrayContaining([
+        "confinement-bassins-absent",
+      ]),
+    });
+  });
+
+  it("paie la Précipitation préparée et n’offre que les bassins gouvernables", () => {
+    const selection = atteindreLaSelection(
+      preparer(preparationPartagee),
+    );
+    const choix =
+      projeterCampagne(selection).evenementNarratif?.choix;
+    expect(choix).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: "selectionner-precipitation-preparee",
+          coutsConnus: [
+            expect.stringContaining("6 Eau et 6 Matériaux"),
+          ],
+        }),
+      ]),
+    );
+    const eauAvant =
+      selection.pilotage.economie.stocks.eau.quantite;
+    const materiauxAvant =
+      selection.pilotage.economie.stocks.materiaux.quantite;
+
+    const negociation = choisir(
+      selection,
+      "selectionner-precipitation-preparee",
+    );
+
+    expect(
+      negociation.pilotage.economie.stocks.eau.quantite,
+    ).toBe(eauAvant - 6);
+    expect(
+      negociation.pilotage.economie.stocks.materiaux.quantite,
+    ).toBe(materiauxAvant - 6);
+    expect(
+      projeterCampagne(negociation).evenementNarratif?.choix.map(
+        ({ id }) => id,
+      ),
+    ).toEqual([
+      "administrer-le-ciel-rendu",
+      "rompre-le-front-en-pluie-noire",
+    ]);
+
+    const conclue = choisir(
+      negociation,
+      "administrer-le-ciel-rendu",
+    );
+    expect(reconstruireEtatDuContratFinal(conclue)).toMatchObject({
+      selection: "precipitation-preparee",
+      varianteFinale: "ciel-rendu",
+      bilan: {
+        stabilite: "progressive",
+        controle: "conseil-des-bassins",
+        sortDuCoeur: "preserve",
+        coutHumain: "inegal",
+      },
+    });
+  });
+
+  it("nomme les victimes qui rendent la Terre des sacrifiés crédible", () => {
+    const selection = atteindreLaSelection(
+      preparer(preparationContrainte),
+    );
+    const negociation = choisir(
+      selection,
+      "selectionner-precipitation-preparee",
+    );
+    const projection =
+      projeterCampagne(negociation).evenementNarratif;
+
+    expect(projection?.variante).toContain("vannes déjà contraintes");
+    expect(projection?.choix.map(({ id }) => id)).toEqual([
+      "assigner-la-terre-des-sacrifies",
+      "rompre-le-front-en-pluie-noire",
+    ]);
+
+    const conclue = choisir(
+      negociation,
+      "assigner-la-terre-des-sacrifies",
+    );
+    expect(reconstruireEtatDuContratFinal(conclue)).toMatchObject({
+      varianteFinale: "terre-des-sacrifies",
+      bilan: {
+        stabilite: "forcee",
+        controle: "autorite-du-noeud",
+        sortDuCoeur: "expose",
+        coutHumain: "eleve",
+      },
+    });
+  });
+
+  it("rend la voie risquée explicite et la Pluie noire coûteuse", () => {
+    const selection = atteindreLaSelection(
+      preparer(["couronne.approches.precipitateur-assemble"]),
+    );
+    expect(
+      projeterCampagne(selection).evenementNarratif?.choix,
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          id: "selectionner-precipitation-risquee",
+          coutsConnus: [
+            expect.stringContaining(
+              "12 Eau, 10 Matériaux et 6 Habitants exposés",
+            ),
+          ],
+        }),
+      ]),
+    );
+    const habitantsAvant = selection.citeCaravane.habitants;
+    const negociation = choisir(
+      selection,
+      "selectionner-precipitation-risquee",
+    );
+    expect(negociation.citeCaravane.habitants).toBe(
+      habitantsAvant - 6,
+    );
+    expect(
+      projeterCampagne(negociation).evenementNarratif?.choix.map(
+        ({ id }) => id,
+      ),
+    ).toEqual(["rompre-le-front-en-pluie-noire"]);
+
+    const conclue = choisir(
+      negociation,
+      "rompre-le-front-en-pluie-noire",
+    );
+    expect(reconstruireEtatDuContratFinal(conclue)).toMatchObject({
+      selection: "precipitation-risquee",
+      varianteFinale: "pluie-noire",
+      bilan: {
+        stabilite: "dispersee",
+        controle: "fracture",
+        sortDuCoeur: "consume",
+        coutHumain: "eleve",
+      },
+    });
+  });
+
+  it("interdit la Précipitation quand la brèche a détruit ses collecteurs", () => {
+    const selection = atteindreLaSelection(
+      preparer([
+        ...preparationPartagee,
+        "couronne.ouverture.breche-ouverte",
+      ]),
+    );
+
+    expect(
+      projeterCampagne(selection).evenementNarratif?.choix.some(
+        ({ id }) => id.startsWith("selectionner-precipitation"),
+      ),
+    ).toBe(false);
+    expect(
+      reconstruireEtatDuContratFinal(selection).solutions.precipiter,
+    ).toMatchObject({
+      statut: "impossible",
+      selectionnable: false,
+      causes: expect.arrayContaining(["noeud-endommage"]),
+    });
+  });
+
+  it("fige le diagnostic après le paiement exact du Précipitateur", () => {
+    const selection = atteindreLaSelection(
+      preparer(preparationPartagee, 6, 184, 6),
+    );
+    const apresPaiement = choisir(
+      selection,
+      "selectionner-precipitation-preparee",
+    );
+
+    expect(
+      apresPaiement.pilotage.economie.stocks.eau.quantite,
+    ).toBe(0);
+    expect(
+      apresPaiement.pilotage.economie.stocks.materiaux.quantite,
+    ).toBe(0);
+    expect(
+      reconstruireEtatDuContratFinal(apresPaiement).solutions
+        .precipiter,
+    ).toMatchObject({
+      statut: "preparee",
+      selectionnable: true,
+      causes: expect.arrayContaining(["ressources-suffisantes"]),
+    });
+  });
+
+  it.each([
+    {
+      nom: "préparé",
+      faits: preparationPartagee,
+      statut: "preparee",
+      selection: "selectionner-precipitation-preparee",
+      variante: "administrer-le-ciel-rendu",
+    },
+    {
+      nom: "risqué",
+      faits: ["couronne.approches.precipitateur-assemble"],
+      statut: "risquee",
+      selection: "selectionner-precipitation-risquee",
+      variante: "rompre-le-front-en-pluie-noire",
+    },
+    {
+      nom: "impossible",
+      faits: [
+        ...preparationPartagee,
+        "couronne.ouverture.breche-ouverte",
+      ],
+      statut: "impossible",
+      selection: undefined,
+      variante: undefined,
+    },
+  ] as const)(
+    "rejoue l’état, les explications et l’empreinte du scénario $nom",
+    ({ faits, statut, selection, variante }) => {
+      const executer = () => {
+        const auContrat = atteindreLaSelection(preparer(faits));
+        const projection = projeterContratFinal(auContrat);
+        const explications = projection.solutions.find(
+          ({ id }) => id === "precipiter",
+        )?.causes;
+        if (selection === undefined || variante === undefined) {
+          return { etat: auContrat, explications };
+        }
+        const enNegociation = choisir(auContrat, selection);
+        return {
+          etat: choisir(enNegociation, variante),
+          explications,
+        };
+      };
+
+      const premiere = executer();
+      const seconde = executer();
+
+      expect(
+        reconstruireEtatDuContratFinal(
+          atteindreLaSelection(preparer(faits)),
+        ).solutions.precipiter.statut,
+      ).toBe(statut);
+      expect(premiere.explications).toEqual(seconde.explications);
+      expect(premiere.explications).not.toHaveLength(0);
+      expect(empreinteEtat(premiere.etat)).toBe(
+        empreinteEtat(seconde.etat),
+      );
+      expect(premiere.etat).toEqual(seconde.etat);
+    },
+  );
+});

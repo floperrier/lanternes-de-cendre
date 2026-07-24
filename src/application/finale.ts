@@ -105,6 +105,8 @@ export function projeterContratFinal(
       : formater(textes.formats.bilan, {
           stabilite: textes.stabilites[finale.bilan.stabilite]!,
           controle: textes.controles[finale.bilan.controle]!,
+          sortDuCoeur:
+            textes.sortsDuCoeur[finale.bilan.sortDuCoeur]!,
           coutHumain:
             textes.coutsHumains[finale.bilan.coutHumain]!,
         });

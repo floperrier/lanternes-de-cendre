@@ -13174,7 +13174,7 @@ export default {
           },
           "presentation": {
             "cle": "evenement.ouverture.diagnostic.presentation",
-            "modele": "Les conduites du Nœud confirment l’ancienne dette du réseau : chaque ouverture propre préserve des organes différents, tandis que la brèche de secours détruirait les bus capables de réaccorder les Colonies.",
+            "modele": "Les conduites du Nœud confirment l’ancienne dette du réseau : chaque ouverture propre préserve des organes différents, tandis que la brèche de secours détruirait les bus capables de réaccorder les Colonies et les collecteurs du Précipitateur.",
             "variables": [],
             "valeurs": {}
           },
@@ -13262,7 +13262,7 @@ export default {
           },
           "presentation": {
             "cle": "evenement.ouverture.diagnostic.presentation",
-            "modele": "The Node conduits confirm the network’s old debt: each clean opening preserves different organs, while the emergency breach would destroy the buses capable of retuning the Colonies.",
+            "modele": "The Node conduits confirm the network’s old debt: each clean opening preserves different organs, while the emergency breach would destroy the buses capable of retuning the Colonies and the Precipitator collectors.",
             "variables": [],
             "valeurs": {}
           },
@@ -13817,7 +13817,7 @@ export default {
           "informations": [
             {
               "cle": "evenement.ouverture.conseil.information",
-              "modele": "Chaque ouverture annonce ses acteurs et ses ressources. La brèche atteint toujours le Nœud, mais détruit ses bus de réaccord et rend cette Solution impossible.",
+              "modele": "Chaque ouverture annonce ses acteurs et ses ressources. La brèche atteint toujours le Nœud, mais détruit ses bus de réaccord et les collecteurs du Précipitateur, rendant ces deux Solutions impossibles.",
               "variables": [],
               "valeurs": {}
             }
@@ -13901,7 +13901,7 @@ export default {
               "coutsConnus": [
                 {
                   "cle": "evenement.ouverture.conseil.choix.breche.cout",
-                  "modele": "Coût connu : aucun stock immédiat ; le Nœud est endommagé et Réaccorder le réseau devient impossible.",
+                  "modele": "Coût connu : aucun stock immédiat ; les bus de réaccord et les collecteurs du Précipitateur sont détruits, rendant Réaccorder et Faire tomber la cendre impossibles.",
                   "variables": [],
                   "valeurs": {}
                 }
@@ -13937,7 +13937,7 @@ export default {
           "informations": [
             {
               "cle": "evenement.ouverture.conseil.information",
-              "modele": "Every opening names its actors and resources. The breach always reaches the Node, but destroys its retuning buses and makes that Solution impossible.",
+              "modele": "Every opening names its actors and resources. The breach always reaches the Node, but destroys its retuning buses and Precipitator collectors, making both Solutions impossible.",
               "variables": [],
               "valeurs": {}
             }
@@ -14021,7 +14021,7 @@ export default {
               "coutsConnus": [
                 {
                   "cle": "evenement.ouverture.conseil.choix.breche.cout",
-                  "modele": "Known cost: no immediate stock; the Node is damaged and Retuning the network becomes impossible.",
+                  "modele": "Known cost: no immediate stock; the retuning buses and Precipitator collectors are destroyed, making Retuning and Bringing down the ash impossible.",
                   "variables": [],
                   "valeurs": {}
                 }
@@ -14481,7 +14481,7 @@ export default {
           "variantes": {
             "breche": {
               "cle": "evenement.finale.contrat.variante.breche",
-              "modele": "La brèche a détruit les bus de réaccord : cette impossibilité est inscrite sans contaminer le diagnostic des deux autres Solutions.",
+              "modele": "La brèche a détruit les bus de réaccord et les collecteurs du Précipitateur : ces impossibilités sont inscrites sans contaminer le diagnostic de l’Ancrage.",
               "variables": [],
               "valeurs": {}
             },
@@ -14569,7 +14569,7 @@ export default {
           "variantes": {
             "breche": {
               "cle": "evenement.finale.contrat.variante.breche",
-              "modele": "The breach destroyed the retuning buses: that impossibility is recorded without contaminating the diagnosis of the other two Solutions.",
+              "modele": "The breach destroyed the retuning buses and Precipitator collectors: those impossibilities are recorded without contaminating the Anchoring diagnosis.",
               "variables": [],
               "valeurs": {}
             },
@@ -14629,11 +14629,12 @@ export default {
       "themes": [
         "ancrage",
         "reaccord",
+        "precipitation",
         "choix-final",
         "cout-determine",
         "irreversibilite"
       ],
-      "fonction": "choisir-l-ancrage-ou-le-reaccord-prepare-ou-risque-sans-tirage",
+      "fonction": "choisir-l-une-des-trois-solutions-preparee-ou-risquee-sans-tirage",
       "fenetre": "finale-ancrage",
       "conditions": {
         "requises": [
@@ -14665,6 +14666,7 @@ export default {
         "finale.contrat.causes-consignees",
         "couronne.approches.berceau-amorce",
         "couronne.approches.etalon-calibre",
+        "couronne.approches.precipitateur-assemble",
         "couronne.ouverture.breche-ouverte"
       ],
       "choix": [
@@ -14745,6 +14747,52 @@ export default {
               "cible": "etalon-de-reaccord"
             }
           ]
+        },
+        {
+          "id": "selectionner-precipitation-preparee",
+          "effets": [
+            {
+              "type": "stock.modifier",
+              "stock": "eau",
+              "valeur": -6
+            },
+            {
+              "type": "stock.modifier",
+              "stock": "materiaux",
+              "valeur": -6
+            }
+          ],
+          "faitsProduits": [
+            {
+              "id": "finale.precipitation.selection-preparee",
+              "cible": "precipitateur-embarque"
+            }
+          ]
+        },
+        {
+          "id": "selectionner-precipitation-risquee",
+          "effets": [
+            {
+              "type": "stock.modifier",
+              "stock": "eau",
+              "valeur": -12
+            },
+            {
+              "type": "stock.modifier",
+              "stock": "materiaux",
+              "valeur": -10
+            },
+            {
+              "type": "habitants.modifier",
+              "valeur": -6
+            }
+          ],
+          "faitsProduits": [
+            {
+              "id": "finale.precipitation.selection-risquee",
+              "cible": "precipitateur-embarque"
+            }
+          ]
         }
       ],
       "consequenceDifferee": {
@@ -14767,6 +14815,13 @@ export default {
           "condition": {
             "type": "fait-present",
             "fait": "couronne.approches.etalon-calibre"
+          }
+        },
+        {
+          "id": "precipitateur",
+          "condition": {
+            "type": "fait-present",
+            "fait": "couronne.approches.precipitateur-assemble"
           }
         },
         {
@@ -14829,7 +14884,7 @@ export default {
           },
           "presentation": {
             "cle": "evenement.finale.selection.presentation",
-            "modele": "Ancrer immobilisera le cœur ; Réaccorder relancera ses liaisons et leurs nuisances. Chaque Solution préparée ou risquée affiche son coût exact avant engagement. Aucun tirage ne le changera.",
+            "modele": "Ancrer immobilisera le cœur ; Réaccorder relancera ses liaisons ; Précipiter déplacera la cendre vers des bassins habités ou confinés. Chaque Solution préparée ou risquée affiche son coût exact avant engagement. Aucun tirage ne le changera.",
             "variables": [],
             "valeurs": {}
           },
@@ -14851,6 +14906,12 @@ export default {
             "etalon": {
               "cle": "evenement.finale.selection.variante.etalon",
               "modele": "L’Étalon calibré rend comparables les fréquences des Colonies sans décider qui possédera le réseau.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "precipitateur": {
+              "cle": "evenement.finale.selection.variante.precipitateur",
+              "modele": "Le Précipitateur assemblé peut déplacer la cendre ; il ne confine aucun dépôt et ne désigne encore aucune victime.",
               "variables": [],
               "valeurs": {}
             },
@@ -14931,6 +14992,38 @@ export default {
                   "valeurs": {}
                 }
               ]
+            },
+            "selectionner-precipitation-preparee": {
+              "intention": {
+                "cle": "evenement.finale.selection.choix.precipitation.preparee",
+                "modele": "Engager la Précipitation préparée",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.finale.selection.choix.precipitation.preparee.cout",
+                  "modele": "Coût déterminé : 6 Eau et 6 Matériaux ; Réseau, bassins, confinement et Précipitateur sont documentés.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "selectionner-precipitation-risquee": {
+              "intention": {
+                "cle": "evenement.finale.selection.choix.precipitation.risquee",
+                "modele": "Forcer la Précipitation risquée",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.finale.selection.choix.precipitation.risquee.cout",
+                  "modele": "Coût déterminé : 12 Eau, 10 Matériaux et 6 Habitants exposés ; retombées non confinées, aucun tirage final.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
             }
           }
         },
@@ -14955,7 +15048,7 @@ export default {
           },
           "presentation": {
             "cle": "evenement.finale.selection.presentation",
-            "modele": "Anchoring will immobilize the heart; Retuning will restart its links and their nuisances. Every prepared or risky Solution shows its exact cost before commitment. No roll will change it.",
+            "modele": "Anchoring will immobilize the heart; Retuning will restart its links; Precipitating will move ash towards inhabited or contained basins. Every prepared or risky Solution shows its exact cost before commitment. No roll will change it.",
             "variables": [],
             "valeurs": {}
           },
@@ -14977,6 +15070,12 @@ export default {
             "etalon": {
               "cle": "evenement.finale.selection.variante.etalon",
               "modele": "The calibrated Standard makes Colony frequencies comparable without deciding who will own the network.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "precipitateur": {
+              "cle": "evenement.finale.selection.variante.precipitateur",
+              "modele": "The assembled Precipitator can move ash; it contains no deposit and has not yet designated any victim.",
               "variables": [],
               "valeurs": {}
             },
@@ -15053,6 +15152,38 @@ export default {
                 {
                   "cle": "evenement.finale.selection.choix.reaccord.risque.cout",
                   "modele": "Determined cost: 10 Water and 8 Materials; unresolved nuisances, no final roll.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "selectionner-precipitation-preparee": {
+              "intention": {
+                "cle": "evenement.finale.selection.choix.precipitation.preparee",
+                "modele": "Commit prepared Precipitation",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.finale.selection.choix.precipitation.preparee.cout",
+                  "modele": "Determined cost: 6 Water and 6 Materials; the Network, basins, containment, and Precipitator are documented.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "selectionner-precipitation-risquee": {
+              "intention": {
+                "cle": "evenement.finale.selection.choix.precipitation.risquee",
+                "modele": "Force risky Precipitation",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.finale.selection.choix.precipitation.risquee.cout",
+                  "modele": "Determined cost: 12 Water, 10 Materials, and 6 exposed Inhabitants; uncontained fallout, no final roll.",
                   "variables": [],
                   "valeurs": {}
                 }
@@ -15793,6 +15924,490 @@ export default {
                 {
                   "cle": "evenement.finale.reaccord.choix.veilles.cout",
                   "modele": "Determined consequence: autonomous halos without a shared owner, fragmented stability, and nuisances shifted to the margins.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "finale.precipitation.la-derniere-negociation-des-bassins",
+      "famille": "consequences-systemiques",
+      "themes": [
+        "precipitation",
+        "derniere-negociation",
+        "bassins",
+        "depots",
+        "cout-humain"
+      ],
+      "fonction": "attribuer-les-bassins-et-nommer-les-populations-qui-portent-les-depots",
+      "fenetre": "finale-ancrage",
+      "conditions": {
+        "requises": [
+          {
+            "type": "un-des-faits-present",
+            "faits": [
+              "finale.precipitation.selection-preparee",
+              "finale.precipitation.selection-risquee"
+            ]
+          }
+        ],
+        "interdites": []
+      },
+      "periodeEligibilite": {
+        "debut": 1200,
+        "fin": 2147483647
+      },
+      "priorite": 180,
+      "epuisement": "unique",
+      "acteurs": [
+        "porte-lanterne",
+        "habitants-des-bassins",
+        "habitants-haut-puits",
+        "habitants-veille-basse",
+        "puits-libres",
+        "equipes-de-l-anneau",
+        "precipitateur-embarque"
+      ],
+      "sourcesInformations": [
+        "habitants-des-bassins"
+      ],
+      "faitsLus": [
+        "finale.precipitation.selection-preparee",
+        "finale.precipitation.selection-risquee",
+        "bassins.haut-puits.pacte-partage",
+        "bassins.haut-puits.pacte-autonomie",
+        "bassins.haut-puits.panache-confine",
+        "bassins.haut-puits.panache-derive",
+        "bassins.deversoir.conseil-public",
+        "bassins.conseil.reserves-partagees",
+        "bassins.conseil.vannes-contraintes",
+        "bassins.deversoir.passage-transmis",
+        "veille-basse.intervention-refusee"
+      ],
+      "choix": [
+        {
+          "id": "administrer-le-ciel-rendu",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "finale.precipitation.ciel-rendu",
+              "cible": "precipitateur-embarque"
+            }
+          ]
+        },
+        {
+          "id": "assigner-la-terre-des-sacrifies",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "finale.precipitation.terre-des-sacrifies",
+              "cible": "precipitateur-embarque"
+            }
+          ]
+        },
+        {
+          "id": "rompre-le-front-en-pluie-noire",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "finale.precipitation.pluie-noire",
+              "cible": "precipitateur-embarque"
+            }
+          ]
+        }
+      ],
+      "consequenceDifferee": {
+        "type": "stabilite-controle-sort-du-coeur-et-victimes-consignes",
+        "cible": "precipitateur-embarque"
+      },
+      "recuperation": {
+        "type": "aucun-ciel-clair-sans-confinement-depots-ni-dette-humaine"
+      },
+      "variantes": [
+        {
+          "id": "vannes-contraintes",
+          "condition": {
+            "type": "fait-present",
+            "fait": "bassins.conseil.vannes-contraintes"
+          }
+        },
+        {
+          "id": "panache-derive",
+          "condition": {
+            "type": "fait-present",
+            "fait": "bassins.haut-puits.panache-derive"
+          }
+        },
+        {
+          "id": "veille-abandonnee",
+          "condition": {
+            "type": "fait-present",
+            "fait": "veille-basse.intervention-refusee"
+          }
+        },
+        {
+          "id": "autonomie-fermee",
+          "condition": {
+            "type": "fait-present",
+            "fait": "bassins.haut-puits.pacte-autonomie"
+          }
+        },
+        {
+          "id": "pacte-partage",
+          "condition": {
+            "type": "fait-present",
+            "fait": "bassins.haut-puits.pacte-partage"
+          }
+        },
+        {
+          "id": "conseil-public",
+          "condition": {
+            "type": "fait-present",
+            "fait": "bassins.deversoir.conseil-public"
+          }
+        },
+        {
+          "id": "reserves-partagees",
+          "condition": {
+            "type": "fait-present",
+            "fait": "bassins.conseil.reserves-partagees"
+          }
+        },
+        {
+          "id": "registres-transmis",
+          "condition": {
+            "type": "fait-present",
+            "fait": "bassins.deversoir.passage-transmis"
+          }
+        },
+        {
+          "id": "panache-confine",
+          "condition": {
+            "type": "fait-present",
+            "fait": "bassins.haut-puits.panache-confine"
+          }
+        },
+        {
+          "id": "standard",
+          "condition": {
+            "type": "toujours"
+          }
+        }
+      ],
+      "destinationEcho": "journal-de-campagne",
+      "asset": {
+        "id": "finale.precipitation.la-derniere-negociation-des-bassins",
+        "fichier": "/api/commercial/assets/finale-precipitation-consequence.webp",
+        "octetsTransferes": 179628,
+        "contientTexte": false,
+        "alternatives": {
+          "fr": "Autour d’une carte en relief des bassins, des délégations négocient devant un Précipitateur tandis que des rideaux de cendre menacent une colonie et que des familles préparent leur évacuation.",
+          "en": "Around a relief map of settling basins, delegates negotiate before a Precipitator as ash curtains threaten a Colony and families prepare to evacuate."
+        },
+        "provenance": {
+          "fiche": "docs/assets/finale-precipitation-consequence.provenance.json",
+          "creeLe": "2026-07-24",
+          "outil": "Codex built-in image_gen",
+          "modele": "built-in model (identifier not exposed)",
+          "usage": "stylized-concept",
+          "entree": "No input image; generated from the project’s established industrial ash-world art direction.",
+          "prompt": "Crews and basin delegates negotiate around an assembled Precipitator and relief map while ash curtains threaten a Colony and evacuating families; painterly 16:9, costly and morally tense, no text or logos.",
+          "droits": "OpenAI Terms of Use — output assigned to the user",
+          "empreinteSha256": "9941068d5d6dc6f5bc5882ca6fecd4c8875f3f4d6f055d493066ed6ef0258a45",
+          "statutApprobation": "pending-pull-request-review",
+          "reviseur": null
+        }
+      },
+      "textes": {
+        "fr": {
+          "origine": {
+            "cle": "evenement.finale.precipitation.origine",
+            "modele": "Table des bassins du Précipitateur",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.finale.precipitation.titre",
+            "modele": "La Dernière négociation des bassins",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.finale.precipitation.presentation",
+            "modele": "Le Précipitateur ne détruit pas la cendre : il choisit où elle tombe. Haut-Puits, Veille-Basse, les Puits Libres et les équipes confrontent chaque bassin à son autorité, ses digues, ses habitants et ses évacuations.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.finale.precipitation.information",
+              "modele": "Ciel rendu, Terre des sacrifiés et Pluie noire séparent stabilité des retombées, contrôle politique, sort du cœur mobile et coût humain. Aucun ciel clair n’efface les dépôts, les arrêts de protection ni les territoires condamnés.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "vannes-contraintes": {
+              "cle": "evenement.finale.precipitation.variante.contrainte",
+              "modele": "Les vannes déjà contraintes désignent l’autorité capable d’imposer les bassins — et les habitants qui ne pourront pas refuser.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "panache-derive": {
+              "cle": "evenement.finale.precipitation.variante.vanniers",
+              "modele": "Le panache dérivé vers le bassin vide revient avec les Vanniers et les Puits Libres désormais placés sous sa prochaine retombée.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "veille-abandonnee": {
+              "cle": "evenement.finale.precipitation.variante.veille",
+              "modele": "La place vide de Veille-Basse devient une zone de dépôt commode précisément parce que ses habitants ont déjà perdu leur recours.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "autonomie-fermee": {
+              "cle": "evenement.finale.precipitation.variante.autonomie",
+              "modele": "L’autonomie fermée de Haut-Puits protège sa citerne en reportant la négociation sur les populations hors de ses vannes.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "pacte-partage": {
+              "cle": "evenement.finale.precipitation.variante.partage",
+              "modele": "Le pacte, le Conseil public ou les registres transmis donnent aux Bassins un moyen contestable d’administrer les dépôts sans prétendre les rendre inoffensifs.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "conseil-public": {
+              "cle": "evenement.finale.precipitation.variante.partage",
+              "modele": "Le pacte, le Conseil public ou les registres transmis donnent aux Bassins un moyen contestable d’administrer les dépôts sans prétendre les rendre inoffensifs.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "reserves-partagees": {
+              "cle": "evenement.finale.precipitation.variante.partage",
+              "modele": "Le pacte, le Conseil public ou les registres transmis donnent aux Bassins un moyen contestable d’administrer les dépôts sans prétendre les rendre inoffensifs.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "registres-transmis": {
+              "cle": "evenement.finale.precipitation.variante.partage",
+              "modele": "Le pacte, le Conseil public ou les registres transmis donnent aux Bassins un moyen contestable d’administrer les dépôts sans prétendre les rendre inoffensifs.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "panache-confine": {
+              "cle": "evenement.finale.precipitation.variante.confinement",
+              "modele": "Les boues déjà confinées montrent les digues, équipes et terres qu’exigerait chaque nouvelle chute de cendre.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.finale.precipitation.variante.standard",
+              "modele": "Sans administration commune ni victime déjà désignée, seule la Pluie noire disperse les retombées — au prix du cœur et de la protection partagée.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "administrer-le-ciel-rendu": {
+              "intention": {
+                "cle": "evenement.finale.precipitation.choix.ciel",
+                "modele": "Administrer lentement un Ciel rendu",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.finale.precipitation.choix.ciel.cout",
+                  "modele": "Conséquence déterminée : précipitation lente et confinée, bassins administrés par leur Conseil, cœur préservé mais périodiquement arrêté ; territoires contaminés et évacuations durables.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "assigner-la-terre-des-sacrifies": {
+              "intention": {
+                "cle": "evenement.finale.precipitation.choix.terre",
+                "modele": "Assigner les dépôts à la Terre des sacrifiés",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.finale.precipitation.choix.terre.cout",
+                  "modele": "Conséquence déterminée : ciel éclairci par contrainte, bassins imposés depuis le Nœud, cœur exposé ; populations dominées maintenues sous les retombées.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "rompre-le-front-en-pluie-noire": {
+              "intention": {
+                "cle": "evenement.finale.precipitation.choix.pluie",
+                "modele": "Rompre le Front en Pluie noire",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.finale.precipitation.choix.pluie.cout",
+                  "modele": "Conséquence déterminée : conversion incomplète, retombées dispersées, contrôle fracturé et cœur consumé ; la cité-caravane perd sa protection commune.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        },
+        "en": {
+          "origine": {
+            "cle": "evenement.finale.precipitation.origine",
+            "modele": "Precipitator basin table",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.finale.precipitation.titre",
+            "modele": "The basins’ Last Negotiation",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.finale.precipitation.presentation",
+            "modele": "The Precipitator does not destroy ash: it chooses where it falls. High Well, Lower Watch, the Free Wells, and the crews confront every basin with its authority, levees, inhabitants, and evacuations.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.finale.precipitation.information",
+              "modele": "Returned Sky, Land of the Sacrificed, and Black Rain separate fallout stability, political control, the mobile heart’s fate, and human cost. No clear sky erases deposits, lapses in protection, or condemned territories.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "vannes-contraintes": {
+              "cle": "evenement.finale.precipitation.variante.contrainte",
+              "modele": "Already-coerced sluices identify the authority able to impose the basins—and the Inhabitants who will be unable to refuse.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "panache-derive": {
+              "cle": "evenement.finale.precipitation.variante.vanniers",
+              "modele": "The plume diverted towards the empty basin returns with the Basketmakers and Free Wells now beneath its next fallout.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "veille-abandonnee": {
+              "cle": "evenement.finale.precipitation.variante.veille",
+              "modele": "Lower Watch’s empty place becomes a convenient deposit zone precisely because its Inhabitants have already lost recourse.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "autonomie-fermee": {
+              "cle": "evenement.finale.precipitation.variante.autonomie",
+              "modele": "High Well’s closed autonomy protects its cistern by shifting the negotiation onto populations outside its sluices.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "pacte-partage": {
+              "cle": "evenement.finale.precipitation.variante.partage",
+              "modele": "The pact, public Council, or transmitted registers give the Basins a challengeable way to administer deposits without pretending they are harmless.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "conseil-public": {
+              "cle": "evenement.finale.precipitation.variante.partage",
+              "modele": "The pact, public Council, or transmitted registers give the Basins a challengeable way to administer deposits without pretending they are harmless.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "reserves-partagees": {
+              "cle": "evenement.finale.precipitation.variante.partage",
+              "modele": "The pact, public Council, or transmitted registers give the Basins a challengeable way to administer deposits without pretending they are harmless.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "registres-transmis": {
+              "cle": "evenement.finale.precipitation.variante.partage",
+              "modele": "The pact, public Council, or transmitted registers give the Basins a challengeable way to administer deposits without pretending they are harmless.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "panache-confine": {
+              "cle": "evenement.finale.precipitation.variante.confinement",
+              "modele": "Already-contained sludge reveals the levees, crews, and land that every new ashfall would require.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.finale.precipitation.variante.standard",
+              "modele": "Without shared administration or an already-designated victim, only Black Rain disperses the fallout—at the cost of the heart and shared protection.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "administrer-le-ciel-rendu": {
+              "intention": {
+                "cle": "evenement.finale.precipitation.choix.ciel",
+                "modele": "Slowly administer a Returned Sky",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.finale.precipitation.choix.ciel.cout",
+                  "modele": "Determined consequence: slow contained precipitation, basins administered by their Council, heart preserved but periodically stopped; contaminated land and lasting evacuations.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "assigner-la-terre-des-sacrifies": {
+              "intention": {
+                "cle": "evenement.finale.precipitation.choix.terre",
+                "modele": "Assign deposits to the Land of the Sacrificed",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.finale.precipitation.choix.terre.cout",
+                  "modele": "Determined consequence: sky cleared through coercion, basins imposed from the Node, heart exposed; dominated populations kept beneath the fallout.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "rompre-le-front-en-pluie-noire": {
+              "intention": {
+                "cle": "evenement.finale.precipitation.choix.pluie",
+                "modele": "Break the Front into Black Rain",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.finale.precipitation.choix.pluie.cout",
+                  "modele": "Determined consequence: incomplete conversion, dispersed fallout, fractured control, and a consumed heart; the caravan-city loses its shared protection.",
                   "variables": [],
                   "valeurs": {}
                 }
@@ -16862,7 +17477,12 @@ export default {
           "finale.reaccord.selection-risquee": "Réaccord risqué engagé",
           "finale.reaccord.constellation": "Constellation confiée à la coalition",
           "finale.reaccord.reseau-de-fer": "Réseau de fer confié à la République",
-          "finale.reaccord.veilles-dispersees": "Veilles dispersées rendues autonomes"
+          "finale.reaccord.veilles-dispersees": "Veilles dispersées rendues autonomes",
+          "finale.precipitation.selection-preparee": "Précipitation préparée engagée",
+          "finale.precipitation.selection-risquee": "Précipitation risquée engagée",
+          "finale.precipitation.ciel-rendu": "Ciel rendu administré par le Conseil des Bassins",
+          "finale.precipitation.terre-des-sacrifies": "Dépôts assignés à la Terre des sacrifiés",
+          "finale.precipitation.pluie-noire": "Front rompu en Pluie noire"
         },
         "causes": {
           "bassins.haut-puits.pacte-des-citernes": "Le pacte des citernes",
@@ -16916,7 +17536,8 @@ export default {
           "finale.ancrage.le-contrat-des-trois-solutions": "Causes finales lues dans les organes du Nœud.",
           "finale.ancrage.choisir-d-ancrer-le-coeur": "Solution irréversible choisie devant le cœur mécanique.",
           "finale.ancrage.la-derniere-negociation": "Contrôle et coût humain négociés lors du dernier Conseil.",
-          "finale.reaccord.la-derniere-negociation-du-reseau": "Propriété du maillage et partage des nuisances négociés au Nœud."
+          "finale.reaccord.la-derniere-negociation-du-reseau": "Propriété du maillage et partage des nuisances négociés au Nœud.",
+          "finale.precipitation.la-derniere-negociation-des-bassins": "Contrôle des bassins, sort du cœur et populations exposées négociés au Nœud."
         },
         "acteurs": {
           "ilyana-voss": "Ilyana Voss",
@@ -17154,7 +17775,12 @@ export default {
           "finale.reaccord.selection-risquee": "Risky Retuning committed",
           "finale.reaccord.constellation": "Constellation entrusted to the coalition",
           "finale.reaccord.reseau-de-fer": "Iron Network entrusted to the Republic",
-          "finale.reaccord.veilles-dispersees": "Scattered Watches made autonomous"
+          "finale.reaccord.veilles-dispersees": "Scattered Watches made autonomous",
+          "finale.precipitation.selection-preparee": "Prepared Precipitation committed",
+          "finale.precipitation.selection-risquee": "Risky Precipitation committed",
+          "finale.precipitation.ciel-rendu": "Returned Sky administered by the Basins Council",
+          "finale.precipitation.terre-des-sacrifies": "Deposits assigned to the Land of the Sacrificed",
+          "finale.precipitation.pluie-noire": "Front broken into Black Rain"
         },
         "causes": {
           "bassins.haut-puits.pacte-des-citernes": "The cistern pact",
@@ -17208,7 +17834,8 @@ export default {
           "finale.ancrage.le-contrat-des-trois-solutions": "Final causes read from the Node’s organs.",
           "finale.ancrage.choisir-d-ancrer-le-coeur": "Irreversible Solution chosen before the mechanical heart.",
           "finale.ancrage.la-derniere-negociation": "Control and human cost negotiated at the final Council.",
-          "finale.reaccord.la-derniere-negociation-du-reseau": "Mesh ownership and nuisance sharing negotiated at the Node."
+          "finale.reaccord.la-derniere-negociation-du-reseau": "Mesh ownership and nuisance sharing negotiated at the Node.",
+          "finale.precipitation.la-derniere-negociation-des-bassins": "Basin control, the heart’s fate, and exposed populations negotiated at the Node."
         },
         "acteurs": {
           "ilyana-voss": "Ilyana Voss",

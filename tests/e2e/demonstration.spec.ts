@@ -1104,7 +1104,7 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
     ["Les trois socles du nœud", "Cartographier les trois socles"],
     [
       "Les montages de la Couronne",
-      "Calibrer l’Étalon de réaccord",
+      "Assembler le Précipitateur embarqué",
     ],
     [
       "Ilyana et les plans sous cendre",
@@ -1231,18 +1231,18 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
     ),
   ).toBeVisible();
 
-  const contratReaccord = pageTraverse.getByRole("region", {
+  const contratPrecipitation = pageTraverse.getByRole("region", {
     name: "Contrat final du Nœud",
   });
-  await expect(contratReaccord).toContainText(
-    "Réaccorder le réseau — Solution finale préparée",
+  await expect(contratPrecipitation).toContainText(
+    "Faire tomber la cendre — Solution finale préparée",
   );
-  const revelationReaccord = pageTraverse.getByRole("region", {
+  const revelationFinalePropre = pageTraverse.getByRole("region", {
     name: "Le contrat des trois Solutions",
   });
   await activerAuClavier(
     pageTraverse,
-    revelationReaccord.getByRole("button", {
+    revelationFinalePropre.getByRole("button", {
       name: "Rendre les causes lisibles à toutes les équipes",
     }),
   );
@@ -1251,43 +1251,53 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
   const choixFinalTraverse = pageTraverse.getByRole("region", {
     name: "Choisir la Solution finale",
   });
-  const reaccordPrepare = choixFinalTraverse.getByRole("button", {
-    name: "Engager le Réaccord préparé",
+  const precipitationPreparee = choixFinalTraverse.getByRole("button", {
+    name: "Engager la Précipitation préparée",
   });
-  await expect(reaccordPrepare).toContainText(
-    "4 Eau et 4 Matériaux",
+  await expect(precipitationPreparee).toContainText(
+    "6 Eau et 6 Matériaux",
   );
-  await activerAuClavier(pageTraverse, reaccordPrepare);
+  await activerAuClavier(pageTraverse, precipitationPreparee);
   await pageTraverse.clock.fastForward(1_000);
 
-  const conflitReaccord = pageTraverse.getByRole("region", {
-    name: "La Dernière négociation du réseau",
+  const consequencePrecipitation = pageTraverse.getByRole("region", {
+    name: "La Dernière négociation des bassins",
   });
-  await expect(conflitReaccord.getByRole("img")).toBeVisible();
-  await expect(conflitReaccord).toContainText(
-    "propriétaire de chaque relais",
+  await expect(
+    consequencePrecipitation.getByRole("img"),
+  ).toBeVisible();
+  await expect(consequencePrecipitation).toContainText(
+    "Le Précipitateur ne détruit pas la cendre",
   );
-  await expect(conflitReaccord.getByRole("button")).toHaveCount(1);
+  await expect(consequencePrecipitation).toContainText(
+    "Haut-Puits, Veille-Basse, les Puits Libres",
+  );
+  await expect(
+    consequencePrecipitation.getByRole("button"),
+  ).toHaveCount(2);
   await activerAuClavier(
     pageTraverse,
-    conflitReaccord.getByRole("button", {
-      name: "Séparer le réseau en Veilles dispersées",
+    consequencePrecipitation.getByRole("button", {
+      name: "Administrer lentement un Ciel rendu",
     }),
   );
   await pageTraverse.clock.fastForward(1_000);
-  await expect(contratReaccord).toContainText("Veilles dispersées");
-  await expect(contratReaccord).toContainText(
-    "stabilité fragmentée entre les Veilles",
+  await expect(contratPrecipitation).toContainText("Ciel rendu");
+  await expect(contratPrecipitation).toContainText(
+    "précipitation lente et confinée",
   );
-  await expect(contratReaccord).toContainText(
-    "aucun propriétaire du réseau entier",
+  await expect(contratPrecipitation).toContainText(
+    "bassins administrés par leur Conseil",
   );
-  await expect(contratReaccord).toContainText(
-    "coût humain durablement élevé",
+  await expect(contratPrecipitation).toContainText(
+    "cœur mobile préservé mais périodiquement arrêté",
+  );
+  await expect(contratPrecipitation).toContainText(
+    "coût humain réparti inégalement",
   );
   await pageTraverse.screenshot({
     path: testInfo.outputPath(
-      "finale-reaccord-veilles-dispersees-mobile.png",
+      "finale-precipitation-ciel-rendu-mobile.png",
     ),
     fullPage: true,
   });
@@ -1503,10 +1513,13 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
     "Brèche de secours — recours toujours disponible",
   );
   await expect(ouvertureDeLaCouronne).toContainText(
-    "Nœud atteint mais bus de réaccord détruits",
+    "Nœud atteint mais bus de réaccord et collecteurs de précipitation détruits",
   );
   await expect(ouvertureDeLaCouronne).toContainText(
     "Réaccorder le réseau — issue rendue impossible",
+  );
+  await expect(ouvertureDeLaCouronne).toContainText(
+    "Faire tomber la cendre — issue rendue impossible",
   );
   await expect(ouvertureDeLaCouronne).toContainText(
     "clef consignée entre les équipes",
@@ -1550,12 +1563,15 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
   await expect(contratFinal).toContainText(
     "Faire tomber la cendre",
   );
+  await expect(contratFinal).toContainText(
+    "Faire tomber la cendre — Solution finale impossible",
+  );
   await activerAuClavier(
     pageColonies,
     contratFinal.getByText("Causes consultables").first(),
   );
   await expect(contratFinal).toContainText(
-    "bus du Nœud détruits par la brèche",
+    "bus et collecteurs du Nœud détruits par la brèche",
   );
   await expect(
     sauvegardeColonies.getByText(

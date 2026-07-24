@@ -388,7 +388,7 @@ describe("Ouverture de la Couronne", () => {
       solutions: {
         ancrer: "risquee",
         reaccorder: "impossible",
-        precipiter: "risquee",
+        precipiter: "impossible",
       },
     });
     expect(

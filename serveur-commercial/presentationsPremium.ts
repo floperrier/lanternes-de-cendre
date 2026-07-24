@@ -1232,7 +1232,8 @@ export const PRESENTATIONS_PREMIUM = {
         ferroviaire: "{materiaux} Matériaux",
         phares: "{eau} Eau",
         colonies: "{eau} Eau et {materiaux} Matériaux",
-        breche: "dommages irréversibles aux bus de réaccord",
+        breche:
+          "dommages irréversibles aux bus de réaccord et collecteurs du Précipitateur",
       },
       projets: {
         berceau: "Berceau d’ancrage",
@@ -1275,7 +1276,8 @@ export const PRESENTATIONS_PREMIUM = {
         inaccessible: "Nœud encore inaccessible",
         intact: "Nœud atteint avec ses organes préservés",
         contraint: "Nœud atteint sous contrainte",
-        endommage: "Nœud atteint mais bus de réaccord détruits",
+        endommage:
+          "Nœud atteint mais bus de réaccord et collecteurs de précipitation détruits",
       },
       solutions: {
         ancrer: "Ancrer le cœur",
@@ -1339,7 +1341,8 @@ export const PRESENTATIONS_PREMIUM = {
         ferroviaire: "{materiaux} Materials",
         phares: "{eau} Water",
         colonies: "{eau} Water and {materiaux} Materials",
-        breche: "irreversible damage to the retuning buses",
+        breche:
+          "irreversible damage to the retuning buses and Precipitator collectors",
       },
       projets: {
         berceau: "Anchoring Cradle",
@@ -1382,7 +1385,8 @@ export const PRESENTATIONS_PREMIUM = {
         inaccessible: "Node still inaccessible",
         intact: "Node reached with its organs preserved",
         contraint: "Node reached under strain",
-        endommage: "Node reached with retuning buses destroyed",
+        endommage:
+          "Node reached with retuning buses and precipitation collectors destroyed",
       },
       solutions: {
         ancrer: "Anchor the core",
@@ -1445,7 +1449,8 @@ export const PRESENTATIONS_PREMIUM = {
         "precipitateur-absent": "Précipitateur embarqué absent",
         "noeud-preserve": "organes du Nœud préservés",
         "noeud-contraint": "organes du Nœud sous contrainte",
-        "noeud-endommage": "bus du Nœud détruits par la brèche",
+        "noeud-endommage":
+          "bus et collecteurs du Nœud détruits par la brèche",
         "coalition-presente": "coalition des cinq Colonies mandatée",
         "coalition-absente": "coalition des Colonies non préparée",
         "accord-partage": "accord régional de partage établi",
@@ -1458,8 +1463,22 @@ export const PRESENTATIONS_PREMIUM = {
           "Engagements régionaux applicables au maillage",
         "engagements-reaccord-absents":
           "aucun Engagement applicable au maillage",
+        "connaissance-reseau-etablie":
+          "fonction du Réseau ancien et de ses décharges établie",
+        "connaissance-reseau-absente":
+          "fonction environnementale du Réseau encore lacunaire",
         "ligne-zero-relevee": "Ligne Zéro relevée dans les Bassins",
         "ligne-zero-absente": "référence de la Ligne Zéro absente",
+        "confinement-bassins-prepare":
+          "confinement et Décanteur documentés dans les Bassins",
+        "confinement-bassins-absent":
+          "conséquences des dépôts sans confinement préparé",
+        "gouvernance-bassins-partagee":
+          "contrôle partagé des bassins consigné",
+        "gouvernance-bassins-contrainte":
+          "contrôle coercitif des bassins consigné",
+        "gouvernance-bassins-absente":
+          "aucune autorité crédible sur les bassins",
         "ressources-suffisantes": "coût déterminé couvert",
         "materiaux-insuffisants": "Matériaux sous le coût déterminé",
         "eau-insuffisante": "Eau sous le coût déterminé",
@@ -1478,6 +1497,10 @@ export const PRESENTATIONS_PREMIUM = {
           "Réaccord préparé irréversiblement engagé",
         "reaccord-risque":
           "Réaccord risqué irréversiblement engagé",
+        "precipitation-preparee":
+          "Précipitation préparée irréversiblement engagée",
+        "precipitation-risquee":
+          "Précipitation risquée irréversiblement engagée",
       },
       variantes: {
         aucune: "variante finale encore indécise",
@@ -1487,6 +1510,9 @@ export const PRESENTATIONS_PREMIUM = {
         constellation: "Constellation",
         "reseau-de-fer": "Réseau de fer",
         "veilles-dispersees": "Veilles dispersées",
+        "ciel-rendu": "Ciel rendu",
+        "terre-des-sacrifies": "Terre des sacrifiés",
+        "pluie-noire": "Pluie noire",
       },
       stabilites: {
         stable: "stabilité technique partagée",
@@ -1495,6 +1521,9 @@ export const PRESENTATIONS_PREMIUM = {
         maillee: "stabilité du maillage entretenue",
         rigide: "stabilité du maillage rigide",
         fragmentee: "stabilité fragmentée entre les Veilles",
+        progressive: "précipitation lente et confinée",
+        forcee: "précipitation stable par contrainte",
+        dispersee: "retombées noires dispersées",
       },
       controles: {
         partage: "contrôle politique distribué",
@@ -1503,6 +1532,22 @@ export const PRESENTATIONS_PREMIUM = {
         coalition: "réseau détenu par la coalition",
         republique: "réseau détenu par la République",
         "sans-proprietaire": "aucun propriétaire du réseau entier",
+        "conseil-des-bassins":
+          "bassins administrés par leur Conseil",
+        "autorite-du-noeud":
+          "bassins assignés par l’autorité du Nœud",
+        fracture: "contrôle politique fracturé",
+      },
+      sortsDuCoeur: {
+        immobilise: "cœur immobilisé dans le Refuge",
+        verrouille: "cœur verrouillé par la Citadelle",
+        sollicite: "cœur maintenu sous sollicitation",
+        relaye: "cœur relayé par la Constellation",
+        subordonne: "cœur subordonné au Réseau de fer",
+        fragmente: "fonction du cœur fragmentée entre les Veilles",
+        preserve: "cœur mobile préservé mais périodiquement arrêté",
+        expose: "cœur mobile exposé par le débit forcé",
+        consume: "cœur mobile consumé par la conversion",
       },
       coutsHumains: {
         contenu: "coût humain contenu",
@@ -1515,7 +1560,8 @@ export const PRESENTATIONS_PREMIUM = {
         solution: "{solution} — {statut} · {disponibilite}",
         cout:
           "Coût déterminé : {eau} Eau · {materiaux} Matériaux · {habitants} Habitants",
-        bilan: "{stabilite} · {controle} · {coutHumain}",
+        bilan:
+          "{stabilite} · {controle} · {sortDuCoeur} · {coutHumain}",
       },
       libelles: {
         solutions: "États des trois Solutions",
@@ -1523,7 +1569,7 @@ export const PRESENTATIONS_PREMIUM = {
         selection: "Solution engagée",
         negociation: "Options crédibles de la Dernière négociation",
         variante: "Variante de la Solution",
-        bilan: "Stabilité, contrôle et coût humain",
+        bilan: "Stabilité, contrôle, sort du cœur et coût humain",
       },
     },
     en: {
@@ -1552,7 +1598,8 @@ export const PRESENTATIONS_PREMIUM = {
         "precipitateur-absent": "Onboard Precipitator absent",
         "noeud-preserve": "Node organs preserved",
         "noeud-contraint": "Node organs under strain",
-        "noeud-endommage": "Node buses destroyed by the breach",
+        "noeud-endommage":
+          "Node buses and collectors destroyed by the breach",
         "coalition-presente": "five-Colony coalition mandated",
         "coalition-absente": "Colony coalition not prepared",
         "accord-partage": "regional sharing agreement established",
@@ -1565,8 +1612,22 @@ export const PRESENTATIONS_PREMIUM = {
           "regional Commitments applicable to the mesh",
         "engagements-reaccord-absents":
           "no Commitment applicable to the mesh",
+        "connaissance-reseau-etablie":
+          "Ancient Network function and discharges established",
+        "connaissance-reseau-absente":
+          "environmental function of the Network still incomplete",
         "ligne-zero-relevee": "Zero Line surveyed in the Basins",
         "ligne-zero-absente": "Zero Line reference absent",
+        "confinement-bassins-prepare":
+          "containment and Settler documented in the Basins",
+        "confinement-bassins-absent":
+          "deposit consequences without prepared containment",
+        "gouvernance-bassins-partagee":
+          "shared control of the basins recorded",
+        "gouvernance-bassins-contrainte":
+          "coercive control of the basins recorded",
+        "gouvernance-bassins-absente":
+          "no credible authority over the basins",
         "ressources-suffisantes": "determined cost covered",
         "materiaux-insuffisants": "Materials below determined cost",
         "eau-insuffisante": "Water below determined cost",
@@ -1585,6 +1646,10 @@ export const PRESENTATIONS_PREMIUM = {
           "prepared Retuning irreversibly committed",
         "reaccord-risque":
           "risky Retuning irreversibly committed",
+        "precipitation-preparee":
+          "prepared Precipitation irreversibly committed",
+        "precipitation-risquee":
+          "risky Precipitation irreversibly committed",
       },
       variantes: {
         aucune: "final variant still undecided",
@@ -1594,6 +1659,9 @@ export const PRESENTATIONS_PREMIUM = {
         constellation: "Constellation",
         "reseau-de-fer": "Iron Network",
         "veilles-dispersees": "Scattered Watches",
+        "ciel-rendu": "Returned Sky",
+        "terre-des-sacrifies": "Land of the Sacrificed",
+        "pluie-noire": "Black Rain",
       },
       stabilites: {
         stable: "shared technical stability",
@@ -1602,6 +1670,9 @@ export const PRESENTATIONS_PREMIUM = {
         maillee: "maintained mesh stability",
         rigide: "rigid mesh stability",
         fragmentee: "stability fragmented among the Watches",
+        progressive: "slow and contained precipitation",
+        forcee: "precipitation stabilized through coercion",
+        dispersee: "black fallout dispersed",
       },
       controles: {
         partage: "distributed political control",
@@ -1610,6 +1681,22 @@ export const PRESENTATIONS_PREMIUM = {
         coalition: "network owned by the coalition",
         republique: "network owned by the Republic",
         "sans-proprietaire": "no owner of the whole network",
+        "conseil-des-bassins":
+          "basins administered by their Council",
+        "autorite-du-noeud":
+          "basins assigned by the Node authority",
+        fracture: "fractured political control",
+      },
+      sortsDuCoeur: {
+        immobilise: "heart immobilized within the Refuge",
+        verrouille: "heart locked by the Citadel",
+        sollicite: "heart kept under load",
+        relaye: "heart relayed by the Constellation",
+        subordonne: "heart subordinated to the Iron Network",
+        fragmente: "heart function fragmented among the Watches",
+        preserve: "mobile heart preserved but periodically stopped",
+        expose: "mobile heart exposed by forced flow",
+        consume: "mobile heart consumed by conversion",
       },
       coutsHumains: {
         contenu: "contained human cost",
@@ -1622,7 +1709,8 @@ export const PRESENTATIONS_PREMIUM = {
         solution: "{solution} — {statut} · {disponibilite}",
         cout:
           "Determined cost: {eau} Water · {materiaux} Materials · {habitants} Inhabitants",
-        bilan: "{stabilite} · {controle} · {coutHumain}",
+        bilan:
+          "{stabilite} · {controle} · {sortDuCoeur} · {coutHumain}",
       },
       libelles: {
         solutions: "States of the three Solutions",
@@ -1630,7 +1718,7 @@ export const PRESENTATIONS_PREMIUM = {
         selection: "Committed Solution",
         negociation: "Credible Last Negotiation options",
         variante: "Solution variant",
-        bilan: "Stability, control, and human cost",
+        bilan: "Stability, control, heart outcome, and human cost",
       },
     },
   },
