@@ -88,6 +88,9 @@ acteurs:
   - coeur-du-noeud
   - contrat-des-trois-solutions
   - coeur-ancre
+  - compagnons-du-convoi
+  - registre-des-rejets
+  - devenirs-des-compagnons
 quartiers:
   - intendance
   - foyers
@@ -283,3 +286,7 @@ faits:
   - finale.precipitation.ciel-rendu
   - finale.precipitation.terre-des-sacrifies
   - finale.precipitation.pluie-noire
+  - epilogue.revelation.registre-rendu-public
+  - epilogue.revelation.copies-confiees-aux-colonies
+  - epilogue.compagnons.devenirs-partages
+  - epilogue.compagnons.devenirs-confies

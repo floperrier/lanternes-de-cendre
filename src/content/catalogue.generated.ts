@@ -284,7 +284,8 @@ export default {
       "famille": "mystere-des-phares",
       "themes": [
         "reseau-ancien",
-        "signal"
+        "signal",
+        "revelation-garantie"
       ],
       "fonction": "premiere-revelation",
       "fenetre": "prologue-enchaine",
@@ -800,7 +801,8 @@ export default {
       "famille": "histoires-de-compagnons",
       "themes": [
         "confiance",
-        "eau"
+        "eau",
+        "pivot-personnel"
       ],
       "fonction": "presenter-compagnon",
       "fenetre": "prologue-enchaine",

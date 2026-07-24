@@ -226,7 +226,7 @@ evenements:
 
   - id: trame.grand-aiguillage.ilyana-et-l-attelage
     famille: histoires-de-compagnons
-    themes: [ilyana-voss, attelage-federe, autonomie]
+    themes: [ilyana-voss, attelage-federe, autonomie, pivot-personnel]
     fonction: ouvrir-un-transport-non-monopolistique
     fenetre: grand-aiguillage
     conditions:

@@ -7,7 +7,7 @@ const ID =
   "finale.reaccord.la-derniere-negociation-du-reseau";
 
 describe("finale — Réaccorder le réseau", () => {
-  it("ajoute exactement un conflit final au catalogue de 58 Événements", () => {
+  it("conserve exactement un conflit de Réaccord dans le catalogue final", () => {
     const lot = catalogueDEvenements.evenements.filter(({ id }) =>
       id.startsWith("finale.reaccord."),
     );
@@ -22,7 +22,7 @@ describe("finale — Réaccorder le réseau", () => {
       "confier-le-reseau-de-fer",
       "separer-les-veilles",
     ]);
-    expect(catalogueDEvenements.evenements).toHaveLength(58);
+    expect(catalogueDEvenements.evenements).toHaveLength(60);
   });
 
   it("livre un conflit bilingue, accessible et traçable", () => {

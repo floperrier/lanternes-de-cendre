@@ -22,6 +22,7 @@ import { projeterApprochesDeLaCouronne } from "../application/couronne";
 import { projeterVoieDesColonies } from "../application/voieColonies";
 import { projeterOuvertureDeLaCouronne } from "../application/ouvertureCouronne";
 import { projeterContratFinal } from "../application/finale";
+import { projeterEpilogue } from "../application/epilogue";
 import type { Langue } from "../content/types";
 import { criseAttendSonCheckpoint } from "../simulation/crise";
 import {
@@ -53,6 +54,7 @@ import { Couronne } from "./Couronne";
 import { VoieColonies } from "./VoieColonies";
 import { OuvertureCouronne } from "./OuvertureCouronne";
 import { ContratFinal } from "./ContratFinal";
+import { Epilogue } from "./Epilogue";
 
 interface PropsCampagne {
   readonly etatDuControleur: Extract<
@@ -117,6 +119,7 @@ function CampagnePersistante({
   const projectionDeLOuvertureDeLaCouronne =
     projeterOuvertureDeLaCouronne(etat, langue);
   const projectionDuContratFinal = projeterContratFinal(etat, langue);
+  const projectionDeLEpilogue = projeterEpilogue(etat, langue);
   const surfacePrioritaire = choisirSurfacePrioritaire({
     criseActive: projectionDesCrises.active !== null,
     checkpointDeCriseRequis,
@@ -159,7 +162,7 @@ function CampagnePersistante({
 
   useEffect(() => {
     if (
-      projectionDeDemonstration.terminee &&
+      (jalonDeDemonstrationAffiche || projectionDeLEpilogue.visible) &&
       application.lireEtat().tempsDuConvoi.vitesse !== 0
     ) {
       application.envoyerCommande({
@@ -167,7 +170,11 @@ function CampagnePersistante({
         vitesse: 0,
       });
     }
-  }, [application, projectionDeDemonstration.terminee]);
+  }, [
+    application,
+    jalonDeDemonstrationAffiche,
+    projectionDeLEpilogue.visible,
+  ]);
 
   return (
     <main className="app-shell">
@@ -209,124 +216,147 @@ function CampagnePersistante({
         )}
       </header>
 
-      <div
-        className="scene-layout"
-        inert={criseBloquante || jalonDeDemonstrationAffiche ? true : undefined}
-      >
-        <div className="surface-du-monde">
-          <section
-            className="theatre-du-convoi"
-            aria-label={
-              langue === "fr" ? "Vue panoramique du convoi" : "Caravan panorama"
+      {projectionDeLEpilogue.visible ? (
+        <Epilogue projection={projectionDeLEpilogue} langue={langue} />
+      ) : (
+        <>
+          <div
+            className="scene-layout"
+            inert={
+              criseBloquante || jalonDeDemonstrationAffiche
+                ? true
+                : undefined
             }
           >
-            <CoupeHabitee
-              implantation={projeterImplantationPixi(projectionDInfrastructure)}
-              chantierActif={projectionDInfrastructure.chantierActif !== null}
-              vitesse={projection.vitesse}
+            <div className="surface-du-monde">
+              <section
+                className="theatre-du-convoi"
+                aria-label={
+                  langue === "fr"
+                    ? "Vue panoramique du convoi"
+                    : "Caravan panorama"
+                }
+              >
+                <CoupeHabitee
+                  implantation={projeterImplantationPixi(
+                    projectionDInfrastructure,
+                  )}
+                  chantierActif={
+                    projectionDInfrastructure.chantierActif !== null
+                  }
+                  vitesse={projection.vitesse}
+                />
+                <div
+                  className="theatre-du-convoi__voile"
+                  aria-hidden="true"
+                />
+                <EtatTextuel projection={projection} />
+              </section>
+              <Atlas
+                application={application}
+                projection={projectionDeLAtlas}
+                expedition={projectionDExpedition}
+                langue={langue}
+              />
+            </div>
+            <div className="colonne-de-pilotage">
+              <PanneauDePilotage
+                application={application}
+                projection={projectionDuPilotage}
+                compagnon={projectionDuConseil.compagnon}
+                langue={langue}
+                crises={projectionDesCrises}
+              />
+              <InfrastructureDuConvoi
+                application={application}
+                langue={langue}
+                projection={projectionDInfrastructure}
+              />
+              <HautPuits
+                application={application}
+                projection={projectionDeHautPuits}
+              />
+              {projectionDeVeilleBasse.visible ? (
+                <VeilleBasseEtCohorte
+                  projection={projectionDeVeilleBasse}
+                  langue={langue}
+                />
+              ) : null}
+              <TrameDeFer projection={projectionDeLaTrame} />
+              <TraverseLibre projection={projectionDeTraverseLibre} />
+              <ConvergenceTrame projection={projectionDeConvergence} />
+              <AiguillageZero projection={projectionDeLAiguillageZero} />
+              <Couronne projection={projectionDesApprochesDeLaCouronne} />
+              <VoieColonies projection={projectionDeLaVoieDesColonies} />
+              <OuvertureCouronne
+                projection={projectionDeLOuvertureDeLaCouronne}
+              />
+              <ContratFinal projection={projectionDuContratFinal} />
+            </div>
+          </div>
+
+          {surfacePrioritaire === "crise" &&
+          projectionDesCrises.active !== null ? (
+            <CriseDuConvoi
+              application={application}
+              crise={projectionDesCrises.active}
+              langue={langue}
             />
-            <div className="theatre-du-convoi__voile" aria-hidden="true" />
-            <EtatTextuel projection={projection} />
-          </section>
-          <Atlas
-            application={application}
-            projection={projectionDeLAtlas}
-            expedition={projectionDExpedition}
-            langue={langue}
-          />
-        </div>
-        <div className="colonne-de-pilotage">
-          <PanneauDePilotage
-            application={application}
-            projection={projectionDuPilotage}
-            compagnon={projectionDuConseil.compagnon}
-            langue={langue}
-            crises={projectionDesCrises}
-          />
-          <InfrastructureDuConvoi
-            application={application}
-            langue={langue}
-            projection={projectionDInfrastructure}
-          />
-          <HautPuits
-            application={application}
-            projection={projectionDeHautPuits}
-          />
-          {projectionDeVeilleBasse.visible ? (
-            <VeilleBasseEtCohorte
-              projection={projectionDeVeilleBasse}
+          ) : surfacePrioritaire ===
+            "checkpoint-crise" ? null : surfacePrioritaire ===
+            "jalon-demonstration" ? (
+            <JalonFinalDeLaDemonstration
+              projection={projectionDeDemonstration}
+              langue={langue}
+            >
+              <SelecteurDeLangue
+                langue={langue}
+                choisirLangue={choisirLangue}
+              />
+              <PanneauSauvegarde
+                controleur={controleur}
+                statutAutomatique={etatDuControleur.statutSauvegarde}
+                erreurAsynchrone={etatDuControleur.erreurSauvegarde}
+              />
+              <PanneauAccesPremium
+                controleur={controleurAccesPremium}
+                langue={langue}
+                achatDisponible
+              />
+            </JalonFinalDeLaDemonstration>
+          ) : surfacePrioritaire === "ordre-expedition" &&
+            projectionDExpedition.ordreImportant !== null ? (
+            <OrdreDistantDExpedition
+              application={application}
+              expedition={projectionDExpedition}
+              langue={langue}
+            />
+          ) : surfacePrioritaire === "evenement-narratif" &&
+            projection.evenementNarratif !== null ? (
+            <RubanNarratif
+              application={application}
+              evenement={projection.evenementNarratif}
+              langue={langue}
+            />
+          ) : surfacePrioritaire === "conseil" &&
+            projectionDuConseil.conseil !== null ? (
+            <ConseilDuConvoi
+              application={application}
+              conseil={projectionDuConseil.conseil}
               langue={langue}
             />
           ) : null}
-          <TrameDeFer projection={projectionDeLaTrame} />
-          <TraverseLibre projection={projectionDeTraverseLibre} />
-          <ConvergenceTrame projection={projectionDeConvergence} />
-          <AiguillageZero projection={projectionDeLAiguillageZero} />
-          <Couronne projection={projectionDesApprochesDeLaCouronne} />
-          <VoieColonies projection={projectionDeLaVoieDesColonies} />
-          <OuvertureCouronne
-            projection={projectionDeLOuvertureDeLaCouronne}
-          />
-          <ContratFinal projection={projectionDuContratFinal} />
-        </div>
-      </div>
 
-      {surfacePrioritaire === "crise" && projectionDesCrises.active !== null ? (
-        <CriseDuConvoi
-          application={application}
-          crise={projectionDesCrises.active}
-          langue={langue}
-        />
-      ) : surfacePrioritaire ===
-        "checkpoint-crise" ? null : surfacePrioritaire ===
-        "jalon-demonstration" ? (
-        <JalonFinalDeLaDemonstration
-          projection={projectionDeDemonstration}
-          langue={langue}
-        >
-          <SelecteurDeLangue langue={langue} choisirLangue={choisirLangue} />
-          <PanneauSauvegarde
-            controleur={controleur}
-            statutAutomatique={etatDuControleur.statutSauvegarde}
-            erreurAsynchrone={etatDuControleur.erreurSauvegarde}
+          <CommandesDuTemps
+            application={application}
+            projection={projection}
+            bloque={
+              criseBloquante ||
+              (projectionDeDemonstration.terminee && !accesPremiumActif)
+            }
           />
-          <PanneauAccesPremium
-            controleur={controleurAccesPremium}
-            langue={langue}
-            achatDisponible
-          />
-        </JalonFinalDeLaDemonstration>
-      ) : surfacePrioritaire === "ordre-expedition" &&
-        projectionDExpedition.ordreImportant !== null ? (
-        <OrdreDistantDExpedition
-          application={application}
-          expedition={projectionDExpedition}
-          langue={langue}
-        />
-      ) : surfacePrioritaire === "evenement-narratif" &&
-        projection.evenementNarratif !== null ? (
-        <RubanNarratif
-          application={application}
-          evenement={projection.evenementNarratif}
-          langue={langue}
-        />
-      ) : surfacePrioritaire === "conseil" &&
-        projectionDuConseil.conseil !== null ? (
-        <ConseilDuConvoi
-          application={application}
-          conseil={projectionDuConseil.conseil}
-          langue={langue}
-        />
-      ) : null}
-
-      <CommandesDuTemps
-        application={application}
-        projection={projection}
-        bloque={
-          criseBloquante ||
-          (projectionDeDemonstration.terminee && !accesPremiumActif)
-        }
-      />
+        </>
+      )}
     </main>
   );
 }

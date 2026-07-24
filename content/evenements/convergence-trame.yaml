@@ -259,7 +259,7 @@ evenements:
 
   - id: trame.signal-zero.ilyana-et-la-trace
     famille: histoires-de-compagnons
-    themes: [ilyana-voss, trace, transmission, attribution]
+    themes: [ilyana-voss, trace, transmission, attribution, pivot-personnel]
     fonction: decider-qui-pourra-attribuer-l-intervention
     fenetre: signal-zero
     conditions:

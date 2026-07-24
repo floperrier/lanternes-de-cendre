@@ -167,7 +167,7 @@ evenements:
 
   - id: finale.ancrage.la-derniere-negociation
     famille: histoires-de-compagnons
-    themes: [derniere-negociation, refuge-commun, citadelle-de-cendre, dernier-rempart]
+    themes: [derniere-negociation, refuge-commun, citadelle-de-cendre, dernier-rempart, pivot-personnel]
     fonction: conclure-l-ancrage-avec-les-seuls-moyens-credibles
     fenetre: finale-ancrage
     conditions:

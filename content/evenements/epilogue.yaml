@@ -1,0 +1,143 @@
+version: 1
+evenements:
+  - id: epilogue.revelation.le-registre-des-rejets
+    famille: mystere-des-phares
+    themes: [epilogue, registre-des-rejets, dette-environnementale, revelation-garantie]
+    fonction: reveler-le-registre-du-coeur-qui-attribue-les-rejets-du-reseau
+    fenetre: finale-ancrage
+    conditions:
+      requises:
+        - type: un-des-faits-present
+          faits:
+            - finale.ancrage.refuge-commun
+            - finale.ancrage.citadelle-de-cendre
+            - finale.ancrage.dernier-rempart
+            - finale.reaccord.constellation
+            - finale.reaccord.reseau-de-fer
+            - finale.reaccord.veilles-dispersees
+            - finale.precipitation.ciel-rendu
+            - finale.precipitation.terre-des-sacrifies
+            - finale.precipitation.pluie-noire
+      interdites: []
+    periode_eligibilite: { debut: 1200, fin: 2147483647 }
+    priorite: 170
+    epuisement: unique
+    acteurs:
+      - porte-lanterne
+      - equipes-de-l-anneau
+      - delegations-des-cinq-colonies
+      - coeur-du-noeud
+    origine: { cle: evenement.epilogue.revelation.origine, variables: [] }
+    libelle_intentions: { cle: evenement.ruban.intentions, variables: [] }
+    titre: { cle: evenement.epilogue.revelation.titre, variables: [] }
+    presentation: { cle: evenement.epilogue.revelation.presentation, variables: [] }
+    informations:
+      - source: equipes-de-l-anneau
+        texte: { cle: evenement.epilogue.revelation.information, variables: [] }
+    faits_lus:
+      - finale.ancrage.refuge-commun
+      - finale.ancrage.citadelle-de-cendre
+      - finale.ancrage.dernier-rempart
+      - finale.reaccord.constellation
+      - finale.reaccord.reseau-de-fer
+      - finale.reaccord.veilles-dispersees
+      - finale.precipitation.ciel-rendu
+      - finale.precipitation.terre-des-sacrifies
+      - finale.precipitation.pluie-noire
+    choix:
+      - id: rendre-registre-public
+        intention: { cle: evenement.epilogue.revelation.choix.public, variables: [] }
+        couts_connus:
+          - { cle: evenement.epilogue.revelation.choix.public.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - { id: epilogue.revelation.registre-rendu-public, cible: registre-des-rejets }
+      - id: confier-copies-aux-colonies
+        intention: { cle: evenement.epilogue.revelation.choix.copies, variables: [] }
+        couts_connus:
+          - { cle: evenement.epilogue.revelation.choix.copies.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - { id: epilogue.revelation.copies-confiees-aux-colonies, cible: registre-des-rejets }
+    consequence_differee: { type: responsabilite-des-rejets-rendue-opposable, cible: registre-des-rejets }
+    recuperation: { type: revelation-acquise-quelle-que-soit-la-garde-du-registre }
+    variantes:
+      - id: ancrage
+        condition: fait-present:finale.ancrage.refuge-commun
+        presentation: { cle: evenement.epilogue.revelation.variante.ancrage, variables: [] }
+      - id: reaccord
+        condition: fait-present:finale.reaccord.constellation
+        presentation: { cle: evenement.epilogue.revelation.variante.reaccord, variables: [] }
+      - id: precipitation
+        condition: fait-present:finale.precipitation.ciel-rendu
+        presentation: { cle: evenement.epilogue.revelation.variante.precipitation, variables: [] }
+      - id: standard
+        condition: toujours
+        presentation: { cle: evenement.epilogue.revelation.variante.standard, variables: [] }
+    destination_echo: journal-de-campagne
+    asset: epilogue.revelation.le-registre-des-rejets
+
+  - id: epilogue.compagnons.le-dernier-tour-de-veille
+    famille: histoires-de-compagnons
+    themes: [epilogue, devenirs, liens, rancunes, projets, collectif-de-compagnons]
+    fonction: consigner-les-devenirs-des-seuls-compagnons-recrutes-morts-ou-partis
+    fenetre: finale-ancrage
+    conditions:
+      requises:
+        - type: un-des-faits-present
+          faits:
+            - epilogue.revelation.registre-rendu-public
+            - epilogue.revelation.copies-confiees-aux-colonies
+      interdites: []
+    periode_eligibilite: { debut: 1200, fin: 2147483647 }
+    priorite: 160
+    epuisement: unique
+    acteurs:
+      - porte-lanterne
+      - compagnons-du-convoi
+      - equipes-de-l-anneau
+    origine: { cle: evenement.epilogue.compagnons.origine, variables: [] }
+    libelle_intentions: { cle: evenement.ruban.intentions, variables: [] }
+    titre: { cle: evenement.epilogue.compagnons.titre, variables: [] }
+    presentation: { cle: evenement.epilogue.compagnons.presentation, variables: [] }
+    informations:
+      - source: compagnons-du-convoi
+        texte: { cle: evenement.epilogue.compagnons.information, variables: [] }
+    faits_lus:
+      - epilogue.revelation.registre-rendu-public
+      - epilogue.revelation.copies-confiees-aux-colonies
+      - couronne.approches.plans-confies-a-ilyana
+      - couronne.seuil.registre-confie-a-maelys
+      - couronne.ouverture.clef-collective
+    choix:
+      - id: partager-les-devenirs
+        intention: { cle: evenement.epilogue.compagnons.choix.partager, variables: [] }
+        couts_connus:
+          - { cle: evenement.epilogue.compagnons.choix.partager.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - { id: epilogue.compagnons.devenirs-partages, cible: devenirs-des-compagnons }
+      - id: confier-chaque-recit
+        intention: { cle: evenement.epilogue.compagnons.choix.confier, variables: [] }
+        couts_connus:
+          - { cle: evenement.epilogue.compagnons.choix.confier.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - { id: epilogue.compagnons.devenirs-confies, cible: devenirs-des-compagnons }
+    consequence_differee: { type: projets-sante-liens-et-rancunes-restitues-sans-profils-absents, cible: devenirs-des-compagnons }
+    recuperation: { type: aucune-relation-absente-n-est-inventee }
+    variantes:
+      - id: ilyana
+        condition: fait-present:couronne.approches.plans-confies-a-ilyana
+        presentation: { cle: evenement.epilogue.compagnons.variante.ilyana, variables: [] }
+      - id: maelys
+        condition: fait-present:couronne.seuil.registre-confie-a-maelys
+        presentation: { cle: evenement.epilogue.compagnons.variante.maelys, variables: [] }
+      - id: lien
+        condition: fait-present:couronne.ouverture.clef-collective
+        presentation: { cle: evenement.epilogue.compagnons.variante.lien, variables: [] }
+      - id: standard
+        condition: toujours
+        presentation: { cle: evenement.epilogue.compagnons.variante.standard, variables: [] }
+    destination_echo: journal-de-campagne
+    asset: epilogue.compagnons.le-dernier-tour-de-veille

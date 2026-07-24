@@ -617,7 +617,8 @@ export default {
       "famille": "mystere-des-phares",
       "themes": [
         "reseau-ancien",
-        "peripheries-sacrifiees"
+        "peripheries-sacrifiees",
+        "revelation-garantie"
       ],
       "fonction": "revelation-essentielle-deplacement-des-cendres",
       "fenetre": "premier-jalon-bassins-fendus",
@@ -875,7 +876,8 @@ export default {
       "famille": "histoires-de-compagnons",
       "themes": [
         "confiance",
-        "transmission"
+        "transmission",
+        "pivot-personnel"
       ],
       "fonction": "histoire-de-maelys-rive",
       "fenetre": "premier-jalon-bassins-fendus",
@@ -1909,7 +1911,8 @@ export default {
       "famille": "histoires-de-compagnons",
       "themes": [
         "conviction",
-        "partage-de-leau"
+        "partage-de-leau",
+        "pivot-personnel"
       ],
       "fonction": "confronter-conviction-d-ilyana",
       "fenetre": "halte-haut-puits",
@@ -3066,7 +3069,8 @@ export default {
       "themes": [
         "ilyana-voss",
         "maelys-rive",
-        "conseil-des-vannes"
+        "conseil-des-vannes",
+        "pivot-personnel"
       ],
       "fonction": "preparer-une-option-du-conseil",
       "fenetre": "relais-des-nacelles",
@@ -5679,7 +5683,8 @@ export default {
       "themes": [
         "ilyana-voss",
         "attelage-federe",
-        "autonomie"
+        "autonomie",
+        "pivot-personnel"
       ],
       "fonction": "ouvrir-un-transport-non-monopolistique",
       "fenetre": "grand-aiguillage",
@@ -7095,7 +7100,8 @@ export default {
       "themes": [
         "maelys-rive",
         "registre",
-        "connaissance"
+        "connaissance",
+        "pivot-personnel"
       ],
       "fonction": "choisir-la-trace-politique-de-l-aide",
       "fenetre": "traverse-libre",
@@ -8647,7 +8653,8 @@ export default {
         "ilyana-voss",
         "trace",
         "transmission",
-        "attribution"
+        "attribution",
+        "pivot-personnel"
       ],
       "fonction": "decider-qui-pourra-attribuer-l-intervention",
       "fenetre": "signal-zero",
@@ -8952,7 +8959,8 @@ export default {
         "aiguillage-zero",
         "ligne-zero",
         "piece-de-regulation",
-        "revelation"
+        "revelation",
+        "revelation-garantie"
       ],
       "fonction": "reveler-que-la-piece-regle-un-coeur-mobile-et-n-est-pas-un-trophee",
       "fenetre": "aiguillage-zero",
@@ -11235,7 +11243,8 @@ export default {
         "ilyana-voss",
         "transmission",
         "responsabilite",
-        "plans"
+        "plans",
+        "pivot-personnel"
       ],
       "fonction": "confier-la-garde-des-plans-sans-rendre-ilyana-obligatoire",
       "fenetre": "couronne-approches",
@@ -12749,7 +12758,8 @@ export default {
         "maelys-rive",
         "colonies",
         "memoire",
-        "responsabilite"
+        "responsabilite",
+        "pivot-personnel"
       ],
       "fonction": "confier-ou-partager-la-memoire-des-rallies-sans-rendre-maelys-obligatoire",
       "fenetre": "couronne-seuil",
@@ -13046,7 +13056,8 @@ export default {
         "couronne-muette",
         "noeud-central",
         "diagnostic",
-        "reseau-ancien"
+        "reseau-ancien",
+        "revelation-garantie"
       ],
       "fonction": "reveler-comment-les-trois-montages-et-la-breche-affectent-le-noeud",
       "fenetre": "couronne-ouverture",
@@ -14038,7 +14049,8 @@ export default {
         "ilyana-voss",
         "maelys-rive",
         "transmission",
-        "aucun-compagnon-obligatoire"
+        "aucun-compagnon-obligatoire",
+        "collectif-de-compagnons"
       ],
       "fonction": "transmettre-la-clef-sans-rendre-un-compagnon-obligatoire",
       "fenetre": "couronne-ouverture",
@@ -15200,7 +15212,8 @@ export default {
         "derniere-negociation",
         "refuge-commun",
         "citadelle-de-cendre",
-        "dernier-rempart"
+        "dernier-rempart",
+        "pivot-personnel"
       ],
       "fonction": "conclure-l-ancrage-avec-les-seuls-moyens-credibles",
       "fenetre": "finale-ancrage",
@@ -16416,6 +16429,654 @@ export default {
           }
         }
       }
+    },
+    {
+      "id": "epilogue.revelation.le-registre-des-rejets",
+      "famille": "mystere-des-phares",
+      "themes": [
+        "epilogue",
+        "registre-des-rejets",
+        "dette-environnementale",
+        "revelation-garantie"
+      ],
+      "fonction": "reveler-le-registre-du-coeur-qui-attribue-les-rejets-du-reseau",
+      "fenetre": "finale-ancrage",
+      "conditions": {
+        "requises": [
+          {
+            "type": "un-des-faits-present",
+            "faits": [
+              "finale.ancrage.refuge-commun",
+              "finale.ancrage.citadelle-de-cendre",
+              "finale.ancrage.dernier-rempart",
+              "finale.reaccord.constellation",
+              "finale.reaccord.reseau-de-fer",
+              "finale.reaccord.veilles-dispersees",
+              "finale.precipitation.ciel-rendu",
+              "finale.precipitation.terre-des-sacrifies",
+              "finale.precipitation.pluie-noire"
+            ]
+          }
+        ],
+        "interdites": []
+      },
+      "periodeEligibilite": {
+        "debut": 1200,
+        "fin": 2147483647
+      },
+      "priorite": 170,
+      "epuisement": "unique",
+      "acteurs": [
+        "porte-lanterne",
+        "equipes-de-l-anneau",
+        "delegations-des-cinq-colonies",
+        "coeur-du-noeud"
+      ],
+      "sourcesInformations": [
+        "equipes-de-l-anneau"
+      ],
+      "faitsLus": [
+        "finale.ancrage.refuge-commun",
+        "finale.ancrage.citadelle-de-cendre",
+        "finale.ancrage.dernier-rempart",
+        "finale.reaccord.constellation",
+        "finale.reaccord.reseau-de-fer",
+        "finale.reaccord.veilles-dispersees",
+        "finale.precipitation.ciel-rendu",
+        "finale.precipitation.terre-des-sacrifies",
+        "finale.precipitation.pluie-noire"
+      ],
+      "choix": [
+        {
+          "id": "rendre-registre-public",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "epilogue.revelation.registre-rendu-public",
+              "cible": "registre-des-rejets"
+            }
+          ]
+        },
+        {
+          "id": "confier-copies-aux-colonies",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "epilogue.revelation.copies-confiees-aux-colonies",
+              "cible": "registre-des-rejets"
+            }
+          ]
+        }
+      ],
+      "consequenceDifferee": {
+        "type": "responsabilite-des-rejets-rendue-opposable",
+        "cible": "registre-des-rejets"
+      },
+      "recuperation": {
+        "type": "revelation-acquise-quelle-que-soit-la-garde-du-registre"
+      },
+      "variantes": [
+        {
+          "id": "ancrage",
+          "condition": {
+            "type": "fait-present",
+            "fait": "finale.ancrage.refuge-commun"
+          }
+        },
+        {
+          "id": "reaccord",
+          "condition": {
+            "type": "fait-present",
+            "fait": "finale.reaccord.constellation"
+          }
+        },
+        {
+          "id": "precipitation",
+          "condition": {
+            "type": "fait-present",
+            "fait": "finale.precipitation.ciel-rendu"
+          }
+        },
+        {
+          "id": "standard",
+          "condition": {
+            "type": "toujours"
+          }
+        }
+      ],
+      "destinationEcho": "journal-de-campagne",
+      "asset": {
+        "id": "epilogue.revelation.le-registre-des-rejets",
+        "fichier": "/api/commercial/assets/epilogue-registre-rejets.webp",
+        "octetsTransferes": 282684,
+        "contientTexte": false,
+        "alternatives": {
+          "fr": "Des équipes et des délégations entourent le cœur mobile ouvert, dont les tambours mécaniques et les lignes lumineuses relient les anciens halos à leurs bassins de rejet.",
+          "en": "Crews and delegates surround the opened mobile heart, whose mechanical drums and lit lines connect former halos to their discharge basins."
+        },
+        "provenance": {
+          "fiche": "docs/assets/epilogue-registre-rejets.provenance.json",
+          "creeLe": "2026-07-24",
+          "outil": "Codex built-in image_gen",
+          "modele": "built-in model (identifier not exposed)",
+          "usage": "stylized-concept",
+          "entree": "No input image; generated from the project’s established industrial ash-world art direction.",
+          "prompt": "Crews and delegates from five settlements uncover the mobile lighthouse heart’s final emissions ledger in the ancient Node: a brass-and-glass accounting mechanism showing deliberate ash transfers to peripheral basins; grounded industrial 16:9, politically tense, no text or logos.",
+          "droits": "OpenAI Terms of Use — output assigned to the user",
+          "empreinteSha256": "699bd54b3dcecee70464ba98740efccdb064053490f924f9d0c2f6bc4f85cafd",
+          "statutApprobation": "pending-pull-request-review",
+          "reviseur": null
+        }
+      },
+      "textes": {
+        "fr": {
+          "origine": {
+            "cle": "evenement.epilogue.revelation.origine",
+            "modele": "Chambre comptable du cœur mobile",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.epilogue.revelation.titre",
+            "modele": "Le registre des rejets",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.epilogue.revelation.presentation",
+            "modele": "Sous les tambours du cœur, les équipes découvrent sa fonction oubliée : l’Unité mobile ne réparait pas seulement les phares, elle certifiait chaque transfert de cendre. Le dernier registre prouve que le Réseau fut maintenu après le franchissement des seuils létaux dans les périphéries ; la rupture des relais par leurs équipes transforma ensuite cette dette accumulée en Front itinérant.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.epilogue.revelation.information",
+              "modele": "Les mesures relient chaque ancien halo à un bassin de rejet et à une décision de maintien. La révélation ne change pas la Solution choisie : elle rend ses responsables, ses bénéficiaires et ses victimes nommables.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "ancrage": {
+              "cle": "evenement.epilogue.revelation.variante.ancrage",
+              "modele": "Autour du cœur immobilisé, les tambours désignent la zone protégée et toutes celles qui ont autrefois payé sa veille.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "reaccord": {
+              "cle": "evenement.epilogue.revelation.variante.reaccord",
+              "modele": "Chaque relais du nouveau maillage retrouve dans le registre l’origine de ses parasites et de ses rejets.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "precipitation": {
+              "cle": "evenement.epilogue.revelation.variante.precipitation",
+              "modele": "Les anciens bassins de rejet répondent aux dépôts que le Précipitateur vient désormais d’assumer au grand jour.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.epilogue.revelation.variante.standard",
+              "modele": "La mécanique ne désigne ni héros ni coupable unique : elle conserve une suite vérifiable d’ordres, de seuils dépassés et de périphéries sacrifiées.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "rendre-registre-public": {
+              "intention": {
+                "cle": "evenement.epilogue.revelation.choix.public",
+                "modele": "Rendre le registre intégralement public",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.epilogue.revelation.choix.public.cout",
+                  "modele": "Conséquence connue : chacun peut vérifier les rejets, mais aucune autorité ne contrôle seule les accusations qui suivront.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "confier-copies-aux-colonies": {
+              "intention": {
+                "cle": "evenement.epilogue.revelation.choix.copies",
+                "modele": "Confier une copie scellée à chaque Colonie",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.epilogue.revelation.choix.copies.cout",
+                  "modele": "Conséquence connue : cinq gardes peuvent se contredire et se contrôler, sans registre public unique.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        },
+        "en": {
+          "origine": {
+            "cle": "evenement.epilogue.revelation.origine",
+            "modele": "Mobile heart accounting chamber",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.epilogue.revelation.titre",
+            "modele": "The discharge ledger",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.epilogue.revelation.presentation",
+            "modele": "Beneath the heart’s drums, the crews discover its forgotten purpose: the Mobile Unit did more than repair beacons; it certified every ash transfer. Its final ledger proves the Network was kept running after peripheral lethal thresholds were crossed. When those crews later broke the relays, the accumulated debt became the roaming Front.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.epilogue.revelation.information",
+              "modele": "The readings connect every former halo to a discharge basin and a decision to keep running. The revelation does not alter the chosen Solution: it makes its decision-makers, beneficiaries, and victims nameable.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "ancrage": {
+              "cle": "evenement.epilogue.revelation.variante.ancrage",
+              "modele": "Around the immobilized heart, the drums identify both the protected zone and every place that once paid for its watch.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "reaccord": {
+              "cle": "evenement.epilogue.revelation.variante.reaccord",
+              "modele": "Every relay in the new mesh finds the origin of its interference and discharges in the ledger.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "precipitation": {
+              "cle": "evenement.epilogue.revelation.variante.precipitation",
+              "modele": "The former discharge basins answer the deposits the Precipitator has now brought into the open.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.epilogue.revelation.variante.standard",
+              "modele": "The mechanism names neither a hero nor a single culprit: it preserves a verifiable sequence of orders, breached thresholds, and sacrificed peripheries.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "rendre-registre-public": {
+              "intention": {
+                "cle": "evenement.epilogue.revelation.choix.public",
+                "modele": "Make the full ledger public",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.epilogue.revelation.choix.public.cout",
+                  "modele": "Known consequence: anyone may verify the discharges, but no single authority controls the accusations that follow.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "confier-copies-aux-colonies": {
+              "intention": {
+                "cle": "evenement.epilogue.revelation.choix.copies",
+                "modele": "Entrust a sealed copy to every Colony",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.epilogue.revelation.choix.copies.cout",
+                  "modele": "Known consequence: five keepers can challenge and check one another, without a single public ledger.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "epilogue.compagnons.le-dernier-tour-de-veille",
+      "famille": "histoires-de-compagnons",
+      "themes": [
+        "epilogue",
+        "devenirs",
+        "liens",
+        "rancunes",
+        "projets",
+        "collectif-de-compagnons"
+      ],
+      "fonction": "consigner-les-devenirs-des-seuls-compagnons-recrutes-morts-ou-partis",
+      "fenetre": "finale-ancrage",
+      "conditions": {
+        "requises": [
+          {
+            "type": "un-des-faits-present",
+            "faits": [
+              "epilogue.revelation.registre-rendu-public",
+              "epilogue.revelation.copies-confiees-aux-colonies"
+            ]
+          }
+        ],
+        "interdites": []
+      },
+      "periodeEligibilite": {
+        "debut": 1200,
+        "fin": 2147483647
+      },
+      "priorite": 160,
+      "epuisement": "unique",
+      "acteurs": [
+        "porte-lanterne",
+        "compagnons-du-convoi",
+        "equipes-de-l-anneau"
+      ],
+      "sourcesInformations": [
+        "compagnons-du-convoi"
+      ],
+      "faitsLus": [
+        "epilogue.revelation.registre-rendu-public",
+        "epilogue.revelation.copies-confiees-aux-colonies",
+        "couronne.approches.plans-confies-a-ilyana",
+        "couronne.seuil.registre-confie-a-maelys",
+        "couronne.ouverture.clef-collective"
+      ],
+      "choix": [
+        {
+          "id": "partager-les-devenirs",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "epilogue.compagnons.devenirs-partages",
+              "cible": "devenirs-des-compagnons"
+            }
+          ]
+        },
+        {
+          "id": "confier-chaque-recit",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "epilogue.compagnons.devenirs-confies",
+              "cible": "devenirs-des-compagnons"
+            }
+          ]
+        }
+      ],
+      "consequenceDifferee": {
+        "type": "projets-sante-liens-et-rancunes-restitues-sans-profils-absents",
+        "cible": "devenirs-des-compagnons"
+      },
+      "recuperation": {
+        "type": "aucune-relation-absente-n-est-inventee"
+      },
+      "variantes": [
+        {
+          "id": "ilyana",
+          "condition": {
+            "type": "fait-present",
+            "fait": "couronne.approches.plans-confies-a-ilyana"
+          }
+        },
+        {
+          "id": "maelys",
+          "condition": {
+            "type": "fait-present",
+            "fait": "couronne.seuil.registre-confie-a-maelys"
+          }
+        },
+        {
+          "id": "lien",
+          "condition": {
+            "type": "fait-present",
+            "fait": "couronne.ouverture.clef-collective"
+          }
+        },
+        {
+          "id": "standard",
+          "condition": {
+            "type": "toujours"
+          }
+        }
+      ],
+      "destinationEcho": "journal-de-campagne",
+      "asset": {
+        "id": "epilogue.compagnons.le-dernier-tour-de-veille",
+        "fichier": "/api/commercial/assets/epilogue-dernier-tour.webp",
+        "octetsTransferes": 211778,
+        "contientTexte": false,
+        "alternatives": {
+          "fr": "Autour d’une lanterne basse, les Compagnons et leurs proches réunissent outils, coffrets et souvenirs ; une chaise porte un manteau tandis qu’une personne s’éloigne sur une passerelle.",
+          "en": "Around a low lantern, Companions and their close ones gather tools, cases, and keepsakes; a coat rests on one chair while someone leaves along a gangway."
+        },
+        "provenance": {
+          "fiche": "docs/assets/epilogue-dernier-tour.provenance.json",
+          "creeLe": "2026-07-24",
+          "outil": "Codex built-in image_gen",
+          "modele": "built-in model (identifier not exposed)",
+          "usage": "stylized-concept",
+          "entree": "No input image; generated from the project’s established industrial ash-world art direction.",
+          "prompt": "A final night watch in the inhabited caravan-city: surviving companions and close ones gather around an amber beacon with personal tokens, one deliberately empty chair and one departing figure; intimate industrial 16:9, sober and communal, no text or logos.",
+          "droits": "OpenAI Terms of Use — output assigned to the user",
+          "empreinteSha256": "28b089222db5d7b63a01e4ab123964531b105b0ed69b0eaad0184771c4243959",
+          "statutApprobation": "pending-pull-request-review",
+          "reviseur": null
+        }
+      },
+      "textes": {
+        "fr": {
+          "origine": {
+            "cle": "evenement.epilogue.compagnons.origine",
+            "modele": "Dernière Vigie de la cité-caravane",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.epilogue.compagnons.titre",
+            "modele": "Le dernier tour de veille",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.epilogue.compagnons.presentation",
+            "modele": "La Vigie n’appelle que les noms réellement entrés dans la Campagne. Pour chaque Compagnon recruté, mort ou parti, elle pose son Projet, son état de santé, les Liens vécus et l’unique Rancune éventuelle. Les sièges des profils jamais rencontrés restent sans nom.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.epilogue.compagnons.information",
+              "modele": "Une chaise vide, un coffret transmis ou une place au cercle ne vaut pas une relation inventée : seuls les Faits communs établissent un Lien, et seule une cause consignée maintient une Rancune.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "ilyana": {
+              "cle": "evenement.epilogue.compagnons.variante.ilyana",
+              "modele": "Les plans confiés à Ilyana donnent une suite concrète à son Projet ; ils n’effacent ni ses brûlures ni les fois où sa parole fut écartée.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "maelys": {
+              "cle": "evenement.epilogue.compagnons.variante.maelys",
+              "modele": "Le registre porté par Maëlys permet à son relevé de lui survivre ou de voyager avec elle, selon son dernier état réel.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "lien": {
+              "cle": "evenement.epilogue.compagnons.variante.lien",
+              "modele": "La clef collective rappelle un vécu commun vérifiable ; elle n’ajoute aucun Lien aux Compagnons absents.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.epilogue.compagnons.variante.standard",
+              "modele": "La table conserve projets interrompus, soins poursuivis et départs annoncés sans remplir les silences par une relation supposée.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "partager-les-devenirs": {
+              "intention": {
+                "cle": "evenement.epilogue.compagnons.choix.partager",
+                "modele": "Lire les devenirs devant toute la Vigie",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.epilogue.compagnons.choix.partager.cout",
+                  "modele": "Conséquence connue : morts, départs, projets et dettes deviennent une mémoire commune.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "confier-chaque-recit": {
+              "intention": {
+                "cle": "evenement.epilogue.compagnons.choix.confier",
+                "modele": "Confier chaque récit à ses dépositaires",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.epilogue.compagnons.choix.confier.cout",
+                  "modele": "Conséquence connue : chaque récit garde un responsable précis sans devenir une version officielle unique.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        },
+        "en": {
+          "origine": {
+            "cle": "evenement.epilogue.compagnons.origine",
+            "modele": "Caravan-city’s final watch",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.epilogue.compagnons.titre",
+            "modele": "The final watch round",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.epilogue.compagnons.presentation",
+            "modele": "The watch calls only names that truly entered the Campaign. For every recruited, dead, or departed Companion, it lays out their Project, health, lived Bonds, and single possible Grudge. Seats belonging to profiles never encountered remain unnamed.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.epilogue.compagnons.information",
+              "modele": "An empty chair, a transferred case, or a place in the circle does not prove an invented relationship: only shared Facts establish a Bond, and only a recorded cause sustains a Grudge.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "ilyana": {
+              "cle": "evenement.epilogue.compagnons.variante.ilyana",
+              "modele": "The plans entrusted to Ilyana give her Project a concrete future; they erase neither her burns nor the times her counsel was set aside.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "maelys": {
+              "cle": "evenement.epilogue.compagnons.variante.maelys",
+              "modele": "The register carried by Maëlys lets her survey outlive her or travel with her, according to her actual final state.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "lien": {
+              "cle": "evenement.epilogue.compagnons.variante.lien",
+              "modele": "The collective key recalls verifiable shared experience; it adds no Bond to absent Companions.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.epilogue.compagnons.variante.standard",
+              "modele": "The table preserves interrupted Projects, continuing care, and announced departures without filling silence with an assumed relationship.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "partager-les-devenirs": {
+              "intention": {
+                "cle": "evenement.epilogue.compagnons.choix.partager",
+                "modele": "Read the outcomes before the whole watch",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.epilogue.compagnons.choix.partager.cout",
+                  "modele": "Known consequence: deaths, departures, Projects, and debts become a shared memory.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "confier-chaque-recit": {
+              "intention": {
+                "cle": "evenement.epilogue.compagnons.choix.confier",
+                "modele": "Entrust each account to its keepers",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.epilogue.compagnons.choix.confier.cout",
+                  "modele": "Known consequence: every account keeps a specific custodian without becoming one official version.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        }
+      }
     }
   ],
   "conseils": [
@@ -17482,7 +18143,11 @@ export default {
           "finale.precipitation.selection-risquee": "Précipitation risquée engagée",
           "finale.precipitation.ciel-rendu": "Ciel rendu administré par le Conseil des Bassins",
           "finale.precipitation.terre-des-sacrifies": "Dépôts assignés à la Terre des sacrifiés",
-          "finale.precipitation.pluie-noire": "Front rompu en Pluie noire"
+          "finale.precipitation.pluie-noire": "Front rompu en Pluie noire",
+          "epilogue.revelation.registre-rendu-public": "Registre des rejets rendu public",
+          "epilogue.revelation.copies-confiees-aux-colonies": "Copies du registre confiées aux cinq Colonies",
+          "epilogue.compagnons.devenirs-partages": "Devenirs des Compagnons partagés à la veillée",
+          "epilogue.compagnons.devenirs-confies": "Récits des Compagnons confiés à leurs dépositaires"
         },
         "causes": {
           "bassins.haut-puits.pacte-des-citernes": "Le pacte des citernes",
@@ -17537,7 +18202,9 @@ export default {
           "finale.ancrage.choisir-d-ancrer-le-coeur": "Solution irréversible choisie devant le cœur mécanique.",
           "finale.ancrage.la-derniere-negociation": "Contrôle et coût humain négociés lors du dernier Conseil.",
           "finale.reaccord.la-derniere-negociation-du-reseau": "Propriété du maillage et partage des nuisances négociés au Nœud.",
-          "finale.precipitation.la-derniere-negociation-des-bassins": "Contrôle des bassins, sort du cœur et populations exposées négociés au Nœud."
+          "finale.precipitation.la-derniere-negociation-des-bassins": "Contrôle des bassins, sort du cœur et populations exposées négociés au Nœud.",
+          "epilogue.revelation.le-registre-des-rejets": "Dernier registre causal extrait du cœur mobile après la Solution finale.",
+          "epilogue.compagnons.le-dernier-tour-de-veille": "Projets, santé, Liens et Rancunes restitués après la révélation."
         },
         "acteurs": {
           "ilyana-voss": "Ilyana Voss",
@@ -17582,7 +18249,8 @@ export default {
           "releveurs-du-seuil": "Releveurs du Seuil",
           "equipes-de-la-rampe": "Équipes de la rampe",
           "equipes-de-l-anneau": "Équipes de l’Anneau intérieur",
-          "coeur-du-noeud": "Cœur mécanique du Nœud"
+          "coeur-du-noeud": "Cœur mécanique du Nœud",
+          "compagnons-du-convoi": "Compagnons réellement suivis par le convoi"
         },
         "cibles": {
           "equipes-entretien": "Équipes d’entretien",
@@ -17647,7 +18315,9 @@ export default {
           "clef-du-noeud": "Clef du Nœud",
           "contrat-des-trois-solutions": "Contrat des trois Solutions",
           "coeur-du-noeud": "Cœur mécanique du Nœud",
-          "coeur-ancre": "Cœur ancré"
+          "coeur-ancre": "Cœur ancré",
+          "registre-des-rejets": "Registre mécanique des rejets",
+          "devenirs-des-compagnons": "Devenirs des Compagnons"
         }
       }
     },
@@ -17780,7 +18450,11 @@ export default {
           "finale.precipitation.selection-risquee": "Risky Precipitation committed",
           "finale.precipitation.ciel-rendu": "Returned Sky administered by the Basins Council",
           "finale.precipitation.terre-des-sacrifies": "Deposits assigned to the Land of the Sacrificed",
-          "finale.precipitation.pluie-noire": "Front broken into Black Rain"
+          "finale.precipitation.pluie-noire": "Front broken into Black Rain",
+          "epilogue.revelation.registre-rendu-public": "Discharge ledger made public",
+          "epilogue.revelation.copies-confiees-aux-colonies": "Ledger copies entrusted to the five Colonies",
+          "epilogue.compagnons.devenirs-partages": "Companion outcomes shared at the watch",
+          "epilogue.compagnons.devenirs-confies": "Companion accounts entrusted to their keepers"
         },
         "causes": {
           "bassins.haut-puits.pacte-des-citernes": "The cistern pact",
@@ -17835,7 +18509,9 @@ export default {
           "finale.ancrage.choisir-d-ancrer-le-coeur": "Irreversible Solution chosen before the mechanical heart.",
           "finale.ancrage.la-derniere-negociation": "Control and human cost negotiated at the final Council.",
           "finale.reaccord.la-derniere-negociation-du-reseau": "Mesh ownership and nuisance sharing negotiated at the Node.",
-          "finale.precipitation.la-derniere-negociation-des-bassins": "Basin control, the heart’s fate, and exposed populations negotiated at the Node."
+          "finale.precipitation.la-derniere-negociation-des-bassins": "Basin control, the heart’s fate, and exposed populations negotiated at the Node.",
+          "epilogue.revelation.le-registre-des-rejets": "Final causal ledger extracted from the mobile heart after the final Solution.",
+          "epilogue.compagnons.le-dernier-tour-de-veille": "Projects, health, Bonds, and Grudges recounted after the revelation."
         },
         "acteurs": {
           "ilyana-voss": "Ilyana Voss",
@@ -17880,7 +18556,8 @@ export default {
           "releveurs-du-seuil": "Threshold surveyors",
           "equipes-de-la-rampe": "Ramp crews",
           "equipes-de-l-anneau": "Inner Ring crews",
-          "coeur-du-noeud": "Node mechanical heart"
+          "coeur-du-noeud": "Node mechanical heart",
+          "compagnons-du-convoi": "Companions actually followed by the caravan"
         },
         "cibles": {
           "equipes-entretien": "Maintenance crews",
@@ -17945,7 +18622,9 @@ export default {
           "clef-du-noeud": "Node key",
           "contrat-des-trois-solutions": "Three-Solution contract",
           "coeur-du-noeud": "Node mechanical heart",
-          "coeur-ancre": "Anchored heart"
+          "coeur-ancre": "Anchored heart",
+          "registre-des-rejets": "Mechanical discharge ledger",
+          "devenirs-des-compagnons": "Companion outcomes"
         }
       }
     }

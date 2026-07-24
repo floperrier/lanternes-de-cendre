@@ -20,6 +20,38 @@ async function activerAuClavier(
   await page.keyboard.press("Enter");
 }
 
+async function ouvrirLienDeTestSiPropose(page: Page): Promise<void> {
+  const lienDeTest = page.getByRole("button", {
+    name: "Ouvrir le lien de test",
+  });
+  const confirmation = page.getByText(
+    "Accès premium permanent actif. La même Campagne peut continuer.",
+  );
+  await expect(lienDeTest.or(confirmation).first()).toBeVisible();
+  if (await lienDeTest.isVisible()) {
+    await activerAuClavier(page, lienDeTest);
+  }
+  await expect(confirmation).toBeVisible();
+}
+
+async function lireSecondesDeLaSauvegarde(page: Page): Promise<number> {
+  const telechargement = page.waitForEvent("download");
+  await page
+    .getByRole("region", { name: "Sauvegarde de Campagne" })
+    .getByRole("button", { name: "Exporter" })
+    .click();
+  const chemin = await (await telechargement).path();
+  expect(chemin).not.toBeNull();
+  const archive = JSON.parse(await readFile(chemin!, "utf8")) as {
+    readonly etat: {
+      readonly tempsDuConvoi: {
+        readonly secondes: number;
+      };
+    };
+  };
+  return archive.etat.tempsDuConvoi.secondes;
+}
+
 test("la Démonstration complète atteint sa porte premium sans sollicitation anticipée", async ({
   page,
 }, testInfo) => {
@@ -680,15 +712,7 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
     autrePage,
     autrePage.getByRole("button", { name: "Restaurer mon achat" }),
   );
-  await activerAuClavier(
-    autrePage,
-    autrePage.getByRole("button", { name: "Ouvrir le lien de test" }),
-  );
-  await expect(
-    autrePage.getByText(
-      "Accès premium permanent actif. La même Campagne peut continuer.",
-    ),
-  ).toBeVisible();
+  await ouvrirLienDeTestSiPropose(autrePage);
   await expect(autrePage.getByText("CENDRE-01").first()).toBeVisible();
   await expect(autrePage.getByText("Bilan de retour")).toHaveCount(0);
   await navigateurVierge.close();
@@ -709,10 +733,7 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
     pageTraverse,
     pageTraverse.getByRole("button", { name: "Restaurer mon achat" }),
   );
-  await activerAuClavier(
-    pageTraverse,
-    pageTraverse.getByRole("button", { name: "Ouvrir le lien de test" }),
-  );
+  await ouvrirLienDeTestSiPropose(pageTraverse);
   const sauvegardeTraverse = pageTraverse.getByRole("region", {
     name: "Sauvegarde de Campagne",
   });
@@ -1302,6 +1323,159 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
     fullPage: true,
   });
 
+  const revelationDeLEpilogue = pageTraverse.getByRole("region", {
+    name: "Le registre des rejets",
+  });
+  await expect(revelationDeLEpilogue.getByRole("img")).toBeVisible();
+  await expect(revelationDeLEpilogue).toContainText(
+    "maintenu après le franchissement des seuils létaux",
+  );
+  await activerAuClavier(
+    pageTraverse,
+    revelationDeLEpilogue.getByRole("button", {
+      name: "Rendre le registre intégralement public",
+    }),
+  );
+  await pageTraverse.clock.fastForward(1_000);
+
+  const histoireDesCompagnons = pageTraverse.getByRole("region", {
+    name: "Le dernier tour de veille",
+  });
+  await expect(histoireDesCompagnons.getByRole("img")).toBeVisible();
+  await expect(histoireDesCompagnons).toContainText(
+    "Les sièges des profils jamais rencontrés restent sans nom",
+  );
+  await activerAuClavier(
+    pageTraverse,
+    histoireDesCompagnons.getByRole("button", {
+      name: "Lire les devenirs devant toute la Vigie",
+    }),
+  );
+  await pageTraverse.clock.fastForward(1_000);
+
+  const epilogueDeCampagne = pageTraverse.getByRole("article", {
+    name: "Épilogue de la Campagne",
+  });
+  await expect(epilogueDeCampagne).toBeVisible();
+  await expect(epilogueDeCampagne).toHaveAttribute("lang", "fr");
+  await expect(
+    epilogueDeCampagne.getByRole("heading", {
+      name: "Épilogue de la Campagne",
+    }),
+  ).toBeFocused();
+  await expect(
+    epilogueDeCampagne.getByRole("heading", {
+      name: "Bilan de la Solution",
+    }),
+  ).toBeVisible();
+  await expect(epilogueDeCampagne).toContainText("Stabilité technique");
+  await expect(epilogueDeCampagne).toContainText(
+    "précipitation lente et confinée",
+  );
+  await expect(epilogueDeCampagne).toContainText("Contrôle politique");
+  await expect(epilogueDeCampagne).toContainText(
+    "bassins administrés par leur Conseil",
+  );
+  await expect(epilogueDeCampagne).toContainText("Coût humain");
+  await expect(epilogueDeCampagne).toContainText(
+    "coût humain réparti inégalement",
+  );
+  await expect(epilogueDeCampagne).toContainText("Révélation finale");
+  await expect(epilogueDeCampagne).toContainText("Ilyana Voss");
+  await expect(
+    epilogueDeCampagne.getByText("Maëlys Rive", { exact: true }),
+  ).toHaveCount(0);
+  const retoursDesColonies = epilogueDeCampagne
+    .getByRole("heading", {
+      name: "Cinq Colonies",
+      exact: true,
+    })
+    .locator("..");
+  await expect(retoursDesColonies.getByText("Haut-Puits", { exact: true }))
+    .toBeVisible();
+  await expect(retoursDesColonies.getByText("Veille-Basse", { exact: true }))
+    .toBeVisible();
+  await expect(
+    retoursDesColonies.getByText("Grand-Aiguillage", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    retoursDesColonies.getByText("Traverse-Libre", { exact: true }),
+  ).toBeVisible();
+  await expect(retoursDesColonies.getByText("Seuil", { exact: true }))
+    .toBeVisible();
+  await expect(
+    epilogueDeCampagne.getByRole("heading", {
+      name: "Sites significatifs",
+    }),
+  ).toBeVisible();
+  await expect(
+    epilogueDeCampagne.getByRole("heading", { name: "Cohortes" }),
+  ).toBeVisible();
+  await expect(
+    epilogueDeCampagne.getByRole("heading", { name: "Factions" }),
+  ).toBeVisible();
+  await expect(
+    epilogueDeCampagne.getByRole("heading", { name: "Engagements" }),
+  ).toBeVisible();
+  await expect(
+    epilogueDeCampagne.getByRole("heading", {
+      name: "Traces clandestines",
+    }),
+  ).toBeVisible();
+  await expect(
+    epilogueDeCampagne.getByText(
+      "Transport autonome de l’Aiguillage Zéro",
+      { exact: true },
+    ),
+  ).toHaveCount(1);
+
+  const secondesDeLEpilogue = await lireSecondesDeLaSauvegarde(
+    pageTraverse,
+  );
+  await pageTraverse.clock.fastForward(10_000);
+  expect(await lireSecondesDeLaSauvegarde(pageTraverse)).toBe(
+    secondesDeLEpilogue,
+  );
+
+  await pageTraverse.screenshot({
+    path: testInfo.outputPath("epilogue-ciel-rendu-mobile.png"),
+    fullPage: true,
+  });
+
+  await activerAuClavier(
+    pageTraverse,
+    pageTraverse.getByRole("button", { name: "English" }),
+  );
+  const campaignEpilogue = pageTraverse.getByRole("article", {
+    name: "Campaign Epilogue",
+  });
+  await expect(campaignEpilogue).toHaveAttribute("lang", "en");
+  await expect(campaignEpilogue).toContainText(
+    "Zero Junction autonomous transport",
+  );
+  await activerAuClavier(
+    pageTraverse,
+    pageTraverse.getByRole("button", { name: "Français" }),
+  );
+
+  const sauvegardeDeLEpilogue = pageTraverse.getByRole("region", {
+    name: "Sauvegarde de Campagne",
+  });
+  await activerAuClavier(
+    pageTraverse,
+    sauvegardeDeLEpilogue.getByRole("button", {
+      name: "Sauvegarder",
+    }),
+  );
+  await expect(sauvegardeDeLEpilogue.getByText("Sauvegarde à jour."))
+    .toBeVisible();
+  await pageTraverse.reload();
+  await expect(
+    pageTraverse.getByRole("article", {
+      name: "Épilogue de la Campagne",
+    }),
+  ).toBeVisible();
+
   const navigateurColonies = await page.context().browser()!.newContext({
     viewport: { width: 640, height: 360 },
     deviceScaleFactor: 2,
@@ -1318,10 +1492,7 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
     pageColonies,
     pageColonies.getByRole("button", { name: "Restaurer mon achat" }),
   );
-  await activerAuClavier(
-    pageColonies,
-    pageColonies.getByRole("button", { name: "Ouvrir le lien de test" }),
-  );
+  await ouvrirLienDeTestSiPropose(pageColonies);
   const sauvegardeColonies = pageColonies.getByRole("region", {
     name: "Sauvegarde de Campagne",
   });

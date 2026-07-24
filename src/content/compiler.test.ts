@@ -64,6 +64,8 @@ import provenanceFinaleAncrageNegociation from "../../docs/assets/finale-ancrage
 import provenanceFinaleAncrageCoeur from "../../docs/assets/finale-ancrage-coeur.provenance.json?raw";
 import provenanceFinaleReaccordConflit from "../../docs/assets/finale-reaccord-conflit.provenance.json?raw";
 import provenanceFinalePrecipitationConsequence from "../../docs/assets/finale-precipitation-consequence.provenance.json?raw";
+import provenanceEpilogueRegistreRejets from "../../docs/assets/epilogue-registre-rejets.provenance.json?raw";
+import provenanceEpilogueDernierTour from "../../docs/assets/epilogue-dernier-tour.provenance.json?raw";
 import {
   ErreurDeContenu,
   compilerCatalogue,
@@ -189,6 +191,10 @@ const sourcesValides: SourcesDuCatalogue = {
       provenanceFinaleReaccordConflit,
     "docs/assets/finale-precipitation-consequence.provenance.json":
       provenanceFinalePrecipitationConsequence,
+    "docs/assets/epilogue-registre-rejets.provenance.json":
+      provenanceEpilogueRegistreRejets,
+    "docs/assets/epilogue-dernier-tour.provenance.json":
+      provenanceEpilogueDernierTour,
   },
   cheminDeProvenanceAsset: (chemin) =>
     chemin.startsWith("/api/commercial/assets/")
@@ -253,6 +259,8 @@ const sourcesValides: SourcesDuCatalogue = {
       "/api/commercial/assets/finale-ancrage-coeur.webp",
       "/api/commercial/assets/finale-reaccord-conflit.webp",
       "/api/commercial/assets/finale-precipitation-consequence.webp",
+      "/api/commercial/assets/epilogue-registre-rejets.webp",
+      "/api/commercial/assets/epilogue-dernier-tour.webp",
     ].includes(chemin),
   empreinteAsset: (chemin) =>
     ({
@@ -370,6 +378,10 @@ const sourcesValides: SourcesDuCatalogue = {
         "0b8561fa7c1cda0892e5b95ebf7506fdf35816d6b6cdb6304457856a2a0fc5a9",
       "/api/commercial/assets/finale-precipitation-consequence.webp":
         "9941068d5d6dc6f5bc5882ca6fecd4c8875f3f4d6f055d493066ed6ef0258a45",
+      "/api/commercial/assets/epilogue-registre-rejets.webp":
+        "699bd54b3dcecee70464ba98740efccdb064053490f924f9d0c2f6bc4f85cafd",
+      "/api/commercial/assets/epilogue-dernier-tour.webp":
+        "28b089222db5d7b63a01e4ab123964531b105b0ed69b0eaad0184771c4243959",
     })[chemin] ?? "0".repeat(64),
   tailleAsset: () => 256_000,
 };

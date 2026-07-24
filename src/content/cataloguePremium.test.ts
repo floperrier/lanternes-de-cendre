@@ -218,6 +218,44 @@ const PRESENTATION_FINALE_VALIDE = {
   ),
 };
 
+const PRESENTATION_EPILOGUE_VALIDE = {
+  titre: "Épilogue",
+  eyebrow: "Bilan",
+  introduction: "Conséquences de la Campagne.",
+  revelation: "Révélation finale.",
+  libelles: dictionnaire(
+    "axes",
+    "sort-du-coeur",
+    "revelation",
+    "compagnons",
+    "colonies",
+    "sites",
+    "cohortes",
+    "factions",
+    "engagements",
+    "traces",
+    "statut",
+    "sante",
+    "projet",
+    "lien",
+    "rancune",
+    "causes",
+  ),
+  axes: dictionnaire(
+    "stabilite-technique",
+    "controle-politique",
+    "cout-humain",
+  ),
+  noms: dictionnaire("ilyana-voss"),
+  statutsDeCompagnons: dictionnaire("recrute"),
+  etats: dictionnaire("stable"),
+  liens: dictionnaire("registre-et-releve"),
+  rancunes: dictionnaire("parole-de-l-eau-ecartee"),
+  reparations: dictionnaire("confier-les-comptes-a-la-communaute"),
+  causesDEtat: "Dernier état persistant",
+  aucun: "aucun",
+};
+
 function lot(conseils?: readonly unknown[]) {
   return {
     version: 1,
@@ -499,6 +537,117 @@ describe("installation du contenu narratif premium", () => {
             finale: {
               fr: PRESENTATION_FINALE_VALIDE,
               en: PRESENTATION_FINALE_VALIDE,
+            },
+          },
+        },
+      }),
+    ).not.toThrow();
+  });
+
+  it("exige le contrat complet pour un lot d’Épilogue", () => {
+    const lotEpilogue = {
+      version: 1,
+      catalogue: {
+        evenements: [
+          {
+            id: "epilogue.revelation.le-registre-des-rejets",
+          },
+        ],
+        presentations: PRESENTATIONS_VALIDES,
+      },
+    };
+
+    expect(() =>
+      installerPresentationsPremium(lotEpilogue),
+    ).toThrow("presentations-premium-invalides");
+    expect(() =>
+      installerPresentationsPremium({
+        ...lotEpilogue,
+        catalogue: {
+          ...lotEpilogue.catalogue,
+          presentations: {
+            ...PRESENTATIONS_VALIDES,
+            epilogue: {
+              fr: PRESENTATION_EPILOGUE_VALIDE,
+              en: PRESENTATION_EPILOGUE_VALIDE,
+            },
+          },
+        },
+      }),
+    ).toThrow("presentations-premium-invalides");
+    expect(() =>
+      installerPresentationsPremium({
+        ...lotEpilogue,
+        catalogue: {
+          ...lotEpilogue.catalogue,
+          presentations: {
+            ...PRESENTATIONS_VALIDES,
+            finale: {
+              fr: PRESENTATION_FINALE_VALIDE,
+              en: PRESENTATION_FINALE_VALIDE,
+            },
+            epilogue: {
+              fr: {
+                titre: "Épilogue incomplet",
+                eyebrow: "Bilan",
+                introduction: "Conséquences.",
+                revelation: "Révélation.",
+                causesDEtat: "Dernier état",
+                aucun: "aucun",
+              },
+              en: {
+                titre: "Incomplete epilogue",
+                eyebrow: "Assessment",
+                introduction: "Consequences.",
+                revelation: "Revelation.",
+                causesDEtat: "Last state",
+                aucun: "none",
+              },
+            },
+          },
+        },
+      }),
+    ).toThrow("presentations-premium-invalides");
+    expect(() =>
+      installerPresentationsPremium({
+        ...lotEpilogue,
+        catalogue: {
+          ...lotEpilogue.catalogue,
+          presentations: {
+            ...PRESENTATIONS_VALIDES,
+            finale: {
+              fr: PRESENTATION_FINALE_VALIDE,
+              en: PRESENTATION_FINALE_VALIDE,
+            },
+            epilogue: {
+              fr: {
+                ...PRESENTATION_EPILOGUE_VALIDE,
+                noms: {
+                  "ilyana-voss": {
+                    valeurImbriquee: "Ilyana Voss",
+                  },
+                },
+              },
+              en: PRESENTATION_EPILOGUE_VALIDE,
+            },
+          },
+        },
+      }),
+    ).toThrow("presentations-premium-invalides");
+    expect(() =>
+      installerPresentationsPremium({
+        ...lotEpilogue,
+        catalogue: {
+          ...lotEpilogue.catalogue,
+          presentations: {
+            ...PRESENTATIONS_VALIDES,
+            finale: {
+              fr: PRESENTATION_FINALE_VALIDE,
+              en: PRESENTATION_FINALE_VALIDE,
+            },
+            epilogue: {
+              fr: PRESENTATION_EPILOGUE_VALIDE,
+              en: PRESENTATION_EPILOGUE_VALIDE,
             },
           },
         },

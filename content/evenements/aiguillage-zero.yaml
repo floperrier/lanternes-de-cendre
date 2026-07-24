@@ -2,7 +2,7 @@ version: 1
 evenements:
   - id: trame.aiguillage-zero.la-piece-et-le-coeur-mobile
     famille: mystere-des-phares
-    themes: [aiguillage-zero, ligne-zero, piece-de-regulation, revelation]
+    themes: [aiguillage-zero, ligne-zero, piece-de-regulation, revelation, revelation-garantie]
     fonction: reveler-que-la-piece-regle-un-coeur-mobile-et-n-est-pas-un-trophee
     fenetre: aiguillage-zero
     conditions:

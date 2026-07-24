@@ -261,7 +261,7 @@ evenements:
 
   - id: bassins.nacelles.deux-voix-dans-le-cable
     famille: histoires-de-compagnons
-    themes: [ilyana-voss, maelys-rive, conseil-des-vannes]
+    themes: [ilyana-voss, maelys-rive, conseil-des-vannes, pivot-personnel]
     fonction: preparer-une-option-du-conseil
     fenetre: relais-des-nacelles
     conditions:

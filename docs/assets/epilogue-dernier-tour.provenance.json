@@ -1,0 +1,15 @@
+{
+  "asset": "serveur-commercial/assets/epilogue-dernier-tour.webp",
+  "sha256": "28b089222db5d7b63a01e4ab123964531b105b0ed69b0eaad0184771c4243959",
+  "createdAt": "2026-07-24",
+  "tool": "Codex built-in image_gen",
+  "model": "built-in model (identifier not exposed)",
+  "useCase": "stylized-concept",
+  "input": "No input image; generated from the project’s established industrial ash-world art direction.",
+  "prompt": "A final night watch in the inhabited caravan-city: surviving companions and close ones gather around an amber beacon with personal tokens, one deliberately empty chair and one departing figure; intimate industrial 16:9, sober and communal, no text or logos.",
+  "rights": "OpenAI Terms of Use — output assigned to the user",
+  "approval": {
+    "status": "pending-pull-request-review",
+    "reviewer": null
+  }
+}

@@ -247,7 +247,7 @@ evenements:
 
   - id: couronne.approches.ilyana-et-les-plans-sous-cendre
     famille: histoires-de-compagnons
-    themes: [ilyana-voss, transmission, responsabilite, plans]
+    themes: [ilyana-voss, transmission, responsabilite, plans, pivot-personnel]
     fonction: confier-la-garde-des-plans-sans-rendre-ilyana-obligatoire
     fenetre: couronne-approches
     conditions:

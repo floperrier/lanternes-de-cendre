@@ -194,6 +194,7 @@ evenements:
     themes:
       - reseau-ancien
       - peripheries-sacrifiees
+      - revelation-garantie
     fonction: revelation-essentielle-deplacement-des-cendres
     fenetre: premier-jalon-bassins-fendus
     conditions:
@@ -275,6 +276,7 @@ evenements:
     themes:
       - confiance
       - transmission
+      - pivot-personnel
     fonction: histoire-de-maelys-rive
     fenetre: premier-jalon-bassins-fendus
     conditions:

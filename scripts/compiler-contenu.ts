@@ -58,6 +58,7 @@ const CHEMINS_D_EVENEMENTS_PREMIUM = [
   "content/evenements/finale-ancrage.yaml",
   "content/evenements/finale-reaccord.yaml",
   "content/evenements/finale-precipitation.yaml",
+  "content/evenements/epilogue.yaml",
 ] as const;
 const provenances = {
   "docs/assets/cite-caravane.provenance.json": lire(
@@ -230,6 +231,12 @@ const provenances = {
   ),
   "docs/assets/finale-precipitation-consequence.provenance.json": lire(
     "docs/assets/finale-precipitation-consequence.provenance.json",
+  ),
+  "docs/assets/epilogue-registre-rejets.provenance.json": lire(
+    "docs/assets/epilogue-registre-rejets.provenance.json",
+  ),
+  "docs/assets/epilogue-dernier-tour.provenance.json": lire(
+    "docs/assets/epilogue-dernier-tour.provenance.json",
   ),
 };
 
@@ -466,6 +473,7 @@ const fragmentsPublicsPartages = new Set([
   "Publique",
   "Combustible",
   "Commitments",
+  "Compagnons",
   "Decision",
   "Destination",
   "Engagements",
@@ -482,11 +490,14 @@ const fragmentsPublicsPartages = new Set([
   "Pressions",
   "Remedies",
   "Veille-Basse",
+  "autonome",
   "autonomes",
   "autonomous",
+  "cooperative",
   "critique",
   "evacuated",
   "personnes",
+  "transactionnelle",
 ]);
 
 function fragmentEstDejaPublic(fragment: string): boolean {

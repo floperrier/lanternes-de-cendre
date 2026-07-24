@@ -290,3 +290,13 @@ assets:
     alternative: evenement.finale.precipitation.asset.alt
     contient_texte: false
     provenance: docs/assets/finale-precipitation-consequence.provenance.json
+  - id: epilogue.revelation.le-registre-des-rejets
+    fichier: /api/commercial/assets/epilogue-registre-rejets.webp
+    alternative: evenement.epilogue.revelation.asset.alt
+    contient_texte: false
+    provenance: docs/assets/epilogue-registre-rejets.provenance.json
+  - id: epilogue.compagnons.le-dernier-tour-de-veille
+    fichier: /api/commercial/assets/epilogue-dernier-tour.webp
+    alternative: evenement.epilogue.compagnons.asset.alt
+    contient_texte: false
+    provenance: docs/assets/epilogue-dernier-tour.provenance.json

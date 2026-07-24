@@ -193,7 +193,7 @@ evenements:
 
   - id: bassins.haut-puits.ilyana-et-la-vanne
     famille: histoires-de-compagnons
-    themes: [conviction, partage-de-leau]
+    themes: [conviction, partage-de-leau, pivot-personnel]
     fonction: confronter-conviction-d-ilyana
     fenetre: halte-haut-puits
     conditions:

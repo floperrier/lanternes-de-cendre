@@ -92,6 +92,7 @@ evenements:
     themes:
       - reseau-ancien
       - signal
+      - revelation-garantie
     fonction: premiere-revelation
     fenetre: prologue-enchaine
     conditions:
@@ -252,6 +253,7 @@ evenements:
     themes:
       - confiance
       - eau
+      - pivot-personnel
     fonction: presenter-compagnon
     fenetre: prologue-enchaine
     conditions:

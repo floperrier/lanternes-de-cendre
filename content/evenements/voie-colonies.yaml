@@ -236,7 +236,7 @@ evenements:
 
   - id: couronne.seuil.maelys-et-le-registre-des-rallies
     famille: histoires-de-compagnons
-    themes: [maelys-rive, colonies, memoire, responsabilite]
+    themes: [maelys-rive, colonies, memoire, responsabilite, pivot-personnel]
     fonction: confier-ou-partager-la-memoire-des-rallies-sans-rendre-maelys-obligatoire
     fenetre: couronne-seuil
     conditions:

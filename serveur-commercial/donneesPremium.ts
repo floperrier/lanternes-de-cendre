@@ -51,6 +51,8 @@ export const NOMS_D_ASSETS_PREMIUM = [
   "finale-ancrage-coeur.webp",
   "finale-reaccord-conflit.webp",
   "finale-precipitation-consequence.webp",
+  "epilogue-registre-rejets.webp",
+  "epilogue-dernier-tour.webp",
 ] as const;
 
 export const LIEUX_PREMIUM = [

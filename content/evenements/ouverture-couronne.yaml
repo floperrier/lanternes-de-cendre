@@ -2,7 +2,7 @@ version: 1
 evenements:
   - id: couronne.ouverture.le-diagnostic-des-verrous
     famille: mystere-des-phares
-    themes: [couronne-muette, noeud-central, diagnostic, reseau-ancien]
+    themes: [couronne-muette, noeud-central, diagnostic, reseau-ancien, revelation-garantie]
     fonction: reveler-comment-les-trois-montages-et-la-breche-affectent-le-noeud
     fenetre: couronne-ouverture
     conditions:
@@ -198,7 +198,7 @@ evenements:
 
   - id: couronne.ouverture.ilyana-maelys-et-la-clef
     famille: histoires-de-compagnons
-    themes: [ilyana-voss, maelys-rive, transmission, aucun-compagnon-obligatoire]
+    themes: [ilyana-voss, maelys-rive, transmission, aucun-compagnon-obligatoire, collectif-de-compagnons]
     fonction: transmettre-la-clef-sans-rendre-un-compagnon-obligatoire
     fenetre: couronne-ouverture
     conditions:

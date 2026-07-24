@@ -7,7 +7,7 @@ const ID =
   "finale.precipitation.la-derniere-negociation-des-bassins";
 
 describe("finale — Faire tomber la cendre", () => {
-  it("ajoute exactement une conséquence systémique au catalogue de 58 Événements", () => {
+  it("conserve exactement une conséquence de Précipitation dans le catalogue final", () => {
     const lot = catalogueDEvenements.evenements.filter(({ id }) =>
       id.startsWith("finale.precipitation."),
     );
@@ -22,7 +22,7 @@ describe("finale — Faire tomber la cendre", () => {
       "assigner-la-terre-des-sacrifies",
       "rompre-le-front-en-pluie-noire",
     ]);
-    expect(catalogueDEvenements.evenements).toHaveLength(58);
+    expect(catalogueDEvenements.evenements).toHaveLength(60);
   });
 
   it("nomme contrôle, victimes et dette environnementale dans les deux langues", () => {

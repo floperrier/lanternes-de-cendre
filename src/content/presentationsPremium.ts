@@ -283,6 +283,23 @@ export interface TextesDuContratFinal {
   readonly libelles: DictionnaireDeTextes;
 }
 
+export interface TextesDeLEpilogue {
+  readonly titre: string;
+  readonly eyebrow: string;
+  readonly introduction: string;
+  readonly revelation: string;
+  readonly libelles: DictionnaireDeTextes;
+  readonly axes: DictionnaireDeTextes;
+  readonly noms: DictionnaireDeTextes;
+  readonly statutsDeCompagnons: DictionnaireDeTextes;
+  readonly etats: DictionnaireDeTextes;
+  readonly liens: DictionnaireDeTextes;
+  readonly rancunes: DictionnaireDeTextes;
+  readonly reparations: DictionnaireDeTextes;
+  readonly causesDEtat: string;
+  readonly aucun: string;
+}
+
 export interface PresentationsPremium {
   readonly hautPuits: Readonly<Record<Langue, TextesDeHautPuits>>;
   readonly veilleBasse: Readonly<Record<Langue, TextesDeVeilleBasse>>;
@@ -304,6 +321,7 @@ export interface PresentationsPremium {
     Record<Langue, TextesDeLOuvertureDeLaCouronne>
   >;
   readonly finale?: Readonly<Record<Langue, TextesDuContratFinal>>;
+  readonly epilogue?: Readonly<Record<Langue, TextesDeLEpilogue>>;
   readonly deversoir?: Readonly<
     Record<
       Langue,
@@ -360,6 +378,16 @@ function estDictionnaireAvecCles(
       (cle) =>
         typeof valeur[cle] === "string" &&
         (valeur[cle] as string).length > 0,
+    )
+  );
+}
+
+function estDictionnaireDeTextesNonVide(valeur: unknown): boolean {
+  return (
+    estObjet(valeur) &&
+    Object.keys(valeur).length > 0 &&
+    Object.values(valeur).every(
+      (texte) => typeof texte === "string" && texte.length > 0,
     )
   );
 }
@@ -581,6 +609,76 @@ function estPresentationDuContratFinal(valeur: unknown): boolean {
   );
 }
 
+function estPresentationDeLEpilogue(valeur: unknown): boolean {
+  if (
+    !estObjet(valeur) ||
+    ![
+      "titre",
+      "eyebrow",
+      "introduction",
+      "revelation",
+      "causesDEtat",
+      "aucun",
+    ].every(
+      (champ) =>
+        typeof valeur[champ] === "string" &&
+        (valeur[champ] as string).length > 0,
+    )
+  ) {
+    return false;
+  }
+  if (
+    ![
+      "noms",
+      "statutsDeCompagnons",
+      "etats",
+      "liens",
+      "rancunes",
+      "reparations",
+    ].every((champ) =>
+      estDictionnaireDeTextesNonVide(valeur[champ]),
+    )
+  ) {
+    return false;
+  }
+  return [
+    [
+      "libelles",
+      [
+        "axes",
+        "sort-du-coeur",
+        "revelation",
+        "compagnons",
+        "colonies",
+        "sites",
+        "cohortes",
+        "factions",
+        "engagements",
+        "traces",
+        "statut",
+        "sante",
+        "projet",
+        "lien",
+        "rancune",
+        "causes",
+      ],
+    ],
+    [
+      "axes",
+      [
+        "stabilite-technique",
+        "controle-politique",
+        "cout-humain",
+      ],
+    ],
+  ].every(([champ, cles]) =>
+    estDictionnaireAvecCles(
+      valeur[champ as string],
+      cles as readonly string[],
+    ),
+  );
+}
+
 export function lirePresentationsPremium(): PresentationsPremium | null {
   return presentationsInstallees;
 }
@@ -667,6 +765,14 @@ export function installerPresentationsPremium(valeur: unknown): void {
         typeof evenement.id === "string" &&
         evenement.id.startsWith("finale."),
     );
+  const inclutEpilogue =
+    Array.isArray(evenements) &&
+    evenements.some(
+      (evenement) =>
+        estObjet(evenement) &&
+        typeof evenement.id === "string" &&
+        evenement.id.startsWith("epilogue."),
+    );
   const surfacesAttendues = [
     "hautPuits",
     "veilleBasse",
@@ -680,7 +786,8 @@ export function installerPresentationsPremium(valeur: unknown): void {
     ...(inclutOuvertureDeLaCouronne
       ? ["ouvertureCouronne"]
       : []),
-    ...(inclutFinale ? ["finale"] : []),
+    ...(inclutFinale || inclutEpilogue ? ["finale"] : []),
+    ...(inclutEpilogue ? ["epilogue"] : []),
   ];
   if (
     !estObjet(presentations) ||
@@ -696,6 +803,12 @@ export function installerPresentationsPremium(valeur: unknown): void {
               )
             : surface === "finale"
               ? estPresentationDuContratFinal(
+                  (presentations[surface] as Record<string, unknown>)[
+                    langue
+                  ],
+                )
+            : surface === "epilogue"
+              ? estPresentationDeLEpilogue(
                   (presentations[surface] as Record<string, unknown>)[
                     langue
                   ],

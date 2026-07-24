@@ -227,7 +227,7 @@ evenements:
 
   - id: trame.traverse-libre.maelys-et-le-manifeste
     famille: histoires-de-compagnons
-    themes: [maelys-rive, registre, connaissance]
+    themes: [maelys-rive, registre, connaissance, pivot-personnel]
     fonction: choisir-la-trace-politique-de-l-aide
     fenetre: traverse-libre
     conditions:
