@@ -279,9 +279,11 @@ export function projeterAtlas(
     veilleBasse: etat.veilleBasse,
     faits: etat.narration.faitsDeCampagne.map((fait) => fait.id),
   });
-  const ligneZeroAEtRelevee =
+  const ligneZeroEstAccessible =
     etat.narration.faitsDeCampagne.some(
-      (fait) => fait.id === "bassins.deversoir.ligne-zero-relevee",
+      (fait) =>
+        fait.id === "bassins.deversoir.ligne-zero-relevee" ||
+        fait.id === "bassins.deversoir.ligne-zero-preservee",
     );
   const tronconsAffiches =
     engagement === undefined
@@ -289,7 +291,7 @@ export function projeterAtlas(
           .filter(
             ({ troncon }) =>
               troncon.id !== "passage-de-la-ligne-zero" ||
-              ligneZeroAEtRelevee,
+              ligneZeroEstAccessible,
           )
           .map((possibilite) => ({
           ...possibilite,

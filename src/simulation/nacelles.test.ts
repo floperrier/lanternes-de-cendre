@@ -55,7 +55,7 @@ describe("liaison coûteuse des Nacelles", () => {
     ).toBe(true);
   });
 
-  it("garde la Ligne Zéro utile mais non obligatoire quand sa conduite est préservée", () => {
+  it("garde la Ligne Zéro accessible sans la rendre obligatoire quand sa conduite est préservée", () => {
     const passagePrepare = ["bassins.deversoir.passage-prepare"];
 
     expect(
@@ -67,7 +67,7 @@ describe("liaison coûteuse des Nacelles", () => {
           "bassins.deversoir.ligne-zero-preservee",
         ],
       ),
-    ).toBe(false);
+    ).toBe(true);
     expect(
       routeAvalDesBassinsEstPreparee(
         "piste-des-levees",
@@ -86,6 +86,37 @@ describe("liaison coûteuse des Nacelles", () => {
           ...passagePrepare,
           "bassins.deversoir.ligne-zero-relevee",
         ],
+      ),
+    ).toBe(true);
+  });
+
+  it("attend le Fait terminal de branche avant une sortie directe vers Signal-Zéro", () => {
+    expect(
+      routeAvalDesBassinsEstPreparee(
+        "rocade-des-regulateurs",
+        "trame.grand-aiguillage.ilyana-et-l-attelage",
+        ["trame.grand-aiguillage.train-outil-annonce"],
+      ),
+    ).toBe(false);
+    expect(
+      routeAvalDesBassinsEstPreparee(
+        "rocade-des-regulateurs",
+        null,
+        [],
+      ),
+    ).toBe(false);
+    expect(
+      routeAvalDesBassinsEstPreparee(
+        "rocade-des-regulateurs",
+        null,
+        ["trame.grand-aiguillage.attelage-federe-annonce"],
+      ),
+    ).toBe(true);
+    expect(
+      routeAvalDesBassinsEstPreparee(
+        "derivation-des-puits",
+        null,
+        ["trame.traverse-libre.manifeste-public"],
       ),
     ).toBe(true);
   });

@@ -183,4 +183,33 @@ describe("projection de l’Atlas", () => {
     });
     expect(JSON.stringify(nacelles)).not.toContain('"degrade"');
   });
+
+  it("affiche la Ligne Zéro lorsque sa conduite a été préservée", () => {
+    const initial = creerCampagneInitiale("CENDRE-LIGNE-ZERO");
+    const fait = (id: string) => ({
+      id,
+      cause: "bassins.deversoir.la-conduite-zero",
+      acteurs: ["porte-lanterne"],
+      cible: "ligne-zero",
+      moment: 460,
+      effets: { materiels: [], humains: [] },
+    });
+    const projection = projeterAtlas({
+      ...initial,
+      routes: { ...initial.routes, position: "deversoir-noir" },
+      narration: {
+        ...initial.narration,
+        faitsDeCampagne: [
+          fait("bassins.deversoir.passage-prepare"),
+          fait("bassins.deversoir.ligne-zero-preservee"),
+        ],
+      },
+    });
+
+    expect(
+      projection.troncons.find(
+        ({ id }) => id === "passage-de-la-ligne-zero",
+      ),
+    ).toMatchObject({ engageable: true });
+  });
 });

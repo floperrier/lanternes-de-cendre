@@ -8005,7 +8005,13 @@ export default {
             "type": "un-des-faits-present",
             "faits": [
               "trame.marche.filtres-sans-marque-acquis",
-              "trame.marche.trace-bascule-clandestine"
+              "trame.marche.trace-bascule-clandestine",
+              "trame.grand-aiguillage.train-outil-annonce",
+              "trame.grand-aiguillage.reparation-locale-ouverte",
+              "trame.grand-aiguillage.attelage-federe-annonce",
+              "trame.traverse-libre.galerie-etayee",
+              "trame.traverse-libre.contournement-ouvert",
+              "trame.traverse-libre.manifeste-public"
             ]
           }
         ],
@@ -8028,6 +8034,12 @@ export default {
       "faitsLus": [
         "trame.marche.filtres-sans-marque-acquis",
         "trame.marche.trace-bascule-clandestine",
+        "trame.grand-aiguillage.train-outil-annonce",
+        "trame.grand-aiguillage.reparation-locale-ouverte",
+        "trame.grand-aiguillage.attelage-federe-annonce",
+        "trame.traverse-libre.galerie-etayee",
+        "trame.traverse-libre.contournement-ouvert",
+        "trame.traverse-libre.manifeste-public",
         "bassins.deversoir.ligne-zero-relevee"
       ],
       "choix": [

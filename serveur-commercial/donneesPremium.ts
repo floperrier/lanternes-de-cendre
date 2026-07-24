@@ -1029,10 +1029,6 @@ export const TRONCONS_PREMIUM = [
     originesAutorisees: ["grand-aiguillage"],
     engagementsPrealables: [
       {
-        tronconId: "voie-des-contremaitres",
-        destination: "barriere-neuve",
-      },
-      {
         tronconId: "voie-des-ponts-lourds",
         destination: "grand-aiguillage",
       },
@@ -1088,10 +1084,6 @@ export const TRONCONS_PREMIUM = [
     extremites: ["traverse-libre", "signal-zero"],
     originesAutorisees: ["traverse-libre"],
     engagementsPrealables: [
-      {
-        tronconId: "traverse-des-porteurs",
-        destination: "pompe-neuve",
-      },
       {
         tronconId: "galerie-des-reservoirs",
         destination: "traverse-libre",

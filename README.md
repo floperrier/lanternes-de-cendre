@@ -43,6 +43,10 @@ Cette commande exécute le typage, le lint, les tests Node et Chromium, puis le
 build de production. Le même contrôle est lancé par GitHub Actions à chaque
 push et sur chaque pull request.
 
+Les matrices standard et nocturne, les métriques et le rejeu exact entre deux
+versions de règles sont décrits dans
+[`docs/equilibrage-headless.md`](docs/equilibrage-headless.md).
+
 ## Produire des sprites
 
 Le catalogue déclaratif, les commandes de génération et la procédure

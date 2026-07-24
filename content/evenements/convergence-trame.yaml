@@ -134,6 +134,12 @@ evenements:
           faits:
             - trame.marche.filtres-sans-marque-acquis
             - trame.marche.trace-bascule-clandestine
+            - trame.grand-aiguillage.train-outil-annonce
+            - trame.grand-aiguillage.reparation-locale-ouverte
+            - trame.grand-aiguillage.attelage-federe-annonce
+            - trame.traverse-libre.galerie-etayee
+            - trame.traverse-libre.contournement-ouvert
+            - trame.traverse-libre.manifeste-public
       interdites: []
     periode_eligibilite: { debut: 1200, fin: 2147483647 }
     priorite: 130
@@ -149,6 +155,12 @@ evenements:
     faits_lus:
       - trame.marche.filtres-sans-marque-acquis
       - trame.marche.trace-bascule-clandestine
+      - trame.grand-aiguillage.train-outil-annonce
+      - trame.grand-aiguillage.reparation-locale-ouverte
+      - trame.grand-aiguillage.attelage-federe-annonce
+      - trame.traverse-libre.galerie-etayee
+      - trame.traverse-libre.contournement-ouvert
+      - trame.traverse-libre.manifeste-public
       - bassins.deversoir.ligne-zero-relevee
     choix:
       - id: lire-frequence-du-rail

@@ -378,6 +378,10 @@ describe("Engagement de route", () => {
           tronconId: "rocade-du-marche",
           destination: "marche-des-traverses",
         },
+        {
+          tronconId: "rocade-des-regulateurs",
+          destination: "signal-zero",
+        },
       ]);
     },
   );

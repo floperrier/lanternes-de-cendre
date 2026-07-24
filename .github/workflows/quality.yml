@@ -3,12 +3,15 @@ name: Qualité
 on:
   push:
   pull_request:
+  schedule:
+    - cron: "17 2 * * *"
 
 permissions:
   contents: read
 
 jobs:
   verifier:
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     timeout-minutes: 25
 
@@ -30,3 +33,38 @@ jobs:
 
       - name: Vérifier typage, qualité, tests et build
         run: npm run check
+
+      - name: Conserver le rapport d’équilibrage standard
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: equilibrage-standard
+          path: artifacts/equilibrage/standard.json
+
+  equilibrage-nocturne:
+    if: github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+
+      - name: Installer Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Installer les dépendances
+        run: npm ci
+
+      - name: Simuler 2 048 Graines par stratégie
+        run: npm run equilibrage:nightly
+
+      - name: Conserver le rapport d’équilibrage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: equilibrage-nocturne
+          path: artifacts/equilibrage/nocturne.json

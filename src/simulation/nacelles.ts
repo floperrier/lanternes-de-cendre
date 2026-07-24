@@ -167,6 +167,16 @@ const FAITS_DE_TRACE_RESOLUE_A_SIGNAL_ZERO = [
   "trame.signal-zero.trace-sous-scelles",
   "trame.signal-zero.trace-transmise",
 ] as const;
+const FAITS_TERMINAUX_DU_GRAND_AIGUILLAGE = [
+  "trame.grand-aiguillage.train-outil-annonce",
+  "trame.grand-aiguillage.reparation-locale-ouverte",
+  "trame.grand-aiguillage.attelage-federe-annonce",
+] as const;
+const FAITS_TERMINAUX_DE_TRAVERSE_LIBRE = [
+  "trame.traverse-libre.galerie-etayee",
+  "trame.traverse-libre.contournement-ouvert",
+  "trame.traverse-libre.manifeste-public",
+] as const;
 
 function signalZeroEstAcheve(faits: readonly string[]): boolean {
   return (
@@ -193,6 +203,8 @@ export function routeAvalDesBassinsEstPreparee(
     tronconId !== "conduite-du-deversoir" &&
     tronconId !== "passage-de-la-ligne-zero" &&
     tronconId !== "piste-des-levees" &&
+    tronconId !== "rocade-des-regulateurs" &&
+    tronconId !== "derivation-des-puits" &&
     tronconId !== "faisceau-de-l-aiguillage-zero" &&
     tronconId !== "passage-de-la-couronne-muette" &&
     tronconId !== "voie-de-tete-de-ligne" &&
@@ -212,7 +224,8 @@ export function routeAvalDesBassinsEstPreparee(
   }
   if (
     tronconId === "passage-de-la-ligne-zero" &&
-    !faits.includes("bassins.deversoir.ligne-zero-relevee")
+    !faits.includes("bassins.deversoir.ligne-zero-relevee") &&
+    !faits.includes("bassins.deversoir.ligne-zero-preservee")
   ) {
     return false;
   }
@@ -245,6 +258,10 @@ export function routeAvalDesBassinsEstPreparee(
           ? FAITS_D_ACCORD_DU_RELAIS
           : tronconId === "passage-de-la-couronne-muette"
             ? FAITS_DE_PASSAGE_VERS_LA_COURONNE
+          : tronconId === "rocade-des-regulateurs"
+            ? FAITS_TERMINAUX_DU_GRAND_AIGUILLAGE
+          : tronconId === "derivation-des-puits"
+            ? FAITS_TERMINAUX_DE_TRAVERSE_LIBRE
           : tronconId === "voie-de-tete-de-ligne" ||
               tronconId === "chemin-des-trois-veilles" ||
               tronconId === "piste-des-serres-de-verre"

@@ -12,3 +12,4 @@ test-results/
 art/sprites/work/
 .playwright-cli/
 output/playwright/
+artifacts/equilibrage/

@@ -432,7 +432,8 @@ export function engagementsDuDeversoirSontCausaux(
         (engagement.tronconId !== "passage-de-la-ligne-zero" ||
           faits.some(
             (fait) =>
-              fait.id === "bassins.deversoir.ligne-zero-relevee" &&
+              (fait.id === "bassins.deversoir.ligne-zero-relevee" ||
+                fait.id === "bassins.deversoir.ligne-zero-preservee") &&
               fait.moment <= engagement.engageA,
           )))
     );
