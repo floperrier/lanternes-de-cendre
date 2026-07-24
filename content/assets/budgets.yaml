@@ -1,0 +1,21 @@
+version: 1
+limites:
+  shell_octets: 4194304
+  premiere_scene_octets: 12582912
+  bundle_regional_octets: 31457280
+  cache_complet_octets: 157286400
+  textures_actives_decodees_octets: 268435456
+  atlas_dimension_preferee: 2048
+  atlas_dimension_maximale: 4096
+  premiere_scene_secondes: 15
+  images_par_seconde_cible: 60
+  images_par_seconde_minimales: 55
+  commande_interface_millisecondes: 250
+  scenarios_sentinelles_millisecondes: 3000
+derogations:
+  - id: revue-humaine-assets-0.1.0
+    regle: approbation-assets
+    version_cible: 0.1.0
+    inventaire_sha256: "854931eb6cf51ce3cc587d14d6c8856858ac25a450dbda72d072420476260d8e"
+    suivi: "GitHub #53"
+    justification: "Les productions visuelles générées et leur provenance sont figées, mais leur approbation humaine reste attendue avant la version suivante."

@@ -41,6 +41,13 @@ jobs:
           name: equilibrage-standard
           path: artifacts/equilibrage/standard.json
 
+      - name: Conserver les rapports de budgets et performance
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: budgets-campagne
+          path: artifacts/budgets/
+
   equilibrage-nocturne:
     if: github.event_name == 'schedule'
     runs-on: ubuntu-latest

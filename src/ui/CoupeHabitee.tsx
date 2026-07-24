@@ -32,6 +32,10 @@ export function CoupeHabitee({
   vitesse,
 }: PropsCoupeHabitee) {
   const conteneurRef = useRef<HTMLDivElement>(null);
+  const vitesseRef = useRef(vitesse);
+  useEffect(() => {
+    vitesseRef.current = vitesse;
+  }, [vitesse]);
   const nombreInstallations = decoderImplantation(implantation).reduce(
     (total, plateforme) =>
       total + plateforme.emplacements.filter((etat) => etat === "1").length,
@@ -50,6 +54,9 @@ export function CoupeHabitee({
     let detruite = false;
     let observateur: ResizeObserver | null = null;
     let redimensionnementProgramme: number | null = null;
+    let debutMesureRendu: number | null = null;
+    let intervallesDeRendu: number[] = [];
+    let echantillonDeRendu = 0;
 
     const detruireApplication = () => {
       if (initialisee && !detruite) {
@@ -70,6 +77,9 @@ export function CoupeHabitee({
         width: Math.max(1, conteneur.clientWidth),
         height: Math.max(1, conteneur.clientHeight),
       });
+      // Une marge d’un i/s évite que les écrans 120 Hz sautent trois
+      // rafraîchissements à cause des arrondis du cadenceur Pixi.
+      application.ticker.maxFPS = 61;
       initialisee = true;
 
       if (annule) {
@@ -252,6 +262,36 @@ export function CoupeHabitee({
       observateur.observe(conteneur);
 
       const animerPresentation = (ticker: Ticker) => {
+        if (debutMesureRendu === null) {
+          debutMesureRendu = ticker.lastTime;
+        } else {
+          intervallesDeRendu.push(ticker.deltaMS);
+          const dureeMesuree = ticker.lastTime - debutMesureRendu;
+          if (dureeMesuree >= 1_000 && intervallesDeRendu.length > 0) {
+            const intervallesTries = [...intervallesDeRendu].sort(
+              (gauche, droite) => gauche - droite,
+            );
+            const percentile = (ratio: number) =>
+              intervallesTries[
+                Math.min(
+                  intervallesTries.length - 1,
+                  Math.floor(intervallesTries.length * ratio),
+                )
+              ]!;
+            conteneur.dataset.renderFps = (
+              (intervallesDeRendu.length * 1_000) /
+              dureeMesuree
+            ).toFixed(2);
+            conteneur.dataset.renderFrameMedianMs =
+              percentile(0.5).toFixed(2);
+            conteneur.dataset.renderFrameP95Ms =
+              percentile(0.95).toFixed(2);
+            echantillonDeRendu += 1;
+            conteneur.dataset.renderSample = String(echantillonDeRendu);
+            debutMesureRendu = ticker.lastTime;
+            intervallesDeRendu = [];
+          }
+        }
         if (
           largeurPrecedente !== application.screen.width ||
           hauteurPrecedente !== application.screen.height
@@ -261,7 +301,9 @@ export function CoupeHabitee({
 
         if (!mouvementReduit) {
           const souffle = Math.sin(ticker.lastTime / 2_800);
-          const facteurVitesse = vitesse === 0 ? 0.18 : vitesse;
+          const vitesseCourante = vitesseRef.current;
+          const facteurVitesse =
+            vitesseCourante === 0 ? 0.18 : vitesseCourante;
           scene.x +=
             (baseX + parallaxeX * 5 - scene.x) *
             Math.min(1, 0.045 * ticker.deltaTime);
@@ -317,10 +359,14 @@ export function CoupeHabitee({
       }
       if (conteneur !== null) {
         delete conteneur.dataset.ready;
+        delete conteneur.dataset.renderFps;
+        delete conteneur.dataset.renderFrameMedianMs;
+        delete conteneur.dataset.renderFrameP95Ms;
+        delete conteneur.dataset.renderSample;
       }
       detruireApplication();
     };
-  }, [chantierActif, implantation, vitesse]);
+  }, [chantierActif, implantation]);
 
   return (
     <div

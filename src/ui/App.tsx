@@ -25,6 +25,7 @@ import { projeterContratFinal } from "../application/finale";
 import { projeterEpilogue } from "../application/epilogue";
 import type { Langue } from "../content/types";
 import { criseAttendSonCheckpoint } from "../simulation/crise";
+import { gestionnaireDeBundlesCampagne } from "../assets/bundles";
 import {
   type ControleurDeSessionCampagne,
   type EtatDuControleurDeSession,
@@ -131,6 +132,18 @@ function CampagnePersistante({
   });
   const jalonDeDemonstrationAffiche =
     surfacePrioritaire === "jalon-demonstration";
+
+  useEffect(() => {
+    gestionnaireDeBundlesCampagne.synchroniser(
+      etat.routes.position,
+      accesPremiumActif,
+    );
+  }, [accesPremiumActif, etat.routes.position]);
+
+  useEffect(
+    () => () => gestionnaireDeBundlesCampagne.arreter(),
+    [],
+  );
 
   useEffect(() => {
     let dernierInstant = Math.floor(Date.now() / 1_000) * 1_000;

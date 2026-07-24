@@ -1,0 +1,15 @@
+{
+  "asset": "public/assets/ui/lanterne.svg",
+  "sha256": "64b2902496e6f41d81b2df225815ecb139201da39d4f7427b144a8777e006b30",
+  "createdAt": "2026-07-21",
+  "tool": "human-authored SVG",
+  "model": "none",
+  "useCase": "application-icon",
+  "input": "Palette and lantern motif of Les Lanternes de Cendre.",
+  "prompt": "Compact vector lantern mark without text.",
+  "rights": "Original project artwork — all rights held by the repository owner",
+  "approval": {
+    "status": "pending-pull-request-review",
+    "reviewer": null
+  }
+}

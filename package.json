@@ -9,7 +9,8 @@
   "scripts": {
     "content:compile": "tsx scripts/compiler-contenu.ts",
     "dev": "npm run content:compile && vite",
-    "build": "npm run content:compile && tsc -b && vite build",
+    "build:app": "npm run content:compile && tsc -b && vite build",
+    "build": "npm run build:app && npm run budgets:check",
     "typecheck": "npm run content:compile && tsc -b --pretty false",
     "lint": "eslint . --max-warnings 0",
     "test": "npm run content:compile && vitest run",
@@ -18,13 +19,15 @@
     "equilibrage:check": "tsx scripts/equilibrage-campagne.ts --graines 256 --comparer-version-precedente --resume artifacts/equilibrage/standard.json",
     "equilibrage:nightly": "tsx scripts/equilibrage-campagne.ts --nocturne --resume artifacts/equilibrage/nocturne.json",
     "test:bundle-boundary": "tsx scripts/verifier-frontiere-premium.ts",
+    "budgets:check": "tsx scripts/budgets-campagne.ts",
+    "performance:check": "tsx scripts/performance-campagne.ts",
     "sprites:draft": "tsx scripts/sprites/cli.ts draft",
     "sprites:ingest": "tsx scripts/sprites/cli.ts ingest",
     "sprites:process": "tsx scripts/sprites/cli.ts process",
     "sprites:preview": "tsx scripts/sprites/cli.ts preview",
     "sprites:publish": "tsx scripts/sprites/cli.ts publish",
     "sprites:check": "tsx scripts/sprites/cli.ts check",
-    "check": "npm run typecheck && npm run lint && npm run sprites:check && npm run test && npm run scenarios:check && npm run equilibrage:check && npm run test:e2e && npm run build && npm run test:bundle-boundary"
+    "check": "npm run typecheck && npm run lint && npm run sprites:check && npm run test && npm run scenarios:check && npm run equilibrage:check && npm run test:e2e && npm run build && npm run performance:check && npm run test:bundle-boundary"
   },
   "dependencies": {
     "@fontsource/cormorant-garamond": "^5.3.0",

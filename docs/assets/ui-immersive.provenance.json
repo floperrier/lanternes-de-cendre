@@ -3,6 +3,10 @@
   "tool": "OpenAI built-in imagegen",
   "mode": "project-bound built-in generation",
   "rights": "OpenAI Terms of Use — output assigned to the user",
+  "approval": {
+    "status": "pending-pull-request-review",
+    "reviewer": null
+  },
   "assets": [
     {
       "asset": "public/assets/ui/metal-cendre.webp",

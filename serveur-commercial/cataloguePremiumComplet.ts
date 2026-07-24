@@ -5,6 +5,7 @@ import {
   TRONCONS_PREMIUM,
 } from "./donneesPremium";
 import { PRESENTATIONS_PREMIUM } from "./presentationsPremium";
+import { BUNDLES_PREMIUM } from "./bundlesPremium";
 
 export const NOMS_D_ASSETS_PREMIUM: ReadonlySet<string> = new Set(
   NOMS_D_ASSETS_PREMIUM_LISTE,
@@ -19,5 +20,6 @@ export const CONTENU_PREMIUM_V1 = {
     conseils: catalogueNarratif.conseils,
     libellesTransversaux: catalogueNarratif.libellesTransversaux,
     presentations: PRESENTATIONS_PREMIUM,
+    bundles: BUNDLES_PREMIUM,
   },
 } as const;

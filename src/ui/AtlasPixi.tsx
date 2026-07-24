@@ -260,6 +260,7 @@ export function AtlasPixi({ projection }: AtlasPixiProps) {
         width: Math.max(1, conteneur.clientWidth),
         height: Math.max(1, conteneur.clientHeight),
       });
+      application.ticker.maxFPS = 61;
       initialisee = true;
       if (annule) {
         detruireApplication();

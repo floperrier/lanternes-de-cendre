@@ -52,6 +52,9 @@ export default defineConfig(({ mode }) => {
               },
       }),
     ],
+    build: {
+      manifest: true,
+    },
     test: {
       environment: "node",
       setupFiles: ["./tests/support/initialiser.ts"],
