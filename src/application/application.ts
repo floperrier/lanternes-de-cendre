@@ -12,6 +12,7 @@ import {
   type GraineDeCampagne,
   type VitesseDuConvoi,
 } from "../simulation/campagne";
+import { decrireCoutDeLAiguillageZero } from "./aiguillageZero";
 import { calculerDevenirsDesSitesDesBassins } from "../simulation/sites";
 
 export interface ProjectionEvenementNarratif {
@@ -348,10 +349,14 @@ function projeterEvenementNarratif(
             (etat.hautPuits.projetRegional?.statut === "retenu" &&
               etat.pilotage.economie.stocks.materiaux.quantite >=
                 12)) &&
-          (!evenement.id.startsWith("trame.marche.") ||
+          (!(
+            evenement.id.startsWith("trame.marche.") ||
+            evenement.id ===
+              "trame.aiguillage-zero.le-conseil-des-voies"
+          ) ||
             choixNarratifEstDisponible(etat, evenement.id, {
               id: choix.id,
-              effets: [],
+              effets: choix.effets,
             })),
       )
       .map((choix) => {
@@ -370,9 +375,22 @@ function projeterEvenementNarratif(
         return {
           id: choix.id,
           intention: rendreTexte(textesDuChoix.intention, contexte),
-          coutsConnus: textesDuChoix.coutsConnus.map((cout) =>
-            rendreTexte(cout, contexte),
-          ),
+          coutsConnus:
+            evenement.id ===
+            "trame.aiguillage-zero.le-conseil-des-voies"
+              ? [
+                  decrireCoutDeLAiguillageZero(
+                    etat,
+                    choix.id,
+                    langue,
+                  ) ??
+                    textesDuChoix.coutsConnus
+                      .map((cout) => rendreTexte(cout, contexte))
+                      .join(" "),
+                ]
+              : textesDuChoix.coutsConnus.map((cout) =>
+                  rendreTexte(cout, contexte),
+                ),
           ...(evenement.id.startsWith("trame.")
             ? {
                 disponible,

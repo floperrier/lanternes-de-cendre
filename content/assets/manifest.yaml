@@ -180,3 +180,18 @@ assets:
     alternative: evenement.convergence.ilyana.asset.alt
     contient_texte: false
     provenance: docs/assets/trame-signal-ilyana.provenance.json
+  - id: trame.aiguillage-zero.la-piece-et-le-coeur-mobile
+    fichier: /api/commercial/assets/trame-aiguillage-revelation.webp
+    alternative: evenement.aiguillage.revelation.asset.alt
+    contient_texte: false
+    provenance: docs/assets/trame-aiguillage-revelation.provenance.json
+  - id: trame.aiguillage-zero.le-conseil-des-voies
+    fichier: /api/commercial/assets/trame-aiguillage-conseil.webp
+    alternative: evenement.aiguillage.conseil.asset.alt
+    contient_texte: false
+    provenance: docs/assets/trame-aiguillage-conseil.provenance.json
+  - id: trame.aiguillage-zero.le-passage-de-la-couronne
+    fichier: /api/commercial/assets/trame-aiguillage-passage.webp
+    alternative: evenement.aiguillage.passage.asset.alt
+    contient_texte: false
+    provenance: docs/assets/trame-aiguillage-passage.provenance.json

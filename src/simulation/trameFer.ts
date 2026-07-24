@@ -9,12 +9,18 @@ export type IdentifiantDEngagementDeLaTrame =
   | "taxe-des-lanternes"
   | "priorite-aux-requisitions"
   | "controle-de-pompe-neuve"
-  | "service-lourd-du-train-outil";
+  | "service-lourd-du-train-outil"
+  | "monopole-de-l-aiguillage-zero"
+  | "charte-de-circulation-partagee"
+  | "transport-autonome-aiguillage-zero";
 
 export interface EngagementDeLaTrame {
   readonly id: IdentifiantDEngagementDeLaTrame;
   readonly prisA: number;
-  readonly avec: "republique-du-rail" | "ateliers-grand-aiguillage";
+  readonly avec:
+    | "republique-du-rail"
+    | "ateliers-grand-aiguillage"
+    | "puits-libres";
   readonly statut: "actif";
 }
 
@@ -306,6 +312,48 @@ export function appliquerDecisionDeLaTrameDeFer(
     );
   }
 
+  if (evenementId === "trame.aiguillage-zero.le-conseil-des-voies") {
+    if (choixId === "accorder-monopole") {
+      return ajouterEngagement(
+        { ...etat, relationRepublique: "cooperative" },
+        {
+          id: "monopole-de-l-aiguillage-zero",
+          prisA: moment,
+          avec: "republique-du-rail",
+          statut: "actif",
+        },
+      );
+    }
+    if (choixId === "etablir-charte") {
+      return ajouterEngagement(
+        { ...etat, relationRepublique: "cooperative" },
+        {
+          id: "charte-de-circulation-partagee",
+          prisA: moment,
+          avec:
+            etat.grandAiguillage.statut === "atelier-negocie"
+              ? "ateliers-grand-aiguillage"
+              : "puits-libres",
+          statut: "actif",
+        },
+      );
+    }
+    if (choixId === "soustraire-piece") {
+      return { ...etat, relationRepublique: "fermee" };
+    }
+    if (choixId === "assurer-transport-autonome") {
+      return ajouterEngagement(
+        { ...etat, relationRepublique: "transactionnelle" },
+        {
+          id: "transport-autonome-aiguillage-zero",
+          prisA: moment,
+          avec: "puits-libres",
+          statut: "actif",
+        },
+      );
+    }
+  }
+
   return etat;
 }
 
@@ -373,6 +421,22 @@ const DECISION_PAR_FAIT = {
   "trame.traverse-libre.registre-scelle": [
     "trame.traverse-libre.maelys-et-le-manifeste",
     "sceller-registre",
+  ],
+  "trame.aiguillage-zero.monopole-republicain": [
+    "trame.aiguillage-zero.le-conseil-des-voies",
+    "accorder-monopole",
+  ],
+  "trame.aiguillage-zero.charte-partagee": [
+    "trame.aiguillage-zero.le-conseil-des-voies",
+    "etablir-charte",
+  ],
+  "trame.aiguillage-zero.piece-soustraite": [
+    "trame.aiguillage-zero.le-conseil-des-voies",
+    "soustraire-piece",
+  ],
+  "trame.aiguillage-zero.transport-autonome": [
+    "trame.aiguillage-zero.le-conseil-des-voies",
+    "assurer-transport-autonome",
   ],
 } as const;
 

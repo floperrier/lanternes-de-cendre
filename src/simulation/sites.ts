@@ -12,6 +12,15 @@ export interface DevenirsDesSitesDesBassins {
   readonly vanniers: DevenirDeSite;
   readonly hospiceDuSillon: DevenirDeSite;
   readonly nacelles: DevenirDeSite;
+  readonly trameDeFer?: DevenirsDesSitesDeLaTrame;
+}
+
+export interface DevenirsDesSitesDeLaTrame {
+  readonly barriereNeuve: DevenirDeSite;
+  readonly dortoirDixSept: DevenirDeSite;
+  readonly pompeNeuve: DevenirDeSite;
+  readonly marcheDesTraverses: DevenirDeSite;
+  readonly signalZero: DevenirDeSite;
 }
 
 export function calculerDevenirsDesSitesDesBassins(contexte: {
@@ -52,5 +61,49 @@ export function calculerDevenirsDesSitesDesBassins(contexte: {
             ? "actif"
             : "abandonne",
     nacelles: nacellesRencontrees ? "actif" : "abandonne",
+  };
+}
+
+export function calculerDevenirsDesSitesDeLaTrame(contexte: {
+  readonly routes: EtatDesRoutes;
+  readonly faits: readonly string[];
+}): DevenirsDesSitesDeLaTrame {
+  const lieuxParcourus = new Set([
+    contexte.routes.position,
+    ...contexte.routes.engagements.flatMap(({ origine, destination }) => [
+      origine,
+      destination,
+    ]),
+  ]);
+  const tronconsParcourus = new Set(
+    contexte.routes.engagements.map(({ tronconId }) => tronconId),
+  );
+  const aJoueUnEvenementDe = (prefixe: string) =>
+    contexte.faits.some((id) => id.startsWith(prefixe));
+
+  return {
+    barriereNeuve:
+      lieuxParcourus.has("barriere-neuve") ||
+      aJoueUnEvenementDe("trame.barriere-neuve.")
+        ? "actif"
+        : "abandonne",
+    dortoirDixSept: tronconsParcourus.has("voie-des-ponts-lourds")
+      ? "actif"
+      : "abandonne",
+    pompeNeuve:
+      lieuxParcourus.has("pompe-neuve") ||
+      aJoueUnEvenementDe("trame.pompe-neuve.")
+        ? "actif"
+        : "abandonne",
+    marcheDesTraverses:
+      lieuxParcourus.has("marche-des-traverses") ||
+      aJoueUnEvenementDe("trame.marche.")
+        ? "actif"
+        : "abandonne",
+    signalZero:
+      lieuxParcourus.has("signal-zero") ||
+      aJoueUnEvenementDe("trame.signal-zero.")
+        ? "actif"
+        : "abandonne",
   };
 }

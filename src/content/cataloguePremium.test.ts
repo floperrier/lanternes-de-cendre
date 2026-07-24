@@ -90,4 +90,43 @@ describe("installation du contenu narratif premium", () => {
       }),
     ).not.toThrow();
   });
+
+  it("exige la présentation du climax pour un lot Aiguillage Zéro", () => {
+    const presentationsDeTrame = {
+      hautPuits: PRESENTATIONS_VALIDES.hautPuits,
+      veilleBasse: PRESENTATIONS_VALIDES.veilleBasse,
+      trame: {
+        fr: { titre: "Trame de Fer" },
+        en: { titre: "Iron Weave" },
+      },
+    };
+    const lotAiguillage = {
+      version: 1,
+      catalogue: {
+        evenements: [
+          { id: "trame.aiguillage-zero.le-conseil-des-voies" },
+        ],
+        presentations: presentationsDeTrame,
+      },
+    };
+
+    expect(() =>
+      installerPresentationsPremium(lotAiguillage),
+    ).toThrow("presentations-premium-invalides");
+    expect(() =>
+      installerPresentationsPremium({
+        ...lotAiguillage,
+        catalogue: {
+          ...lotAiguillage.catalogue,
+          presentations: {
+            ...presentationsDeTrame,
+            aiguillage: {
+              fr: { titre: "Aiguillage Zéro" },
+              en: { titre: "Zero Junction" },
+            },
+          },
+        },
+      }),
+    ).not.toThrow();
+  });
 });

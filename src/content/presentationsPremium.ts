@@ -164,6 +164,29 @@ export interface TextesDeConvergenceDeLaTrame {
   };
 }
 
+export interface TextesDeLAiguillageZero {
+  readonly titre: string;
+  readonly eyebrow: string;
+  readonly solutions: DictionnaireDeTextes;
+  readonly nomsDesSites: DictionnaireDeTextes;
+  readonly devenirsDeSites: DictionnaireDeTextes;
+  readonly formats: {
+    readonly grandAiguillage: string;
+    readonly traverseLibre: string;
+    readonly sites: string;
+    readonly routesOuvertes: string;
+    readonly routesFermees: string;
+    readonly relations: string;
+    readonly echoPlanifie: string;
+    readonly echoAConsigner: string;
+    readonly detteTransport: string;
+  };
+  readonly soupcons: DictionnaireDeTextes;
+  readonly aucunEngagement: string;
+  readonly libelles: DictionnaireDeTextes;
+  readonly couts: DictionnaireDeTextes;
+}
+
 export interface PresentationsPremium {
   readonly hautPuits: Readonly<Record<Langue, TextesDeHautPuits>>;
   readonly veilleBasse: Readonly<Record<Langue, TextesDeVeilleBasse>>;
@@ -171,6 +194,9 @@ export interface PresentationsPremium {
   readonly traverse?: Readonly<Record<Langue, TextesDeTraverseLibre>>;
   readonly convergence?: Readonly<
     Record<Langue, TextesDeConvergenceDeLaTrame>
+  >;
+  readonly aiguillage?: Readonly<
+    Record<Langue, TextesDeLAiguillageZero>
   >;
   readonly deversoir?: Readonly<
     Record<
@@ -262,6 +288,14 @@ export function installerPresentationsPremium(valeur: unknown): void {
         (evenement.id.startsWith("trame.marche.") ||
           evenement.id.startsWith("trame.signal-zero.")),
     );
+  const inclutAiguillage =
+    Array.isArray(evenements) &&
+    evenements.some(
+      (evenement) =>
+        estObjet(evenement) &&
+        typeof evenement.id === "string" &&
+        evenement.id.startsWith("trame.aiguillage-zero."),
+    );
   const surfacesAttendues = [
     "hautPuits",
     "veilleBasse",
@@ -269,6 +303,7 @@ export function installerPresentationsPremium(valeur: unknown): void {
     ...(inclutLaTrame ? ["trame"] : []),
     ...(inclutTraverse ? ["traverse"] : []),
     ...(inclutConvergence ? ["convergence"] : []),
+    ...(inclutAiguillage ? ["aiguillage"] : []),
   ];
   if (
     !estObjet(presentations) ||

@@ -8944,6 +8944,1004 @@ export default {
           }
         }
       }
+    },
+    {
+      "id": "trame.aiguillage-zero.la-piece-et-le-coeur-mobile",
+      "famille": "mystere-des-phares",
+      "themes": [
+        "aiguillage-zero",
+        "ligne-zero",
+        "piece-de-regulation",
+        "revelation"
+      ],
+      "fonction": "reveler-que-la-piece-regle-un-coeur-mobile-et-n-est-pas-un-trophee",
+      "fenetre": "aiguillage-zero",
+      "conditions": {
+        "requises": [
+          {
+            "type": "lieu-present",
+            "lieu": "aiguillage-zero"
+          }
+        ],
+        "interdites": []
+      },
+      "periodeEligibilite": {
+        "debut": 1200,
+        "fin": 2147483647
+      },
+      "priorite": 170,
+      "epuisement": "unique",
+      "acteurs": [
+        "porte-lanterne",
+        "techniciens-signal-zero",
+        "piece-de-regulation",
+        "conseil-de-l-aiguillage-zero"
+      ],
+      "sourcesInformations": [
+        "techniciens-signal-zero"
+      ],
+      "faitsLus": [
+        "bassins.deversoir.ligne-zero-relevee"
+      ],
+      "choix": [
+        {
+          "id": "relever-portees",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "trame.aiguillage-zero.portees-relevees",
+              "cible": "coeur-mobile-de-l-aiguillage"
+            }
+          ]
+        },
+        {
+          "id": "tester-sequence",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "trame.aiguillage-zero.sequence-verifiee",
+              "cible": "coeur-mobile-de-l-aiguillage"
+            }
+          ]
+        }
+      ],
+      "consequenceDifferee": {
+        "type": "fonction-de-la-piece-revelee",
+        "cible": "conseil-de-l-aiguillage-zero"
+      },
+      "recuperation": {
+        "type": "deux-diagnostics-sans-preselection"
+      },
+      "variantes": [
+        {
+          "id": "ligne-zero",
+          "condition": {
+            "type": "fait-present",
+            "fait": "bassins.deversoir.ligne-zero-relevee"
+          }
+        },
+        {
+          "id": "standard",
+          "condition": {
+            "type": "toujours"
+          }
+        }
+      ],
+      "destinationEcho": "journal-de-campagne",
+      "asset": {
+        "id": "trame.aiguillage-zero.la-piece-et-le-coeur-mobile",
+        "fichier": "/api/commercial/assets/trame-aiguillage-revelation.webp",
+        "octetsTransferes": 161944,
+        "contientTexte": false,
+        "alternatives": {
+          "fr": "Des techniciens des deux axes examinent le cœur mobile à quatre branches de l’Aiguillage Zéro.",
+          "en": "Technicians from both axes examine Zero Junction’s four-branched mobile heart."
+        },
+        "provenance": {
+          "fiche": "docs/assets/trame-aiguillage-revelation.provenance.json",
+          "creeLe": "2026-07-24",
+          "outil": "Codex built-in image_gen",
+          "modele": "built-in model (identifier not exposed)",
+          "usage": "stylized-concept",
+          "entree": "No input image; generated from the project’s established industrial ash-world art direction.",
+          "prompt": "Zero Junction’s ancient regulation heart opened across four conduits while Rail Republic and Free Wells technicians examine it; painterly 16:9 industrial concept art, no legible text or logos.",
+          "droits": "OpenAI Terms of Use — output assigned to the user",
+          "empreinteSha256": "0e0fde04e468762ccc54a62a7cf8587f1e92daee5db71efdb9231d91cb1fcfb1",
+          "statutApprobation": "pending-pull-request-review",
+          "reviseur": null
+        }
+      },
+      "textes": {
+        "fr": {
+          "origine": {
+            "cle": "evenement.aiguillage.revelation.origine",
+            "modele": "Chambre du cœur mobile de l’Aiguillage Zéro",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.aiguillage.revelation.titre",
+            "modele": "La Pièce et le cœur mobile",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.aiguillage.revelation.presentation",
+            "modele": "La Pièce n’est ni un trophée ni une source d’énergie : elle règle le cœur mobile qui répartit les charges entre quatre voies. L’accord régional décidera qui peut l’actionner et répondre de ses mouvements.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.aiguillage.revelation.information",
+              "modele": "Relever les portées ou vérifier la séquence révèle la même fonction sans sélectionner aucune Solution finale.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "ligne-zero": {
+              "cle": "evenement.aiguillage.revelation.variante.ligne-zero",
+              "modele": "Le relevé du Déversoir prouve que la Ligne Zéro synchronisait des voies autonomes sans les subordonner.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.aiguillage.revelation.variante.standard",
+              "modele": "La poussière des gorges suffit à reconstituer l’ordre des mouvements.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "relever-portees": {
+              "intention": {
+                "cle": "evenement.aiguillage.revelation.choix.portees",
+                "modele": "Relever les portées du cœur mobile",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.aiguillage.revelation.choix.portees.cout",
+                  "modele": "Coût connu : aucun stock ; les ateliers disposeront d’une preuve mécanique.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "tester-sequence": {
+              "intention": {
+                "cle": "evenement.aiguillage.revelation.choix.sequence",
+                "modele": "Tester la séquence de la Ligne Zéro",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.aiguillage.revelation.choix.sequence.cout",
+                  "modele": "Coût connu : aucun stock ; les deux axes disposeront d’une preuve de compatibilité.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        },
+        "en": {
+          "origine": {
+            "cle": "evenement.aiguillage.revelation.origine",
+            "modele": "Zero Junction mobile-heart chamber",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.aiguillage.revelation.titre",
+            "modele": "The Part and the mobile heart",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.aiguillage.revelation.presentation",
+            "modele": "The Part is neither a trophy nor a power source: it regulates a mobile heart across four tracks. The regional arrangement decides who may operate it and answer for it.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.aiguillage.revelation.information",
+              "modele": "Surveying bearings or checking the sequence reveals the same function without selecting a final Solution.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "ligne-zero": {
+              "cle": "evenement.aiguillage.revelation.variante.ligne-zero",
+              "modele": "The Spillway survey proves the Zero Line synchronized autonomous tracks without subordinating them.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.aiguillage.revelation.variante.standard",
+              "modele": "Dust in the grooves is enough to reconstruct the movement order.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "relever-portees": {
+              "intention": {
+                "cle": "evenement.aiguillage.revelation.choix.portees",
+                "modele": "Survey the mobile heart bearings",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.aiguillage.revelation.choix.portees.cout",
+                  "modele": "Known cost: no stock; workshops gain mechanical evidence.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "tester-sequence": {
+              "intention": {
+                "cle": "evenement.aiguillage.revelation.choix.sequence",
+                "modele": "Test the Zero Line sequence",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.aiguillage.revelation.choix.sequence.cout",
+                  "modele": "Known cost: no stock; both axes gain compatibility evidence.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "trame.aiguillage-zero.le-conseil-des-voies",
+      "famille": "conflits-regionaux",
+      "themes": [
+        "conseil",
+        "accord-regional",
+        "monopole",
+        "charte",
+        "vol",
+        "transport"
+      ],
+      "fonction": "trancher-un-accord-regional-selon-les-preparatifs-reels",
+      "fenetre": "aiguillage-zero",
+      "conditions": {
+        "requises": [
+          {
+            "type": "lieu-present",
+            "lieu": "aiguillage-zero"
+          },
+          {
+            "type": "un-des-faits-present",
+            "faits": [
+              "trame.aiguillage-zero.portees-relevees",
+              "trame.aiguillage-zero.sequence-verifiee"
+            ]
+          }
+        ],
+        "interdites": []
+      },
+      "periodeEligibilite": {
+        "debut": 1200,
+        "fin": 2147483647
+      },
+      "priorite": 160,
+      "epuisement": "unique",
+      "acteurs": [
+        "porte-lanterne",
+        "republique-du-rail",
+        "delegues-puits-libres",
+        "habitants-grand-aiguillage",
+        "habitants-traverse-libre",
+        "conseil-de-l-aiguillage-zero"
+      ],
+      "sourcesInformations": [
+        "conseil-de-l-aiguillage-zero"
+      ],
+      "faitsLus": [
+        "trame.aiguillage-zero.portees-relevees",
+        "trame.aiguillage-zero.sequence-verifiee",
+        "trame.grand-aiguillage.train-outil-annonce",
+        "trame.grand-aiguillage.attelage-federe-annonce"
+      ],
+      "choix": [
+        {
+          "id": "accorder-monopole",
+          "effets": [
+            {
+              "type": "stock.modifier",
+              "stock": "materiaux",
+              "valeur": -10
+            }
+          ],
+          "faitsProduits": [
+            {
+              "id": "trame.aiguillage-zero.monopole-republicain",
+              "cible": "piece-de-regulation"
+            },
+            {
+              "id": "trame.aiguillage-zero.soupcons-absents-monopole",
+              "cible": "soupcons-de-l-aiguillage"
+            }
+          ]
+        },
+        {
+          "id": "etablir-charte",
+          "effets": [
+            {
+              "type": "stock.modifier",
+              "stock": "materiaux",
+              "valeur": -8
+            }
+          ],
+          "faitsProduits": [
+            {
+              "id": "trame.aiguillage-zero.charte-partagee",
+              "cible": "conseil-de-l-aiguillage-zero"
+            },
+            {
+              "id": "trame.aiguillage-zero.soupcons-absents-charte",
+              "cible": "soupcons-de-l-aiguillage"
+            }
+          ]
+        },
+        {
+          "id": "soustraire-piece",
+          "effets": [
+            {
+              "type": "stock.modifier",
+              "stock": "combustible",
+              "valeur": -4
+            }
+          ],
+          "faitsProduits": [
+            {
+              "id": "trame.aiguillage-zero.piece-soustraite",
+              "cible": "piece-de-regulation"
+            },
+            {
+              "id": "trame.aiguillage-zero.trace-du-vol",
+              "cible": "soupcons-de-l-aiguillage"
+            }
+          ]
+        },
+        {
+          "id": "assurer-transport-autonome",
+          "effets": [
+            {
+              "type": "stock.modifier",
+              "stock": "materiaux",
+              "valeur": -14
+            }
+          ],
+          "faitsProduits": [
+            {
+              "id": "trame.aiguillage-zero.transport-autonome",
+              "cible": "piece-de-regulation"
+            },
+            {
+              "id": "trame.aiguillage-zero.engagement-transport-autonome",
+              "cible": "engagements-de-la-trame"
+            }
+          ]
+        }
+      ],
+      "consequenceDifferee": {
+        "type": "accord-regional-applique",
+        "cible": "aiguillage-zero"
+      },
+      "recuperation": {
+        "type": "transport-autonome-toujours-disponible"
+      },
+      "variantes": [
+        {
+          "id": "train-outil",
+          "condition": {
+            "type": "fait-present",
+            "fait": "trame.grand-aiguillage.train-outil-annonce"
+          }
+        },
+        {
+          "id": "attelage",
+          "condition": {
+            "type": "fait-present",
+            "fait": "trame.grand-aiguillage.attelage-federe-annonce"
+          }
+        },
+        {
+          "id": "standard",
+          "condition": {
+            "type": "toujours"
+          }
+        }
+      ],
+      "destinationEcho": "journal-de-campagne",
+      "asset": {
+        "id": "trame.aiguillage-zero.le-conseil-des-voies",
+        "fichier": "/api/commercial/assets/trame-aiguillage-conseil.webp",
+        "octetsTransferes": 174024,
+        "contientTexte": false,
+        "alternatives": {
+          "fr": "Quatre délégations débattent autour d’une table montrant le Train-outil, une Charte, un contournement et un Attelage.",
+          "en": "Four delegations debate around a table showing the Tool Train, Charter, bypass and Hauler."
+        },
+        "provenance": {
+          "fiche": "docs/assets/trame-aiguillage-conseil.provenance.json",
+          "creeLe": "2026-07-24",
+          "outil": "Codex built-in image_gen",
+          "modele": "built-in model (identifier not exposed)",
+          "usage": "stylized-concept",
+          "entree": "No input image; generated from the project’s established industrial ash-world art direction.",
+          "prompt": "Zero Junction Council debating four unselected physical solutions around a circular switch table; painterly 16:9 industrial concept art, no legible text or logos.",
+          "droits": "OpenAI Terms of Use — output assigned to the user",
+          "empreinteSha256": "aa050b9be384a6bce66736fc74b3632f2367ec14266f09a523a68ea8ba9b42f0",
+          "statutApprobation": "pending-pull-request-review",
+          "reviseur": null
+        }
+      },
+      "textes": {
+        "fr": {
+          "origine": {
+            "cle": "evenement.aiguillage.conseil.origine",
+            "modele": "Table circulaire du Conseil de l’Aiguillage Zéro",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.aiguillage.conseil.titre",
+            "modele": "Le Conseil des voies",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.aiguillage.conseil.presentation",
+            "modele": "Les délégations doivent trancher un accord régional de réglage et de transport : monopole, Charte partagée, vol par le contournement ou transport autonome coûteux. Cet accord ne sélectionne aucune Solution finale.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.aiguillage.conseil.information",
+              "modele": "Train-outil et Attelage fédéré réduisent les coûts sans décider. Le transport autonome reste possible : le manque devient dette, jamais impasse.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "train-outil": {
+              "cle": "evenement.aiguillage.conseil.variante.train",
+              "modele": "Le Train-outil réduit le coût du monopole, mais conserve sa dépendance publique.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "attelage": {
+              "cle": "evenement.aiguillage.conseil.variante.attelage",
+              "modele": "L’Attelage réduit le coût du transport autonome sans devenir une décision automatique.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.aiguillage.conseil.variante.standard",
+              "modele": "Les absences ferment des propositions, jamais le passage autonome.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "accorder-monopole": {
+              "intention": {
+                "cle": "evenement.aiguillage.conseil.choix.monopole",
+                "modele": "Accorder le monopole de réglage à la République",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.aiguillage.conseil.choix.monopole.cout",
+                  "modele": "Coût de base : 10 Matériaux, réduit à 2 par le Train-outil.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "etablir-charte": {
+              "intention": {
+                "cle": "evenement.aiguillage.conseil.choix.charte",
+                "modele": "Établir une Charte de circulation partagée",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.aiguillage.conseil.choix.charte.cout",
+                  "modele": "Coût connu : 8 Matériaux pour dupliquer commandes et scellés.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "soustraire-piece": {
+              "intention": {
+                "cle": "evenement.aiguillage.conseil.choix.vol",
+                "modele": "Soustraire la Pièce par le contournement",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.aiguillage.conseil.choix.vol.cout",
+                  "modele": "Coût connu : 4 Combustible ; une Trace attribuable subsiste.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "assurer-transport-autonome": {
+              "intention": {
+                "cle": "evenement.aiguillage.conseil.choix.transport",
+                "modele": "Assurer un transport autonome, même sans préparation",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.aiguillage.conseil.choix.transport.cout",
+                  "modele": "Coût : jusqu’à 14 Matériaux, réduit à 6 par l’Attelage ; tout déficit devient dette.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        },
+        "en": {
+          "origine": {
+            "cle": "evenement.aiguillage.conseil.origine",
+            "modele": "Zero Junction Council circular table",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.aiguillage.conseil.titre",
+            "modele": "The Council of tracks",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.aiguillage.conseil.presentation",
+            "modele": "Delegations must settle a regional regulation and transport arrangement: monopoly, shared Charter, bypass theft, or costly autonomous transport. It selects no final Solution.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.aiguillage.conseil.information",
+              "modele": "Tool Train and Federated Hauler lower costs without deciding. Autonomous transport remains possible: shortages become debt, never a dead end.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "train-outil": {
+              "cle": "evenement.aiguillage.conseil.variante.train",
+              "modele": "The Tool Train lowers monopoly cost but retains public dependence.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "attelage": {
+              "cle": "evenement.aiguillage.conseil.variante.attelage",
+              "modele": "The Hauler lowers autonomous transport cost without choosing it automatically.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.aiguillage.conseil.variante.standard",
+              "modele": "Absences close proposals, never autonomous passage.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "accorder-monopole": {
+              "intention": {
+                "cle": "evenement.aiguillage.conseil.choix.monopole",
+                "modele": "Grant the Republic a regulation monopoly",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.aiguillage.conseil.choix.monopole.cout",
+                  "modele": "Base cost: 10 Materials, reduced to 2 by the Tool Train.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "etablir-charte": {
+              "intention": {
+                "cle": "evenement.aiguillage.conseil.choix.charte",
+                "modele": "Establish a shared circulation Charter",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.aiguillage.conseil.choix.charte.cout",
+                  "modele": "Known cost: 8 Materials to duplicate controls and seals.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "soustraire-piece": {
+              "intention": {
+                "cle": "evenement.aiguillage.conseil.choix.vol",
+                "modele": "Steal the Part through the bypass",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.aiguillage.conseil.choix.vol.cout",
+                  "modele": "Known cost: 4 Fuel; an attributable Trace remains.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "assurer-transport-autonome": {
+              "intention": {
+                "cle": "evenement.aiguillage.conseil.choix.transport",
+                "modele": "Secure autonomous transport without preparation",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.aiguillage.conseil.choix.transport.cout",
+                  "modele": "Cost: up to 14 Materials, reduced to 6 by the Hauler; shortfalls become debt.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "trame.aiguillage-zero.le-passage-de-la-couronne",
+      "famille": "consequences-systemiques",
+      "themes": [
+        "sortie-regionale",
+        "irreversibilite",
+        "etats-de-sortie",
+        "echos-futurs"
+      ],
+      "fonction": "consigner-tous-les-etats-et-ouvrir-le-passage-irreversible",
+      "fenetre": "aiguillage-zero",
+      "conditions": {
+        "requises": [
+          {
+            "type": "lieu-present",
+            "lieu": "aiguillage-zero"
+          },
+          {
+            "type": "un-des-faits-present",
+            "faits": [
+              "trame.aiguillage-zero.monopole-republicain",
+              "trame.aiguillage-zero.charte-partagee",
+              "trame.aiguillage-zero.piece-soustraite",
+              "trame.aiguillage-zero.transport-autonome"
+            ]
+          }
+        ],
+        "interdites": []
+      },
+      "periodeEligibilite": {
+        "debut": 1200,
+        "fin": 2147483647
+      },
+      "priorite": 150,
+      "epuisement": "unique",
+      "acteurs": [
+        "porte-lanterne",
+        "conseil-de-l-aiguillage-zero",
+        "grand-aiguillage",
+        "traverse-libre",
+        "passage-vers-la-couronne"
+      ],
+      "sourcesInformations": [
+        "conseil-de-l-aiguillage-zero"
+      ],
+      "faitsLus": [
+        "trame.aiguillage-zero.monopole-republicain",
+        "trame.aiguillage-zero.charte-partagee",
+        "trame.aiguillage-zero.piece-soustraite",
+        "trame.aiguillage-zero.transport-autonome",
+        "trame.aiguillage-zero.trace-du-vol"
+      ],
+      "choix": [
+        {
+          "id": "consigner-etats-de-sortie",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "trame.aiguillage-zero.passage-consigne",
+              "cible": "registre-de-sortie-de-la-trame"
+            },
+            {
+              "id": "trame.aiguillage-zero.retours-couronne-planifies",
+              "cible": "couronne-muette"
+            }
+          ]
+        },
+        {
+          "id": "transmettre-registre",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "trame.aiguillage-zero.passage-transmis",
+              "cible": "registre-de-sortie-de-la-trame"
+            },
+            {
+              "id": "trame.aiguillage-zero.retours-couronne-planifies",
+              "cible": "couronne-muette"
+            }
+          ]
+        }
+      ],
+      "consequenceDifferee": {
+        "type": "arriere-verrouille-et-echos-planifies",
+        "cible": "couronne-muette"
+      },
+      "recuperation": {
+        "type": "passage-independant-des-pertes-locales"
+      },
+      "variantes": [
+        {
+          "id": "trace",
+          "condition": {
+            "type": "fait-present",
+            "fait": "trame.aiguillage-zero.trace-du-vol"
+          }
+        },
+        {
+          "id": "standard",
+          "condition": {
+            "type": "toujours"
+          }
+        }
+      ],
+      "destinationEcho": "journal-de-campagne",
+      "asset": {
+        "id": "trame.aiguillage-zero.le-passage-de-la-couronne",
+        "fichier": "/api/commercial/assets/trame-aiguillage-passage.webp",
+        "octetsTransferes": 127546,
+        "contientTexte": false,
+        "alternatives": {
+          "fr": "Le convoi franchit une porte qui verrouille les voies arrière et s’ouvre sur la Couronne muette.",
+          "en": "The caravan crosses a gate that locks rear tracks and opens toward the Silent Crown."
+        },
+        "provenance": {
+          "fiche": "docs/assets/trame-aiguillage-passage.provenance.json",
+          "creeLe": "2026-07-24",
+          "outil": "Codex built-in image_gen",
+          "modele": "built-in model (identifier not exposed)",
+          "usage": "stylized-concept",
+          "entree": "No input image; generated from the project’s established industrial ash-world art direction.",
+          "prompt": "The inhabited caravan crosses a one-way rail gate toward the Silent Crown while rear branches lock; painterly 16:9 industrial concept art, no legible text or logos.",
+          "droits": "OpenAI Terms of Use — output assigned to the user",
+          "empreinteSha256": "6b2d309c43c75866a62d055ec91810b0b3aecb756738e6a47fdb844546e94476",
+          "statutApprobation": "pending-pull-request-review",
+          "reviseur": null
+        }
+      },
+      "textes": {
+        "fr": {
+          "origine": {
+            "cle": "evenement.aiguillage.passage.origine",
+            "modele": "Porte aval de l’Aiguillage Zéro",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.aiguillage.passage.titre",
+            "modele": "Le passage de la Couronne",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.aiguillage.passage.presentation",
+            "modele": "Le Conseil énonce l’irréversibilité : après la porte, le cœur mobile verrouillera l’arrière. Accord régional, Sites, Routes, Engagements, Relations et Soupçons restent consignés pour leurs retours.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.aiguillage.passage.information",
+              "modele": "Perte d’une Colonie ou absence d’un Compagnon ne ferme jamais le passage. Grand-Aiguillage et Traverse-Libre reçoivent chacun un état de sortie et un écho futur planifié.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "trace": {
+              "cle": "evenement.aiguillage.passage.variante.trace",
+              "modele": "La Trace pourra revenir comme accusation, sans modifier l’accord régional.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.aiguillage.passage.variante.standard",
+              "modele": "Chaque délégation conserve une copie du registre et de l’accord régional.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "consigner-etats-de-sortie": {
+              "intention": {
+                "cle": "evenement.aiguillage.passage.choix.consigner",
+                "modele": "Sceller les états de sortie avec le Conseil",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.aiguillage.passage.choix.consigner.cout",
+                  "modele": "Coût connu : aucun stock ; la porte devient engageable et le retour impossible.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "transmettre-registre": {
+              "intention": {
+                "cle": "evenement.aiguillage.passage.choix.transmettre",
+                "modele": "Transmettre le registre en avant du convoi",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.aiguillage.passage.choix.transmettre.cout",
+                  "modele": "Coût connu : aucun stock ; la Couronne recevra les échos avant l’arrivée.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        },
+        "en": {
+          "origine": {
+            "cle": "evenement.aiguillage.passage.origine",
+            "modele": "Zero Junction downstream gate",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.aiguillage.passage.titre",
+            "modele": "The Crown passage",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.aiguillage.passage.presentation",
+            "modele": "The Council states the irreversible rule: beyond the gate the mobile heart locks the rear. Regional arrangement, Sites, Routes, Commitments, Relationships and Suspicions remain recorded for returns.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.aiguillage.passage.information",
+              "modele": "A lost Colony or absent Companion never closes passage. Grand Junction and Free Crossing each receive an exit state and planned future echo.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "trace": {
+              "cle": "evenement.aiguillage.passage.variante.trace",
+              "modele": "The Trace may return as an accusation without changing the regional arrangement.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.aiguillage.passage.variante.standard",
+              "modele": "Each delegation retains the exit register and regional arrangement.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "consigner-etats-de-sortie": {
+              "intention": {
+                "cle": "evenement.aiguillage.passage.choix.consigner",
+                "modele": "Seal the exit states with the Council",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.aiguillage.passage.choix.consigner.cout",
+                  "modele": "Known cost: no stock; the gate becomes available and return impossible.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "transmettre-registre": {
+              "intention": {
+                "cle": "evenement.aiguillage.passage.choix.transmettre",
+                "modele": "Transmit the register ahead of the caravan",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.aiguillage.passage.choix.transmettre.cout",
+                  "modele": "Known cost: no stock; the Crown receives echoes before arrival.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        }
+      }
     }
   ],
   "conseils": [
@@ -9948,7 +10946,20 @@ export default {
           "trame.signal-zero.echos-conserves": "Échos des deux branches conservés",
           "trame.signal-zero.frequences-separees": "Fréquences de Signal-Zéro séparées",
           "trame.signal-zero.trace-sous-scelles": "Trace confiée à Ilyana sous scellés",
-          "trame.signal-zero.trace-transmise": "Trace transmise aux techniciens"
+          "trame.signal-zero.trace-transmise": "Trace transmise aux techniciens",
+          "trame.aiguillage-zero.portees-relevees": "Portées du cœur mobile relevées",
+          "trame.aiguillage-zero.sequence-verifiee": "Séquence de la Ligne Zéro vérifiée",
+          "trame.aiguillage-zero.monopole-republicain": "Monopole républicain accordé sur la Pièce",
+          "trame.aiguillage-zero.charte-partagee": "Charte de circulation partagée établie",
+          "trame.aiguillage-zero.piece-soustraite": "Pièce soustraite par le contournement",
+          "trame.aiguillage-zero.transport-autonome": "Transport autonome de la Pièce assuré",
+          "trame.aiguillage-zero.trace-du-vol": "Trace du vol conservée",
+          "trame.aiguillage-zero.soupcons-absents-monopole": "Absence de Soupçon clandestin sous monopole consignée",
+          "trame.aiguillage-zero.soupcons-absents-charte": "Absence de Soupçon clandestin sous Charte consignée",
+          "trame.aiguillage-zero.engagement-transport-autonome": "Engagement de transport autonome consigné",
+          "trame.aiguillage-zero.passage-consigne": "Passage vers la Couronne consigné",
+          "trame.aiguillage-zero.passage-transmis": "Registre du passage transmis",
+          "trame.aiguillage-zero.retours-couronne-planifies": "Retours de la Couronne planifiés"
         },
         "causes": {
           "bassins.haut-puits.pacte-des-citernes": "Le pacte des citernes",
@@ -9981,7 +10992,10 @@ export default {
           "trame.marche.la-bascule-sans-manifeste": "Décision prise à la Bascule clandestine du Marché.",
           "trame.signal-zero.l-interface-aux-deux-frequences": "Décision prise devant l’interface de la Ligne Zéro.",
           "trame.signal-zero.les-deux-branches-dans-le-verre": "Décision prise devant la table de verre de Signal-Zéro.",
-          "trame.signal-zero.ilyana-et-la-trace": "Décision prise avec Ilyana au poste de Signal-Zéro."
+          "trame.signal-zero.ilyana-et-la-trace": "Décision prise avec Ilyana au poste de Signal-Zéro.",
+          "trame.aiguillage-zero.la-piece-et-le-coeur-mobile": "Révélation obtenue devant le cœur mobile de l’Aiguillage Zéro.",
+          "trame.aiguillage-zero.le-conseil-des-voies": "Accord régional tranché au Conseil de l’Aiguillage Zéro.",
+          "trame.aiguillage-zero.le-passage-de-la-couronne": "États de sortie consignés avant le passage irréversible."
         },
         "acteurs": {
           "ilyana-voss": "Ilyana Voss",
@@ -10007,10 +11021,13 @@ export default {
           "habitants-traverse-libre": "Habitants de Traverse-Libre",
           "reservoirs-traverse-libre": "Réservoirs de Traverse-Libre",
           "delegues-puits-libres": "Délégués des Puits Libres",
+          "traverse-libre": "Traverse-Libre",
           "commis-du-marche": "Commis du Marché des Traverses",
           "porteurs-des-puits-libres": "Porteurs des Puits Libres",
           "techniciens-signal-zero": "Techniciens de Signal-Zéro",
-          "ligne-zero": "Ligne Zéro"
+          "ligne-zero": "Ligne Zéro",
+          "conseil-de-l-aiguillage-zero": "Conseil de l’Aiguillage Zéro",
+          "passage-vers-la-couronne": "Passage vers la Couronne"
         },
         "cibles": {
           "equipes-entretien": "Équipes d’entretien",
@@ -10047,7 +11064,13 @@ export default {
           "bascule-des-manifestes": "Bascule des manifestes",
           "interface-de-la-ligne-zero": "Interface de la Ligne Zéro",
           "table-de-signal-zero": "Table de Signal-Zéro",
-          "aiguillage-zero": "Aiguillage Zéro"
+          "aiguillage-zero": "Aiguillage Zéro",
+          "conseil-de-l-aiguillage-zero": "Conseil de l’Aiguillage Zéro",
+          "coeur-mobile-de-l-aiguillage": "Cœur mobile de l’Aiguillage",
+          "soupcons-de-l-aiguillage": "Soupçons de l’Aiguillage",
+          "engagements-de-la-trame": "Engagements de la Trame",
+          "couronne-muette": "Couronne muette",
+          "registre-de-sortie-de-la-trame": "Registre de sortie de la Trame"
         }
       }
     },
@@ -10118,7 +11141,20 @@ export default {
           "trame.signal-zero.echos-conserves": "Both branches’ echoes preserved",
           "trame.signal-zero.frequences-separees": "Zero Signal frequencies separated",
           "trame.signal-zero.trace-sous-scelles": "Trace entrusted to Ilyana under seal",
-          "trame.signal-zero.trace-transmise": "Trace transmitted to the technicians"
+          "trame.signal-zero.trace-transmise": "Trace transmitted to the technicians",
+          "trame.aiguillage-zero.portees-relevees": "Mobile heart bearings surveyed",
+          "trame.aiguillage-zero.sequence-verifiee": "Zero Line sequence verified",
+          "trame.aiguillage-zero.monopole-republicain": "Republican monopoly granted over the Part",
+          "trame.aiguillage-zero.charte-partagee": "Shared circulation charter established",
+          "trame.aiguillage-zero.piece-soustraite": "Part stolen through the bypass",
+          "trame.aiguillage-zero.transport-autonome": "Autonomous transport secured",
+          "trame.aiguillage-zero.trace-du-vol": "Theft Trace preserved",
+          "trame.aiguillage-zero.soupcons-absents-monopole": "Absence of clandestine Suspicion under monopoly recorded",
+          "trame.aiguillage-zero.soupcons-absents-charte": "Absence of clandestine Suspicion under Charter recorded",
+          "trame.aiguillage-zero.engagement-transport-autonome": "Autonomous transport commitment recorded",
+          "trame.aiguillage-zero.passage-consigne": "Passage to the Crown recorded",
+          "trame.aiguillage-zero.passage-transmis": "Passage register transmitted",
+          "trame.aiguillage-zero.retours-couronne-planifies": "Silent Crown returns planned"
         },
         "causes": {
           "bassins.haut-puits.pacte-des-citernes": "The cistern pact",
@@ -10151,7 +11187,10 @@ export default {
           "trame.marche.la-bascule-sans-manifeste": "Decision made at the Market’s clandestine scales.",
           "trame.signal-zero.l-interface-aux-deux-frequences": "Decision made before the Zero Line interface.",
           "trame.signal-zero.les-deux-branches-dans-le-verre": "Decision made before the Zero Signal glass table.",
-          "trame.signal-zero.ilyana-et-la-trace": "Decision made with Ilyana at the Zero Signal post."
+          "trame.signal-zero.ilyana-et-la-trace": "Decision made with Ilyana at the Zero Signal post.",
+          "trame.aiguillage-zero.la-piece-et-le-coeur-mobile": "Revelation obtained before Zero Junction’s mobile heart.",
+          "trame.aiguillage-zero.le-conseil-des-voies": "Regional agreement settled at the Zero Junction Council.",
+          "trame.aiguillage-zero.le-passage-de-la-couronne": "Exit states recorded before the irreversible passage."
         },
         "acteurs": {
           "ilyana-voss": "Ilyana Voss",
@@ -10177,10 +11216,13 @@ export default {
           "habitants-traverse-libre": "Free Crossing Inhabitants",
           "reservoirs-traverse-libre": "Free Crossing Reservoirs",
           "delegues-puits-libres": "Free Wells Delegates",
+          "traverse-libre": "Free Crossing",
           "commis-du-marche": "Sleeper Market clerks",
           "porteurs-des-puits-libres": "Free Wells carriers",
           "techniciens-signal-zero": "Zero Signal technicians",
-          "ligne-zero": "Zero Line"
+          "ligne-zero": "Zero Line",
+          "conseil-de-l-aiguillage-zero": "Zero Junction Council",
+          "passage-vers-la-couronne": "Passage to the Crown"
         },
         "cibles": {
           "equipes-entretien": "Maintenance crews",
@@ -10217,7 +11259,13 @@ export default {
           "bascule-des-manifestes": "Manifest scales",
           "interface-de-la-ligne-zero": "Zero Line interface",
           "table-de-signal-zero": "Zero Signal table",
-          "aiguillage-zero": "Zero Junction"
+          "aiguillage-zero": "Zero Junction",
+          "conseil-de-l-aiguillage-zero": "Zero Junction Council",
+          "coeur-mobile-de-l-aiguillage": "Junction mobile heart",
+          "soupcons-de-l-aiguillage": "Junction suspicions",
+          "engagements-de-la-trame": "Iron Weave commitments",
+          "couronne-muette": "Silent Crown",
+          "registre-de-sortie-de-la-trame": "Iron Weave exit register"
         }
       }
     }

@@ -41,6 +41,8 @@ function sansRouteBasse(etat: EtatCampagne) {
     "traverse-des-porteurs": traverseDesPorteurs,
     "rocade-des-regulateurs": rocadeDesRegulateurs,
     "derivation-des-puits": derivationDesPuits,
+    "faisceau-de-l-aiguillage-zero": faisceauDeLAiguillageZero,
+    "passage-de-la-couronne-muette": passageDeLaCouronneMuette,
     ...etatsReelsV6
   } = sansTrame.routes.etatsReels;
   void routeBasse;
@@ -60,6 +62,8 @@ function sansRouteBasse(etat: EtatCampagne) {
   void traverseDesPorteurs;
   void rocadeDesRegulateurs;
   void derivationDesPuits;
+  void faisceauDeLAiguillageZero;
+  void passageDeLaCouronneMuette;
   return {
     ...sansTrame,
     version: VERSION_SIMULATION_AVANT_NACELLES,

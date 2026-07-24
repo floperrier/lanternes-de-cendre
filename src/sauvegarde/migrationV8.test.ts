@@ -37,6 +37,8 @@ function normaliserEnV8(etat: EtatCampagne) {
     "traverse-des-porteurs": traverseDesPorteurs,
     "rocade-des-regulateurs": rocadeDesRegulateurs,
     "derivation-des-puits": derivationDesPuits,
+    "faisceau-de-l-aiguillage-zero": faisceauDeLAiguillageZero,
+    "passage-de-la-couronne-muette": passageDeLaCouronneMuette,
     ...etatsReels
   } = sansTrame.routes.etatsReels;
   void rampeDeBarriereNeuve;
@@ -50,6 +52,8 @@ function normaliserEnV8(etat: EtatCampagne) {
   void traverseDesPorteurs;
   void rocadeDesRegulateurs;
   void derivationDesPuits;
+  void faisceauDeLAiguillageZero;
+  void passageDeLaCouronneMuette;
   return {
     ...sansTrame,
     version: VERSION_SIMULATION_AVANT_TRAME_DE_FER,

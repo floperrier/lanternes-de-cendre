@@ -150,6 +150,35 @@ const FAITS_DE_PASSAGE_REGIONAL = [
   "bassins.deversoir.passage-prepare",
   "bassins.deversoir.passage-transmis",
 ] as const;
+const FAITS_DE_PASSAGE_VERS_LA_COURONNE = [
+  "trame.aiguillage-zero.passage-consigne",
+  "trame.aiguillage-zero.passage-transmis",
+] as const;
+const FAITS_D_INTERFACE_DE_SIGNAL_ZERO = [
+  "trame.signal-zero.interface-rail-lue",
+  "trame.signal-zero.interface-libre-lue",
+] as const;
+const FAITS_D_ECHO_DE_SIGNAL_ZERO = [
+  "trame.signal-zero.echos-conserves",
+  "trame.signal-zero.frequences-separees",
+] as const;
+const FAITS_DE_TRACE_RESOLUE_A_SIGNAL_ZERO = [
+  "trame.signal-zero.trace-sous-scelles",
+  "trame.signal-zero.trace-transmise",
+] as const;
+
+function signalZeroEstAcheve(faits: readonly string[]): boolean {
+  return (
+    FAITS_D_INTERFACE_DE_SIGNAL_ZERO.some((fait) =>
+      faits.includes(fait),
+    ) &&
+    FAITS_D_ECHO_DE_SIGNAL_ZERO.some((fait) => faits.includes(fait)) &&
+    (!faits.includes("trame.marche.trace-bascule-clandestine") ||
+      FAITS_DE_TRACE_RESOLUE_A_SIGNAL_ZERO.some((fait) =>
+        faits.includes(fait),
+      ))
+  );
+}
 
 export function routeAvalDesBassinsEstPreparee(
   tronconId: IdentifiantDeTroncon,
@@ -162,7 +191,9 @@ export function routeAvalDesBassinsEstPreparee(
     tronconId !== "nacelles-de-veille-basse" &&
     tronconId !== "conduite-du-deversoir" &&
     tronconId !== "passage-de-la-ligne-zero" &&
-    tronconId !== "piste-des-levees"
+    tronconId !== "piste-des-levees" &&
+    tronconId !== "faisceau-de-l-aiguillage-zero" &&
+    tronconId !== "passage-de-la-couronne-muette"
   ) {
     return true;
   }
@@ -172,6 +203,15 @@ export function routeAvalDesBassinsEstPreparee(
   if (
     tronconId === "passage-de-la-ligne-zero" &&
     !faits.includes("bassins.deversoir.ligne-zero-relevee")
+  ) {
+    return false;
+  }
+  if (tronconId === "faisceau-de-l-aiguillage-zero") {
+    return evenementActif === null && signalZeroEstAcheve(faits);
+  }
+  if (
+    tronconId === "passage-de-la-couronne-muette" &&
+    evenementActif !== null
   ) {
     return false;
   }
@@ -187,6 +227,8 @@ export function routeAvalDesBassinsEstPreparee(
         ? FAITS_TERMINAUX_DE_HAUT_PUITS
         : tronconId === "conduite-du-deversoir"
           ? FAITS_D_ACCORD_DU_RELAIS
+          : tronconId === "passage-de-la-couronne-muette"
+            ? FAITS_DE_PASSAGE_VERS_LA_COURONNE
           : FAITS_DE_PASSAGE_REGIONAL;
   return faitsAttendus.some((fait) => faits.includes(fait));
 }

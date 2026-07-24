@@ -336,15 +336,47 @@ const FAITS_OUVRANT_LE_PASSAGE_REGIONAL = new Set([
   "bassins.deversoir.passage-prepare",
   "bassins.deversoir.passage-transmis",
 ]);
+const FAITS_OUVRANT_LE_PASSAGE_DE_LA_COURONNE = new Set([
+  "trame.aiguillage-zero.passage-consigne",
+  "trame.aiguillage-zero.passage-transmis",
+]);
+const FAITS_D_INTERFACE_DE_SIGNAL_ZERO = new Set([
+  "trame.signal-zero.interface-rail-lue",
+  "trame.signal-zero.interface-libre-lue",
+]);
+const FAITS_D_ECHO_DE_SIGNAL_ZERO = new Set([
+  "trame.signal-zero.echos-conserves",
+  "trame.signal-zero.frequences-separees",
+]);
+const FAITS_DE_TRACE_RESOLUE_A_SIGNAL_ZERO = new Set([
+  "trame.signal-zero.trace-sous-scelles",
+  "trame.signal-zero.trace-transmise",
+]);
 
 export function engagementsDuDeversoirSontCausaux(
   routes: EtatDesRoutes,
   faits: readonly { readonly id: string; readonly moment: number }[],
 ): boolean {
   return routes.engagements.every((engagement) => {
+    const faitsAnterieurs = faits.filter(
+      ({ moment }) => moment <= engagement.engageA,
+    );
+    if (engagement.tronconId === "faisceau-de-l-aiguillage-zero") {
+      const ids = new Set(faitsAnterieurs.map(({ id }) => id));
+      return (
+        [...FAITS_D_INTERFACE_DE_SIGNAL_ZERO].some((id) => ids.has(id)) &&
+        [...FAITS_D_ECHO_DE_SIGNAL_ZERO].some((id) => ids.has(id)) &&
+        (!ids.has("trame.marche.trace-bascule-clandestine") ||
+          [...FAITS_DE_TRACE_RESOLUE_A_SIGNAL_ZERO].some((id) =>
+            ids.has(id),
+          ))
+      );
+    }
     const faitsRequis =
       engagement.tronconId === "conduite-du-deversoir"
         ? FAITS_OUVRANT_LA_CONDUITE_DU_DEVERSOIR
+        : engagement.tronconId === "passage-de-la-couronne-muette"
+          ? FAITS_OUVRANT_LE_PASSAGE_DE_LA_COURONNE
         : engagement.tronconId === "passage-de-la-ligne-zero" ||
             engagement.tronconId === "piste-des-levees"
           ? FAITS_OUVRANT_LE_PASSAGE_REGIONAL

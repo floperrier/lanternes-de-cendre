@@ -1,0 +1,205 @@
+version: 1
+evenements:
+  - id: trame.aiguillage-zero.la-piece-et-le-coeur-mobile
+    famille: mystere-des-phares
+    themes: [aiguillage-zero, ligne-zero, piece-de-regulation, revelation]
+    fonction: reveler-que-la-piece-regle-un-coeur-mobile-et-n-est-pas-un-trophee
+    fenetre: aiguillage-zero
+    conditions:
+      requises:
+        - type: lieu-present
+          lieu: aiguillage-zero
+      interdites: []
+    periode_eligibilite: { debut: 1200, fin: 2147483647 }
+    priorite: 170
+    epuisement: unique
+    acteurs: [porte-lanterne, techniciens-signal-zero, piece-de-regulation, conseil-de-l-aiguillage-zero]
+    origine: { cle: evenement.aiguillage.revelation.origine, variables: [] }
+    libelle_intentions: { cle: evenement.ruban.intentions, variables: [] }
+    titre: { cle: evenement.aiguillage.revelation.titre, variables: [] }
+    presentation: { cle: evenement.aiguillage.revelation.presentation, variables: [] }
+    informations:
+      - source: techniciens-signal-zero
+        texte: { cle: evenement.aiguillage.revelation.information, variables: [] }
+    faits_lus:
+      - bassins.deversoir.ligne-zero-relevee
+    choix:
+      - id: relever-portees
+        intention: { cle: evenement.aiguillage.revelation.choix.portees, variables: [] }
+        couts_connus:
+          - { cle: evenement.aiguillage.revelation.choix.portees.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - id: trame.aiguillage-zero.portees-relevees
+            cible: coeur-mobile-de-l-aiguillage
+      - id: tester-sequence
+        intention: { cle: evenement.aiguillage.revelation.choix.sequence, variables: [] }
+        couts_connus:
+          - { cle: evenement.aiguillage.revelation.choix.sequence.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - id: trame.aiguillage-zero.sequence-verifiee
+            cible: coeur-mobile-de-l-aiguillage
+    consequence_differee: { type: fonction-de-la-piece-revelee, cible: conseil-de-l-aiguillage-zero }
+    recuperation: { type: deux-diagnostics-sans-preselection }
+    variantes:
+      - id: ligne-zero
+        condition: fait-present:bassins.deversoir.ligne-zero-relevee
+        presentation: { cle: evenement.aiguillage.revelation.variante.ligne-zero, variables: [] }
+      - id: standard
+        condition: toujours
+        presentation: { cle: evenement.aiguillage.revelation.variante.standard, variables: [] }
+    destination_echo: journal-de-campagne
+    asset: trame.aiguillage-zero.la-piece-et-le-coeur-mobile
+
+  - id: trame.aiguillage-zero.le-conseil-des-voies
+    famille: conflits-regionaux
+    themes: [conseil, accord-regional, monopole, charte, vol, transport]
+    fonction: trancher-un-accord-regional-selon-les-preparatifs-reels
+    fenetre: aiguillage-zero
+    conditions:
+      requises:
+        - type: lieu-present
+          lieu: aiguillage-zero
+        - type: un-des-faits-present
+          faits:
+            - trame.aiguillage-zero.portees-relevees
+            - trame.aiguillage-zero.sequence-verifiee
+      interdites: []
+    periode_eligibilite: { debut: 1200, fin: 2147483647 }
+    priorite: 160
+    epuisement: unique
+    acteurs: [porte-lanterne, republique-du-rail, delegues-puits-libres, habitants-grand-aiguillage, habitants-traverse-libre, conseil-de-l-aiguillage-zero]
+    origine: { cle: evenement.aiguillage.conseil.origine, variables: [] }
+    libelle_intentions: { cle: evenement.ruban.intentions, variables: [] }
+    titre: { cle: evenement.aiguillage.conseil.titre, variables: [] }
+    presentation: { cle: evenement.aiguillage.conseil.presentation, variables: [] }
+    informations:
+      - source: conseil-de-l-aiguillage-zero
+        texte: { cle: evenement.aiguillage.conseil.information, variables: [] }
+    faits_lus:
+      - trame.aiguillage-zero.portees-relevees
+      - trame.aiguillage-zero.sequence-verifiee
+      - trame.grand-aiguillage.train-outil-annonce
+      - trame.grand-aiguillage.attelage-federe-annonce
+    choix:
+      - id: accorder-monopole
+        intention: { cle: evenement.aiguillage.conseil.choix.monopole, variables: [] }
+        couts_connus:
+          - { cle: evenement.aiguillage.conseil.choix.monopole.cout, variables: [] }
+        effets:
+          - { type: stock.modifier, stock: materiaux, valeur: -10 }
+        faits_produits:
+          - id: trame.aiguillage-zero.monopole-republicain
+            cible: piece-de-regulation
+          - id: trame.aiguillage-zero.soupcons-absents-monopole
+            cible: soupcons-de-l-aiguillage
+      - id: etablir-charte
+        intention: { cle: evenement.aiguillage.conseil.choix.charte, variables: [] }
+        couts_connus:
+          - { cle: evenement.aiguillage.conseil.choix.charte.cout, variables: [] }
+        effets:
+          - { type: stock.modifier, stock: materiaux, valeur: -8 }
+        faits_produits:
+          - id: trame.aiguillage-zero.charte-partagee
+            cible: conseil-de-l-aiguillage-zero
+          - id: trame.aiguillage-zero.soupcons-absents-charte
+            cible: soupcons-de-l-aiguillage
+      - id: soustraire-piece
+        intention: { cle: evenement.aiguillage.conseil.choix.vol, variables: [] }
+        couts_connus:
+          - { cle: evenement.aiguillage.conseil.choix.vol.cout, variables: [] }
+        effets:
+          - { type: stock.modifier, stock: combustible, valeur: -4 }
+        faits_produits:
+          - id: trame.aiguillage-zero.piece-soustraite
+            cible: piece-de-regulation
+          - id: trame.aiguillage-zero.trace-du-vol
+            cible: soupcons-de-l-aiguillage
+      - id: assurer-transport-autonome
+        intention: { cle: evenement.aiguillage.conseil.choix.transport, variables: [] }
+        couts_connus:
+          - { cle: evenement.aiguillage.conseil.choix.transport.cout, variables: [] }
+        effets:
+          - { type: stock.modifier, stock: materiaux, valeur: -14 }
+        faits_produits:
+          - id: trame.aiguillage-zero.transport-autonome
+            cible: piece-de-regulation
+          - id: trame.aiguillage-zero.engagement-transport-autonome
+            cible: engagements-de-la-trame
+    consequence_differee: { type: accord-regional-applique, cible: aiguillage-zero }
+    recuperation: { type: transport-autonome-toujours-disponible }
+    variantes:
+      - id: train-outil
+        condition: fait-present:trame.grand-aiguillage.train-outil-annonce
+        presentation: { cle: evenement.aiguillage.conseil.variante.train, variables: [] }
+      - id: attelage
+        condition: fait-present:trame.grand-aiguillage.attelage-federe-annonce
+        presentation: { cle: evenement.aiguillage.conseil.variante.attelage, variables: [] }
+      - id: standard
+        condition: toujours
+        presentation: { cle: evenement.aiguillage.conseil.variante.standard, variables: [] }
+    destination_echo: journal-de-campagne
+    asset: trame.aiguillage-zero.le-conseil-des-voies
+
+  - id: trame.aiguillage-zero.le-passage-de-la-couronne
+    famille: consequences-systemiques
+    themes: [sortie-regionale, irreversibilite, etats-de-sortie, echos-futurs]
+    fonction: consigner-tous-les-etats-et-ouvrir-le-passage-irreversible
+    fenetre: aiguillage-zero
+    conditions:
+      requises:
+        - type: lieu-present
+          lieu: aiguillage-zero
+        - type: un-des-faits-present
+          faits:
+            - trame.aiguillage-zero.monopole-republicain
+            - trame.aiguillage-zero.charte-partagee
+            - trame.aiguillage-zero.piece-soustraite
+            - trame.aiguillage-zero.transport-autonome
+      interdites: []
+    periode_eligibilite: { debut: 1200, fin: 2147483647 }
+    priorite: 150
+    epuisement: unique
+    acteurs: [porte-lanterne, conseil-de-l-aiguillage-zero, grand-aiguillage, traverse-libre, passage-vers-la-couronne]
+    origine: { cle: evenement.aiguillage.passage.origine, variables: [] }
+    libelle_intentions: { cle: evenement.ruban.intentions, variables: [] }
+    titre: { cle: evenement.aiguillage.passage.titre, variables: [] }
+    presentation: { cle: evenement.aiguillage.passage.presentation, variables: [] }
+    informations:
+      - source: conseil-de-l-aiguillage-zero
+        texte: { cle: evenement.aiguillage.passage.information, variables: [] }
+    faits_lus:
+      - trame.aiguillage-zero.monopole-republicain
+      - trame.aiguillage-zero.charte-partagee
+      - trame.aiguillage-zero.piece-soustraite
+      - trame.aiguillage-zero.transport-autonome
+      - trame.aiguillage-zero.trace-du-vol
+    choix:
+      - id: consigner-etats-de-sortie
+        intention: { cle: evenement.aiguillage.passage.choix.consigner, variables: [] }
+        couts_connus:
+          - { cle: evenement.aiguillage.passage.choix.consigner.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - { id: trame.aiguillage-zero.passage-consigne, cible: registre-de-sortie-de-la-trame }
+          - { id: trame.aiguillage-zero.retours-couronne-planifies, cible: couronne-muette }
+      - id: transmettre-registre
+        intention: { cle: evenement.aiguillage.passage.choix.transmettre, variables: [] }
+        couts_connus:
+          - { cle: evenement.aiguillage.passage.choix.transmettre.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - { id: trame.aiguillage-zero.passage-transmis, cible: registre-de-sortie-de-la-trame }
+          - { id: trame.aiguillage-zero.retours-couronne-planifies, cible: couronne-muette }
+    consequence_differee: { type: arriere-verrouille-et-echos-planifies, cible: couronne-muette }
+    recuperation: { type: passage-independant-des-pertes-locales }
+    variantes:
+      - id: trace
+        condition: fait-present:trame.aiguillage-zero.trace-du-vol
+        presentation: { cle: evenement.aiguillage.passage.variante.trace, variables: [] }
+      - id: standard
+        condition: toujours
+        presentation: { cle: evenement.aiguillage.passage.variante.standard, variables: [] }
+    destination_echo: journal-de-campagne
+    asset: trame.aiguillage-zero.le-passage-de-la-couronne

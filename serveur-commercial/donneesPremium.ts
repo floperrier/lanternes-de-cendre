@@ -29,6 +29,9 @@ export const NOMS_D_ASSETS_PREMIUM = [
   "trame-signal-interface.webp",
   "trame-signal-echo.webp",
   "trame-signal-ilyana.webp",
+  "trame-aiguillage-revelation.webp",
+  "trame-aiguillage-conseil.webp",
+  "trame-aiguillage-passage.webp",
 ] as const;
 
 export const LIEUX_PREMIUM = [
@@ -75,6 +78,14 @@ export const LIEUX_PREMIUM = [
   {
     id: "signal-zero",
     nom: { fr: "Signal-Zéro", en: "Zero Signal" },
+  },
+  {
+    id: "aiguillage-zero",
+    nom: { fr: "Aiguillage Zéro", en: "Zero Junction" },
+  },
+  {
+    id: "couronne-muette",
+    nom: { fr: "Couronne muette", en: "Silent Crown" },
   },
 ] as const;
 
@@ -1078,6 +1089,106 @@ export const TRONCONS_PREMIUM = [
             source: "Free Crossing scouts’ survey",
             danger: "Unmanifested galleries and distant reserves",
             controlePolitique: "Autonomous exit toward Zero Signal",
+          },
+        },
+      },
+    ],
+  },
+  {
+    id: "faisceau-de-l-aiguillage-zero",
+    nom: {
+      fr: "Faisceau de l’Aiguillage Zéro",
+      en: "Zero Junction Fan",
+    },
+    extremites: ["signal-zero", "aiguillage-zero"],
+    originesAutorisees: ["signal-zero"],
+    dureeSecondes: 540,
+    etatInitial: "praticable",
+    consommationConnue: {
+      stock: "combustible",
+      quantite: 5,
+      unite: "litres",
+    },
+    consommationIncertaine: {
+      stock: "eau",
+      minimum: 4,
+      maximum: 7,
+      quantiteReelle: 6,
+      unite: "litres",
+      renseignementId: "aiguillage-zero-faisceau",
+    },
+    renseignements: [
+      {
+        id: "aiguillage-zero-faisceau",
+        tronconId: "faisceau-de-l-aiguillage-zero",
+        source: "techniciens-signal-zero",
+        releveA: 0,
+        fiabilite: "confirme",
+        etatAnnonce: "praticable",
+        meteo: "cendre-basse",
+        panache: "absent",
+        danger: "signaux-doubles",
+        controlePolitique: "enclave-technique",
+        libelles: {
+          fr: {
+            source: "Table commune de Signal-Zéro",
+            danger: "Quatre voies convergent sur un unique cœur mobile",
+            controlePolitique: "Accès ouvert aux délégations des deux axes",
+          },
+          en: {
+            source: "Zero Signal joint running table",
+            danger: "Four tracks converge on a single mobile heart",
+            controlePolitique: "Access open to delegations from both axes",
+          },
+        },
+      },
+    ],
+  },
+  {
+    id: "passage-de-la-couronne-muette",
+    nom: {
+      fr: "Passage de la Couronne muette",
+      en: "Silent Crown Passage",
+    },
+    extremites: ["aiguillage-zero", "couronne-muette"],
+    originesAutorisees: ["aiguillage-zero"],
+    dureeSecondes: 660,
+    etatInitial: "praticable",
+    consommationConnue: {
+      stock: "combustible",
+      quantite: 6,
+      unite: "litres",
+    },
+    consommationIncertaine: {
+      stock: "eau",
+      minimum: 5,
+      maximum: 8,
+      quantiteReelle: 7,
+      unite: "litres",
+      renseignementId: "couronne-muette-passage",
+    },
+    renseignements: [
+      {
+        id: "couronne-muette-passage",
+        tronconId: "passage-de-la-couronne-muette",
+        source: "techniciens-signal-zero",
+        releveA: 0,
+        fiabilite: "confirme",
+        etatAnnonce: "praticable",
+        meteo: "rafales-de-cendre",
+        panache: "incertain",
+        danger: "gabarit-de-la-piece",
+        controlePolitique: "sans-controle-etabli",
+        libelles: {
+          fr: {
+            source: "Registre de sortie du Conseil de l’Aiguillage",
+            danger: "Verrouillage définitif des voies arrière après le passage",
+            controlePolitique: "Décision commune consignée avant la Couronne",
+          },
+          en: {
+            source: "Junction Council exit register",
+            danger: "Rear tracks lock permanently after passage",
+            controlePolitique: "Joint decision recorded before the Crown",
           },
         },
       },

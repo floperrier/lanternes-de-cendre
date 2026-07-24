@@ -1,12 +1,14 @@
 import type { Langue } from "../content/types";
 import { lirePresentationsPremium } from "../content/presentationsPremium";
 import type { EtatCampagne } from "../simulation/campagne";
+import {
+  calculerOptionsDeLAiguillageZero,
+} from "../simulation/aiguillageZero";
 
-export type OptionDeLAiguillageZero =
-  | "monopole"
-  | "charte"
-  | "vol"
-  | "transport";
+export {
+  calculerOptionsDeLAiguillageZero,
+  type OptionDeLAiguillageZero,
+} from "../simulation/aiguillageZero";
 
 export interface ProjectionDeConvergenceDeLaTrame {
   readonly visible: boolean;
@@ -32,26 +34,6 @@ export interface ProjectionDeConvergenceDeLaTrame {
 
 function idsDeFaits(etat: EtatCampagne): ReadonlySet<string> {
   return new Set(etat.narration.faitsDeCampagne.map(({ id }) => id));
-}
-
-export function calculerOptionsDeLAiguillageZero(
-  etat: EtatCampagne,
-): readonly OptionDeLAiguillageZero[] {
-  const faits = idsDeFaits(etat);
-  return [
-    ...(etat.trameDeFer.pieceDeRegulation.monopoleRepublicain ||
-    faits.has("trame.marche.coupleur-officiel-acquis")
-      ? (["monopole"] as const)
-      : []),
-    ...(etat.trameDeFer.grandAiguillage.statut === "atelier-negocie" ||
-    etat.traverseLibre.aide.statut === "publique"
-      ? (["charte"] as const)
-      : []),
-    ...(etat.traverseLibre.contournement === "praticable"
-      ? (["vol"] as const)
-      : []),
-    "transport",
-  ];
 }
 
 export function projeterConvergenceDeLaTrame(

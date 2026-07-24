@@ -49,6 +49,13 @@ acteurs:
   - interface-de-la-ligne-zero
   - table-de-signal-zero
   - aiguillage-zero
+  - conseil-de-l-aiguillage-zero
+  - coeur-mobile-de-l-aiguillage
+  - soupcons-de-l-aiguillage
+  - engagements-de-la-trame
+  - passage-vers-la-couronne
+  - couronne-muette
+  - registre-de-sortie-de-la-trame
 quartiers:
   - intendance
   - foyers
@@ -67,6 +74,7 @@ fenetres:
   - traverse-libre
   - marche-des-traverses
   - signal-zero
+  - aiguillage-zero
 lieux:
   - halte-du-puits-sec
   - haut-puits
@@ -81,6 +89,8 @@ lieux:
   - traverse-libre
   - marche-des-traverses
   - signal-zero
+  - aiguillage-zero
+  - couronne-muette
 destinations_echo:
   - journal-de-campagne
 faits:
@@ -166,3 +176,16 @@ faits:
   - trame.signal-zero.frequences-separees
   - trame.signal-zero.trace-sous-scelles
   - trame.signal-zero.trace-transmise
+  - trame.aiguillage-zero.portees-relevees
+  - trame.aiguillage-zero.sequence-verifiee
+  - trame.aiguillage-zero.monopole-republicain
+  - trame.aiguillage-zero.charte-partagee
+  - trame.aiguillage-zero.piece-soustraite
+  - trame.aiguillage-zero.transport-autonome
+  - trame.aiguillage-zero.trace-du-vol
+  - trame.aiguillage-zero.soupcons-absents-monopole
+  - trame.aiguillage-zero.soupcons-absents-charte
+  - trame.aiguillage-zero.engagement-transport-autonome
+  - trame.aiguillage-zero.passage-consigne
+  - trame.aiguillage-zero.passage-transmis
+  - trame.aiguillage-zero.retours-couronne-planifies

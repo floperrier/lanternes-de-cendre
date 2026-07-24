@@ -961,6 +961,99 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
   await expect(zeroSignal).toContainText(
     "Evidence transmitted · attribution possible at Zero Junction",
   );
+
+  await activerAuClavier(
+    pageTraverse,
+    pageTraverse.getByRole("button", { name: "Français" }),
+  );
+  await activerAuClavier(
+    pageTraverse,
+    atlasTraverse.getByRole("button", {
+      name: "Étudier l’Engagement vers Faisceau de l’Aiguillage Zéro",
+    }),
+  );
+  await activerAuClavier(
+    pageTraverse,
+    pageTraverse
+      .getByRole("dialog", { name: "Engagement vers Aiguillage Zéro" })
+      .getByRole("button", {
+        name: "Confirmer l’Engagement sans retour vers Aiguillage Zéro",
+      }),
+  );
+  await activerAuClavier(
+    pageTraverse,
+    pageTraverse.getByRole("button", { name: "Vitesse 4×" }),
+  );
+  await pageTraverse.clock.fastForward(150_000);
+
+  for (const [titre, choix] of [
+    ["La Pièce et le cœur mobile", "Relever les portées du cœur mobile"],
+    [
+      "Le Conseil des voies",
+      "Assurer un transport autonome, même sans préparation",
+    ],
+    [
+      "Le passage de la Couronne",
+      "Sceller les états de sortie avec le Conseil",
+    ],
+  ] as const) {
+    const evenement = pageTraverse.getByRole("region", { name: titre });
+    await expect(evenement.getByRole("img")).toBeVisible();
+    await activerAuClavier(
+      pageTraverse,
+      evenement.getByRole("button", { name: choix }),
+    );
+    await pageTraverse.clock.fastForward(1_000);
+  }
+
+  const aiguillageZero = pageTraverse.getByRole("region", {
+    name: "Aiguillage Zéro",
+  });
+  await expect(aiguillageZero).toContainText("Transport autonome");
+  await expect(aiguillageZero).toContainText(
+    "porte de la Couronne ouverte · retour verrouillé",
+  );
+  await expect(aiguillageZero).toContainText(
+    "Retour de l’accord régional et du registre de sortie planifié",
+  );
+  await pageTraverse.screenshot({
+    path: testInfo.outputPath("trame-aiguillage-zero-mobile.png"),
+    fullPage: true,
+  });
+
+  await activerAuClavier(
+    pageTraverse,
+    pageTraverse.getByRole("button", { name: "English" }),
+  );
+  await expect(
+    pageTraverse.getByRole("region", { name: "Zero Junction" }),
+  ).toContainText(
+    "Regional arrangement and exit-register return planned",
+  );
+  await activerAuClavier(
+    pageTraverse,
+    pageTraverse.getByRole("button", { name: "Français" }),
+  );
+  await activerAuClavier(
+    pageTraverse,
+    atlasTraverse.getByRole("button", {
+      name: "Étudier l’Engagement vers Passage de la Couronne muette",
+    }),
+  );
+  await activerAuClavier(
+    pageTraverse,
+    pageTraverse
+      .getByRole("dialog", { name: "Engagement vers Couronne muette" })
+      .getByRole("button", {
+        name: "Confirmer l’Engagement sans retour vers Couronne muette",
+      }),
+  );
+  await activerAuClavier(
+    pageTraverse,
+    pageTraverse.getByRole("button", { name: "Vitesse 4×" }),
+  );
+  await pageTraverse.clock.fastForward(180_000);
+  await expect(atlasTraverse).toContainText("Couronne muette");
   await navigateurTraverse.close();
 
   await page.screenshot({

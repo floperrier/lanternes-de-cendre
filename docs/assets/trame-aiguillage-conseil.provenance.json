@@ -1,0 +1,15 @@
+{
+  "asset": "serveur-commercial/assets/trame-aiguillage-conseil.webp",
+  "sha256": "aa050b9be384a6bce66736fc74b3632f2367ec14266f09a523a68ea8ba9b42f0",
+  "createdAt": "2026-07-24",
+  "tool": "Codex built-in image_gen",
+  "model": "built-in model (identifier not exposed)",
+  "useCase": "stylized-concept",
+  "input": "No input image; generated from the project’s established industrial ash-world art direction.",
+  "prompt": "Zero Junction Council debating four unselected physical solutions around a circular switch table; painterly 16:9 industrial concept art, no legible text or logos.",
+  "rights": "OpenAI Terms of Use — output assigned to the user",
+  "approval": {
+    "status": "pending-pull-request-review",
+    "reviewer": null
+  }
+}

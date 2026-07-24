@@ -1,0 +1,15 @@
+{
+  "asset": "serveur-commercial/assets/trame-aiguillage-revelation.webp",
+  "sha256": "0e0fde04e468762ccc54a62a7cf8587f1e92daee5db71efdb9231d91cb1fcfb1",
+  "createdAt": "2026-07-24",
+  "tool": "Codex built-in image_gen",
+  "model": "built-in model (identifier not exposed)",
+  "useCase": "stylized-concept",
+  "input": "No input image; generated from the project’s established industrial ash-world art direction.",
+  "prompt": "Zero Junction’s ancient regulation heart opened across four conduits while Rail Republic and Free Wells technicians examine it; painterly 16:9 industrial concept art, no legible text or logos.",
+  "rights": "OpenAI Terms of Use — output assigned to the user",
+  "approval": {
+    "status": "pending-pull-request-review",
+    "reviewer": null
+  }
+}

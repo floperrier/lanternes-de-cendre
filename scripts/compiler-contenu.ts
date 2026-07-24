@@ -51,6 +51,7 @@ const CHEMINS_D_EVENEMENTS_PREMIUM = [
   "content/evenements/trame-fer.yaml",
   "content/evenements/traverse-libre.yaml",
   "content/evenements/convergence-trame.yaml",
+  "content/evenements/aiguillage-zero.yaml",
 ] as const;
 const provenances = {
   "docs/assets/cite-caravane.provenance.json": lire(
@@ -157,6 +158,15 @@ const provenances = {
   ),
   "docs/assets/trame-signal-ilyana.provenance.json": lire(
     "docs/assets/trame-signal-ilyana.provenance.json",
+  ),
+  "docs/assets/trame-aiguillage-revelation.provenance.json": lire(
+    "docs/assets/trame-aiguillage-revelation.provenance.json",
+  ),
+  "docs/assets/trame-aiguillage-conseil.provenance.json": lire(
+    "docs/assets/trame-aiguillage-conseil.provenance.json",
+  ),
+  "docs/assets/trame-aiguillage-passage.provenance.json": lire(
+    "docs/assets/trame-aiguillage-passage.provenance.json",
   ),
 };
 
@@ -387,8 +397,10 @@ const fragmentsPublicsPartages = new Set([
   "Praticable",
   "Publique",
   "Combustible",
+  "Commitments",
   "Decision",
   "Destination",
+  "Engagements",
   "Filter House",
   "Integration",
   "Location",

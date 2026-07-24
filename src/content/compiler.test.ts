@@ -35,6 +35,9 @@ import provenanceTrameMarcheClandestin from "../../docs/assets/trame-marche-clan
 import provenanceTrameSignalInterface from "../../docs/assets/trame-signal-interface.provenance.json?raw";
 import provenanceTrameSignalEcho from "../../docs/assets/trame-signal-echo.provenance.json?raw";
 import provenanceTrameSignalIlyana from "../../docs/assets/trame-signal-ilyana.provenance.json?raw";
+import provenanceTrameAiguillageRevelation from "../../docs/assets/trame-aiguillage-revelation.provenance.json?raw";
+import provenanceTrameAiguillageConseil from "../../docs/assets/trame-aiguillage-conseil.provenance.json?raw";
+import provenanceTrameAiguillagePassage from "../../docs/assets/trame-aiguillage-passage.provenance.json?raw";
 import provenanceFiltres from "../../docs/assets/prologue-filtres-de-la-veille.provenance.json?raw";
 import provenanceIlyana from "../../docs/assets/prologue-ilyana-au-clapet.provenance.json?raw";
 import provenanceReponse from "../../docs/assets/prologue-reponse-du-phare.provenance.json?raw";
@@ -123,6 +126,12 @@ const sourcesValides: SourcesDuCatalogue = {
       provenanceTrameSignalEcho,
     "docs/assets/trame-signal-ilyana.provenance.json":
       provenanceTrameSignalIlyana,
+    "docs/assets/trame-aiguillage-revelation.provenance.json":
+      provenanceTrameAiguillageRevelation,
+    "docs/assets/trame-aiguillage-conseil.provenance.json":
+      provenanceTrameAiguillageConseil,
+    "docs/assets/trame-aiguillage-passage.provenance.json":
+      provenanceTrameAiguillagePassage,
   },
   cheminDeProvenanceAsset: (chemin) =>
     chemin.startsWith("/api/commercial/assets/")
@@ -165,6 +174,9 @@ const sourcesValides: SourcesDuCatalogue = {
       "/api/commercial/assets/trame-signal-interface.webp",
       "/api/commercial/assets/trame-signal-echo.webp",
       "/api/commercial/assets/trame-signal-ilyana.webp",
+      "/api/commercial/assets/trame-aiguillage-revelation.webp",
+      "/api/commercial/assets/trame-aiguillage-conseil.webp",
+      "/api/commercial/assets/trame-aiguillage-passage.webp",
     ].includes(chemin),
   empreinteAsset: (chemin) =>
     ({
@@ -238,6 +250,12 @@ const sourcesValides: SourcesDuCatalogue = {
         "bd84a33f788dd2378c92af72484a981709cbfa6757e8e8b5f4ffdf4e8832444e",
       "/api/commercial/assets/trame-signal-ilyana.webp":
         "e5bd7ec64459699fffc03747a5b06a1ab3829486c6b73697b7964f3acb7259a4",
+      "/api/commercial/assets/trame-aiguillage-revelation.webp":
+        "0e0fde04e468762ccc54a62a7cf8587f1e92daee5db71efdb9231d91cb1fcfb1",
+      "/api/commercial/assets/trame-aiguillage-conseil.webp":
+        "aa050b9be384a6bce66736fc74b3632f2367ec14266f09a523a68ea8ba9b42f0",
+      "/api/commercial/assets/trame-aiguillage-passage.webp":
+        "6b2d309c43c75866a62d055ec91810b0b3aecb756738e6a47fdb844546e94476",
     })[chemin] ?? "0".repeat(64),
   tailleAsset: () => 256_000,
 };

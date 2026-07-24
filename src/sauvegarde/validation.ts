@@ -109,7 +109,10 @@ import {
   creerEtatDeHautPuitsInitial,
   type EtatDeHautPuits,
 } from "../simulation/hautPuits";
-import { calculerDevenirsDesSitesDesBassins } from "../simulation/sites";
+import {
+  calculerDevenirsDesSitesDesBassins,
+  calculerDevenirsDesSitesDeLaTrame,
+} from "../simulation/sites";
 import {
   activitesDeHautPuitsSontCausales,
   estEtatDeHautPuits,
@@ -532,6 +535,8 @@ export function estCommandeV9(valeur: unknown): valeur is CommandeCampagne {
       "traverse-des-porteurs",
       "rocade-des-regulateurs",
       "derivation-des-puits",
+      "faisceau-de-l-aiguillage-zero",
+      "passage-de-la-couronne-muette",
     ].includes(String(valeur.tronconId))
   ) {
     return false;
@@ -541,7 +546,8 @@ export function estCommandeV9(valeur: unknown): valeur is CommandeCampagne {
     (valeur.evenementId.startsWith("trame.pompe-neuve.") ||
       valeur.evenementId.startsWith("trame.traverse-libre.") ||
       valeur.evenementId.startsWith("trame.marche.") ||
-      valeur.evenementId.startsWith("trame.signal-zero."))
+      valeur.evenementId.startsWith("trame.signal-zero.") ||
+      valeur.evenementId.startsWith("trame.aiguillage-zero."))
   );
 }
 
@@ -694,6 +700,40 @@ function estEffetHumainDeFait(valeur: unknown): boolean {
   return false;
 }
 
+function effetsMaterielsDynamiquesDeLAiguillageSontValides(
+  faitId: string,
+  effets: readonly unknown[],
+): boolean | undefined {
+  if (
+    faitId === "trame.aiguillage-zero.monopole-republicain" ||
+    faitId === "trame.aiguillage-zero.soupcons-absents-monopole"
+  ) {
+    return (
+      effets.length === 1 &&
+      (estEffetStock(effets[0], -10, "materiaux") ||
+        estEffetStock(effets[0], -2, "materiaux"))
+    );
+  }
+
+  if (
+    faitId === "trame.aiguillage-zero.transport-autonome" ||
+    faitId === "trame.aiguillage-zero.engagement-transport-autonome"
+  ) {
+    return (
+      effets.length === 1 &&
+      estObjet(effets[0]) &&
+      effets[0].type === "stock.modifie" &&
+      effets[0].stock === "materiaux" &&
+      estNombreFini(effets[0].variation) &&
+      Number.isInteger(effets[0].variation) &&
+      effets[0].variation >= -14 &&
+      effets[0].variation <= 0
+    );
+  }
+
+  return undefined;
+}
+
 function estFaitDeCampagneV2(valeur: unknown): boolean {
   if (!estFaitDeCampagne(valeur) || !estObjet(valeur)) {
     return false;
@@ -741,14 +781,20 @@ function estFaitDeCampagneV2(valeur: unknown): boolean {
         { readonly type: "habitants.modifier" }
       > => effet.type === "habitants.modifier",
     );
+    const effetsMaterielsDynamiquesValides =
+      effetsMaterielsDynamiquesDeLAiguillageSontValides(
+        String(valeur.id),
+        materiels,
+      );
     return (
       valeur.cause === definitionDuCatalogue.cause &&
       memesChaines(acteurs, definitionDuCatalogue.acteurs) &&
       valeur.cible === definitionDuCatalogue.cible &&
-      materiels.length === effetsMaterielsAttendus.length &&
-      effetsMaterielsAttendus.every((effet, index) =>
-        estEffetStock(materiels[index], effet.valeur, effet.stock),
-      ) &&
+      (effetsMaterielsDynamiquesValides ??
+        (materiels.length === effetsMaterielsAttendus.length &&
+          effetsMaterielsAttendus.every((effet, index) =>
+            estEffetStock(materiels[index], effet.valeur, effet.stock),
+          ))) &&
       humains.length === effetsHumainsAttendus.length &&
       effetsHumainsAttendus.every((effet, index) =>
         estEffetHumain(
@@ -1834,6 +1880,109 @@ function calculerStockAttendu(
   };
 }
 
+function coutsDeLAiguillageSontCausaux(
+  faits: readonly ObjetInconnu[],
+  infrastructure: EtatInfrastructure,
+  routes: EtatDesRoutes,
+  expeditions: EtatDesExpeditions,
+  hautPuits: EtatDeHautPuits,
+  veilleBasse: EtatDeVeilleBasse,
+): boolean {
+  const groupes = [
+    {
+      id: "trame.aiguillage-zero.monopole-republicain",
+      ids: new Set([
+        "trame.aiguillage-zero.monopole-republicain",
+        "trame.aiguillage-zero.soupcons-absents-monopole",
+      ]),
+      cibleSansPreparation: 10,
+      cibleAvecPreparation: 2,
+      preparation: "train-outil" as const,
+    },
+    {
+      id: "trame.aiguillage-zero.transport-autonome",
+      ids: new Set([
+        "trame.aiguillage-zero.transport-autonome",
+        "trame.aiguillage-zero.engagement-transport-autonome",
+      ]),
+      cibleSansPreparation: 14,
+      cibleAvecPreparation: 6,
+      preparation: "attelage-federe" as const,
+    },
+  ] as const;
+
+  return groupes.every((groupe) => {
+    const index = faits.findIndex((fait) => fait.id === groupe.id);
+    if (index < 0) {
+      return true;
+    }
+    const faitPrincipal = faits[index]!;
+    if (!estNombreFini(faitPrincipal.moment)) {
+      return false;
+    }
+    const faitsDuChoix = faits.filter((fait) =>
+      groupe.ids.has(String(fait.id)),
+    );
+    const variations = faitsDuChoix.map((fait) => {
+      const effets = fait.effets;
+      if (
+        !estObjet(effets) ||
+        !Array.isArray(effets.materiels) ||
+        effets.materiels.length !== 1
+      ) {
+        return undefined;
+      }
+      const effet = effets.materiels[0];
+      return estObjet(effet) &&
+        effet.type === "stock.modifie" &&
+        effet.stock === "materiaux" &&
+        estNombreFini(effet.variation)
+        ? effet.variation
+        : undefined;
+    });
+    if (
+      faitsDuChoix.length !== 2 ||
+      variations.some((variation) => variation === undefined) ||
+      new Set(variations).size !== 1
+    ) {
+      return false;
+    }
+
+    const faitsAvant = faits.slice(0, index);
+    const trameAvant = reconstruireEtatDeLaTrameDeFer(
+      faitsAvant as unknown as readonly {
+        readonly id: string;
+        readonly moment: number;
+      }[],
+    );
+    const prepare =
+      groupe.preparation === "train-outil"
+        ? trameAvant.occasions.trainOutil.statut === "annoncee" ||
+          trameAvant.occasions.trainOutil.statut === "reservee"
+        : trameAvant.occasions.attelageFedere.statut === "annoncee";
+    const cible = prepare
+      ? groupe.cibleAvecPreparation
+      : groupe.cibleSansPreparation;
+    const stocksAvant = calculerStockAttendu(
+      "materiaux",
+      faitPrincipal.moment,
+      faitsAvant,
+      infrastructure,
+      routes,
+      expeditions,
+      hautPuits,
+      veilleBasse,
+    ).possibilites;
+    const variation = variations[0]!;
+
+    return stocksAvant.some((stock) =>
+      groupe.preparation === "train-outil"
+        ? stock.quantite >= cible && variation === -cible
+        : variation === -Math.min(stock.quantite, cible),
+    );
+  });
+}
+
 function estEtatPilotage(
   valeur: unknown,
   secondesCourantes: number,
@@ -2672,6 +2821,15 @@ function lireEtatAvecSchemaCourant(
         (fait.id === "bassins.deversoir.passage-prepare" ||
           fait.id === "bassins.deversoir.passage-transmis"),
     );
+  const faitDePassageDeLaTrame =
+    estObjet(narration) &&
+    Array.isArray(narration.faitsDeCampagne) &&
+    narration.faitsDeCampagne.some(
+      (fait) =>
+        estObjet(fait) &&
+        (fait.id === "trame.aiguillage-zero.passage-consigne" ||
+          fait.id === "trame.aiguillage-zero.passage-transmis"),
+    );
   const routeV7DesNacellesEstMarquee =
     estObjet(routes) &&
     estObjet(routes.etatsReels) &&
@@ -2727,16 +2885,28 @@ function lireEtatAvecSchemaCourant(
         readonly moment: number;
       }[],
     ) ||
-    (faitDePassageRegional
+    (faitDePassageRegional || faitDePassageDeLaTrame
       ? !sontStructurellementEgaux(
           devenirsDesSites,
-          calculerDevenirsDesSitesDesBassins({
-            routes: routes as EtatDesRoutes,
-            veilleBasse: veilleBasse as EtatDeVeilleBasse,
-            faits: (
-              narration.faitsDeCampagne as unknown as readonly FaitDeCampagne[]
-            ).map((fait) => fait.id),
-          }),
+          {
+            ...calculerDevenirsDesSitesDesBassins({
+              routes: routes as EtatDesRoutes,
+              veilleBasse: veilleBasse as EtatDeVeilleBasse,
+              faits: (
+                narration.faitsDeCampagne as unknown as readonly FaitDeCampagne[]
+              ).map((fait) => fait.id),
+            }),
+            ...(faitDePassageDeLaTrame
+              ? {
+                  trameDeFer: calculerDevenirsDesSitesDeLaTrame({
+                    routes: routes as EtatDesRoutes,
+                    faits: (
+                      narration.faitsDeCampagne as unknown as readonly FaitDeCampagne[]
+                    ).map((fait) => fait.id),
+                  }),
+                }
+              : {}),
+          },
         )
       : devenirsDesSites !== null) ||
     !estEtatDeHautPuits(hautPuits, parties.tempsDuConvoi.secondes) ||
@@ -2801,6 +2971,14 @@ function lireEtatAvecSchemaCourant(
       veilleBasse,
       coutsHistoriquesDesNacellesRequis,
     ) ||
+    !coutsDeLAiguillageSontCausaux(
+      narration.faitsDeCampagne,
+      infrastructure,
+      routes,
+      expeditions,
+      hautPuits,
+      veilleBasse,
+    ) ||
     !estCausaliteDeNarrationValide(
       parties,
       pilotage,
@@ -2852,6 +3030,7 @@ function lireEtatAvecSchemaV9(
     "trame.traverse-libre.",
     "trame.marche.",
     "trame.signal-zero.",
+    "trame.aiguillage-zero.",
   ];
   if (
     !estObjet(valeur) ||
@@ -2869,6 +3048,8 @@ function lireEtatAvecSchemaV9(
       "traverse-des-porteurs",
       "rocade-des-regulateurs",
       "derivation-des-puits",
+      "faisceau-de-l-aiguillage-zero",
+      "passage-de-la-couronne-muette",
     ].some(
       (id) =>
         Object.prototype.hasOwnProperty.call(
@@ -2958,6 +3139,8 @@ function lireEtatAvecSchemaV8(
       "traverse-des-porteurs",
       "rocade-des-regulateurs",
       "derivation-des-puits",
+      "faisceau-de-l-aiguillage-zero",
+      "passage-de-la-couronne-muette",
     ].some((id) =>
       Object.prototype.hasOwnProperty.call(
         (valeur.routes as ObjetInconnu).etatsReels,
@@ -3037,6 +3220,8 @@ function lireEtatAvecSchemaV7(
       "conduite-du-deversoir",
       "passage-de-la-ligne-zero",
       "piste-des-levees",
+      "faisceau-de-l-aiguillage-zero",
+      "passage-de-la-couronne-muette",
     ].some((id) =>
       Object.prototype.hasOwnProperty.call(
         (valeur.routes as ObjetInconnu).etatsReels,

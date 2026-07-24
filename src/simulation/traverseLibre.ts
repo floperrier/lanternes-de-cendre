@@ -192,6 +192,44 @@ export function appliquerDecisionDeTraverseLibre(
     };
   }
 
+  if (evenementId === "trame.aiguillage-zero.le-conseil-des-voies") {
+    if (choixId === "accorder-monopole") {
+      return {
+        ...etat,
+        relationPuitsLibres: "fermee",
+        dependancesAuRail: {
+          ...etat.dependancesAuRail,
+          debouches: "precaires",
+        },
+      };
+    }
+    if (choixId === "etablir-charte") {
+      return {
+        ...etat,
+        statut: "stabilisee",
+        relationPuitsLibres: "cooperative",
+        dependancesAuRail: {
+          ...etat.dependancesAuRail,
+          debouches: "autonomes",
+        },
+      };
+    }
+    if (
+      choixId === "soustraire-piece" ||
+      choixId === "assurer-transport-autonome"
+    ) {
+      return {
+        ...etat,
+        statut: "autonome",
+        relationPuitsLibres: "cooperative",
+        dependancesAuRail: {
+          ...etat.dependancesAuRail,
+          debouches: "autonomes",
+        },
+      };
+    }
+  }
+
   return etat;
 }
 
@@ -239,6 +277,22 @@ const DECISION_PAR_FAIT = {
   "trame.marche.filtres-sans-marque-acquis": [
     "trame.marche.la-bascule-sans-manifeste",
     "acheter-filtres-sans-marque",
+  ],
+  "trame.aiguillage-zero.monopole-republicain": [
+    "trame.aiguillage-zero.le-conseil-des-voies",
+    "accorder-monopole",
+  ],
+  "trame.aiguillage-zero.charte-partagee": [
+    "trame.aiguillage-zero.le-conseil-des-voies",
+    "etablir-charte",
+  ],
+  "trame.aiguillage-zero.piece-soustraite": [
+    "trame.aiguillage-zero.le-conseil-des-voies",
+    "soustraire-piece",
+  ],
+  "trame.aiguillage-zero.transport-autonome": [
+    "trame.aiguillage-zero.le-conseil-des-voies",
+    "assurer-transport-autonome",
   ],
 } as const;
 

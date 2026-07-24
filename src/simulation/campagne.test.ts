@@ -160,6 +160,8 @@ describe("Graine de campagne", () => {
           "traverse-des-porteurs": "degrade",
           "rocade-des-regulateurs": "praticable",
           "derivation-des-puits": "degrade",
+          "faisceau-de-l-aiguillage-zero": "praticable",
+          "passage-de-la-couronne-muette": "praticable",
         },
         engagements: [],
         jalons: [],

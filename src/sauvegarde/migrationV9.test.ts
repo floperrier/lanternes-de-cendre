@@ -32,6 +32,8 @@ function normaliserEnV9(etat: EtatCampagne) {
     "traverse-des-porteurs": traverseDesPorteurs,
     "rocade-des-regulateurs": rocadeDesRegulateurs,
     "derivation-des-puits": derivationDesPuits,
+    "faisceau-de-l-aiguillage-zero": faisceauDeLAiguillageZero,
+    "passage-de-la-couronne-muette": passageDeLaCouronneMuette,
     ...etatsReels
   } = sansTraverse.routes.etatsReels;
   void embranchementDePompeNeuve;
@@ -43,6 +45,8 @@ function normaliserEnV9(etat: EtatCampagne) {
   void traverseDesPorteurs;
   void rocadeDesRegulateurs;
   void derivationDesPuits;
+  void faisceauDeLAiguillageZero;
+  void passageDeLaCouronneMuette;
   return {
     ...sansTraverse,
     version: VERSION_SIMULATION_AVANT_TRAVERSE_LIBRE,

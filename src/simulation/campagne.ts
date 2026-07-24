@@ -108,6 +108,7 @@ import {
 } from "./nacelles";
 import {
   calculerDevenirsDesSitesDesBassins,
+  calculerDevenirsDesSitesDeLaTrame,
   type DevenirsDesSitesDesBassins,
 } from "./sites";
 import {
@@ -120,6 +121,10 @@ import {
   creerEtatInitialDeTraverseLibre,
   type EtatDeTraverseLibre,
 } from "./traverseLibre";
+import {
+  ajusterEffetsDuChoixDeLAiguillageZero,
+  choixDeLAiguillageZeroEstDisponible,
+} from "./aiguillageZero";
 
 export type { GraineDeCampagne } from "./graine";
 export const IDENTIFIANTS_PLATEFORMES_MOBILES =
@@ -432,6 +437,12 @@ function declencherSuiteNarrativeDeLaDemonstration(
   ) {
     return declencherEvenement(etat, "signal-zero");
   }
+  if (
+    etat.routes.position === "aiguillage-zero" &&
+    trouverEngagementDeRouteActif(etat.routes) === undefined
+  ) {
+    return declencherEvenement(etat, "aiguillage-zero");
+  }
   return etat.routes.position === "haut-puits" &&
     trouverEngagementDeRouteActif(etat.routes) === undefined
     ? declencherEvenement(etat, "halte-haut-puits")
@@ -491,6 +502,12 @@ export function choixNarratifEstDisponible(
     return true;
   }
   if (
+    evenementId === "trame.aiguillage-zero.le-conseil-des-voies" &&
+    !choixDeLAiguillageZeroEstDisponible(etat, choix.id)
+  ) {
+    return false;
+  }
+  if (
     evenementId ===
     "trame.marche.les-services-de-la-voie-principale"
   ) {
@@ -525,7 +542,13 @@ export function choixNarratifEstDisponible(
     Extract<EffetDEvenement, { readonly type: "stock.modifier" }>["stock"],
     number
   >();
-  for (const effet of choix.effets) {
+  const effetsApplicables = ajusterEffetsDuChoixDeLAiguillageZero(
+    etat,
+    evenementId,
+    choix.id,
+    choix.effets,
+  );
+  for (const effet of effetsApplicables) {
     if (effet.type === "stock.modifier" && effet.valeur < 0) {
       coutsParStock.set(
         effet.stock,
@@ -814,6 +837,12 @@ function choisirDansEvenement(
     }
     return etat;
   })();
+  const effetsApplicables = ajusterEffetsDuChoixDeLAiguillageZero(
+    etatApresDecisionDeVeilleBasse,
+    evenement.id,
+    choix.id,
+    choix.effets,
+  );
   const etatApresEffets = appliquerEffets(
     {
       ...etatApresDecisionDeVeilleBasse,
@@ -829,7 +858,7 @@ function choisirDansEvenement(
         choix.id,
       ),
     },
-    choix.effets,
+    effetsApplicables,
   );
   let etatApresDecision =
     evenement.id === "trame.traverse-libre.la-galerie-qui-cede"
@@ -927,7 +956,7 @@ function choisirDansEvenement(
           return transition.evenements;
         })()
       : [];
-  const effetsDeFait = decrireEffetsDeFait(choix.effets);
+  const effetsDeFait = decrireEffetsDeFait(effetsApplicables);
   if (
     evenement.id === "bassins.deversoir.le-passage-sans-retour"
   ) {
@@ -940,6 +969,29 @@ function choisirDansEvenement(
           (fait) => fait.id,
         ),
       }),
+    };
+  }
+  if (
+    evenement.id === "trame.aiguillage-zero.le-passage-de-la-couronne"
+  ) {
+    etatApresDecision = {
+      ...etatApresDecision,
+      devenirsDesSites: {
+        ...(etatApresDecision.devenirsDesSites ??
+          calculerDevenirsDesSitesDesBassins({
+            routes: etatApresDecision.routes,
+            veilleBasse: etatApresDecision.veilleBasse,
+            faits: etatApresDecision.narration.faitsDeCampagne.map(
+              (fait) => fait.id,
+            ),
+          })),
+        trameDeFer: calculerDevenirsDesSitesDeLaTrame({
+          routes: etatApresDecision.routes,
+          faits: etatApresDecision.narration.faitsDeCampagne.map(
+            (fait) => fait.id,
+          ),
+        }),
+      },
     };
   }
   const faitsProduits = choix.faitsProduits.map((fait) => ({
@@ -966,7 +1018,7 @@ function choisirDansEvenement(
         type: "evenement-narratif.choix-resolu",
         evenementId: evenement.id,
         choixId: choix.id,
-        effets: choix.effets,
+        effets: effetsApplicables,
         faitsProduits: faitsProduits.map((fait) => fait.id),
       },
       ...evenementsDeHautPuits,

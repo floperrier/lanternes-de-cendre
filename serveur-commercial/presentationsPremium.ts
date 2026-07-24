@@ -171,6 +171,11 @@ export const PRESENTATIONS_PREMIUM = {
         "priorite-aux-requisitions": "Priorité aux réquisitions",
         "controle-de-pompe-neuve": "Contrôle républicain de Pompe-Neuve",
         "service-lourd-du-train-outil": "Service lourd du Train-outil",
+        "monopole-de-l-aiguillage-zero": "Monopole de l’Aiguillage Zéro",
+        "charte-de-circulation-partagee":
+          "Charte de circulation partagée",
+        "transport-autonome-aiguillage-zero":
+          "Transport autonome de l’Aiguillage Zéro",
       },
       voies: {
         "train-outil": "Usinage par le Train-outil",
@@ -222,6 +227,11 @@ export const PRESENTATIONS_PREMIUM = {
         "priorite-aux-requisitions": "Requisition priority",
         "controle-de-pompe-neuve": "New Pump republican inspection",
         "service-lourd-du-train-outil": "Tool Train heavy service",
+        "monopole-de-l-aiguillage-zero": "Zero Junction monopoly",
+        "charte-de-circulation-partagee":
+          "Shared circulation charter",
+        "transport-autonome-aiguillage-zero":
+          "Zero Junction autonomous transport",
       },
       voies: {
         "train-outil": "Machining by the Tool Train",
@@ -734,6 +744,136 @@ export const PRESENTATIONS_PREMIUM = {
       libellePosition: "Location",
       libelleReleve: "Survey",
       libelleRevelation: "Essential revelation",
+    },
+  },
+  aiguillage: {
+    fr: {
+      titre: "Aiguillage Zéro",
+      eyebrow: "Climax · Trame de Fer",
+      solutions: {
+        monopole: "Monopole républicain",
+        charte: "Charte de circulation partagée",
+        vol: "Vol et contournement",
+        transport: "Transport autonome",
+        attente: "Accord du Conseil en attente",
+      },
+      nomsDesSites: {
+        barriereNeuve: "Barrière-Neuve",
+        dortoirDixSept: "Dortoir Dix-Sept",
+        pompeNeuve: "Pompe-Neuve",
+        marcheDesTraverses: "Marché des Traverses",
+        signalZero: "Signal-Zéro",
+      },
+      devenirsDeSites: {
+        actif: "actif",
+        evacue: "évacué",
+        absorbe: "absorbé",
+        abandonne: "abandonné",
+      },
+      formats: {
+        grandAiguillage: "{statut} · {relation}",
+        traverseLibre: "{statut} · {relation}",
+        sites: "{sites}",
+        routesOuvertes:
+          "{nombre} Routes consignées · porte de la Couronne ouverte · retour verrouillé",
+        routesFermees:
+          "{nombre} Routes consignées · porte aval fermée jusqu’à la consignation",
+        relations: "Rail : {rail} · Puits : {puits}",
+        echoPlanifie:
+          "Retour de l’accord régional et du registre de sortie planifié dans la Couronne muette",
+        echoAConsigner: "Écho futur à consigner",
+        detteTransport: "Dette de transport : {deficit} Matériaux",
+      },
+      soupcons: {
+        trace: "Trace clandestine attribuable",
+        aucun: "Aucun Soupçon clandestin",
+      },
+      aucunEngagement: "Aucun",
+      libelles: {
+        accordRegional: "Accord régional",
+        grandAiguillage: "Grand-Aiguillage · sortie",
+        traverseLibre: "Traverse-Libre · sortie",
+        sites: "Sites",
+        routes: "Routes",
+        engagements: "Engagements",
+        relations: "Relations",
+        soupcons: "Soupçons clandestins",
+        echoFutur: "Écho futur",
+      },
+      couts: {
+        monopoleTrain:
+          "Coût appliqué : {cout} Matériaux grâce au Train-outil préparé.",
+        monopoleSansTrain:
+          "Coût appliqué : {cout} Matériaux faute de Train-outil préparé.",
+        transportAttelage:
+          "Coût appliqué : {cout} Matériaux grâce à l’Attelage fédéré ; déficit de {deficit} transformé en dette, sans bloquer le passage.",
+        transportSansAttelage:
+          "Coût appliqué : {cout} Matériaux ; déficit de {deficit} transformé en dette, sans bloquer le passage.",
+      },
+    },
+    en: {
+      titre: "Zero Junction",
+      eyebrow: "Climax · Iron Weave",
+      solutions: {
+        monopole: "Republican monopoly",
+        charte: "Shared circulation charter",
+        vol: "Theft and bypass",
+        transport: "Autonomous transport",
+        attente: "Council arrangement pending",
+      },
+      nomsDesSites: {
+        barriereNeuve: "New Barrier",
+        dortoirDixSept: "Dormitory Seventeen",
+        pompeNeuve: "New Pump",
+        marcheDesTraverses: "Sleeper Market",
+        signalZero: "Zero Signal",
+      },
+      devenirsDeSites: {
+        actif: "active",
+        evacue: "evacuated",
+        absorbe: "absorbed",
+        abandonne: "abandoned",
+      },
+      formats: {
+        grandAiguillage: "{statut} · {relation}",
+        traverseLibre: "{statut} · {relation}",
+        sites: "{sites}",
+        routesOuvertes:
+          "{nombre} Routes recorded · Crown gate open · return locked",
+        routesFermees:
+          "{nombre} Routes recorded · downstream gate closed until recording",
+        relations: "Rail: {rail} · Wells: {puits}",
+        echoPlanifie:
+          "Regional arrangement and exit-register return planned in the Silent Crown",
+        echoAConsigner: "Future echo to record",
+        detteTransport: "Transport debt: {deficit} Materials",
+      },
+      soupcons: {
+        trace: "Attributable clandestine Trace",
+        aucun: "No clandestine Suspicion",
+      },
+      aucunEngagement: "None",
+      libelles: {
+        accordRegional: "Regional arrangement",
+        grandAiguillage: "Grand Junction · exit",
+        traverseLibre: "Free Crossing · exit",
+        sites: "Sites",
+        routes: "Routes",
+        engagements: "Commitments",
+        relations: "Relationships",
+        soupcons: "Clandestine Suspicions",
+        echoFutur: "Future echo",
+      },
+      couts: {
+        monopoleTrain:
+          "Applied cost: {cout} Materials thanks to the prepared Tool Train.",
+        monopoleSansTrain:
+          "Applied cost: {cout} Materials without a prepared Tool Train.",
+        transportAttelage:
+          "Applied cost: {cout} Materials thanks to the Federated Hauler; {deficit} shortfall becomes debt without blocking passage.",
+        transportSansAttelage:
+          "Applied cost: {cout} Materials; {deficit} shortfall becomes debt without blocking passage.",
+      },
     },
   },
   deversoir: {

@@ -423,7 +423,17 @@ describe("Engagement de route", () => {
       expect(routes.position).toBe("signal-zero");
       expect(routes.engagements).toHaveLength(troncons.length);
       expect(routes.jalons).toHaveLength(troncons.length);
-      expect(listerTronconsEngageables(routes)).toEqual([]);
+      expect(
+        listerTronconsEngageables(routes).map(({ troncon, destination }) => ({
+          tronconId: troncon.id,
+          destination,
+        })),
+      ).toEqual([
+        {
+          tronconId: "faisceau-de-l-aiguillage-zero",
+          destination: "aiguillage-zero",
+        },
+      ]);
     },
   );
 

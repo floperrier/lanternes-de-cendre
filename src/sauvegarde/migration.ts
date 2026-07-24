@@ -580,6 +580,8 @@ function normaliserEtatCourantEnV6(
     "traverse-des-porteurs": traverseDesPorteurs,
     "rocade-des-regulateurs": rocadeDesRegulateurs,
     "derivation-des-puits": derivationDesPuits,
+    "faisceau-de-l-aiguillage-zero": faisceauDeLAiguillageZero,
+    "passage-de-la-couronne-muette": passageDeLaCouronneMuette,
     ...etatsReelsV6
   } = sansTrame.routes.etatsReels;
   void routeAjoutee;
@@ -599,6 +601,8 @@ function normaliserEtatCourantEnV6(
   void traverseDesPorteurs;
   void rocadeDesRegulateurs;
   void derivationDesPuits;
+  void faisceauDeLAiguillageZero;
+  void passageDeLaCouronneMuette;
   return {
     ...sansTrame,
     version: VERSION_SIMULATION_AVANT_NACELLES,
@@ -825,6 +829,8 @@ function normaliserEtatCourantEnV7(
     "traverse-des-porteurs": traverseDesPorteurs,
     "rocade-des-regulateurs": rocadeDesRegulateurs,
     "derivation-des-puits": derivationDesPuits,
+    "faisceau-de-l-aiguillage-zero": faisceauDeLAiguillageZero,
+    "passage-de-la-couronne-muette": passageDeLaCouronneMuette,
     ...etatsReelsV7
   } = sansDevenirs.routes.etatsReels;
   void cheminDeLHospice;
@@ -843,6 +849,8 @@ function normaliserEtatCourantEnV7(
   void traverseDesPorteurs;
   void rocadeDesRegulateurs;
   void derivationDesPuits;
+  void faisceauDeLAiguillageZero;
+  void passageDeLaCouronneMuette;
   const { topologieHistorique, ...routesV7 } = sansDevenirs.routes;
   void topologieHistorique;
   return {
@@ -1022,6 +1030,8 @@ function normaliserEtatCourantEnV8(
     "traverse-des-porteurs": traverseDesPorteurs,
     "rocade-des-regulateurs": rocadeDesRegulateurs,
     "derivation-des-puits": derivationDesPuits,
+    "faisceau-de-l-aiguillage-zero": faisceauDeLAiguillageZero,
+    "passage-de-la-couronne-muette": passageDeLaCouronneMuette,
     ...etatsReelsV8
   } = sansTrame.routes.etatsReels;
   void rampeDeBarriereNeuve;
@@ -1035,6 +1045,8 @@ function normaliserEtatCourantEnV8(
   void traverseDesPorteurs;
   void rocadeDesRegulateurs;
   void derivationDesPuits;
+  void faisceauDeLAiguillageZero;
+  void passageDeLaCouronneMuette;
   return {
     ...sansTrame,
     version: VERSION_SIMULATION_AVANT_TRAME_DE_FER,
@@ -1171,6 +1183,8 @@ function normaliserEtatCourantEnV9(
     "traverse-des-porteurs": traverseDesPorteurs,
     "rocade-des-regulateurs": rocadeDesRegulateurs,
     "derivation-des-puits": derivationDesPuits,
+    "faisceau-de-l-aiguillage-zero": faisceauDeLAiguillageZero,
+    "passage-de-la-couronne-muette": passageDeLaCouronneMuette,
     ...etatsReelsV9
   } = sansTraverse.routes.etatsReels;
   void embranchementDePompeNeuve;
@@ -1182,6 +1196,8 @@ function normaliserEtatCourantEnV9(
   void traverseDesPorteurs;
   void rocadeDesRegulateurs;
   void derivationDesPuits;
+  void faisceauDeLAiguillageZero;
+  void passageDeLaCouronneMuette;
   return {
     ...sansTraverse,
     version: VERSION_SIMULATION_AVANT_TRAVERSE_LIBRE,

@@ -364,4 +364,92 @@ describe("validation persistante des routes", () => {
       ]),
     ).toBe(true);
   });
+
+  it("refuse les deux portes de l’Aiguillage Zéro avant leurs faits causaux", () => {
+    const initial = creerEtatDesRoutesInitial();
+    const aSignalZero = {
+      ...initial,
+      position: "signal-zero" as const,
+    };
+    const versLAiguillage = confirmerEngagementDeRoute(
+      aSignalZero,
+      "faisceau-de-l-aiguillage-zero",
+      100,
+    ).etat;
+    const interfaceEtEcho = [
+      {
+        id: "trame.signal-zero.interface-rail-lue",
+        moment: 100,
+      },
+      {
+        id: "trame.signal-zero.echos-conserves",
+        moment: 100,
+      },
+    ];
+
+    expect(
+      engagementsDuDeversoirSontCausaux(
+        versLAiguillage,
+        interfaceEtEcho.slice(0, 1),
+      ),
+    ).toBe(false);
+    expect(
+      engagementsDuDeversoirSontCausaux(
+        versLAiguillage,
+        interfaceEtEcho,
+      ),
+    ).toBe(true);
+    expect(
+      engagementsDuDeversoirSontCausaux(versLAiguillage, [
+        ...interfaceEtEcho,
+        {
+          id: "trame.marche.trace-bascule-clandestine",
+          moment: 50,
+        },
+      ]),
+    ).toBe(false);
+    expect(
+      engagementsDuDeversoirSontCausaux(versLAiguillage, [
+        ...interfaceEtEcho,
+        {
+          id: "trame.marche.trace-bascule-clandestine",
+          moment: 50,
+        },
+        {
+          id: "trame.signal-zero.trace-transmise",
+          moment: 100,
+        },
+      ]),
+    ).toBe(true);
+
+    const aLAiguillage = {
+      ...initial,
+      position: "aiguillage-zero" as const,
+    };
+    const versLaCouronne = confirmerEngagementDeRoute(
+      aLAiguillage,
+      "passage-de-la-couronne-muette",
+      200,
+    ).etat;
+
+    expect(
+      engagementsDuDeversoirSontCausaux(versLaCouronne, []),
+    ).toBe(false);
+    expect(
+      engagementsDuDeversoirSontCausaux(versLaCouronne, [
+        {
+          id: "trame.aiguillage-zero.passage-consigne",
+          moment: 201,
+        },
+      ]),
+    ).toBe(false);
+    expect(
+      engagementsDuDeversoirSontCausaux(versLaCouronne, [
+        {
+          id: "trame.aiguillage-zero.passage-consigne",
+          moment: 200,
+        },
+      ]),
+    ).toBe(true);
+  });
 });
