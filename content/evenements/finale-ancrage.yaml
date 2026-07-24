@@ -1,0 +1,189 @@
+version: 1
+evenements:
+  - id: finale.ancrage.le-contrat-des-trois-solutions
+    famille: mystere-des-phares
+    themes: [trois-solutions, causes-consultables, noeud-central, revelation-finale]
+    fonction: reveler-le-contrat-final-et-les-causes-de-chaque-solution
+    fenetre: finale-ancrage
+    conditions:
+      requises:
+        - type: lieu-present
+          lieu: noeud-central
+      interdites: []
+    periode_eligibilite: { debut: 1200, fin: 2147483647 }
+    priorite: 200
+    epuisement: unique
+    acteurs:
+      - porte-lanterne
+      - equipes-de-l-anneau
+      - coeur-du-noeud
+    origine: { cle: evenement.finale.contrat.origine, variables: [] }
+    libelle_intentions: { cle: evenement.ruban.intentions, variables: [] }
+    titre: { cle: evenement.finale.contrat.titre, variables: [] }
+    presentation: { cle: evenement.finale.contrat.presentation, variables: [] }
+    informations:
+      - source: coeur-du-noeud
+        texte: { cle: evenement.finale.contrat.information, variables: [] }
+    faits_lus:
+      - couronne.approches.berceau-amorce
+      - couronne.ouverture.breche-ouverte
+    choix:
+      - id: publier-causes-des-solutions
+        intention: { cle: evenement.finale.contrat.choix.publier, variables: [] }
+        couts_connus:
+          - { cle: evenement.finale.contrat.choix.publier.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - { id: finale.contrat.causes-publiees, cible: contrat-des-trois-solutions }
+      - id: consigner-causes-separement
+        intention: { cle: evenement.finale.contrat.choix.separer, variables: [] }
+        couts_connus:
+          - { cle: evenement.finale.contrat.choix.separer.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - { id: finale.contrat.causes-consignees, cible: contrat-des-trois-solutions }
+    consequence_differee: { type: trois-solutions-rendues-comparables-sans-tirage-final, cible: coeur-du-noeud }
+    recuperation: { type: causes-et-couts-restent-consultables }
+    variantes:
+      - id: breche
+        condition: fait-present:couronne.ouverture.breche-ouverte
+        presentation: { cle: evenement.finale.contrat.variante.breche, variables: [] }
+      - id: projets
+        condition: fait-present:couronne.approches.berceau-amorce
+        presentation: { cle: evenement.finale.contrat.variante.berceau, variables: [] }
+      - id: standard
+        condition: toujours
+        presentation: { cle: evenement.finale.contrat.variante.standard, variables: [] }
+    destination_echo: journal-de-campagne
+    asset: finale.ancrage.le-contrat-des-trois-solutions
+
+  - id: finale.ancrage.choisir-d-ancrer-le-coeur
+    famille: conflits-regionaux
+    themes: [ancrage, choix-final, cout-determine, irreversibilite]
+    fonction: choisir-l-ancrage-prepare-ou-risque-sans-tirage
+    fenetre: finale-ancrage
+    conditions:
+      requises:
+        - type: un-des-faits-present
+          faits:
+            - finale.contrat.causes-publiees
+            - finale.contrat.causes-consignees
+      interdites: []
+    periode_eligibilite: { debut: 1200, fin: 2147483647 }
+    priorite: 190
+    epuisement: unique
+    acteurs:
+      - porte-lanterne
+      - equipes-de-l-anneau
+    origine: { cle: evenement.finale.selection.origine, variables: [] }
+    libelle_intentions: { cle: evenement.ruban.intentions, variables: [] }
+    titre: { cle: evenement.finale.selection.titre, variables: [] }
+    presentation: { cle: evenement.finale.selection.presentation, variables: [] }
+    informations:
+      - source: equipes-de-l-anneau
+        texte: { cle: evenement.finale.selection.information, variables: [] }
+    faits_lus:
+      - finale.contrat.causes-publiees
+      - finale.contrat.causes-consignees
+      - couronne.approches.berceau-amorce
+      - couronne.ouverture.breche-ouverte
+    choix:
+      - id: selectionner-ancrage-prepare
+        intention: { cle: evenement.finale.selection.choix.prepare, variables: [] }
+        couts_connus:
+          - { cle: evenement.finale.selection.choix.prepare.cout, variables: [] }
+        effets:
+          - { type: stock.modifier, stock: materiaux, valeur: -4 }
+        faits_produits:
+          - { id: finale.ancrage.selection-preparee, cible: coeur-du-noeud }
+      - id: selectionner-ancrage-risque
+        intention: { cle: evenement.finale.selection.choix.risque, variables: [] }
+        couts_connus:
+          - { cle: evenement.finale.selection.choix.risque.cout, variables: [] }
+        effets:
+          - { type: stock.modifier, stock: materiaux, valeur: -10 }
+          - { type: habitants.modifier, valeur: -8 }
+        faits_produits:
+          - { id: finale.ancrage.selection-risquee, cible: coeur-du-noeud }
+    consequence_differee: { type: ancrage-rendu-irreversible-avant-la-derniere-negociation, cible: coeur-du-noeud }
+    recuperation: { type: solution-impossible-reste-non-selectionnable }
+    variantes:
+      - id: prepare
+        condition: fait-present:couronne.approches.berceau-amorce
+        presentation: { cle: evenement.finale.selection.variante.prepare, variables: [] }
+      - id: breche
+        condition: fait-present:couronne.ouverture.breche-ouverte
+        presentation: { cle: evenement.finale.selection.variante.breche, variables: [] }
+      - id: standard
+        condition: toujours
+        presentation: { cle: evenement.finale.selection.variante.standard, variables: [] }
+    destination_echo: journal-de-campagne
+    asset: finale.ancrage.choisir-d-ancrer-le-coeur
+
+  - id: finale.ancrage.la-derniere-negociation
+    famille: histoires-de-compagnons
+    themes: [derniere-negociation, refuge-commun, citadelle-de-cendre, dernier-rempart]
+    fonction: conclure-l-ancrage-avec-les-seuls-moyens-credibles
+    fenetre: finale-ancrage
+    conditions:
+      requises:
+        - type: un-des-faits-present
+          faits:
+            - finale.ancrage.selection-preparee
+            - finale.ancrage.selection-risquee
+      interdites: []
+    periode_eligibilite: { debut: 1200, fin: 2147483647 }
+    priorite: 180
+    epuisement: unique
+    acteurs:
+      - porte-lanterne
+      - ilyana-voss
+      - equipes-de-l-anneau
+    origine: { cle: evenement.finale.negociation.origine, variables: [] }
+    libelle_intentions: { cle: evenement.ruban.intentions, variables: [] }
+    titre: { cle: evenement.finale.negociation.titre, variables: [] }
+    presentation: { cle: evenement.finale.negociation.presentation, variables: [] }
+    informations:
+      - source: ilyana-voss
+        texte: { cle: evenement.finale.negociation.information, variables: [] }
+    faits_lus:
+      - finale.ancrage.selection-preparee
+      - finale.ancrage.selection-risquee
+      - couronne.ouverture.clef-collective
+      - couronne.approches.plans-confies-a-ilyana
+    choix:
+      - id: negocier-refuge-commun
+        intention: { cle: evenement.finale.negociation.choix.refuge, variables: [] }
+        couts_connus:
+          - { cle: evenement.finale.negociation.choix.refuge.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - { id: finale.ancrage.refuge-commun, cible: coeur-ancre }
+      - id: negocier-citadelle-de-cendre
+        intention: { cle: evenement.finale.negociation.choix.citadelle, variables: [] }
+        couts_connus:
+          - { cle: evenement.finale.negociation.choix.citadelle.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - { id: finale.ancrage.citadelle-de-cendre, cible: coeur-ancre }
+      - id: tenir-dernier-rempart
+        intention: { cle: evenement.finale.negociation.choix.rempart, variables: [] }
+        couts_connus:
+          - { cle: evenement.finale.negociation.choix.rempart.cout, variables: [] }
+        effets: []
+        faits_produits:
+          - { id: finale.ancrage.dernier-rempart, cible: coeur-ancre }
+    consequence_differee: { type: stabilite-controle-et-cout-humain-distingues, cible: coeur-ancre }
+    recuperation: { type: voix-du-compagnon-sans-veto-sur-la-conclusion }
+    variantes:
+      - id: ilyana
+        condition: fait-present:couronne.approches.plans-confies-a-ilyana
+        presentation: { cle: evenement.finale.negociation.variante.ilyana, variables: [] }
+      - id: collectif
+        condition: fait-present:couronne.ouverture.clef-collective
+        presentation: { cle: evenement.finale.negociation.variante.collectif, variables: [] }
+      - id: standard
+        condition: toujours
+        presentation: { cle: evenement.finale.negociation.variante.standard, variables: [] }
+    destination_echo: journal-de-campagne
+    asset: finale.ancrage.la-derniere-negociation

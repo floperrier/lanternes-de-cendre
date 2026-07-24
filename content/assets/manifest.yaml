@@ -265,3 +265,18 @@ assets:
     alternative: evenement.ouverture.clef.asset.alt
     contient_texte: false
     provenance: docs/assets/couronne-ouverture-clef.provenance.json
+  - id: finale.ancrage.le-contrat-des-trois-solutions
+    fichier: /api/commercial/assets/finale-ancrage-contrat.webp
+    alternative: evenement.finale.contrat.asset.alt
+    contient_texte: false
+    provenance: docs/assets/finale-ancrage-contrat.provenance.json
+  - id: finale.ancrage.choisir-d-ancrer-le-coeur
+    fichier: /api/commercial/assets/finale-ancrage-negociation.webp
+    alternative: evenement.finale.selection.asset.alt
+    contient_texte: false
+    provenance: docs/assets/finale-ancrage-negociation.provenance.json
+  - id: finale.ancrage.la-derniere-negociation
+    fichier: /api/commercial/assets/finale-ancrage-coeur.webp
+    alternative: evenement.finale.negociation.asset.alt
+    contient_texte: false
+    provenance: docs/assets/finale-ancrage-coeur.provenance.json

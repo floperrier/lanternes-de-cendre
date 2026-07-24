@@ -1397,6 +1397,85 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
     path: testInfo.outputPath("couronne-noeud-central-mobile.png"),
     fullPage: true,
   });
+
+  const contratFinal = pageColonies.getByRole("region", {
+    name: "Contrat final du Nœud",
+  });
+  await expect(contratFinal).toContainText(
+    "Ancrer le cœur — Solution finale risquée",
+  );
+  await expect(contratFinal).toContainText(
+    "Réaccorder le réseau — Solution finale impossible",
+  );
+  await expect(contratFinal).toContainText(
+    "Faire tomber la cendre",
+  );
+  await activerAuClavier(
+    pageColonies,
+    contratFinal.getByText("Causes consultables").first(),
+  );
+  await expect(contratFinal).toContainText(
+    "bus du Nœud détruits par la brèche",
+  );
+  await expect(
+    sauvegardeColonies.getByText(
+      "Point de reprise avant Solution finale enregistré.",
+    ),
+  ).toBeVisible();
+
+  const revelationFinale = pageColonies.getByRole("region", {
+    name: "Le contrat des trois Solutions",
+  });
+  await expect(revelationFinale.getByRole("img")).toBeVisible();
+  await activerAuClavier(
+    pageColonies,
+    revelationFinale.getByRole("button", {
+      name: "Rendre les causes lisibles à toutes les équipes",
+    }),
+  );
+  await pageColonies.clock.fastForward(1_000);
+
+  const choixDAncrage = pageColonies.getByRole("region", {
+    name: "Choisir d’Ancrer le cœur",
+  });
+  await expect(choixDAncrage.getByRole("img")).toBeVisible();
+  const ancrageRisque = choixDAncrage.getByRole("button", {
+    name: "Forcer l’Ancrage risqué",
+  });
+  await expect(ancrageRisque).toContainText(
+    "10 Matériaux et 8 Habitants exposés",
+  );
+  await expect(choixDAncrage.getByRole("button")).toHaveCount(1);
+  await activerAuClavier(pageColonies, ancrageRisque);
+  await pageColonies.clock.fastForward(1_000);
+
+  const derniereNegociation = pageColonies.getByRole("region", {
+    name: "La Dernière négociation",
+  });
+  await expect(derniereNegociation.getByRole("img")).toBeVisible();
+  await expect(derniereNegociation.getByRole("button")).toHaveCount(1);
+  await activerAuClavier(
+    pageColonies,
+    derniereNegociation.getByRole("button", {
+      name: "Tenir le cœur comme Dernier Rempart",
+    }),
+  );
+  await pageColonies.clock.fastForward(1_000);
+
+  await expect(contratFinal).toContainText("Dernier Rempart");
+  await expect(contratFinal).toContainText(
+    "stabilité technique sous contrainte",
+  );
+  await expect(contratFinal).toContainText(
+    "contrôle gardé par les équipes",
+  );
+  await expect(contratFinal).toContainText(
+    "coût humain durablement élevé",
+  );
+  await pageColonies.screenshot({
+    path: testInfo.outputPath("finale-ancrage-dernier-rempart-mobile.png"),
+    fullPage: true,
+  });
   await navigateurColonies.close();
   await navigateurTraverse.close();
 

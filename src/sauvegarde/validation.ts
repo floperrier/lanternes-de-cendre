@@ -128,6 +128,12 @@ import {
   reconstruireEtatDeTraverseLibre,
   type EtatDeTraverseLibre,
 } from "../simulation/traverseLibre";
+import {
+  ancrageEstPrepare,
+  citadelleDeCendreEstCredible,
+  COUTS_DES_SOLUTIONS_FINALES,
+  refugeCommunEstCredible,
+} from "../simulation/finale";
 
 const EMPREINTE = /^[0-9a-f]{8}$/;
 const IDENTIFIANTS_PLATEFORMES_LEGACY_V1 = [
@@ -2486,6 +2492,173 @@ export function ouvertureDeLaCouronneEstCausale(
   return true;
 }
 
+const IDS_DU_CONTRAT_FINAL = new Set([
+  "finale.contrat.causes-publiees",
+  "finale.contrat.causes-consignees",
+]);
+const IDS_DE_SELECTION_D_ANCRAGE = new Set([
+  "finale.ancrage.selection-preparee",
+  "finale.ancrage.selection-risquee",
+]);
+const IDS_DE_VARIANTE_D_ANCRAGE = new Set([
+  "finale.ancrage.refuge-commun",
+  "finale.ancrage.citadelle-de-cendre",
+  "finale.ancrage.dernier-rempart",
+]);
+
+function effetsDeFaitSontExactement(
+  fait: ObjetInconnu,
+  materielsAttendus: readonly {
+    readonly stock: "eau" | "materiaux";
+    readonly variation: number;
+  }[],
+  humainsAttendus: readonly number[],
+): boolean {
+  const effets = fait.effets;
+  if (
+    !estObjet(effets) ||
+    !Array.isArray(effets.materiels) ||
+    !Array.isArray(effets.humains) ||
+    effets.materiels.length !== materielsAttendus.length ||
+    effets.humains.length !== humainsAttendus.length
+  ) {
+    return false;
+  }
+  const materiels = effets.materiels;
+  const humains = effets.humains;
+  return (
+    materielsAttendus.every((attendu, index) =>
+      estEffetStock(
+        materiels[index],
+        attendu.variation,
+        attendu.stock,
+      ),
+    ) &&
+    humainsAttendus.every((variation, index) =>
+      estEffetHumain(
+        humains[index],
+        "habitants.modifies",
+        "variation",
+        variation,
+      ),
+    )
+  );
+}
+
+export function ancrageFinalEstCausal(
+  faits: readonly ObjetInconnu[],
+  infrastructure: EtatInfrastructure,
+  routes: EtatDesRoutes,
+  expeditions: EtatDesExpeditions,
+  hautPuits: EtatDeHautPuits,
+  veilleBasse: EtatDeVeilleBasse,
+  habitantsCourants: number,
+): boolean {
+  const contrats = faits
+    .map((fait, index) => ({ fait, index }))
+    .filter(({ fait }) => IDS_DU_CONTRAT_FINAL.has(String(fait.id)));
+  const selections = faits
+    .map((fait, index) => ({ fait, index }))
+    .filter(({ fait }) =>
+      IDS_DE_SELECTION_D_ANCRAGE.has(String(fait.id)),
+    );
+  const variantes = faits
+    .map((fait, index) => ({ fait, index }))
+    .filter(({ fait }) =>
+      IDS_DE_VARIANTE_D_ANCRAGE.has(String(fait.id)),
+    );
+
+  if (
+    contrats.length > 1 ||
+    selections.length > 1 ||
+    variantes.length > 1
+  ) {
+    return false;
+  }
+  if (
+    ![...contrats, ...variantes].every(({ fait }) =>
+      effetsDeFaitSontExactement(fait, [], []),
+    )
+  ) {
+    return false;
+  }
+
+  const selection = selections[0];
+  if (selection !== undefined) {
+    const contrat = contrats[0];
+    if (
+      contrat === undefined ||
+      contrat.index >= selection.index ||
+      !estNombreFini(selection.fait.moment)
+    ) {
+      return false;
+    }
+    const faitsAvant = faits.slice(0, selection.index);
+    const idsAvant = new Set(
+      faitsAvant.map((fait) => String(fait.id)),
+    );
+    const ancragePrepare = ancrageEstPrepare(idsAvant);
+    const estPrepare =
+      selection.fait.id === "finale.ancrage.selection-preparee";
+    const cout =
+      COUTS_DES_SOLUTIONS_FINALES.ancrer[
+        estPrepare ? "preparee" : "risquee"
+      ];
+    if (
+      estPrepare !== ancragePrepare ||
+      !effetsDeFaitSontExactement(
+        selection.fait,
+        [{ stock: "materiaux", variation: -cout.materiaux }],
+        cout.habitants === 0 ? [] : [-cout.habitants],
+      ) ||
+      habitantsCourants <= 0 ||
+      !calculerStockAttendu(
+        "materiaux",
+        selection.fait.moment as number,
+        faitsAvant,
+        infrastructure,
+        routes,
+        expeditions,
+        hautPuits,
+        veilleBasse,
+      ).possibilites.some(
+        ({ quantite }) => quantite >= cout.materiaux,
+      )
+    ) {
+      return false;
+    }
+  }
+
+  const variante = variantes[0];
+  if (variante === undefined) {
+    return true;
+  }
+  if (
+    selection === undefined ||
+    selection.index >= variante.index
+  ) {
+    return false;
+  }
+  const idsAvant = new Set(
+    faits
+      .slice(0, variante.index)
+      .map((fait) => String(fait.id)),
+  );
+  if (variante.fait.id === "finale.ancrage.refuge-commun") {
+    return (
+      selection.fait.id === "finale.ancrage.selection-preparee" &&
+      refugeCommunEstCredible(idsAvant)
+    );
+  }
+  if (
+    variante.fait.id ===
+    "finale.ancrage.citadelle-de-cendre"
+  ) {
+    return citadelleDeCendreEstCredible(idsAvant);
+  }
+  return variante.fait.id === "finale.ancrage.dernier-rempart";
+}
+
 function estEtatPilotage(
   valeur: unknown,
   secondesCourantes: number,
@@ -3507,6 +3680,15 @@ function lireEtatAvecSchemaCourant(
       expeditions,
       hautPuits,
       veilleBasse,
+    ) ||
+    !ancrageFinalEstCausal(
+      narration.faitsDeCampagne,
+      infrastructure,
+      routes,
+      expeditions,
+      hautPuits,
+      veilleBasse,
+      parties.citeCaravane.habitants,
     ) ||
     !estCausaliteDeNarrationValide(
       parties,

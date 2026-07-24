@@ -85,6 +85,9 @@ acteurs:
   - verrous-du-noeud
   - clef-du-noeud
   - anneau-interieur
+  - coeur-du-noeud
+  - contrat-des-trois-solutions
+  - coeur-ancre
 quartiers:
   - intendance
   - foyers
@@ -110,6 +113,7 @@ fenetres:
   - couronne-serres-de-verre
   - couronne-seuil
   - couronne-ouverture
+  - finale-ancrage
 lieux:
   - halte-du-puits-sec
   - haut-puits
@@ -262,3 +266,10 @@ faits:
   - couronne.ouverture.breche-ouverte
   - couronne.ouverture.clef-confiee-aux-gardiennes
   - couronne.ouverture.clef-collective
+  - finale.contrat.causes-publiees
+  - finale.contrat.causes-consignees
+  - finale.ancrage.selection-preparee
+  - finale.ancrage.selection-risquee
+  - finale.ancrage.refuge-commun
+  - finale.ancrage.citadelle-de-cendre
+  - finale.ancrage.dernier-rempart

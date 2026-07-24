@@ -131,6 +131,7 @@ import {
   ajusterEffetsDuChoixDeLAiguillageZero,
   choixDeLAiguillageZeroEstDisponible,
 } from "./aiguillageZero";
+import { choixDeFinaleEstDisponible } from "./finale";
 
 export type { GraineDeCampagne } from "./graine";
 export const IDENTIFIANTS_PLATEFORMES_MOBILES =
@@ -239,6 +240,11 @@ export type EvenementDeDomaine =
       readonly choixId: string;
       readonly effets: readonly EffetDEvenement[];
       readonly faitsProduits: readonly string[];
+    }
+  | {
+      readonly type: "finale.checkpoint-requis";
+      readonly moment: number;
+      readonly sauvegardeAtomiqueRequise: true;
     }
   | EvenementDAffectationDeCompagnon
   | EvenementDeDecisionDuConseil
@@ -483,6 +489,33 @@ function declencherSuiteNarrativeDeLaDemonstration(
   ) {
     return declencherEvenement(etat, "couronne-ouverture");
   }
+  if (
+    etat.routes.position === "noeud-central" &&
+    trouverEngagementDeRouteActif(etat.routes) === undefined
+  ) {
+    const finale = declencherEvenement(etat, "finale-ancrage");
+    if (
+      finale?.evenements.some(
+        (evenement) =>
+          evenement.type === "evenement-narratif.declenche" &&
+          evenement.evenementId ===
+            "finale.ancrage.le-contrat-des-trois-solutions",
+      )
+    ) {
+      return {
+        ...finale,
+        evenements: [
+          {
+            type: "finale.checkpoint-requis",
+            moment: etat.tempsDuConvoi.secondes,
+            sauvegardeAtomiqueRequise: true,
+          },
+          ...finale.evenements,
+        ],
+      };
+    }
+    return finale;
+  }
   return etat.routes.position === "haut-puits" &&
     trouverEngagementDeRouteActif(etat.routes) === undefined
     ? declencherEvenement(etat, "halte-haut-puits")
@@ -540,7 +573,8 @@ export function choixNarratifEstDisponible(
 ): boolean {
   if (
     !evenementId.startsWith("trame.") &&
-    !evenementId.startsWith("couronne.")
+    !evenementId.startsWith("couronne.") &&
+    !evenementId.startsWith("finale.")
   ) {
     return true;
   }
@@ -549,6 +583,12 @@ export function choixNarratifEstDisponible(
     (!choixDesApprochesDeLaCouronneEstDisponible(etat, choix.id) ||
       !choixDeLaVoieDesColoniesEstDisponible(etat, choix.id) ||
       !choixDeLOuvertureDeLaCouronneEstDisponible(etat, choix.id))
+  ) {
+    return false;
+  }
+  if (
+    evenementId.startsWith("finale.") &&
+    !choixDeFinaleEstDisponible(etat, choix.id)
   ) {
     return false;
   }

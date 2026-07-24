@@ -46,6 +46,9 @@ export const NOMS_D_ASSETS_PREMIUM = [
   "couronne-ouverture-montages.webp",
   "couronne-ouverture-conseil.webp",
   "couronne-ouverture-clef.webp",
+  "finale-ancrage-contrat.webp",
+  "finale-ancrage-negociation.webp",
+  "finale-ancrage-coeur.webp",
 ] as const;
 
 export const LIEUX_PREMIUM = [

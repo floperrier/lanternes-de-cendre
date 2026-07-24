@@ -48,28 +48,44 @@ export function RubanNarratif({
           role="group"
           aria-label={evenement.libelleIntentions}
         >
-          {evenement.choix.map((choix) => (
-            <button
-              key={choix.id}
-              type="button"
-              disabled={choix.disponible === false}
-              onClick={() =>
-                application.envoyerCommande({
-                  type: "evenement-narratif.choisir",
-                  evenementId: evenement.id,
-                  choixId: choix.id,
-                })
-              }
-            >
-              <span>{choix.intention}</span>
-              {choix.coutsConnus.map((cout) => (
-                <small key={cout}>{cout}</small>
-              ))}
-              {choix.indisponibilite === undefined ? null : (
-                <small>{choix.indisponibilite}</small>
-              )}
-            </button>
-          ))}
+          {evenement.choix.map((choix) => {
+            const commande = {
+              type: "evenement-narratif.choisir" as const,
+              evenementId: evenement.id,
+              choixId: choix.id,
+            };
+            const autorisee =
+              application.commandeEstAutorisee(commande);
+            const checkpointFinalRequis =
+              !autorisee &&
+              evenement.id ===
+                "finale.ancrage.choisir-d-ancrer-le-coeur";
+            return (
+              <button
+                key={choix.id}
+                type="button"
+                disabled={choix.disponible === false || !autorisee}
+                onClick={() =>
+                  application.envoyerCommande(commande)
+                }
+              >
+                <span>{choix.intention}</span>
+                {choix.coutsConnus.map((cout) => (
+                  <small key={cout}>{cout}</small>
+                ))}
+                {choix.indisponibilite === undefined ? null : (
+                  <small>{choix.indisponibilite}</small>
+                )}
+                {checkpointFinalRequis ? (
+                  <small>
+                    {langue === "fr"
+                      ? "Le point de reprise doit être enregistré avant cette décision."
+                      : "The recovery point must be saved before this decision."}
+                  </small>
+                ) : null}
+              </button>
+            );
+          })}
         </div>
       </div>
     </section>

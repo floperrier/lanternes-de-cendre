@@ -59,6 +59,9 @@ import provenanceCouronneOuvertureDiagnostic from "../../docs/assets/couronne-ou
 import provenanceCouronneOuvertureMontages from "../../docs/assets/couronne-ouverture-montages.provenance.json?raw";
 import provenanceCouronneOuvertureConseil from "../../docs/assets/couronne-ouverture-conseil.provenance.json?raw";
 import provenanceCouronneOuvertureClef from "../../docs/assets/couronne-ouverture-clef.provenance.json?raw";
+import provenanceFinaleAncrageContrat from "../../docs/assets/finale-ancrage-contrat.provenance.json?raw";
+import provenanceFinaleAncrageNegociation from "../../docs/assets/finale-ancrage-negociation.provenance.json?raw";
+import provenanceFinaleAncrageCoeur from "../../docs/assets/finale-ancrage-coeur.provenance.json?raw";
 import {
   ErreurDeContenu,
   compilerCatalogue,
@@ -174,6 +177,12 @@ const sourcesValides: SourcesDuCatalogue = {
       provenanceCouronneOuvertureConseil,
     "docs/assets/couronne-ouverture-clef.provenance.json":
       provenanceCouronneOuvertureClef,
+    "docs/assets/finale-ancrage-contrat.provenance.json":
+      provenanceFinaleAncrageContrat,
+    "docs/assets/finale-ancrage-negociation.provenance.json":
+      provenanceFinaleAncrageNegociation,
+    "docs/assets/finale-ancrage-coeur.provenance.json":
+      provenanceFinaleAncrageCoeur,
   },
   cheminDeProvenanceAsset: (chemin) =>
     chemin.startsWith("/api/commercial/assets/")
@@ -233,6 +242,9 @@ const sourcesValides: SourcesDuCatalogue = {
       "/api/commercial/assets/couronne-ouverture-montages.webp",
       "/api/commercial/assets/couronne-ouverture-conseil.webp",
       "/api/commercial/assets/couronne-ouverture-clef.webp",
+      "/api/commercial/assets/finale-ancrage-contrat.webp",
+      "/api/commercial/assets/finale-ancrage-negociation.webp",
+      "/api/commercial/assets/finale-ancrage-coeur.webp",
     ].includes(chemin),
   empreinteAsset: (chemin) =>
     ({
@@ -340,6 +352,12 @@ const sourcesValides: SourcesDuCatalogue = {
         "4e1a4caeed1681df8f67b169f9ee7505ef593dc8884463c02a7bf061e408ece0",
       "/api/commercial/assets/couronne-ouverture-clef.webp":
         "6c2b8022a2180d6b076a5a3713d6e98a61f9dc1e2003b0bdadce33bf13ddec2c",
+      "/api/commercial/assets/finale-ancrage-contrat.webp":
+        "c792b327d919e632ea9c09ae0b0b65997fa8399e8836e74a29b01b07d1327e00",
+      "/api/commercial/assets/finale-ancrage-negociation.webp":
+        "9f15ff90971d5bbd3237c556435c00857dd0165bdcc266674835655129cba11e",
+      "/api/commercial/assets/finale-ancrage-coeur.webp":
+        "21c39a0d0b01c931c030649e9fe60a178ab11f6ea688606b7afaae8470f09601",
     })[chemin] ?? "0".repeat(64),
   tailleAsset: () => 256_000,
 };

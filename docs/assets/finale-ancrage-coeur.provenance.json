@@ -1,0 +1,15 @@
+{
+  "asset": "serveur-commercial/assets/finale-ancrage-coeur.webp",
+  "sha256": "21c39a0d0b01c931c030649e9fe60a178ab11f6ea688606b7afaae8470f09601",
+  "createdAt": "2026-07-23",
+  "tool": "Codex built-in image_gen",
+  "model": "built-in model (identifier not exposed)",
+  "useCase": "stylized-concept",
+  "input": "No input image; generated from the project’s established industrial ash-world art direction.",
+  "prompt": "Diverse caravan crews anchor the Central Node heart while recording locks and supporting exhausted workers; cinematic painterly 16:9, no text or logos.",
+  "rights": "OpenAI Terms of Use — output assigned to the user",
+  "approval": {
+    "status": "pending-pull-request-review",
+    "reviewer": null
+  }
+}

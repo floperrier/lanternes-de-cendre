@@ -77,7 +77,9 @@ export interface PolitiqueDAccesAuContenu {
 }
 
 export interface RefusDeCommande {
-  readonly code: "acces-premium-requis";
+  readonly code:
+    | "acces-premium-requis"
+    | "checkpoint-finale-requis";
 }
 
 export class ErreurDeCommandeRefusee extends Error {
@@ -91,7 +93,7 @@ export interface OptionsDApplicationCampagne {
   readonly politiqueDAcces?: PolitiqueDAccesAuContenu;
 }
 
-const ACCES_AU_CONTENU_DE_LA_DEMONSTRATION: PolitiqueDAccesAuContenu = {
+export const ACCES_AU_CONTENU_DE_LA_DEMONSTRATION: PolitiqueDAccesAuContenu = {
   verifierCommande: (etat, commande) =>
     commande.type === "haut-puits.marche.echanger" ||
     (commande.type === "engagement-de-route.confirmer" &&
@@ -115,6 +117,29 @@ export function creerPolitiqueDAccesPremium(
             etat,
             commande,
           ),
+  };
+}
+
+export function creerPolitiqueDAccesAvecCheckpointFinal(
+  politiqueOriginale: PolitiqueDAccesAuContenu,
+  checkpointFinalEstDurable: () => boolean,
+): PolitiqueDAccesAuContenu {
+  return {
+    verifierCommande: (etat, commande) => {
+      const refusOriginal = politiqueOriginale.verifierCommande(
+        etat,
+        commande,
+      );
+      if (refusOriginal !== null) {
+        return refusOriginal;
+      }
+      return !checkpointFinalEstDurable() &&
+        commande.type === "evenement-narratif.choisir" &&
+        commande.evenementId ===
+          "finale.ancrage.choisir-d-ancrer-le-coeur"
+        ? { code: "checkpoint-finale-requis" }
+        : null;
+    },
   };
 }
 
@@ -353,7 +378,8 @@ function projeterEvenementNarratif(
             evenement.id.startsWith("trame.marche.") ||
             evenement.id ===
               "trame.aiguillage-zero.le-conseil-des-voies" ||
-            evenement.id.startsWith("couronne.")
+            evenement.id.startsWith("couronne.") ||
+            evenement.id.startsWith("finale.")
           ) ||
             choixNarratifEstDisponible(etat, evenement.id, {
               id: choix.id,
@@ -393,7 +419,8 @@ function projeterEvenementNarratif(
                   rendreTexte(cout, contexte),
                 ),
           ...(evenement.id.startsWith("trame.") ||
-          evenement.id.startsWith("couronne.")
+          evenement.id.startsWith("couronne.") ||
+          evenement.id.startsWith("finale.")
             ? {
                 disponible,
                 ...(!disponible

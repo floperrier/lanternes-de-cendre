@@ -260,6 +260,28 @@ export interface TextesDeLOuvertureDeLaCouronne {
   readonly libelles: DictionnaireDeTextes;
 }
 
+export interface TextesDuContratFinal {
+  readonly titre: string;
+  readonly eyebrow: string;
+  readonly solutions: DictionnaireDeTextes;
+  readonly statuts: DictionnaireDeTextes;
+  readonly disponibilites: DictionnaireDeTextes;
+  readonly causes: DictionnaireDeTextes;
+  readonly ressources: DictionnaireDeTextes;
+  readonly selections: DictionnaireDeTextes;
+  readonly variantes: DictionnaireDeTextes;
+  readonly stabilites: DictionnaireDeTextes;
+  readonly controles: DictionnaireDeTextes;
+  readonly coutsHumains: DictionnaireDeTextes;
+  readonly aucunBilan: string;
+  readonly formats: {
+    readonly solution: string;
+    readonly cout: string;
+    readonly bilan: string;
+  };
+  readonly libelles: DictionnaireDeTextes;
+}
+
 export interface PresentationsPremium {
   readonly hautPuits: Readonly<Record<Langue, TextesDeHautPuits>>;
   readonly veilleBasse: Readonly<Record<Langue, TextesDeVeilleBasse>>;
@@ -280,6 +302,7 @@ export interface PresentationsPremium {
   readonly ouvertureCouronne?: Readonly<
     Record<Langue, TextesDeLOuvertureDeLaCouronne>
   >;
+  readonly finale?: Readonly<Record<Langue, TextesDuContratFinal>>;
   readonly deversoir?: Readonly<
     Record<
       Langue,
@@ -422,6 +445,76 @@ function estPresentationDeLOuvertureDeLaCouronne(
   );
 }
 
+function estPresentationDuContratFinal(valeur: unknown): boolean {
+  if (
+    !estObjet(valeur) ||
+    typeof valeur.titre !== "string" ||
+    valeur.titre.length === 0 ||
+    typeof valeur.eyebrow !== "string" ||
+    valeur.eyebrow.length === 0 ||
+    typeof valeur.aucunBilan !== "string" ||
+    valeur.aucunBilan.length === 0
+  ) {
+    return false;
+  }
+  return [
+    ["solutions", ["ancrer", "reaccorder", "precipiter"]],
+    ["statuts", ["preparee", "risquee", "impossible"]],
+    ["disponibilites", ["selectionnable", "non-selectionnable"]],
+    [
+      "causes",
+      [
+        "berceau-amorce",
+        "berceau-absent",
+        "etalon-calibre",
+        "etalon-absent",
+        "precipitateur-assemble",
+        "precipitateur-absent",
+        "noeud-preserve",
+        "noeud-contraint",
+        "noeud-endommage",
+        "coalition-presente",
+        "coalition-absente",
+        "accord-partage",
+        "accord-ferme",
+        "ligne-zero-relevee",
+        "ligne-zero-absente",
+        "ressources-suffisantes",
+        "materiaux-insuffisants",
+        "eau-insuffisante",
+        "habitants-insuffisants",
+      ],
+    ],
+    ["ressources", ["eau", "materiaux", "habitants"]],
+    [
+      "selections",
+      ["aucune", "ancrage-prepare", "ancrage-risque"],
+    ],
+    [
+      "variantes",
+      [
+        "aucune",
+        "refuge-commun",
+        "citadelle-de-cendre",
+        "dernier-rempart",
+      ],
+    ],
+    ["stabilites", ["stable", "fortifiee", "sous-contrainte"]],
+    ["controles", ["partage", "centralise", "equipes"]],
+    ["coutsHumains", ["contenu", "inegal", "eleve"]],
+    ["formats", ["solution", "cout", "bilan"]],
+    [
+      "libelles",
+      ["solutions", "causes", "selection", "negociation", "variante", "bilan"],
+    ],
+  ].every(([champ, cles]) =>
+    estDictionnaireAvecCles(
+      valeur[champ as string],
+      cles as readonly string[],
+    ),
+  );
+}
+
 export function lirePresentationsPremium(): PresentationsPremium | null {
   return presentationsInstallees;
 }
@@ -500,6 +593,14 @@ export function installerPresentationsPremium(valeur: unknown): void {
         typeof evenement.id === "string" &&
         evenement.id.startsWith("couronne.ouverture."),
     );
+  const inclutFinale =
+    Array.isArray(evenements) &&
+    evenements.some(
+      (evenement) =>
+        estObjet(evenement) &&
+        typeof evenement.id === "string" &&
+        evenement.id.startsWith("finale."),
+    );
   const surfacesAttendues = [
     "hautPuits",
     "veilleBasse",
@@ -513,6 +614,7 @@ export function installerPresentationsPremium(valeur: unknown): void {
     ...(inclutOuvertureDeLaCouronne
       ? ["ouvertureCouronne"]
       : []),
+    ...(inclutFinale ? ["finale"] : []),
   ];
   if (
     !estObjet(presentations) ||
@@ -526,6 +628,12 @@ export function installerPresentationsPremium(valeur: unknown): void {
                   langue
                 ],
               )
+            : surface === "finale"
+              ? estPresentationDuContratFinal(
+                  (presentations[surface] as Record<string, unknown>)[
+                    langue
+                  ],
+                )
             : estArbreDeTextes(
                 (presentations[surface] as Record<string, unknown>)[
                   langue

@@ -21,6 +21,7 @@ import { projeterAiguillageZero } from "../application/aiguillageZero";
 import { projeterApprochesDeLaCouronne } from "../application/couronne";
 import { projeterVoieDesColonies } from "../application/voieColonies";
 import { projeterOuvertureDeLaCouronne } from "../application/ouvertureCouronne";
+import { projeterContratFinal } from "../application/finale";
 import type { Langue } from "../content/types";
 import { criseAttendSonCheckpoint } from "../simulation/crise";
 import {
@@ -51,6 +52,7 @@ import { AiguillageZero } from "./AiguillageZero";
 import { Couronne } from "./Couronne";
 import { VoieColonies } from "./VoieColonies";
 import { OuvertureCouronne } from "./OuvertureCouronne";
+import { ContratFinal } from "./ContratFinal";
 
 interface PropsCampagne {
   readonly etatDuControleur: Extract<
@@ -114,6 +116,7 @@ function CampagnePersistante({
   );
   const projectionDeLOuvertureDeLaCouronne =
     projeterOuvertureDeLaCouronne(etat, langue);
+  const projectionDuContratFinal = projeterContratFinal(etat, langue);
   const surfacePrioritaire = choisirSurfacePrioritaire({
     criseActive: projectionDesCrises.active !== null,
     checkpointDeCriseRequis,
@@ -264,6 +267,7 @@ function CampagnePersistante({
           <OuvertureCouronne
             projection={projectionDeLOuvertureDeLaCouronne}
           />
+          <ContratFinal projection={projectionDuContratFinal} />
         </div>
       </div>
 

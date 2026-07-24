@@ -9,5 +9,11 @@ export function choisirMessageDeSauvegarde({
   messageLocal,
   statutAutomatique,
 }: MessagesDeSauvegarde): string {
-  return erreurAsynchrone ?? messageLocal ?? statutAutomatique;
+  if (erreurAsynchrone !== undefined) {
+    return erreurAsynchrone;
+  }
+  if (statutAutomatique.startsWith("Point de reprise")) {
+    return statutAutomatique;
+  }
+  return messageLocal ?? statutAutomatique;
 }

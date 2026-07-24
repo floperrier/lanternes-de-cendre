@@ -1,0 +1,15 @@
+{
+  "asset": "serveur-commercial/assets/finale-ancrage-negociation.webp",
+  "sha256": "9f15ff90971d5bbd3237c556435c00857dd0165bdcc266674835655129cba11e",
+  "createdAt": "2026-07-23",
+  "tool": "Codex built-in image_gen",
+  "model": "built-in model (identifier not exposed)",
+  "useCase": "stylized-concept",
+  "input": "No input image; generated from the project’s established industrial ash-world art direction.",
+  "prompt": "An incomplete final Council negotiates only with established mandates, registers, parts and crews beside the anchoring cradle; cinematic painterly 16:9, no text or logos.",
+  "rights": "OpenAI Terms of Use — output assigned to the user",
+  "approval": {
+    "status": "pending-pull-request-review",
+    "reviewer": null
+  }
+}

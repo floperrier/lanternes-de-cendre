@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  ACCES_AU_CONTENU_COMPLET,
   creerApplicationCampagne,
+  creerPolitiqueDAccesAvecCheckpointFinal,
   creerPolitiqueDAccesPremium,
 } from "./application";
 
@@ -50,5 +52,36 @@ describe("politique d’Accès premium vivante", () => {
     expect(application.commandeEstAutorisee(echange)).toBe(false);
     premium = true;
     expect(application.commandeEstAutorisee(echange)).toBe(true);
+  });
+
+  it("garde la décision finale verrouillée jusqu’au checkpoint durable", () => {
+    let checkpointFinalDurable = false;
+    const application = creerApplicationCampagne("CENDRE-01", {
+      politiqueDAcces: creerPolitiqueDAccesAvecCheckpointFinal(
+        ACCES_AU_CONTENU_COMPLET,
+        () => checkpointFinalDurable,
+      ),
+    });
+    const decisionFinale = {
+      type: "evenement-narratif.choisir" as const,
+      evenementId:
+        "finale.ancrage.choisir-d-ancrer-le-coeur",
+      choixId: "selectionner-ancrage-risque",
+    };
+    const autreChoix = {
+      ...decisionFinale,
+      evenementId: "prologue.signaux-sous-la-cendre",
+    };
+
+    expect(application.commandeEstAutorisee(decisionFinale)).toBe(
+      false,
+    );
+    expect(application.commandeEstAutorisee(autreChoix)).toBe(true);
+
+    checkpointFinalDurable = true;
+
+    expect(application.commandeEstAutorisee(decisionFinale)).toBe(
+      true,
+    );
   });
 });

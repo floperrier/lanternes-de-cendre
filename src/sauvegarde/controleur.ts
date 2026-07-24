@@ -1,6 +1,8 @@
-import type {
-  ApplicationCampagne,
-  PolitiqueDAccesAuContenu,
+import {
+  ACCES_AU_CONTENU_DE_LA_DEMONSTRATION,
+  creerPolitiqueDAccesAvecCheckpointFinal,
+  type ApplicationCampagne,
+  type PolitiqueDAccesAuContenu,
 } from "../application/application";
 import {
   empreinteEtat,
@@ -93,7 +95,15 @@ export function creerControleurDeSessionCampagne({
   let temporisation: ReturnType<typeof setTimeout> | undefined;
   let fileDOperations: Promise<void> = Promise.resolve();
   let seDesabonnerDesCommandes: (() => void) | undefined;
+  let checkpointFinalDurable = true;
   const ecouteurs = new Set<() => void>();
+  const politiqueOriginale =
+    politiqueDAcces ?? ACCES_AU_CONTENU_DE_LA_DEMONSTRATION;
+  const politiqueDeSession =
+    creerPolitiqueDAccesAvecCheckpointFinal(
+      politiqueOriginale,
+      () => checkpointFinalDurable,
+    );
 
   const publier = (nouvelEtat: EtatDuControleurDeSession) => {
     etat = nouvelEtat;
@@ -232,6 +242,7 @@ export function creerControleurDeSessionCampagne({
     ouverture: ResultatOuvertureCampagne,
     erreurSauvegarde: string | undefined = undefined,
   ) => {
+    checkpointFinalDurable = true;
     seDesabonnerDesCommandes?.();
     application = ouverture.application;
     journal = {
@@ -285,6 +296,38 @@ export function creerControleurDeSessionCampagne({
             });
           return;
         }
+        if (
+          evenements.some(
+            (evenement) =>
+              evenement.type === "finale.checkpoint-requis",
+          )
+        ) {
+          checkpointFinalDurable = false;
+          const generationDuCheckpoint = generation;
+          if (temporisation !== undefined) {
+            clearTimeout(temporisation);
+            temporisation = undefined;
+          }
+          publierStatutSauvegarde(
+            "Point de reprise avant Solution finale en cours…",
+          );
+          void enfilerSauvegarde(generationDuCheckpoint)
+            .then(() => {
+              if (generationDuCheckpoint === generation) {
+                checkpointFinalDurable = true;
+                publierStatutSauvegarde(
+                  "Point de reprise avant Solution finale enregistré.",
+                );
+              }
+            })
+            .catch((erreur: unknown) => {
+              if (generationDuCheckpoint === generation) {
+                const message = `Le point de reprise avant Solution finale a échoué : ${messageDErreur(erreur)}`;
+                publierStatutSauvegarde(message, message);
+              }
+            });
+          return;
+        }
         planifierSauvegarde();
       },
     );
@@ -299,7 +342,9 @@ export function creerControleurDeSessionCampagne({
     }
   };
 
-  const ouverture = ouvrirCampagne(port, graine, { politiqueDAcces })
+  const ouverture = ouvrirCampagne(port, graine, {
+    politiqueDAcces: politiqueDeSession,
+  })
     .then((resultat) => {
       brancherOuverture(resultat);
       planifierSauvegarde();
@@ -324,7 +369,18 @@ export function creerControleurDeSessionCampagne({
       try {
         const generationDeLEcriture = generation;
         const applicationSauvegardee = application;
+        const confirmerCheckpointFinal = !checkpointFinalDurable;
         await enfilerSauvegarde(generationDeLEcriture);
+        if (
+          confirmerCheckpointFinal &&
+          generationDeLEcriture === generation &&
+          applicationSauvegardee === application
+        ) {
+          checkpointFinalDurable = true;
+          publierStatutSauvegarde(
+            "Point de reprise avant Solution finale enregistré.",
+          );
+        }
         if (applicationSauvegardee !== undefined) {
           declencherCriseApresCheckpoint(
             applicationSauvegardee,
@@ -364,7 +420,7 @@ export function creerControleurDeSessionCampagne({
         let resultat: ResultatImportCampagne;
         try {
           resultat = await importerCampagne(port, archiveOriginale, {
-            politiqueDAcces,
+            politiqueDAcces: politiqueDeSession,
           });
         } catch (erreur) {
           terminerImport();

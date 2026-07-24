@@ -14330,6 +14330,949 @@ export default {
           }
         }
       }
+    },
+    {
+      "id": "finale.ancrage.le-contrat-des-trois-solutions",
+      "famille": "mystere-des-phares",
+      "themes": [
+        "trois-solutions",
+        "causes-consultables",
+        "noeud-central",
+        "revelation-finale"
+      ],
+      "fonction": "reveler-le-contrat-final-et-les-causes-de-chaque-solution",
+      "fenetre": "finale-ancrage",
+      "conditions": {
+        "requises": [
+          {
+            "type": "lieu-present",
+            "lieu": "noeud-central"
+          }
+        ],
+        "interdites": []
+      },
+      "periodeEligibilite": {
+        "debut": 1200,
+        "fin": 2147483647
+      },
+      "priorite": 200,
+      "epuisement": "unique",
+      "acteurs": [
+        "porte-lanterne",
+        "equipes-de-l-anneau",
+        "coeur-du-noeud"
+      ],
+      "sourcesInformations": [
+        "coeur-du-noeud"
+      ],
+      "faitsLus": [
+        "couronne.approches.berceau-amorce",
+        "couronne.ouverture.breche-ouverte"
+      ],
+      "choix": [
+        {
+          "id": "publier-causes-des-solutions",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "finale.contrat.causes-publiees",
+              "cible": "contrat-des-trois-solutions"
+            }
+          ]
+        },
+        {
+          "id": "consigner-causes-separement",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "finale.contrat.causes-consignees",
+              "cible": "contrat-des-trois-solutions"
+            }
+          ]
+        }
+      ],
+      "consequenceDifferee": {
+        "type": "trois-solutions-rendues-comparables-sans-tirage-final",
+        "cible": "coeur-du-noeud"
+      },
+      "recuperation": {
+        "type": "causes-et-couts-restent-consultables"
+      },
+      "variantes": [
+        {
+          "id": "breche",
+          "condition": {
+            "type": "fait-present",
+            "fait": "couronne.ouverture.breche-ouverte"
+          }
+        },
+        {
+          "id": "projets",
+          "condition": {
+            "type": "fait-present",
+            "fait": "couronne.approches.berceau-amorce"
+          }
+        },
+        {
+          "id": "standard",
+          "condition": {
+            "type": "toujours"
+          }
+        }
+      ],
+      "destinationEcho": "journal-de-campagne",
+      "asset": {
+        "id": "finale.ancrage.le-contrat-des-trois-solutions",
+        "fichier": "/api/commercial/assets/finale-ancrage-contrat.webp",
+        "octetsTransferes": 117038,
+        "contientTexte": false,
+        "alternatives": {
+          "fr": "Des équipes comparent trois mécanismes séparés — berceau d’ancrage, étalon de réaccord et conduit de précipitation — autour du Nœud.",
+          "en": "Crews compare three separate mechanisms—anchoring cradle, retuning standard, and precipitation conduit—around the Node."
+        },
+        "provenance": {
+          "fiche": "docs/assets/finale-ancrage-contrat.provenance.json",
+          "creeLe": "2026-07-23",
+          "outil": "Codex built-in image_gen",
+          "modele": "built-in model (identifier not exposed)",
+          "usage": "stylized-concept",
+          "entree": "No input image; generated from the project’s established industrial ash-world art direction.",
+          "prompt": "Crews compare the anchoring cradle, retuning standard and precipitation conduit inside the Central Node; cinematic painterly 16:9, no text or logos.",
+          "droits": "OpenAI Terms of Use — output assigned to the user",
+          "empreinteSha256": "c792b327d919e632ea9c09ae0b0b65997fa8399e8836e74a29b01b07d1327e00",
+          "statutApprobation": "pending-pull-request-review",
+          "reviseur": null
+        }
+      },
+      "textes": {
+        "fr": {
+          "origine": {
+            "cle": "evenement.finale.contrat.origine",
+            "modele": "Table des trois organes finaux",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.finale.contrat.titre",
+            "modele": "Le contrat des trois Solutions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.finale.contrat.presentation",
+            "modele": "Le Nœud ne promet aucune guérison : Ancrer, Réaccorder ou Précipiter possèdent chacun un état, des causes et un coût déterminé par la Campagne. Aucun tirage ne viendra corriger le choix.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.finale.contrat.information",
+              "modele": "Les équipes séparent préparation technique, contrôle politique et dette humaine. Une Solution impossible restera visible mais ne pourra pas être engagée.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "breche": {
+              "cle": "evenement.finale.contrat.variante.breche",
+              "modele": "La brèche a détruit les bus de réaccord : cette impossibilité est inscrite sans contaminer le diagnostic des deux autres Solutions.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "projets": {
+              "cle": "evenement.finale.contrat.variante.berceau",
+              "modele": "Le Berceau amorcé donne à l’Ancrage une portance mesurée et un coût réduit.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.finale.contrat.variante.standard",
+              "modele": "Les organes répondent seulement aux préparatifs, ressources, alliances et dommages effectivement consignés.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "publier-causes-des-solutions": {
+              "intention": {
+                "cle": "evenement.finale.contrat.choix.publier",
+                "modele": "Rendre les causes lisibles à toutes les équipes",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.finale.contrat.choix.publier.cout",
+                  "modele": "Coût connu : aucun stock ; les mêmes causes deviennent contestables par chaque délégation présente.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "consigner-causes-separement": {
+              "intention": {
+                "cle": "evenement.finale.contrat.choix.separer",
+                "modele": "Consigner chaque cause avec son responsable",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.finale.contrat.choix.separer.cout",
+                  "modele": "Coût connu : aucun stock ; les dossiers restent distincts mais tous consultables.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        },
+        "en": {
+          "origine": {
+            "cle": "evenement.finale.contrat.origine",
+            "modele": "Table of the three final organs",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.finale.contrat.titre",
+            "modele": "The three-Solution contract",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.finale.contrat.presentation",
+            "modele": "The Node promises no cure: Anchoring, Retuning, and Precipitating each have a state, causes, and a cost determined by the Campaign. No roll will correct the choice.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.finale.contrat.information",
+              "modele": "Crews separate technical preparation, political control, and human debt. An impossible Solution remains visible but cannot be committed.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "breche": {
+              "cle": "evenement.finale.contrat.variante.breche",
+              "modele": "The breach destroyed the retuning buses: that impossibility is recorded without contaminating the diagnosis of the other two Solutions.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "projets": {
+              "cle": "evenement.finale.contrat.variante.berceau",
+              "modele": "The started Cradle gives Anchoring a measured load and reduced cost.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.finale.contrat.variante.standard",
+              "modele": "The organs answer only to preparations, resources, alliances, and damage actually recorded.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "publier-causes-des-solutions": {
+              "intention": {
+                "cle": "evenement.finale.contrat.choix.publier",
+                "modele": "Make the causes readable to every crew",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.finale.contrat.choix.publier.cout",
+                  "modele": "Known cost: no stock; the same causes can be challenged by every delegation present.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "consigner-causes-separement": {
+              "intention": {
+                "cle": "evenement.finale.contrat.choix.separer",
+                "modele": "Record each cause with its responsible party",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.finale.contrat.choix.separer.cout",
+                  "modele": "Known cost: no stock; files remain distinct but all consultable.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "finale.ancrage.choisir-d-ancrer-le-coeur",
+      "famille": "conflits-regionaux",
+      "themes": [
+        "ancrage",
+        "choix-final",
+        "cout-determine",
+        "irreversibilite"
+      ],
+      "fonction": "choisir-l-ancrage-prepare-ou-risque-sans-tirage",
+      "fenetre": "finale-ancrage",
+      "conditions": {
+        "requises": [
+          {
+            "type": "un-des-faits-present",
+            "faits": [
+              "finale.contrat.causes-publiees",
+              "finale.contrat.causes-consignees"
+            ]
+          }
+        ],
+        "interdites": []
+      },
+      "periodeEligibilite": {
+        "debut": 1200,
+        "fin": 2147483647
+      },
+      "priorite": 190,
+      "epuisement": "unique",
+      "acteurs": [
+        "porte-lanterne",
+        "equipes-de-l-anneau"
+      ],
+      "sourcesInformations": [
+        "equipes-de-l-anneau"
+      ],
+      "faitsLus": [
+        "finale.contrat.causes-publiees",
+        "finale.contrat.causes-consignees",
+        "couronne.approches.berceau-amorce",
+        "couronne.ouverture.breche-ouverte"
+      ],
+      "choix": [
+        {
+          "id": "selectionner-ancrage-prepare",
+          "effets": [
+            {
+              "type": "stock.modifier",
+              "stock": "materiaux",
+              "valeur": -4
+            }
+          ],
+          "faitsProduits": [
+            {
+              "id": "finale.ancrage.selection-preparee",
+              "cible": "coeur-du-noeud"
+            }
+          ]
+        },
+        {
+          "id": "selectionner-ancrage-risque",
+          "effets": [
+            {
+              "type": "stock.modifier",
+              "stock": "materiaux",
+              "valeur": -10
+            },
+            {
+              "type": "habitants.modifier",
+              "valeur": -8
+            }
+          ],
+          "faitsProduits": [
+            {
+              "id": "finale.ancrage.selection-risquee",
+              "cible": "coeur-du-noeud"
+            }
+          ]
+        }
+      ],
+      "consequenceDifferee": {
+        "type": "ancrage-rendu-irreversible-avant-la-derniere-negociation",
+        "cible": "coeur-du-noeud"
+      },
+      "recuperation": {
+        "type": "solution-impossible-reste-non-selectionnable"
+      },
+      "variantes": [
+        {
+          "id": "prepare",
+          "condition": {
+            "type": "fait-present",
+            "fait": "couronne.approches.berceau-amorce"
+          }
+        },
+        {
+          "id": "breche",
+          "condition": {
+            "type": "fait-present",
+            "fait": "couronne.ouverture.breche-ouverte"
+          }
+        },
+        {
+          "id": "standard",
+          "condition": {
+            "type": "toujours"
+          }
+        }
+      ],
+      "destinationEcho": "journal-de-campagne",
+      "asset": {
+        "id": "finale.ancrage.choisir-d-ancrer-le-coeur",
+        "fichier": "/api/commercial/assets/finale-ancrage-negociation.webp",
+        "octetsTransferes": 130542,
+        "contientTexte": false,
+        "alternatives": {
+          "fr": "Un Conseil incomplet négocie autour d’outils, de registres et de pièces devant le cœur et son berceau d’ancrage.",
+          "en": "An incomplete Council negotiates around tools, registers, and parts before the heart and its anchoring cradle."
+        },
+        "provenance": {
+          "fiche": "docs/assets/finale-ancrage-negociation.provenance.json",
+          "creeLe": "2026-07-23",
+          "outil": "Codex built-in image_gen",
+          "modele": "built-in model (identifier not exposed)",
+          "usage": "stylized-concept",
+          "entree": "No input image; generated from the project’s established industrial ash-world art direction.",
+          "prompt": "An incomplete final Council negotiates only with established mandates, registers, parts and crews beside the anchoring cradle; cinematic painterly 16:9, no text or logos.",
+          "droits": "OpenAI Terms of Use — output assigned to the user",
+          "empreinteSha256": "9f15ff90971d5bbd3237c556435c00857dd0165bdcc266674835655129cba11e",
+          "statutApprobation": "pending-pull-request-review",
+          "reviseur": null
+        }
+      },
+      "textes": {
+        "fr": {
+          "origine": {
+            "cle": "evenement.finale.selection.origine",
+            "modele": "Passerelle du cœur mécanique",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.finale.selection.titre",
+            "modele": "Choisir d’Ancrer le cœur",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.finale.selection.presentation",
+            "modele": "L’Ancrage immobilisera le cœur mobile. Préparé, il consomme les pièces mesurées ; risqué, il exige davantage de Matériaux et expose huit Habitants. Le coût affiché ne changera plus après confirmation.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.finale.selection.information",
+              "modele": "Si les moyens ne couvrent pas le coût déterminé, l’Ancrage demeure visible comme impossible et aucune intention ne peut le sélectionner.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "prepare": {
+              "cle": "evenement.finale.selection.variante.prepare",
+              "modele": "Les mesures du Berceau alignent les bras porteurs avant la fermeture.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "breche": {
+              "cle": "evenement.finale.selection.variante.breche",
+              "modele": "Les bus rompus obligent les équipes à reprendre la charge directement sur la coque du Nœud.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.finale.selection.variante.standard",
+              "modele": "Sans portance complète, chaque équipe signe le coût avant que les verrous ne bougent.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "selectionner-ancrage-prepare": {
+              "intention": {
+                "cle": "evenement.finale.selection.choix.prepare",
+                "modele": "Engager l’Ancrage préparé",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.finale.selection.choix.prepare.cout",
+                  "modele": "Coût déterminé : 4 Matériaux ; aucun tirage final, aucune perte humaine immédiate.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "selectionner-ancrage-risque": {
+              "intention": {
+                "cle": "evenement.finale.selection.choix.risque",
+                "modele": "Forcer l’Ancrage risqué",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.finale.selection.choix.risque.cout",
+                  "modele": "Coût déterminé : 10 Matériaux et 8 Habitants exposés ; aucun tirage final.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        },
+        "en": {
+          "origine": {
+            "cle": "evenement.finale.selection.origine",
+            "modele": "Mechanical heart gantry",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.finale.selection.titre",
+            "modele": "Choose to Anchor the heart",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.finale.selection.presentation",
+            "modele": "Anchoring will immobilize the mobile heart. Prepared, it consumes measured parts; risky, it needs more Materials and exposes eight Inhabitants. The displayed cost will not change after confirmation.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.finale.selection.information",
+              "modele": "If the means do not cover the determined cost, Anchoring remains visible as impossible and no intention can select it.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "prepare": {
+              "cle": "evenement.finale.selection.variante.prepare",
+              "modele": "The Cradle’s measurements align the load-bearing arms before closure.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "breche": {
+              "cle": "evenement.finale.selection.variante.breche",
+              "modele": "Broken buses force crews to transfer the load directly onto the Node shell.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.finale.selection.variante.standard",
+              "modele": "Without complete load data, every crew signs the cost before the locks move.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "selectionner-ancrage-prepare": {
+              "intention": {
+                "cle": "evenement.finale.selection.choix.prepare",
+                "modele": "Commit prepared Anchoring",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.finale.selection.choix.prepare.cout",
+                  "modele": "Determined cost: 4 Materials; no final roll and no immediate human loss.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "selectionner-ancrage-risque": {
+              "intention": {
+                "cle": "evenement.finale.selection.choix.risque",
+                "modele": "Force risky Anchoring",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.finale.selection.choix.risque.cout",
+                  "modele": "Determined cost: 10 Materials and 8 exposed Inhabitants; no final roll.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "finale.ancrage.la-derniere-negociation",
+      "famille": "histoires-de-compagnons",
+      "themes": [
+        "derniere-negociation",
+        "refuge-commun",
+        "citadelle-de-cendre",
+        "dernier-rempart"
+      ],
+      "fonction": "conclure-l-ancrage-avec-les-seuls-moyens-credibles",
+      "fenetre": "finale-ancrage",
+      "conditions": {
+        "requises": [
+          {
+            "type": "un-des-faits-present",
+            "faits": [
+              "finale.ancrage.selection-preparee",
+              "finale.ancrage.selection-risquee"
+            ]
+          }
+        ],
+        "interdites": []
+      },
+      "periodeEligibilite": {
+        "debut": 1200,
+        "fin": 2147483647
+      },
+      "priorite": 180,
+      "epuisement": "unique",
+      "acteurs": [
+        "porte-lanterne",
+        "ilyana-voss",
+        "equipes-de-l-anneau"
+      ],
+      "sourcesInformations": [
+        "ilyana-voss"
+      ],
+      "faitsLus": [
+        "finale.ancrage.selection-preparee",
+        "finale.ancrage.selection-risquee",
+        "couronne.ouverture.clef-collective",
+        "couronne.approches.plans-confies-a-ilyana"
+      ],
+      "choix": [
+        {
+          "id": "negocier-refuge-commun",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "finale.ancrage.refuge-commun",
+              "cible": "coeur-ancre"
+            }
+          ]
+        },
+        {
+          "id": "negocier-citadelle-de-cendre",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "finale.ancrage.citadelle-de-cendre",
+              "cible": "coeur-ancre"
+            }
+          ]
+        },
+        {
+          "id": "tenir-dernier-rempart",
+          "effets": [],
+          "faitsProduits": [
+            {
+              "id": "finale.ancrage.dernier-rempart",
+              "cible": "coeur-ancre"
+            }
+          ]
+        }
+      ],
+      "consequenceDifferee": {
+        "type": "stabilite-controle-et-cout-humain-distingues",
+        "cible": "coeur-ancre"
+      },
+      "recuperation": {
+        "type": "voix-du-compagnon-sans-veto-sur-la-conclusion"
+      },
+      "variantes": [
+        {
+          "id": "ilyana",
+          "condition": {
+            "type": "fait-present",
+            "fait": "couronne.approches.plans-confies-a-ilyana"
+          }
+        },
+        {
+          "id": "collectif",
+          "condition": {
+            "type": "fait-present",
+            "fait": "couronne.ouverture.clef-collective"
+          }
+        },
+        {
+          "id": "standard",
+          "condition": {
+            "type": "toujours"
+          }
+        }
+      ],
+      "destinationEcho": "journal-de-campagne",
+      "asset": {
+        "id": "finale.ancrage.la-derniere-negociation",
+        "fichier": "/api/commercial/assets/finale-ancrage-coeur.webp",
+        "octetsTransferes": 155208,
+        "contientTexte": false,
+        "alternatives": {
+          "fr": "Ilyana tient un registre près des équipes qui ferment les bras du berceau autour du cœur et soutiennent leurs membres épuisés.",
+          "en": "Ilyana holds a register beside crews closing the cradle arms around the heart and supporting their exhausted members."
+        },
+        "provenance": {
+          "fiche": "docs/assets/finale-ancrage-coeur.provenance.json",
+          "creeLe": "2026-07-23",
+          "outil": "Codex built-in image_gen",
+          "modele": "built-in model (identifier not exposed)",
+          "usage": "stylized-concept",
+          "entree": "No input image; generated from the project’s established industrial ash-world art direction.",
+          "prompt": "Diverse caravan crews anchor the Central Node heart while recording locks and supporting exhausted workers; cinematic painterly 16:9, no text or logos.",
+          "droits": "OpenAI Terms of Use — output assigned to the user",
+          "empreinteSha256": "21c39a0d0b01c931c030649e9fe60a178ab11f6ea688606b7afaae8470f09601",
+          "statutApprobation": "pending-pull-request-review",
+          "reviseur": null
+        }
+      },
+      "textes": {
+        "fr": {
+          "origine": {
+            "cle": "evenement.finale.negociation.origine",
+            "modele": "Cercle intérieur du cœur",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.finale.negociation.titre",
+            "modele": "La Dernière négociation",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.finale.negociation.presentation",
+            "modele": "Le cœur est engagé. Ilyana pose son registre sur les verrous : son projet d’une eau sûre devient ici une question de frontières, de garde et d’accès. Refuge commun, Citadelle de cendre ou Dernier Rempart ne sont proposés que lorsque leurs moyens existent.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.finale.negociation.information",
+              "modele": "Ilyana refuse qu’une stabilité technique masque les Habitants laissés sous le vent. Sa voix rend le coût personnel, sans lui donner de veto ni inventer une alliance absente.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "ilyana": {
+              "cle": "evenement.finale.negociation.variante.ilyana",
+              "modele": "Ilyana peut contredire un écart de plan parce que la Campagne lui en a confié la copie ; elle ne devient pas indispensable.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "collectif": {
+              "cle": "evenement.finale.negociation.variante.collectif",
+              "modele": "La clef collective permet à plusieurs équipes de vérifier chaque verrou sans créer de propriétaire unique.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.finale.negociation.variante.standard",
+              "modele": "Ilyana relit les mandats et les dettes réellement consignés ; les équipes absentes ne sont pas inventées.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "negocier-refuge-commun": {
+              "intention": {
+                "cle": "evenement.finale.negociation.choix.refuge",
+                "modele": "Partager les verrous dans un Refuge commun",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.finale.negociation.choix.refuge.cout",
+                  "modele": "Conséquence déterminée : stabilité partagée, contrôle distribué, coût humain contenu.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "negocier-citadelle-de-cendre": {
+              "intention": {
+                "cle": "evenement.finale.negociation.choix.citadelle",
+                "modele": "Confier les verrous à une Citadelle de cendre",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.finale.negociation.choix.citadelle.cout",
+                  "modele": "Conséquence déterminée : stabilité fortifiée, contrôle centralisé, inégalités durables.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "tenir-dernier-rempart": {
+              "intention": {
+                "cle": "evenement.finale.negociation.choix.rempart",
+                "modele": "Tenir le cœur comme Dernier Rempart",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.finale.negociation.choix.rempart.cout",
+                  "modele": "Conséquence déterminée : stabilité sous contrainte, garde par les équipes, coût humain élevé.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        },
+        "en": {
+          "origine": {
+            "cle": "evenement.finale.negociation.origine",
+            "modele": "Heart inner circle",
+            "variables": [],
+            "valeurs": {}
+          },
+          "libelleIntentions": {
+            "cle": "evenement.ruban.intentions",
+            "modele": "Intentions",
+            "variables": [],
+            "valeurs": {}
+          },
+          "titre": {
+            "cle": "evenement.finale.negociation.titre",
+            "modele": "The Last Negotiation",
+            "variables": [],
+            "valeurs": {}
+          },
+          "presentation": {
+            "cle": "evenement.finale.negociation.presentation",
+            "modele": "The heart is committed. Ilyana lays her register across the locks: her project for safe water has become a question of borders, custody, and access. Common Refuge, Ash Citadel, or Last Rampart appear only when their means exist.",
+            "variables": [],
+            "valeurs": {}
+          },
+          "informations": [
+            {
+              "cle": "evenement.finale.negociation.information",
+              "modele": "Ilyana refuses to let technical stability conceal the Inhabitants left downwind. Her voice makes the cost personal without giving her a veto or inventing an absent alliance.",
+              "variables": [],
+              "valeurs": {}
+            }
+          ],
+          "variantes": {
+            "ilyana": {
+              "cle": "evenement.finale.negociation.variante.ilyana",
+              "modele": "Ilyana may challenge a plan discrepancy because the Campaign entrusted her with a copy; she does not become indispensable.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "collectif": {
+              "cle": "evenement.finale.negociation.variante.collectif",
+              "modele": "The collective key lets several crews verify every lock without creating a single owner.",
+              "variables": [],
+              "valeurs": {}
+            },
+            "standard": {
+              "cle": "evenement.finale.negociation.variante.standard",
+              "modele": "Ilyana rereads only the recorded mandates and debts; absent crews are not invented.",
+              "variables": [],
+              "valeurs": {}
+            }
+          },
+          "choix": {
+            "negocier-refuge-commun": {
+              "intention": {
+                "cle": "evenement.finale.negociation.choix.refuge",
+                "modele": "Share the locks in a Common Refuge",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.finale.negociation.choix.refuge.cout",
+                  "modele": "Determined consequence: shared stability, distributed control, contained human cost.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "negocier-citadelle-de-cendre": {
+              "intention": {
+                "cle": "evenement.finale.negociation.choix.citadelle",
+                "modele": "Entrust the locks to an Ash Citadel",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.finale.negociation.choix.citadelle.cout",
+                  "modele": "Determined consequence: fortified stability, centralized control, lasting inequalities.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            },
+            "tenir-dernier-rempart": {
+              "intention": {
+                "cle": "evenement.finale.negociation.choix.rempart",
+                "modele": "Hold the heart as the Last Rampart",
+                "variables": [],
+                "valeurs": {}
+              },
+              "coutsConnus": [
+                {
+                  "cle": "evenement.finale.negociation.choix.rempart.cout",
+                  "modele": "Determined consequence: stability under strain, custody by crews, high human cost.",
+                  "variables": [],
+                  "valeurs": {}
+                }
+              ]
+            }
+          }
+        }
+      }
     }
   ],
   "conseils": [
@@ -15379,7 +16322,14 @@ export default {
           "couronne.ouverture.colonies-ouvertes": "Couronne ouverte par les Colonies",
           "couronne.ouverture.breche-ouverte": "Brèche de secours ouverte dans le Nœud",
           "couronne.ouverture.clef-confiee-aux-gardiennes": "Clef du Nœud confiée aux gardiennes",
-          "couronne.ouverture.clef-collective": "Clef du Nœud consignée collectivement"
+          "couronne.ouverture.clef-collective": "Clef du Nœud consignée collectivement",
+          "finale.contrat.causes-publiees": "Causes des trois Solutions rendues publiques",
+          "finale.contrat.causes-consignees": "Causes des trois Solutions consignées séparément",
+          "finale.ancrage.selection-preparee": "Ancrage préparé engagé",
+          "finale.ancrage.selection-risquee": "Ancrage risqué engagé",
+          "finale.ancrage.refuge-commun": "Refuge commun établi autour du cœur",
+          "finale.ancrage.citadelle-de-cendre": "Citadelle de cendre verrouillée",
+          "finale.ancrage.dernier-rempart": "Dernier Rempart tenu par les équipes"
         },
         "causes": {
           "bassins.haut-puits.pacte-des-citernes": "Le pacte des citernes",
@@ -15429,7 +16379,10 @@ export default {
           "couronne.ouverture.le-diagnostic-des-verrous": "Lecture décidée devant les verrous de la Couronne.",
           "couronne.ouverture.les-trois-montages-devant-la-porte": "Préparation décidée devant les trois montages.",
           "couronne.ouverture.le-dernier-conseil-de-la-couronne": "Ouverture décidée au dernier Conseil de la Couronne.",
-          "couronne.ouverture.ilyana-maelys-et-la-clef": "Garde de la clef décidée avec les équipes du dernier relais."
+          "couronne.ouverture.ilyana-maelys-et-la-clef": "Garde de la clef décidée avec les équipes du dernier relais.",
+          "finale.ancrage.le-contrat-des-trois-solutions": "Causes finales lues dans les organes du Nœud.",
+          "finale.ancrage.choisir-d-ancrer-le-coeur": "Solution irréversible choisie devant le cœur mécanique.",
+          "finale.ancrage.la-derniere-negociation": "Contrôle et coût humain négociés lors du dernier Conseil."
         },
         "acteurs": {
           "ilyana-voss": "Ilyana Voss",
@@ -15473,7 +16426,8 @@ export default {
           "commis-du-marche-du-seuil": "Commis du marché du Seuil",
           "releveurs-du-seuil": "Releveurs du Seuil",
           "equipes-de-la-rampe": "Équipes de la rampe",
-          "equipes-de-l-anneau": "Équipes de l’Anneau intérieur"
+          "equipes-de-l-anneau": "Équipes de l’Anneau intérieur",
+          "coeur-du-noeud": "Cœur mécanique du Nœud"
         },
         "cibles": {
           "equipes-entretien": "Équipes d’entretien",
@@ -15535,7 +16489,10 @@ export default {
           "verrous-du-noeud": "Verrous du Nœud central",
           "anneau-interieur": "Anneau intérieur",
           "noeud-central-de-regulation": "Nœud central de régulation",
-          "clef-du-noeud": "Clef du Nœud"
+          "clef-du-noeud": "Clef du Nœud",
+          "contrat-des-trois-solutions": "Contrat des trois Solutions",
+          "coeur-du-noeud": "Cœur mécanique du Nœud",
+          "coeur-ancre": "Cœur ancré"
         }
       }
     },
@@ -15651,7 +16608,14 @@ export default {
           "couronne.ouverture.colonies-ouvertes": "Crown opened by the Colonies",
           "couronne.ouverture.breche-ouverte": "Emergency breach opened into the Node",
           "couronne.ouverture.clef-confiee-aux-gardiennes": "Node key entrusted to its keepers",
-          "couronne.ouverture.clef-collective": "Node key recorded collectively"
+          "couronne.ouverture.clef-collective": "Node key recorded collectively",
+          "finale.contrat.causes-publiees": "Causes of all three Solutions made public",
+          "finale.contrat.causes-consignees": "Causes of all three Solutions recorded separately",
+          "finale.ancrage.selection-preparee": "Prepared Anchoring committed",
+          "finale.ancrage.selection-risquee": "Risky Anchoring committed",
+          "finale.ancrage.refuge-commun": "Common Refuge established around the heart",
+          "finale.ancrage.citadelle-de-cendre": "Ash Citadel locked",
+          "finale.ancrage.dernier-rempart": "Last Rampart held by the crews"
         },
         "causes": {
           "bassins.haut-puits.pacte-des-citernes": "The cistern pact",
@@ -15701,7 +16665,10 @@ export default {
           "couronne.ouverture.le-diagnostic-des-verrous": "Reading decided before the Crown locks.",
           "couronne.ouverture.les-trois-montages-devant-la-porte": "Preparation decided before the three assemblies.",
           "couronne.ouverture.le-dernier-conseil-de-la-couronne": "Opening decided at the Crown’s final Council.",
-          "couronne.ouverture.ilyana-maelys-et-la-clef": "Key custody decided with the last relay crews."
+          "couronne.ouverture.ilyana-maelys-et-la-clef": "Key custody decided with the last relay crews.",
+          "finale.ancrage.le-contrat-des-trois-solutions": "Final causes read from the Node’s organs.",
+          "finale.ancrage.choisir-d-ancrer-le-coeur": "Irreversible Solution chosen before the mechanical heart.",
+          "finale.ancrage.la-derniere-negociation": "Control and human cost negotiated at the final Council."
         },
         "acteurs": {
           "ilyana-voss": "Ilyana Voss",
@@ -15745,7 +16712,8 @@ export default {
           "commis-du-marche-du-seuil": "Threshold market clerks",
           "releveurs-du-seuil": "Threshold surveyors",
           "equipes-de-la-rampe": "Ramp crews",
-          "equipes-de-l-anneau": "Inner Ring crews"
+          "equipes-de-l-anneau": "Inner Ring crews",
+          "coeur-du-noeud": "Node mechanical heart"
         },
         "cibles": {
           "equipes-entretien": "Maintenance crews",
@@ -15807,7 +16775,10 @@ export default {
           "noeud-central-de-regulation": "Central Regulation Node",
           "verrous-du-noeud": "Central Node locks",
           "anneau-interieur": "Inner Ring",
-          "clef-du-noeud": "Node key"
+          "clef-du-noeud": "Node key",
+          "contrat-des-trois-solutions": "Three-Solution contract",
+          "coeur-du-noeud": "Node mechanical heart",
+          "coeur-ancre": "Anchored heart"
         }
       }
     }

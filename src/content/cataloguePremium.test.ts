@@ -109,6 +109,67 @@ const PRESENTATION_OUVERTURE_VALIDE = {
   ),
 };
 
+const PRESENTATION_FINALE_VALIDE = {
+  titre: "Contrat final",
+  eyebrow: "Cœur du Nœud",
+  solutions: dictionnaire("ancrer", "reaccorder", "precipiter"),
+  statuts: dictionnaire("preparee", "risquee", "impossible"),
+  disponibilites: dictionnaire(
+    "selectionnable",
+    "non-selectionnable",
+  ),
+  causes: dictionnaire(
+    "berceau-amorce",
+    "berceau-absent",
+    "etalon-calibre",
+    "etalon-absent",
+    "precipitateur-assemble",
+    "precipitateur-absent",
+    "noeud-preserve",
+    "noeud-contraint",
+    "noeud-endommage",
+    "coalition-presente",
+    "coalition-absente",
+    "accord-partage",
+    "accord-ferme",
+    "ligne-zero-relevee",
+    "ligne-zero-absente",
+    "ressources-suffisantes",
+    "materiaux-insuffisants",
+    "eau-insuffisante",
+    "habitants-insuffisants",
+  ),
+  ressources: dictionnaire("eau", "materiaux", "habitants"),
+  selections: dictionnaire(
+    "aucune",
+    "ancrage-prepare",
+    "ancrage-risque",
+  ),
+  variantes: dictionnaire(
+    "aucune",
+    "refuge-commun",
+    "citadelle-de-cendre",
+    "dernier-rempart",
+  ),
+  stabilites: dictionnaire(
+    "stable",
+    "fortifiee",
+    "sous-contrainte",
+  ),
+  controles: dictionnaire("partage", "centralise", "equipes"),
+  coutsHumains: dictionnaire("contenu", "inegal", "eleve"),
+  aucunBilan: "Aucun bilan",
+  formats: dictionnaire("solution", "cout", "bilan"),
+  libelles: dictionnaire(
+    "solutions",
+    "causes",
+    "selection",
+    "negociation",
+    "variante",
+    "bilan",
+  ),
+};
+
 function lot(conseils?: readonly unknown[]) {
   return {
     version: 1,
@@ -343,6 +404,54 @@ describe("installation du contenu narratif premium", () => {
                 fr: PRESENTATION_OUVERTURE_VALIDE,
                 en: PRESENTATION_OUVERTURE_VALIDE,
               },
+          },
+        },
+      }),
+    ).not.toThrow();
+  });
+
+  it("exige le contrat complet pour un lot de finale", () => {
+    const lotFinal = {
+      version: 1,
+      catalogue: {
+        evenements: [
+          {
+            id: "finale.ancrage.le-contrat-des-trois-solutions",
+          },
+        ],
+        presentations: PRESENTATIONS_VALIDES,
+      },
+    };
+
+    expect(() =>
+      installerPresentationsPremium(lotFinal),
+    ).toThrow("presentations-premium-invalides");
+    expect(() =>
+      installerPresentationsPremium({
+        ...lotFinal,
+        catalogue: {
+          ...lotFinal.catalogue,
+          presentations: {
+            ...PRESENTATIONS_VALIDES,
+            finale: {
+              fr: { titre: "Contrat incomplet" },
+              en: { titre: "Incomplete contract" },
+            },
+          },
+        },
+      }),
+    ).toThrow("presentations-premium-invalides");
+    expect(() =>
+      installerPresentationsPremium({
+        ...lotFinal,
+        catalogue: {
+          ...lotFinal.catalogue,
+          presentations: {
+            ...PRESENTATIONS_VALIDES,
+            finale: {
+              fr: PRESENTATION_FINALE_VALIDE,
+              en: PRESENTATION_FINALE_VALIDE,
+            },
           },
         },
       }),

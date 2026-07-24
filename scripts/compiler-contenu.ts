@@ -55,6 +55,7 @@ const CHEMINS_D_EVENEMENTS_PREMIUM = [
   "content/evenements/couronne-approches.yaml",
   "content/evenements/voie-colonies.yaml",
   "content/evenements/ouverture-couronne.yaml",
+  "content/evenements/finale-ancrage.yaml",
 ] as const;
 const provenances = {
   "docs/assets/cite-caravane.provenance.json": lire(
@@ -212,6 +213,15 @@ const provenances = {
   ),
   "docs/assets/couronne-ouverture-clef.provenance.json": lire(
     "docs/assets/couronne-ouverture-clef.provenance.json",
+  ),
+  "docs/assets/finale-ancrage-contrat.provenance.json": lire(
+    "docs/assets/finale-ancrage-contrat.provenance.json",
+  ),
+  "docs/assets/finale-ancrage-negociation.provenance.json": lire(
+    "docs/assets/finale-ancrage-negociation.provenance.json",
+  ),
+  "docs/assets/finale-ancrage-coeur.provenance.json": lire(
+    "docs/assets/finale-ancrage-coeur.provenance.json",
   ),
 };
 

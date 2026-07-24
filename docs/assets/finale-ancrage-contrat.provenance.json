@@ -1,0 +1,15 @@
+{
+  "asset": "serveur-commercial/assets/finale-ancrage-contrat.webp",
+  "sha256": "c792b327d919e632ea9c09ae0b0b65997fa8399e8836e74a29b01b07d1327e00",
+  "createdAt": "2026-07-23",
+  "tool": "Codex built-in image_gen",
+  "model": "built-in model (identifier not exposed)",
+  "useCase": "stylized-concept",
+  "input": "No input image; generated from the project’s established industrial ash-world art direction.",
+  "prompt": "Crews compare the anchoring cradle, retuning standard and precipitation conduit inside the Central Node; cinematic painterly 16:9, no text or logos.",
+  "rights": "OpenAI Terms of Use — output assigned to the user",
+  "approval": {
+    "status": "pending-pull-request-review",
+    "reviewer": null
+  }
+}
