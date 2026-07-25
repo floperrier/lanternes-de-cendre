@@ -14,6 +14,7 @@ import {
   VERSION_SIMULATION_AVANT_CRISE_DE_TRAME,
   VERSION_SIMULATION_AVANT_CRISE_DU_HALO,
   VERSION_SIMULATION_AVANT_EXTINCTION_DU_PHARE,
+  VERSION_SIMULATION_AVANT_CALIBRAGE_CAUSAL,
   VERSION_SIMULATION_AVANT_CRISES_SEQUENTIELLES,
   VERSION_SIMULATION_AVANT_DENOUEMENT,
   VERSION_SIMULATION_AVANT_DEVERSOIR,
@@ -427,6 +428,11 @@ export interface EtatCampagneV14
 export interface EtatCampagneV15
   extends Omit<EtatCampagne, "version"> {
   readonly version: typeof VERSION_SIMULATION_AVANT_EXTINCTION_DU_PHARE;
+}
+
+export interface EtatCampagneV16
+  extends Omit<EtatCampagne, "version"> {
+  readonly version: typeof VERSION_SIMULATION_AVANT_CALIBRAGE_CAUSAL;
 }
 
 export function estObjet(valeur: unknown): valeur is ObjetInconnu {
@@ -3911,6 +3917,7 @@ function estEtatDesCrises(
   autoriserMarqueurHistoriqueSansFait = false,
   ignorerCrisesSequentielles = false,
   ignorerExtinctionHistorique = false,
+  exigerVeilleBasseAvantTrame = false,
 ): valeur is EtatDesCrises {
   if (
     !estObjet(valeur) ||
@@ -4156,9 +4163,14 @@ function estEtatDesCrises(
       attendu,
       faitsVus as unknown as readonly FaitDeCampagne[],
       contexteMaterielAuMoment(moment, faitsVus),
-      ignorerExtinctionHistorique
-        ? { extinction: "historique" }
-        : {},
+      {
+        ...(ignorerExtinctionHistorique
+          ? { extinction: "historique" as const }
+          : {}),
+        ...(exigerVeilleBasseAvantTrame
+          ? { trame: "apres-veille-basse" as const }
+          : {}),
+      },
     ).etat;
     attendu =
       ignorerCrisesSequentielles &&
@@ -4314,6 +4326,10 @@ function estEtatDesCrises(
       const annonce = annoncerCriseApresFaits(
         attendu,
         faitsVus as unknown as readonly FaitDeCampagne[],
+        undefined,
+        exigerVeilleBasseAvantTrame
+          ? { trame: "apres-veille-basse" }
+          : {},
       ).etat;
       attendu =
         ignorerCrisesSequentielles &&
@@ -4654,6 +4670,7 @@ function lireEtatAvecSchemaCourant(
   autoriserTopologieHistoriqueSansMarqueur = false,
   ignorerCrisesSequentielles = false,
   ignorerExtinctionHistorique = false,
+  exigerVeilleBasseAvantTrame = false,
 ): EtatCampagne | undefined {
   if (
     !estObjet(valeur) ||
@@ -4849,6 +4866,7 @@ function lireEtatAvecSchemaCourant(
         autoriserMarqueurHistoriqueSansFait,
         ignorerCrisesSequentielles,
         ignorerExtinctionHistorique,
+        exigerVeilleBasseAvantTrame,
       )) ||
     (parties.citeCaravane.phare === "halo-sature") !==
       (estObjet(crises) &&
@@ -4956,6 +4974,44 @@ export function lireSnapshotCourant(
   return lireEtatAvecSchemaCourant(valeur, true, true);
 }
 
+function lireEtatAvecSchemaV16(
+  valeur: unknown,
+  autoriserMarqueurHistoriqueSansFait = false,
+): EtatCampagneV16 | undefined {
+  if (
+    !estObjet(valeur) ||
+    valeur.version !== VERSION_SIMULATION_AVANT_CALIBRAGE_CAUSAL
+  ) {
+    return undefined;
+  }
+  const etatCourant = lireEtatAvecSchemaCourant(
+    { ...valeur, version: VERSION_SIMULATION_COURANTE },
+    true,
+    autoriserMarqueurHistoriqueSansFait,
+    false,
+    false,
+    false,
+    false,
+    false,
+    true,
+  );
+  return etatCourant === undefined
+    ? undefined
+    : (valeur as unknown as EtatCampagneV16);
+}
+
+export function lireEtatV16(
+  valeur: unknown,
+): EtatCampagneV16 | undefined {
+  return lireEtatAvecSchemaV16(valeur);
+}
+
+export function lireSnapshotV16(
+  valeur: unknown,
+): EtatCampagneV16 | undefined {
+  return lireEtatAvecSchemaV16(valeur, true);
+}
+
 function lireEtatAvecSchemaV15(
   valeur: unknown,
   autoriserMarqueurHistoriqueSansFait = false,
@@ -4979,6 +5035,7 @@ function lireEtatAvecSchemaV15(
     false,
     false,
     false,
+    true,
     true,
   );
   return etatCourant === undefined
@@ -5040,6 +5097,12 @@ function lireEtatAvecSchemaV14(
     },
     true,
     autoriserMarqueurHistoriqueSansFait,
+    false,
+    false,
+    false,
+    false,
+    false,
+    true,
   );
   return etatCourant === undefined
     ? undefined

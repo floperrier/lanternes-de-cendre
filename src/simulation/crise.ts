@@ -723,6 +723,7 @@ export function annoncerCriseApresFaits(
   contexteMateriel?: ContexteMaterielDeCrise,
   options: {
     readonly extinction?: "historique";
+    readonly trame?: "apres-veille-basse";
   } = {},
 ): {
   readonly etat: EtatDesCrises;
@@ -804,7 +805,8 @@ export function annoncerCriseApresFaits(
       "veille-basse.cohorte-accueillie-sous-penurie";
   } else if (
     idsHistoriques.has(IDENTIFIANT_DE_LA_CRISE_DE_REFERENCE) &&
-    idsHistoriques.has(IDENTIFIANT_DE_LA_CRISE_DE_VEILLE_BASSE) &&
+    (options.trame !== "apres-veille-basse" ||
+      idsHistoriques.has(IDENTIFIANT_DE_LA_CRISE_DE_VEILLE_BASSE)) &&
     !idsHistoriques.has(IDENTIFIANT_DE_LA_CRISE_DE_TRAME) &&
     !etat.crisesDeTrameHistoriquesIgnorees &&
     faitDeTrame !== undefined &&
@@ -996,7 +998,9 @@ export function annoncerCriseApresFaits(
       ...etat,
       approvisionnementEau:
         alerte.id === IDENTIFIANT_DE_LA_CRISE_DU_HALO ||
-        alerte.id === IDENTIFIANT_DE_LA_CRISE_TERMINALE
+        alerte.id === IDENTIFIANT_DE_LA_CRISE_TERMINALE ||
+        (alerte.id === IDENTIFIANT_DE_LA_CRISE_DE_TRAME &&
+          options.trame === undefined)
           ? etat.approvisionnementEau
           : "sous-tension",
       alerte,

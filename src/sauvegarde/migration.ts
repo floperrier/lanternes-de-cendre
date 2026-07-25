@@ -27,6 +27,7 @@ import {
   FAIT_ANNONCANT_LA_CRISE_DE_TRAME,
   FAIT_ANNONCANT_LA_CRISE_DE_VEILLE_BASSE,
   FAITS_ANNONCANT_LA_CRISE_DU_HALO,
+  IDENTIFIANT_DE_LA_CRISE_DE_TRAME,
   ignorerFaitAnnonceurHistorique,
   reconstruireHistoriqueDesCrises,
   type EtatDesCrises,
@@ -57,6 +58,7 @@ import {
   VERSION_SIMULATION_AVANT_CRISE_DE_TRAME,
   VERSION_SIMULATION_AVANT_CRISE_DU_HALO,
   VERSION_SIMULATION_AVANT_EXTINCTION_DU_PHARE,
+  VERSION_SIMULATION_AVANT_CALIBRAGE_CAUSAL,
   VERSION_SIMULATION_AVANT_CRISES_SEQUENTIELLES,
   VERSION_SIMULATION_AVANT_DENOUEMENT,
   VERSION_SIMULATION_AVANT_RECUPERATIONS,
@@ -77,6 +79,7 @@ import {
   VERSION_SAUVEGARDE_AVANT_CRISE_DE_TRAME,
   VERSION_SAUVEGARDE_AVANT_CRISE_DU_HALO,
   VERSION_SAUVEGARDE_AVANT_EXTINCTION_DU_PHARE,
+  VERSION_SAUVEGARDE_AVANT_CALIBRAGE_CAUSAL,
   VERSION_SAUVEGARDE_AVANT_CRISES_SEQUENTIELLES,
   VERSION_SAUVEGARDE_AVANT_DENOUEMENT,
   VERSION_SAUVEGARDE_AVANT_RECUPERATIONS,
@@ -120,6 +123,7 @@ import {
   lireEtatV13,
   lireEtatV14,
   lireEtatV15,
+  lireEtatV16,
   lireSnapshotV4,
   lireSnapshotV5,
   lireSnapshotV6,
@@ -132,6 +136,7 @@ import {
   lireSnapshotV13,
   lireSnapshotV14,
   lireSnapshotV15,
+  lireSnapshotV16,
   marquerCausaliteHistoriqueDeNarrationSiNecessaire,
   projeterEtatAvantRoutesHistorique,
   type EtatCampagneAvantCrises,
@@ -150,6 +155,7 @@ import {
   type EtatCampagneV13,
   type EtatCampagneV14,
   type EtatCampagneV15,
+  type EtatCampagneV16,
   type ObjetInconnu,
 } from "./validation";
 
@@ -164,7 +170,161 @@ const PLATEFORMES_DE_LA_SIMULATION_V2 = [
   "forge",
 ] as const;
 
+function marquerCascadeDeTrameEvitee(
+  etat: EtatCampagne,
+): EtatCampagne {
+  const faitDeTrameDejaConsigne = etat.narration.faitsDeCampagne.some(
+    ({ id }) => id === FAIT_ANNONCANT_LA_CRISE_DE_TRAME,
+  );
+  const criseDeTrameDejaPresente =
+    etat.crises.alerte?.id === IDENTIFIANT_DE_LA_CRISE_DE_TRAME ||
+    etat.crises.criseActive?.id === IDENTIFIANT_DE_LA_CRISE_DE_TRAME ||
+    etat.crises.historique.some(
+      ({ id }) => id === IDENTIFIANT_DE_LA_CRISE_DE_TRAME,
+    );
+  return {
+    ...etat,
+    crises: {
+      ...etat.crises,
+      crisesDeTrameHistoriquesIgnorees:
+        etat.crises.crisesDeTrameHistoriquesIgnorees ||
+        (faitDeTrameDejaConsigne && !criseDeTrameDejaPresente),
+    },
+  };
+}
+
+function promouvoirEtatV16PourReplay(
+  etat: EtatCampagneV16,
+): EtatCampagne {
+  return {
+    ...etat,
+    version: VERSION_SIMULATION_COURANTE,
+  };
+}
+
+export function promouvoirEtatV16VersCourant(
+  etat: EtatCampagneV16,
+): EtatCampagne {
+  return marquerCascadeDeTrameEvitee(
+    promouvoirEtatV16PourReplay(etat),
+  );
+}
+
+function normaliserEtatCourantEnV16(
+  etat: EtatCampagne,
+): EtatCampagneV16 {
+  return {
+    ...etat,
+    version: VERSION_SIMULATION_AVANT_CALIBRAGE_CAUSAL,
+  };
+}
+
+export function migrerSauvegardeV16(
+  valeur: ObjetInconnu,
+): SauvegardeCampagne | undefined {
+  if (
+    valeur.format !== FORMAT_SAUVEGARDE ||
+    typeof valeur.id !== "string" ||
+    valeur.version !== VERSION_SAUVEGARDE_AVANT_CALIBRAGE_CAUSAL ||
+    !estObjet(valeur.versions) ||
+    valeur.versions.simulation !==
+      VERSION_SIMULATION_AVANT_CALIBRAGE_CAUSAL ||
+    valeur.versions.contenu !== VERSIONS_DU_SNAPSHOT_COURANT.contenu ||
+    valeur.versions.aleatoire !== VERSIONS_DU_SNAPSHOT_COURANT.aleatoire ||
+    valeur.versions.empreinte !== VERSIONS_DU_SNAPSHOT_COURANT.empreinte ||
+    typeof valeur.graine !== "string" ||
+    !estObjet(valeur.horloge) ||
+    typeof valeur.horloge.secondes !== "number" ||
+    !Number.isFinite(valeur.horloge.secondes) ||
+    !estObjet(valeur.reproduction) ||
+    !Array.isArray(valeur.reproduction.commandes) ||
+    typeof valeur.reproduction.empreinteSnapshot !== "string" ||
+    !EMPREINTE.test(valeur.reproduction.empreinteSnapshot) ||
+    typeof valeur.empreinte !== "string" ||
+    !EMPREINTE.test(valeur.empreinte)
+  ) {
+    return undefined;
+  }
+
+  const snapshotV16 = lireSnapshotV16(valeur.reproduction.snapshot);
+  const etatDeclareV16 = lireEtatV16(valeur.etat);
+  if (
+    snapshotV16 === undefined ||
+    etatDeclareV16 === undefined ||
+    valeur.graine !== etatDeclareV16.graine ||
+    valeur.horloge.secondes !== etatDeclareV16.tempsDuConvoi.secondes ||
+    empreinteEtat(snapshotV16 as unknown as EtatCampagne) !==
+      valeur.reproduction.empreinteSnapshot ||
+    empreinteEtat(etatDeclareV16 as unknown as EtatCampagne) !==
+      valeur.empreinte
+  ) {
+    return undefined;
+  }
+
+  let etat = promouvoirEtatV16PourReplay(snapshotV16);
+  try {
+    for (const [index, entree] of valeur.reproduction.commandes.entries()) {
+      if (
+        !estObjet(entree) ||
+        entree.sequence !== index ||
+        !estCommande(entree.commande) ||
+        typeof entree.empreinteApres !== "string" ||
+        !EMPREINTE.test(entree.empreinteApres)
+      ) {
+        return undefined;
+      }
+      etat = appliquerCommande(etat, entree.commande, {
+        crises: "historiques-v16",
+      }).etat;
+      if (
+        empreinteEtat(
+          normaliserEtatCourantEnV16(etat) as unknown as EtatCampagne,
+        ) !== entree.empreinteApres
+      ) {
+        return undefined;
+      }
+    }
+  } catch {
+    return undefined;
+  }
+
+  if (
+    !sontStructurellementEgaux(
+      normaliserEtatCourantEnV16(etat),
+      etatDeclareV16,
+    )
+  ) {
+    return undefined;
+  }
+
+  const etatCourant = promouvoirEtatV16VersCourant(etatDeclareV16);
+  if (
+    lireSnapshotCourant(etatCourant) === undefined ||
+    lireEtatCourant(etatCourant) === undefined
+  ) {
+    return undefined;
+  }
+  const reproduction: ReproductionDeCampagne = {
+    snapshot: etatCourant,
+    empreinteSnapshot: empreinteEtat(etatCourant),
+    commandes: [],
+  };
+  const sauvegarde = creerSauvegarde(etatCourant, reproduction);
+  return {
+    ...sauvegarde,
+    id: `${valeur.id}-v${VERSION_SAUVEGARDE_COURANTE}-${sauvegarde.empreinte}`,
+  };
+}
+
 export function promouvoirEtatV15VersCourant(
+  etat: EtatCampagneV15,
+): EtatCampagne {
+  return marquerCascadeDeTrameEvitee(
+    promouvoirEtatV15PourReplay(etat),
+  );
+}
+
+function promouvoirEtatV15PourReplay(
   etat: EtatCampagneV15,
 ): EtatCampagne {
   return {
@@ -225,7 +385,7 @@ export function migrerSauvegardeV15(
     return undefined;
   }
 
-  let etat = promouvoirEtatV15VersCourant(snapshotV15);
+  let etat = promouvoirEtatV15PourReplay(snapshotV15);
   try {
     for (const [index, entree] of valeur.reproduction.commandes.entries()) {
       if (
@@ -281,6 +441,14 @@ export function migrerSauvegardeV15(
 }
 
 export function promouvoirEtatV14VersCourant(
+  etat: EtatCampagneV14,
+): EtatCampagne {
+  return marquerCascadeDeTrameEvitee(
+    promouvoirEtatV14PourReplay(etat),
+  );
+}
+
+function promouvoirEtatV14PourReplay(
   etat: EtatCampagneV14,
 ): EtatCampagne {
   return {
@@ -351,7 +519,7 @@ export function migrerSauvegardeV14(
     return undefined;
   }
 
-  let etat = promouvoirEtatV14VersCourant(snapshotV14);
+  let etat = promouvoirEtatV14PourReplay(snapshotV14);
   try {
     for (const [index, entree] of valeur.reproduction.commandes.entries()) {
       if (

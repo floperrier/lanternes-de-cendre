@@ -104,10 +104,10 @@ describe("Campagnes headless d’équilibrage", () => {
     ).toBeGreaterThanOrEqual(6);
     expect(NOMBRE_DE_GRAINES_STANDARD).toBe(256);
     expect(NOMBRE_DE_GRAINES_NOCTURNE).toBe(2_048);
-    expect(VERSION_REGLES_D_EQUILIBRAGE_COURANTE).toBeGreaterThan(0);
+    expect(VERSION_REGLES_D_EQUILIBRAGE_COURANTE).toBe(4);
   });
 
-  it("termine une vraie Campagne par commandes sémantiques et la rejoue à l’identique", () => {
+  it("calibre une branche haute risquée sans perdre son rejeu historique", () => {
     const strategie = STRATEGIES_D_EQUILIBRAGE[0]!;
     const premiere = executerCampagneHeadless({
       graine: "EQUILIBRAGE-000000",
@@ -124,8 +124,18 @@ describe("Campagnes headless d’équilibrage", () => {
       statut: "solution-finale",
       solution: "ancrer",
     });
+    expect(premiere.metriques).toMatchObject({
+      crises: 3,
+      tronconsSousTension: 7,
+      crisesParIdentifiant: {
+        "penurie-eau.pompe-purification": 1,
+        "trame-fer.cascade-materielle": 1,
+        "couronne-muette.saturation-du-halo": 1,
+      },
+    });
     expect(premiere.faitsFinaux).toEqual(
       expect.arrayContaining([
+        "crise.recuperation.socle-de-survie.accomplie",
         "finale.ancrage.selection-preparee",
         "epilogue.revelation.registre-rendu-public",
         "epilogue.compagnons.devenirs-partages",
@@ -133,6 +143,30 @@ describe("Campagnes headless d’équilibrage", () => {
     );
     expect(premiere.commandes.length).toBeGreaterThan(80);
     expect(premiere).toEqual(seconde);
+
+    const historique = executerCampagneHeadless({
+      graine: "EQUILIBRAGE-000000",
+      strategie,
+      versionRegles: 3,
+    });
+    expect(historique.metriques).toMatchObject({
+      crises: 0,
+      tronconsSousTension: 0,
+    });
+  });
+
+  it("préserve de quoi sélectionner une Solution sur les graines nocturnes", () => {
+    const campagne = executerCampagneHeadless({
+      graine: "EQUILIBRAGE-000484",
+      strategie: STRATEGIES_D_EQUILIBRAGE[0]!,
+    });
+
+    expect(campagne).toMatchObject({
+      statut: "terminee",
+      raisonDEchec: null,
+      positionFinale: "noeud-central",
+      denouementFinal: { statut: "solution-finale" },
+    });
   });
 
   it("sépare une Défaite exécutée de l’arrivée au Nœud et conserve la référence des règles v2", () => {
@@ -152,7 +186,7 @@ describe("Campagnes headless d’équilibrage", () => {
     });
 
     expect(courante).toMatchObject({
-      versionRegles: 3,
+      versionRegles: 4,
       statut: "terminee",
       positionFinale: "anneau-interieur",
       denouementFinal: { statut: "defaite" },
@@ -270,9 +304,18 @@ describe("Campagnes headless d’équilibrage", () => {
       crisesUniquesEtCausales: true,
     });
     expect(passe.metriques).toMatchObject({
-      besoinsSousTension: { unite: "ratio-troncons" },
-      crises: { unite: "nombre-par-campagne" },
-      arriveeAuNoeud: { unite: "ratio-campagnes" },
+      besoinsSousTension: {
+        unite: "ratio-troncons",
+        dansLaCible: true,
+      },
+      crises: {
+        unite: "nombre-par-campagne",
+        dansLaCible: true,
+      },
+      arriveeAuNoeud: {
+        unite: "ratio-campagnes",
+        dansLaCible: true,
+      },
       entretienRepetitif: {
         unite: "ratio-charge-equipes",
         nature: "proxy-headless",
@@ -285,7 +328,7 @@ describe("Campagnes headless d’équilibrage", () => {
       passe.campagnes.every(({ bouclesSondees }) => bouclesSondees === 2),
     ).toBe(true);
     expect(passe.metriques.dureeDesHaltes).toMatchObject({
-      nombreDEchantillons: 22,
+      nombreDEchantillons: 26,
       p25: 120,
       mediane: 180,
     });
@@ -349,16 +392,29 @@ describe("Campagnes headless d’équilibrage", () => {
   });
 
   it("valide deux versions de règles successives sur la même matrice", () => {
-    const passes = [1, 2].map((versionRegles) =>
+    const passes = [3, 4].map((versionRegles) =>
       executerPasseDEquilibrage({
         nombreDeGraines: 1,
         prefixeDeGraine: "TEST-VERSIONS",
         versionRegles,
-        conserverTraces: false,
+        conserverTraces: true,
       }),
     );
+    const referenceV3Recalculee = executerPasseDEquilibrage({
+      nombreDeGraines: 1,
+      prefixeDeGraine: "TEST-VERSIONS",
+      versionRegles: 3,
+      conserverTraces: true,
+    });
 
-    expect(passes.map(({ versionRegles }) => versionRegles)).toEqual([1, 2]);
+    expect(passes.map(({ versionRegles }) => versionRegles)).toEqual([3, 4]);
+    expect(
+      validerReferenceDEquilibrage(passes[0]!, referenceV3Recalculee),
+    ).toMatchObject({
+      conforme: true,
+      grainesEtCommandesIdentiques: true,
+      premiereDivergence: null,
+    });
     expect(passes.map(({ invariants }) => invariants)).toEqual([
       {
         sansImpasse: true,

@@ -12,5 +12,6 @@ test-results/
 art/sprites/work/
 .playwright-cli/
 output/playwright/
-artifacts/equilibrage/
+artifacts/equilibrage/*
+!artifacts/equilibrage/reference-v3.json.gz
 artifacts/budgets/

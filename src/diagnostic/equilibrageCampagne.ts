@@ -44,9 +44,10 @@ import {
 import { routeAvalDesBassinsEstPreparee } from "../simulation/nacelles";
 
 export const VERSION_FORMAT_CAMPAGNE_HEADLESS = 1 as const;
-export const VERSION_REGLES_D_EQUILIBRAGE_COURANTE = 3 as const;
+export const VERSION_REGLES_D_EQUILIBRAGE_COURANTE = 4 as const;
 const VERSION_REGLES_LIGNE_ZERO_PRESERVEE = 2 as const;
 const VERSION_REGLES_EXTINCTION_DU_PHARE = 3 as const;
+const VERSION_REGLES_CALIBRAGE_CAUSAL = 4 as const;
 export const NOMBRE_DE_GRAINES_STANDARD = 256 as const;
 export const NOMBRE_DE_GRAINES_NOCTURNE = 2_048 as const;
 
@@ -65,10 +66,17 @@ export const HISTORIQUE_DES_REGLES_D_EQUILIBRAGE = [
     ],
   },
   {
-    version: VERSION_REGLES_D_EQUILIBRAGE_COURANTE,
+    version: VERSION_REGLES_EXTINCTION_DU_PHARE,
     changements: [
       "l’Extinction du Phare conclut les stratégies qui ont manqué une Récupération et perdu leurs réponses de survie",
       "la fréquence terminale, la non-arrivée et l’échec stratégique sont mesurés séparément",
+    ],
+  },
+  {
+    version: VERSION_REGLES_CALIBRAGE_CAUSAL,
+    changements: [
+      "la cascade matérielle reste disponible sur la branche haute lorsque Veille-Basse a été évitée",
+      "six sondes déterministes couvrent la décision risquée de maintenir le débit, dont deux Récupérations immédiates et quatre pénuries persistantes",
     ],
   },
 ] as const;
@@ -248,6 +256,8 @@ export const STRATEGIES_D_EQUILIBRAGE = [
     experience: "premiere-campagne",
     itineraire: ITINERAIRES.hautsRailTete,
     affinites: [
+      "conserver",
+      "amorcer",
       "securiser",
       "relever",
       "consigner",
@@ -256,16 +266,16 @@ export const STRATEGIES_D_EQUILIBRAGE = [
       "refuge",
     ],
     solutionFinale: "ancrage",
-    incident: "securiser-pompe",
+    incident: "maintenir-debit",
     reponsesDeCrise: [
+      "isoler-et-rationner",
       "partager-reserves-cohorte",
       "renforcer-accueil",
-      "isoler-et-rationner",
       "mobiliser-les-remedes",
       "evacuer-les-foyers-exposes",
     ],
     affecteCompagnon: true,
-    haltesApresTroncons: [4, 11],
+    haltesApresTroncons: [0, 4, 11],
     dureeDeHalte: 180,
   },
   {
@@ -281,7 +291,7 @@ export const STRATEGIES_D_EQUILIBRAGE = [
       "constellation",
     ],
     solutionFinale: "reaccord",
-    incident: "laisser-doctrine",
+    incident: "maintenir-debit",
     reponsesDeCrise: [
       "partager-reserves-cohorte",
       "renforcer-accueil",
@@ -331,7 +341,7 @@ export const STRATEGIES_D_EQUILIBRAGE = [
       "veilles",
     ],
     solutionFinale: "reaccord",
-    incident: "laisser-doctrine",
+    incident: "maintenir-debit",
     reponsesDeCrise: [
       "partager-reserves-cohorte",
       "renforcer-accueil",
@@ -358,14 +368,14 @@ export const STRATEGIES_D_EQUILIBRAGE = [
     solutionFinale: "ancrage",
     incident: "maintenir-debit",
     reponsesDeCrise: [
+      "isoler-et-rationner",
       "renforcer-accueil",
       "partager-reserves-cohorte",
       "evacuer-les-foyers-exposes",
       "mobiliser-les-remedes",
-      "isoler-et-rationner",
     ],
     affecteCompagnon: false,
-    haltesApresTroncons: [],
+    haltesApresTroncons: [0],
     dureeDeHalte: 0,
   },
   {
@@ -423,6 +433,7 @@ export const STRATEGIES_D_EQUILIBRAGE = [
     experience: "campagne-rejouee",
     itineraire: ITINERAIRES.basRailSeuil,
     affinites: [
+      "accueillir",
       "rationner",
       "acheter",
       "echanger",
@@ -461,10 +472,10 @@ export const STRATEGIES_D_EQUILIBRAGE = [
     solutionFinale: "precipitation",
     incident: "maintenir-debit",
     reponsesDeCrise: [
+      "isoler-et-rationner",
       "renforcer-accueil",
       "partager-reserves-cohorte",
       "evacuer-les-foyers-exposes",
-      "isoler-et-rationner",
       "mobiliser-les-remedes",
     ],
     affecteCompagnon: false,
@@ -497,6 +508,83 @@ export const STRATEGIES_D_EQUILIBRAGE = [
     dureeDeHalte: 180,
   },
 ] as const satisfies readonly StrategieDEquilibrage[];
+
+function strategieSelonVersion(
+  strategie: StrategieDEquilibrage,
+  versionRegles: number,
+): StrategieDEquilibrage {
+  if (versionRegles >= VERSION_REGLES_CALIBRAGE_CAUSAL) {
+    return strategie;
+  }
+  if (strategie.id === "prudence-causale") {
+    return {
+      ...strategie,
+      affinites: [
+        "securiser",
+        "relever",
+        "consigner",
+        "publier",
+        "partager",
+        "refuge",
+      ],
+      incident: "securiser-pompe",
+      reponsesDeCrise: [
+        "partager-reserves-cohorte",
+        "renforcer-accueil",
+        "isoler-et-rationner",
+        "mobiliser-les-remedes",
+        "evacuer-les-foyers-exposes",
+      ],
+      haltesApresTroncons: [4, 11],
+    };
+  }
+  if (strategie.id === "vitesse-sous-contrainte") {
+    return {
+      ...strategie,
+      reponsesDeCrise: [
+        "renforcer-accueil",
+        "partager-reserves-cohorte",
+        "evacuer-les-foyers-exposes",
+        "mobiliser-les-remedes",
+        "isoler-et-rationner",
+      ],
+      haltesApresTroncons: [],
+    };
+  }
+  if (
+    strategie.id === "solidarite-mobile" ||
+    strategie.id === "autonomie-des-colonies"
+  ) {
+    return { ...strategie, incident: "laisser-doctrine" };
+  }
+  if (strategie.id === "opportunisme-marchand") {
+    return {
+      ...strategie,
+      affinites: [
+        "rationner",
+        "acheter",
+        "echanger",
+        "prendre",
+        "monopole",
+        "citadelle",
+        "reserves",
+      ],
+    };
+  }
+  if (strategie.id === "rupture-du-front") {
+    return {
+      ...strategie,
+      reponsesDeCrise: [
+        "renforcer-accueil",
+        "partager-reserves-cohorte",
+        "evacuer-les-foyers-exposes",
+        "isoler-et-rationner",
+        "mobiliser-les-remedes",
+      ],
+    };
+  }
+  return strategie;
+}
 
 export interface EtapeDeCampagneHeadless {
   readonly sequence: number;
@@ -1022,12 +1110,16 @@ function construireConseilDisponible(etat: EtatCampagne) {
 
 export function executerCampagneHeadless({
   graine,
-  strategie,
+  strategie: strategieDeclaree,
   versionRegles = VERSION_REGLES_D_EQUILIBRAGE_COURANTE,
   limiteDeCommandes = 320,
   tracerEmpreintes = true,
   commandesImposees,
 }: OptionsDeCampagneHeadless): ResultatDeCampagneHeadless {
+  const strategie = strategieSelonVersion(
+    strategieDeclaree,
+    versionRegles,
+  );
   let etat = creerCampagneInitiale(graine);
   const ressourcesInitiales = capturerRessources(etat);
   const sondageDesBoucles = sonderBouclesSemantiques(etat);
@@ -1099,7 +1191,9 @@ export function executerCampagneHeadless({
         commande,
         versionRegles < VERSION_REGLES_EXTINCTION_DU_PHARE
           ? { crises: "historiques-v15" }
-          : {},
+          : versionRegles < VERSION_REGLES_CALIBRAGE_CAUSAL
+            ? { crises: "historiques-v16" }
+            : {},
       );
       etat = transition.etat;
       if (
@@ -1367,8 +1461,10 @@ export function executerCampagneHeadless({
     }
 
     if (
-      etat.crises.alerte?.id === IDENTIFIANT_DE_LA_CRISE_DU_HALO ||
-      etat.crises.alerte?.id === IDENTIFIANT_DE_LA_CRISE_TERMINALE
+      etat.crises.alerte !== null &&
+      (versionRegles >= VERSION_REGLES_CALIBRAGE_CAUSAL ||
+        etat.crises.alerte.id === IDENTIFIANT_DE_LA_CRISE_DU_HALO ||
+        etat.crises.alerte.id === IDENTIFIANT_DE_LA_CRISE_TERMINALE)
     ) {
       if (
         etat.tempsDuConvoi.vitesse !== 4 &&

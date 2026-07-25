@@ -46,7 +46,7 @@ describe("persistance de l’Extinction du Phare", () => {
     };
 
     expect(etat).toMatchObject({
-      version: 16,
+      version: 17,
       denouement: { statut: "defaite" },
       citeCaravane: { phare: "eteint" },
       crises: {
@@ -73,7 +73,7 @@ describe("persistance de l’Extinction du Phare", () => {
     expect(importation).toMatchObject({
       statut: "compatible",
       sauvegarde: {
-        version: 16,
+        version: 17,
         etat: {
           denouement: { statut: "defaite" },
           citeCaravane: { phare: "eteint" },

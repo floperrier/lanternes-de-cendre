@@ -167,10 +167,6 @@ describe("Crise matérielle de la Trame de Fer", () => {
     const variations = [
       preparerGrandAiguillage((etat) => ({
         ...etat,
-        crises: { ...etat.crises, historique: etat.crises.historique.slice(0, 1) },
-      })),
-      preparerGrandAiguillage((etat) => ({
-        ...etat,
         pilotage: {
           ...etat.pilotage,
           economie: {
@@ -264,6 +260,40 @@ describe("Crise matérielle de la Trame de Fer", () => {
         })),
       ).crises.alerte,
     ).toMatchObject({ id: "trame-fer.cascade-materielle" });
+  });
+
+  it("reste accessible après la purification quand la branche haute évite Veille-Basse", () => {
+    const sansVeilleBasse = preparerGrandAiguillage((etat) => {
+      const faitsDeCampagne = etat.narration.faitsDeCampagne.filter(
+        ({ id }) => !id.startsWith("crise.veille-basse."),
+      );
+      return {
+        ...etat,
+        narration: {
+          ...etat.narration,
+          faitsDeCampagne,
+        },
+        crises: {
+          ...etat.crises,
+          historique: reconstruireHistoriqueDesCrises(faitsDeCampagne),
+        },
+      };
+    });
+
+    expect(
+      rationnerRefroidissement(sansVeilleBasse).crises.alerte,
+    ).toMatchObject({ id: "trame-fer.cascade-materielle" });
+    expect(
+      appliquerCommande(
+        sansVeilleBasse,
+        {
+          type: "evenement-narratif.choisir",
+          evenementId: "trame.grand-aiguillage.l-eau-des-machines",
+          choixId: "rationner-refroidissement",
+        },
+        { crises: "historiques-v16" },
+      ).etat.crises.alerte,
+    ).toBeNull();
   });
 
   it("ouvre une fenêtre complète quand les critères matériels deviennent vrais après le Fait annonceur", () => {

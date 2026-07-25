@@ -4,8 +4,10 @@ import {
   appliquerCommande,
   creerCampagneInitiale,
   empreinteEtat,
+  type CommandeCampagne,
   type EtatCampagne,
 } from "../simulation/campagne";
+import { creerCheckpointApresCascadeEvitee } from "./checkpointTrameHistorique.fixture";
 import { VERSION_SIMULATION_AVANT_EXTINCTION_DU_PHARE } from "../simulation/versions";
 import {
   migrerSauvegardeV15,
@@ -49,6 +51,52 @@ function archiveV15(etat: EtatCampagne): ObjetInconnu {
   };
 }
 
+function archiveV15AvecJournal(
+  snapshot: EtatCampagne,
+  commande: CommandeCampagne,
+  etat: EtatCampagne,
+): ObjetInconnu {
+  const snapshotV15 = normaliserEnV15(snapshot);
+  const etatV15 = normaliserEnV15(etat);
+  const empreinteSnapshot = empreinteEtat(
+    snapshotV15 as unknown as EtatCampagne,
+  );
+  const empreinte = empreinteEtat(etatV15 as unknown as EtatCampagne);
+  return {
+    format: FORMAT_SAUVEGARDE,
+    id: `archive-v15-journal-${empreinte}`,
+    version: VERSION_SAUVEGARDE_AVANT_EXTINCTION_DU_PHARE,
+    versions: {
+      ...VERSIONS_DU_SNAPSHOT_COURANT,
+      simulation: VERSION_SIMULATION_AVANT_EXTINCTION_DU_PHARE,
+    },
+    graine: etatV15.graine,
+    horloge: { secondes: etatV15.tempsDuConvoi.secondes },
+    etat: etatV15,
+    reproduction: {
+      snapshot: snapshotV15,
+      empreinteSnapshot,
+      commandes: [{ sequence: 0, commande, empreinteApres: empreinte }],
+    },
+    empreinte,
+  };
+}
+
+function archiveV15ApresCascadeEvitee(): ObjetInconnu {
+  const checkpoint = creerCheckpointApresCascadeEvitee(
+    "MIGRATION-V15-APRES-CASCADE",
+    "historiques-v15",
+  );
+  const commande = {
+    type: "temps-du-convoi.regler-vitesse",
+    vitesse: 1,
+  } as const;
+  const etat = appliquerCommande(checkpoint.apresFait, commande, {
+    crises: "historiques-v15",
+  }).etat;
+  return archiveV15AvecJournal(checkpoint.apresFait, commande, etat);
+}
+
 describe("migration v15 avant l’Extinction du Phare", () => {
   it("promeut une archive v15 valide sans altérer son état", () => {
     const initiale = creerCampagneInitiale("MIGRATION-V15");
@@ -57,11 +105,31 @@ describe("migration v15 avant l’Extinction du Phare", () => {
     expect(migration).toBeDefined();
     expect(migration).toMatchObject({
       version: VERSION_SAUVEGARDE_COURANTE,
-      versions: { simulation: 16 },
+      versions: { simulation: 17 },
       etat: {
-        version: 16,
+        version: 17,
         denouement: { statut: "en-cours" },
         citeCaravane: { phare: "actif" },
+      },
+      reproduction: { commandes: [] },
+    });
+  });
+
+  it("préserve un checkpoint postérieur à une cascade évitée", () => {
+    const migration = migrerSauvegardeV15(
+      archiveV15ApresCascadeEvitee(),
+    );
+
+    expect(migration).toMatchObject({
+      version: VERSION_SAUVEGARDE_COURANTE,
+      etat: {
+        version: 17,
+        tempsDuConvoi: { vitesse: 1 },
+        crises: {
+          crisesDeTrameHistoriquesIgnorees: true,
+          alerte: null,
+          criseActive: null,
+        },
       },
       reproduction: { commandes: [] },
     });

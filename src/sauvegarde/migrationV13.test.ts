@@ -74,13 +74,16 @@ function archiveV13TraversantLaClef(): ObjetInconnu {
     graine: "MIGRATION-V13-TRAVERSE-CLEF",
     strategie,
     tracerEmpreintes: true,
+    versionRegles: 3,
   });
   let snapshot = creerCampagneInitiale(campagne.graine);
   let commandeDeClef: CommandeCampagne | undefined;
   let etatApresClef: EtatCampagne | undefined;
 
   for (const etape of campagne.commandes) {
-    const candidate = appliquerCommande(snapshot, etape.commande).etat;
+    const candidate = appliquerCommande(snapshot, etape.commande, {
+      crises: "historiques-v16",
+    }).etat;
     if (
       candidate.narration.faitsDeCampagne.some(
         ({ id }) => estFaitDeClef(id),
@@ -157,9 +160,9 @@ describe("migration v13 vers la Crise matérielle de la Trame", () => {
     expect(migration).toBeDefined();
     expect(migration).toMatchObject({
       version: VERSION_SAUVEGARDE_COURANTE,
-      versions: { simulation: 16 },
+      versions: { simulation: 17 },
       etat: {
-        version: 16,
+        version: 17,
         crises: {
           crisesDeTrameHistoriquesIgnorees: false,
           alerte: null,

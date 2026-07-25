@@ -34,7 +34,7 @@ function parcoursConclu(): {
   const graine = "CENDRE-SAUVEGARDE-DENOUEMENT";
   const resultat = executerCampagneHeadless({
     graine,
-    strategie: STRATEGIES_D_EQUILIBRAGE[0]!,
+    strategie: STRATEGIES_D_EQUILIBRAGE[2]!,
   });
   let etat = creerCampagneInitiale(graine);
   let arriveeAuNoeudSansConclusionObservee = false;
@@ -112,8 +112,8 @@ describe("persistance du Dénouement de Campagne", () => {
       exporterSauvegarde(sauvegarde),
     );
 
-    expect(VERSION_SIMULATION_COURANTE).toBe(16);
-    expect(VERSION_SAUVEGARDE_COURANTE).toBe(16);
+    expect(VERSION_SIMULATION_COURANTE).toBe(17);
+    expect(VERSION_SAUVEGARDE_COURANTE).toBe(17);
     expect(parcours.arriveeAuNoeudSansConclusionObservee).toBe(true);
     expect(importation).toMatchObject({
       statut: "compatible",

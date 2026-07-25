@@ -39,8 +39,10 @@ Compagnon, ainsi que différentes politiques de Halte. Elles sont des sondes
 déterministes explicites, pas des profils de joueurs prétendument réalistes.
 La passe standard rejoue en outre le journal exact de chaque candidate sous la
 version de règles précédente et conserve le rapport complet dans
-`artifacts/equilibrage/standard.json`. La sortie console limite les capsules
-affichées, mais indique leur nombre total.
+`artifacts/equilibrage/standard.json`. Elle recalcule cette v3 puis vérifie son
+égalité exacte avec l’oracle versionné
+`artifacts/equilibrage/reference-v3.json.gz` avant de comparer v3 et v4. La
+sortie console limite les capsules affichées, mais indique leur nombre total.
 
 ## Comparer un réglage
 
@@ -109,6 +111,18 @@ Une bande manquée apparaît dans `alertesDeBandes` et reste visible sans
 masquer le reste du diagnostic. Le rapport porte alors explicitement
 `referenceEquilibree: false` : la matrice reste exploitable comme diagnostic,
 mais ne constitue pas une preuve que la référence est réglée.
+
+La référence v4 issue de la matrice standard règle les trois mesures directes
+sans modifier les coefficients économiques : 48,08 % de Tronçons sous tension,
+trois Crises médianes, 76,56 % d’arrivée pour les premières Campagnes et
+85,94 % pour les Campagnes rejouées. La cascade matérielle reste accessible
+après la purification sur la branche haute même si Veille-Basse a été évitée ;
+les dix sondes couvrent ensuite explicitement six décisions de maintenir le
+débit, deux Récupérations immédiates et quatre pénuries persistantes. La sonde
+prudente conserve en plus la marge matérielle de sa Solution finale, tandis que
+la sonde opportuniste assume l’accueil risqué de la cohorte. La v3 précédente
+est recalculée séparément, doit correspondre exactement à l’oracle versionné et
+franchit les mêmes invariants avant la comparaison du journal candidat exact.
 
 Les mesures `proxy-headless` sont regroupées dans `indicateursProxy`. Leur
 comparaison à un seuil reste informative et ne décide jamais

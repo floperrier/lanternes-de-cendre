@@ -12,6 +12,7 @@ import {
   executerCampagneHeadless,
   STRATEGIES_D_EQUILIBRAGE,
 } from "../diagnostic/equilibrageCampagne";
+import { creerCheckpointApresCascadeEvitee } from "./checkpointTrameHistorique.fixture";
 import { VERSION_SIMULATION_AVANT_CRISE_DU_HALO } from "../simulation/versions";
 import {
   migrerSauvegardeV14,
@@ -59,6 +60,52 @@ function archiveV14(etat: EtatCampagne): ObjetInconnu {
   };
 }
 
+function archiveV14AvecJournal(
+  snapshot: EtatCampagne,
+  commande: CommandeCampagne,
+  etat: EtatCampagne,
+): ObjetInconnu {
+  const snapshotV14 = normaliserEnV14(snapshot);
+  const etatV14 = normaliserEnV14(etat);
+  const empreinteSnapshot = empreinteEtat(
+    snapshotV14 as unknown as EtatCampagne,
+  );
+  const empreinte = empreinteEtat(etatV14 as unknown as EtatCampagne);
+  return {
+    format: FORMAT_SAUVEGARDE,
+    id: `archive-v14-journal-${empreinte}`,
+    version: VERSION_SAUVEGARDE_AVANT_CRISE_DU_HALO,
+    versions: {
+      ...VERSIONS_DU_SNAPSHOT_COURANT,
+      simulation: VERSION_SIMULATION_AVANT_CRISE_DU_HALO,
+    },
+    graine: etatV14.graine,
+    horloge: { secondes: etatV14.tempsDuConvoi.secondes },
+    etat: etatV14,
+    reproduction: {
+      snapshot: snapshotV14,
+      empreinteSnapshot,
+      commandes: [{ sequence: 0, commande, empreinteApres: empreinte }],
+    },
+    empreinte,
+  };
+}
+
+function archiveV14ApresCascadeEvitee(): ObjetInconnu {
+  const checkpoint = creerCheckpointApresCascadeEvitee(
+    "MIGRATION-V14-APRES-CASCADE",
+    "historiques-v14",
+  );
+  const commande = {
+    type: "temps-du-convoi.regler-vitesse",
+    vitesse: 1,
+  } as const;
+  const etat = appliquerCommande(checkpoint.apresFait, commande, {
+    crises: "historiques-v14",
+  }).etat;
+  return archiveV14AvecJournal(checkpoint.apresFait, commande, etat);
+}
+
 function faitDeClef(): FaitDeCampagne {
   return {
     id: "couronne.ouverture.clef-collective",
@@ -81,13 +128,16 @@ function archiveV14TraversantLaClef(): ObjetInconnu {
     graine: "MIGRATION-V14-TRAVERSE-CLEF",
     strategie,
     tracerEmpreintes: true,
+    versionRegles: 3,
   });
   let snapshot = creerCampagneInitiale(campagne.graine);
   let commandeDeClef: CommandeCampagne | undefined;
   let etatApresClef: EtatCampagne | undefined;
 
   for (const etape of campagne.commandes) {
-    const candidate = appliquerCommande(snapshot, etape.commande).etat;
+    const candidate = appliquerCommande(snapshot, etape.commande, {
+      crises: "historiques-v14",
+    }).etat;
     if (
       candidate.narration.faitsDeCampagne.some(
         ({ id }) => estFaitDeClef(id),
@@ -97,13 +147,7 @@ function archiveV14TraversantLaClef(): ObjetInconnu {
       )
     ) {
       commandeDeClef = etape.commande;
-      etatApresClef = {
-        ...candidate,
-        crises: {
-          ...candidate.crises,
-          alerte: null,
-        },
-      };
+      etatApresClef = candidate;
       break;
     }
     snapshot = candidate;
@@ -153,9 +197,9 @@ describe("migration v14 vers la Crise de saturation du Halo", () => {
     expect(migration).toBeDefined();
     expect(migration).toMatchObject({
       version: VERSION_SAUVEGARDE_COURANTE,
-      versions: { simulation: 16 },
+      versions: { simulation: 17 },
       etat: {
-        version: 16,
+        version: 17,
         crises: {
           crisesDuHaloHistoriquesIgnorees: false,
           alerte: null,
@@ -181,6 +225,27 @@ describe("migration v14 vers la Crise de saturation du Halo", () => {
       crisesDuHaloHistoriquesIgnorees: true,
       alerte: null,
       criseActive: null,
+    });
+  });
+
+  it("préserve un checkpoint postérieur à une cascade évitée", () => {
+    const migration = migrerSauvegardeV14(
+      archiveV14ApresCascadeEvitee(),
+    );
+
+    expect(migration).toMatchObject({
+      version: VERSION_SAUVEGARDE_COURANTE,
+      etat: {
+        version: 17,
+        tempsDuConvoi: { vitesse: 1 },
+        crises: {
+          crisesDeTrameHistoriquesIgnorees: true,
+          crisesDuHaloHistoriquesIgnorees: false,
+          alerte: null,
+          criseActive: null,
+        },
+      },
+      reproduction: { commandes: [] },
     });
   });
 

@@ -1190,7 +1190,8 @@ type OptionsDApplicationDeCommande = {
     | "historiques-v12"
     | "historiques-v13"
     | "historiques-v14"
-    | "historiques-v15";
+    | "historiques-v15"
+    | "historiques-v16";
 };
 
 function appliquerCommandeSansEvaluationDesRecuperations(
@@ -1983,7 +1984,12 @@ export function appliquerCommande(
       })(),
       options.crises === undefined
         ? {}
-        : { extinction: "historique" }
+        : {
+            ...(options.crises === "historiques-v16"
+              ? {}
+              : { extinction: "historique" as const }),
+            trame: "apres-veille-basse",
+          }
     );
     if (
       options.crises === "historiques-v13" &&
