@@ -31,6 +31,10 @@ function preparer(credible = true): EtatCampagne {
   const commun = {
     ...initial,
     tempsDuConvoi: { secondes: 3_000, vitesse: 4 as const },
+    crises: {
+      ...initial.crises,
+      faitAnnonceurHistoriqueIgnore: true,
+    },
     routes: { ...initial.routes, position: "couronne-muette" as const },
     narration: {
       ...initial.narration,

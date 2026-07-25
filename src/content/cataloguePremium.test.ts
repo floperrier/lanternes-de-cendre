@@ -13,11 +13,54 @@ const JOURNAL_VIDE = {
   cibles: {},
 };
 
+const PRESENTATION_CRISE_VALIDE = {
+  alerteTitre: "Alerte",
+  alerteCause: "Cause de l’alerte",
+  titre: "Crise",
+  cause: "Cause de la crise",
+  chaine: ["Fait", "Aggravation", "Rupture"],
+  reponses: {
+    "partager-reserves-cohorte": {
+      intention: "Partager",
+      coutConnu: "6 Vivres",
+      consequence: "Réserves entamées",
+      mitigation: "Cohorte protégée",
+      pireConsequence: "Autonomie réduite",
+      attribution: "Cohorte",
+    },
+    "renforcer-accueil": {
+      intention: "Renforcer",
+      coutConnu: "5 Matériaux",
+      consequence: "Capacité entamée",
+      mitigation: "Sas protégés",
+      pireConsequence: "Réparations réduites",
+      attribution: "Techniciens",
+    },
+  },
+  cicatrices: dictionnaire(
+    "cicatrice.reserves-partagees-veille-basse",
+    "cicatrice.capacites-accueil-saturees",
+  ),
+  consequencesCicatrices: dictionnaire(
+    "cicatrice.reserves-partagees-veille-basse",
+    "cicatrice.capacites-accueil-saturees",
+  ),
+  causes: dictionnaire(
+    "crise.veille-basse.partager-reserves-cohorte",
+    "crise.veille-basse.renforcer-accueil",
+  ),
+  garanties: dictionnaire("cohorte-hydratee", "accueil-stabilise"),
+  conditionsRecuperation: dictionnaire(
+    "cohorte-hydratee",
+    "accueil-stabilise",
+  ),
+};
+
 const PRESENTATIONS_VALIDES = {
   hautPuits: { fr: { titre: "Haut-Puits" }, en: { titre: "High Well" } },
   veilleBasse: {
-    fr: { titre: "Veille-Basse" },
-    en: { titre: "Lower Watch" },
+    fr: { titre: "Veille-Basse", crise: PRESENTATION_CRISE_VALIDE },
+    en: { titre: "Lower Watch", crise: PRESENTATION_CRISE_VALIDE },
   },
   deversoir: {
     fr: { titre: "Déversoir Noir" },
@@ -286,6 +329,48 @@ describe("installation du contenu narratif premium", () => {
 
   it("accepte encore un payload V1 historique dépourvu de Conseils", () => {
     expect(() => installerContenuPremiumNarratif(lot())).not.toThrow();
+  });
+
+  it("rejette une présentation de Veille-Basse historique ou mal typée", () => {
+    const installerAvec = (veilleBasse: unknown) =>
+      installerPresentationsPremium({
+        version: 1,
+        catalogue: {
+          evenements: [],
+          presentations: {
+            hautPuits: PRESENTATIONS_VALIDES.hautPuits,
+            veilleBasse,
+          },
+        },
+      });
+    const { crise: _crise, ...frHistorique } =
+      PRESENTATIONS_VALIDES.veilleBasse.fr;
+    void _crise;
+
+    expect(() =>
+      installerAvec({
+        fr: frHistorique,
+        en: PRESENTATIONS_VALIDES.veilleBasse.en,
+      }),
+    ).toThrow("presentations-premium-invalides");
+    expect(() =>
+      installerAvec({
+        fr: ["texte"],
+        en: PRESENTATIONS_VALIDES.veilleBasse.en,
+      }),
+    ).toThrow("presentations-premium-invalides");
+    expect(() =>
+      installerAvec({
+        fr: {
+          ...PRESENTATIONS_VALIDES.veilleBasse.fr,
+          crise: {
+            ...PRESENTATION_CRISE_VALIDE,
+            chaine: [{ texte: "objet-interdit" }],
+          },
+        },
+        en: PRESENTATIONS_VALIDES.veilleBasse.en,
+      }),
+    ).toThrow("presentations-premium-invalides");
   });
 
   it("exige la présentation du Déversoir seulement pour les lots qui le contiennent", () => {

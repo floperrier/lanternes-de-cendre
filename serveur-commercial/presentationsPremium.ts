@@ -647,6 +647,69 @@ export const PRESENTATIONS_PREMIUM = {
       libellePosition: "Position",
       libelleReleve: "Relevé",
       libelleRevelation: "Révélation essentielle",
+      crise: {
+        alerteTitre: "Aggravation annoncée — accueil sous pénurie",
+        alerteCause:
+          "La Cohorte accueillie épuise les réserves et les capacités filtrées de Veille-Basse.",
+        titre: "Crise — Cohorte accueillie sous pénurie",
+        cause:
+          "L’accueil décidé sous pénurie a saturé simultanément les réserves et les sas filtrés.",
+        chaine: [
+          "La Cohorte a été accueillie alors que l’Eau restait sous tension.",
+          "Les réserves et les capacités d’accueil ont atteint leur limite.",
+          "Rupture : la Cohorte, les réserves et les sas doivent être arbitrés.",
+        ],
+        reponses: {
+          "partager-reserves-cohorte": {
+            intention: "Partager les Vivres d’urgence avec la Cohorte",
+            coutConnu: "6 Vivres",
+            consequence:
+              "Les réserves du convoi restent durablement entamées à Veille-Basse.",
+            mitigation:
+              "La Cohorte traverse la pénurie immédiate sans nouvelle exposition.",
+            pireConsequence:
+              "Le prochain Tronçon commencera avec une autonomie de Vivres réduite.",
+            attribution: "Cohorte du Sillon",
+          },
+          "renforcer-accueil": {
+            intention: "Renforcer les capacités d’accueil filtrées",
+            coutConnu: "5 Matériaux",
+            consequence:
+              "Les capacités de Veille-Basse restent saturées malgré le renfort.",
+            mitigation:
+              "Les sas séparent la Cohorte des zones les plus exposées.",
+            pireConsequence:
+              "Les réparations du prochain Tronçon manqueront de Matériaux.",
+            attribution: "Techniciens de Veille-Basse",
+          },
+        },
+        cicatrices: {
+          "cicatrice.reserves-partagees-veille-basse":
+            "Réserves partagées à Veille-Basse",
+          "cicatrice.capacites-accueil-saturees":
+            "Capacités d’accueil saturées",
+        },
+        consequencesCicatrices: {
+          "cicatrice.reserves-partagees-veille-basse":
+            "Le partage d’urgence réduit durablement les réserves disponibles après Veille-Basse.",
+          "cicatrice.capacites-accueil-saturees":
+            "Les sas filtrés restent marqués par la saturation de l’accueil.",
+        },
+        causes: {
+          "crise.veille-basse.partager-reserves-cohorte":
+            "Partage des Vivres d’urgence",
+          "crise.veille-basse.renforcer-accueil":
+            "Renfort des capacités d’accueil",
+        },
+        garanties: {
+          "cohorte-hydratee": "Cohorte hydratée",
+          "accueil-stabilise": "Accueil stabilisé",
+        },
+        conditionsRecuperation: {
+          "cohorte-hydratee": "Ouvrir l’Hospice du Sillon.",
+          "accueil-stabilise": "Renforcer les sas de Veille-Basse.",
+        },
+      },
     },
     en: {
       titre: "Lower Watch and Sillon Hospice",
@@ -744,6 +807,69 @@ export const PRESENTATIONS_PREMIUM = {
       libellePosition: "Location",
       libelleReleve: "Survey",
       libelleRevelation: "Essential revelation",
+      crise: {
+        alerteTitre: "Escalation announced — shelter under shortage",
+        alerteCause:
+          "Welcoming the Cohort is exhausting Veille-Basse’s reserves and filtered shelter capacity.",
+        titre: "Crisis — Cohort welcomed under shortage",
+        cause:
+          "Sheltering the Cohort during the shortage saturated both reserves and filtered airlocks.",
+        chaine: [
+          "The Cohort was welcomed while Water remained strained.",
+          "Reserves and shelter capacity reached their limit.",
+          "Shortage: the Cohort, reserves and airlocks now require an explicit trade-off.",
+        ],
+        reponses: {
+          "partager-reserves-cohorte": {
+            intention: "Share emergency Provisions with the Cohort",
+            coutConnu: "6 Provisions",
+            consequence:
+              "Convoy reserves remain depleted after Veille-Basse.",
+            mitigation:
+              "The Cohort survives the immediate shortage without further exposure.",
+            pireConsequence:
+              "The next route segment begins with reduced Provisions autonomy.",
+            attribution: "Sillon Cohort",
+          },
+          "renforcer-accueil": {
+            intention: "Reinforce filtered shelter capacity",
+            coutConnu: "5 Materials",
+            consequence:
+              "Veille-Basse’s shelter capacity remains scarred by saturation.",
+            mitigation:
+              "The airlocks separate the Cohort from the most exposed areas.",
+            pireConsequence:
+              "Repairs on the next route segment will lack Materials.",
+            attribution: "Veille-Basse technicians",
+          },
+        },
+        cicatrices: {
+          "cicatrice.reserves-partagees-veille-basse":
+            "Reserves shared at Veille-Basse",
+          "cicatrice.capacites-accueil-saturees":
+            "Shelter capacity saturated",
+        },
+        consequencesCicatrices: {
+          "cicatrice.reserves-partagees-veille-basse":
+            "Emergency sharing permanently reduces the reserves available after Veille-Basse.",
+          "cicatrice.capacites-accueil-saturees":
+            "The filtered airlocks remain scarred by shelter saturation.",
+        },
+        causes: {
+          "crise.veille-basse.partager-reserves-cohorte":
+            "Emergency Provisions shared",
+          "crise.veille-basse.renforcer-accueil":
+            "Shelter capacity reinforced",
+        },
+        garanties: {
+          "cohorte-hydratee": "Cohort hydrated",
+          "accueil-stabilise": "Shelter stabilized",
+        },
+        conditionsRecuperation: {
+          "cohorte-hydratee": "Open Sillon Hospice.",
+          "accueil-stabilise": "Reinforce Veille-Basse’s airlocks.",
+        },
+      },
     },
   },
   aiguillage: {

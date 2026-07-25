@@ -245,6 +245,8 @@ export const STRATEGIES_D_EQUILIBRAGE = [
     solutionFinale: "ancrage",
     incident: "securiser-pompe",
     reponsesDeCrise: [
+      "partager-reserves-cohorte",
+      "renforcer-accueil",
       "isoler-et-rationner",
       "mobiliser-les-remedes",
       "evacuer-les-foyers-exposes",
@@ -268,6 +270,8 @@ export const STRATEGIES_D_EQUILIBRAGE = [
     solutionFinale: "reaccord",
     incident: "laisser-doctrine",
     reponsesDeCrise: [
+      "partager-reserves-cohorte",
+      "renforcer-accueil",
       "mobiliser-les-remedes",
       "isoler-et-rationner",
       "evacuer-les-foyers-exposes",
@@ -291,6 +295,8 @@ export const STRATEGIES_D_EQUILIBRAGE = [
     solutionFinale: "ancrage",
     incident: "securiser-pompe",
     reponsesDeCrise: [
+      "renforcer-accueil",
+      "partager-reserves-cohorte",
       "isoler-et-rationner",
       "mobiliser-les-remedes",
       "evacuer-les-foyers-exposes",
@@ -314,6 +320,8 @@ export const STRATEGIES_D_EQUILIBRAGE = [
     solutionFinale: "reaccord",
     incident: "laisser-doctrine",
     reponsesDeCrise: [
+      "partager-reserves-cohorte",
+      "renforcer-accueil",
       "mobiliser-les-remedes",
       "evacuer-les-foyers-exposes",
       "isoler-et-rationner",
@@ -337,6 +345,8 @@ export const STRATEGIES_D_EQUILIBRAGE = [
     solutionFinale: "ancrage",
     incident: "maintenir-debit",
     reponsesDeCrise: [
+      "renforcer-accueil",
+      "partager-reserves-cohorte",
       "evacuer-les-foyers-exposes",
       "mobiliser-les-remedes",
       "isoler-et-rationner",
@@ -360,6 +370,8 @@ export const STRATEGIES_D_EQUILIBRAGE = [
     solutionFinale: "precipitation",
     incident: "laisser-doctrine",
     reponsesDeCrise: [
+      "partager-reserves-cohorte",
+      "renforcer-accueil",
       "isoler-et-rationner",
       "mobiliser-les-remedes",
       "evacuer-les-foyers-exposes",
@@ -383,6 +395,8 @@ export const STRATEGIES_D_EQUILIBRAGE = [
     solutionFinale: "reaccord",
     incident: "securiser-pompe",
     reponsesDeCrise: [
+      "partager-reserves-cohorte",
+      "renforcer-accueil",
       "evacuer-les-foyers-exposes",
       "mobiliser-les-remedes",
       "isoler-et-rationner",
@@ -406,6 +420,8 @@ export const STRATEGIES_D_EQUILIBRAGE = [
     solutionFinale: "ancrage",
     incident: "maintenir-debit",
     reponsesDeCrise: [
+      "renforcer-accueil",
+      "partager-reserves-cohorte",
       "mobiliser-les-remedes",
       "isoler-et-rationner",
       "evacuer-les-foyers-exposes",
@@ -429,6 +445,8 @@ export const STRATEGIES_D_EQUILIBRAGE = [
     solutionFinale: "precipitation",
     incident: "maintenir-debit",
     reponsesDeCrise: [
+      "renforcer-accueil",
+      "partager-reserves-cohorte",
       "evacuer-les-foyers-exposes",
       "isoler-et-rationner",
       "mobiliser-les-remedes",
@@ -452,6 +470,8 @@ export const STRATEGIES_D_EQUILIBRAGE = [
     solutionFinale: "reaccord",
     incident: "laisser-doctrine",
     reponsesDeCrise: [
+      "partager-reserves-cohorte",
+      "renforcer-accueil",
       "mobiliser-les-remedes",
       "isoler-et-rationner",
       "evacuer-les-foyers-exposes",
@@ -935,7 +955,12 @@ function choisirReponseDeCrise(
 function listerReponsesDeCriseViables(
   etat: EtatCampagne,
 ): IdentifiantDeReponseALaCrise[] {
+  const criseActive = etat.crises.criseActive;
+  if (criseActive === null) {
+    return [];
+  }
   return DEFINITIONS_DES_REPONSES_A_LA_CRISE.filter((definition) =>
+    definition.criseId === criseActive.id &&
     reponseALaCriseEstViable(
       definition,
       etat.pilotage,
@@ -1486,8 +1511,20 @@ export function executerCampagneHeadless({
 
     if (
       etat.routes.position === "veille-basse" &&
-      attentesDeVeilleBasse < 2
+      attentesDeVeilleBasse < 5
     ) {
+      if (
+        etat.tempsDuConvoi.vitesse !== 4 &&
+        !executer({
+          type: "temps-du-convoi.regler-vitesse",
+          vitesse: 4,
+        })
+      ) {
+        break;
+      }
+      if (etat.tempsDuConvoi.vitesse !== 4) {
+        continue;
+      }
       attentesDeVeilleBasse += 1;
       if (
         !executer({

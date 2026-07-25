@@ -1,9 +1,15 @@
 import type { Langue } from "../content/types";
+import {
+  lirePresentationsPremium,
+  type TextesDeCriseDeVeilleBasse,
+} from "../content/presentationsPremium";
 import type { EtatCampagne } from "../simulation/campagne";
 import {
-  DEFINITIONS_DES_REPONSES_A_LA_CRISE,
+  IDENTIFIANT_DE_LA_CRISE_DE_VEILLE_BASSE,
+  listerDefinitionsDesReponsesALaCrise,
   reponseALaCriseEstViable,
   type GarantieDeRecuperation,
+  type IdentifiantDeCrise,
   type IdentifiantDeReponseALaCrise,
 } from "../simulation/crise";
 
@@ -21,7 +27,7 @@ export interface ProjectionDeReponseALaCrise {
 }
 
 export interface ProjectionDeCriseActive {
-  readonly id: "penurie-eau.pompe-purification";
+  readonly id: IdentifiantDeCrise;
   readonly titre: string;
   readonly cause: string;
   readonly chaineVisible: readonly string[];
@@ -33,6 +39,7 @@ export interface ProjectionDesCrises {
   readonly alerte: {
     readonly titre: string;
     readonly cause: string;
+    readonly chaineVisible: readonly string[];
     readonly echeance: string;
   } | null;
   readonly active: ProjectionDeCriseActive | null;
@@ -125,6 +132,7 @@ const TEXTES = {
     destinations: {
       "halte-du-puits-sec": "Halte du puits sec",
       "haut-puits": "Haut-Puits",
+      "veille-basse": "Veille-Basse",
     },
     conditionsRecuperation: {
       "socle-de-survie":
@@ -222,6 +230,7 @@ const TEXTES = {
     destinations: {
       "halte-du-puits-sec": "Dry Well Halt",
       "haut-puits": "High Well",
+      "veille-basse": "Veille-Basse",
     },
     conditionsRecuperation: {
       "socle-de-survie": "Deploy the Halt at Dry Well.",
@@ -251,6 +260,26 @@ const TEXTES = {
   },
 } as const;
 
+type PresentationDeReponse =
+  TextesDeCriseDeVeilleBasse["reponses"][string];
+
+const PRESENTATION_DE_REPONSE_MASQUEE: PresentationDeReponse = {
+  intention: "",
+  coutConnu: "",
+  consequence: "",
+  mitigation: "",
+  pireConsequence: "",
+  attribution: "",
+};
+
+function trouverTexte(
+  textesPublics: Readonly<Record<string, string>>,
+  textesPremium: Readonly<Record<string, string>> | undefined,
+  id: string,
+): string {
+  return textesPublics[id] ?? textesPremium?.[id] ?? "";
+}
+
 function formaterEcheance(secondes: number, langue: Langue): string {
   const minutes = Math.ceil(secondes / 60);
   return langue === "fr"
@@ -261,8 +290,13 @@ function formaterEcheance(secondes: number, langue: Langue): string {
 function libellerGarantie(
   garantie: GarantieDeRecuperation,
   langue: Langue,
+  textesPremium: TextesDeCriseDeVeilleBasse | undefined,
 ): string {
-  return TEXTES[langue].garanties[garantie];
+  return trouverTexte(
+    TEXTES[langue].garanties,
+    textesPremium?.garanties,
+    garantie,
+  );
 }
 
 function libellerCoutDeRecuperation(
@@ -294,15 +328,30 @@ export function projeterCrises(
   langue: Langue = "fr",
 ): ProjectionDesCrises {
   const textes = TEXTES[langue];
+  const textesDeVeilleBasse =
+    lirePresentationsPremium()?.veilleBasse[langue].crise;
   const alerte = etat.crises.alerte;
   const active = etat.crises.criseActive;
+  const alerteDeVeilleBasse =
+    alerte?.id === IDENTIFIANT_DE_LA_CRISE_DE_VEILLE_BASSE;
+  const criseDeVeilleBasse =
+    active?.id === IDENTIFIANT_DE_LA_CRISE_DE_VEILLE_BASSE;
   return {
     alerte:
       alerte === null || active !== null
         ? null
         : {
-            titre: textes.alerteTitre,
-            cause: textes.alerteCause,
+            titre: alerteDeVeilleBasse
+              ? (textesDeVeilleBasse?.alerteTitre ?? "")
+              : textes.alerteTitre,
+            cause: alerteDeVeilleBasse
+              ? (textesDeVeilleBasse?.alerteCause ?? "")
+              : textes.alerteCause,
+            chaineVisible: (
+              alerteDeVeilleBasse
+                ? (textesDeVeilleBasse?.chaine ?? [])
+                : textes.chaine
+            ).slice(0, alerte.chaineVisible.length),
             echeance: formaterEcheance(
               Math.max(0, alerte.ruptureA - etat.tempsDuConvoi.secondes),
               langue,
@@ -313,19 +362,37 @@ export function projeterCrises(
         ? null
         : {
             id: active.id,
-            titre: textes.criseTitre,
-            cause: textes.criseCause,
-            chaineVisible: textes.chaine,
+            titre: criseDeVeilleBasse
+              ? (textesDeVeilleBasse?.titre ?? "")
+              : textes.criseTitre,
+            cause: criseDeVeilleBasse
+              ? (textesDeVeilleBasse?.cause ?? "")
+              : textes.criseCause,
+            chaineVisible: criseDeVeilleBasse
+              ? (textesDeVeilleBasse?.chaine ?? [])
+              : textes.chaine,
             instruction: textes.instruction,
-            reponses: DEFINITIONS_DES_REPONSES_A_LA_CRISE.map((reponse) => {
+            reponses: listerDefinitionsDesReponsesALaCrise(
+              active.id,
+            ).map((reponse) => {
               const viable = reponseALaCriseEstViable(
                 reponse,
                 etat.pilotage,
                 etat.citeCaravane.habitants,
               );
+              const presentations = (
+                criseDeVeilleBasse
+                  ? textesDeVeilleBasse?.reponses
+                  : textes.reponses
+              ) as
+                | Readonly<Record<string, PresentationDeReponse>>
+                | undefined;
+              const presentation =
+                presentations?.[reponse.id] ??
+                PRESENTATION_DE_REPONSE_MASQUEE;
               return {
                 id: reponse.id,
-                ...textes.reponses[reponse.id],
+                ...presentation,
                 dernierRecours: reponse.dernierRecours,
                 viable,
                 refus: viable ? null : textes.refus,
@@ -334,18 +401,42 @@ export function projeterCrises(
           },
     cicatrices: etat.crises.cicatrices.map((cicatrice) => ({
       id: cicatrice.id,
-      titre: textes.cicatrices[cicatrice.id],
-      cause: textes.causes[cicatrice.cause],
-      consequence: textes.consequencesCicatrices[cicatrice.id],
+      titre: trouverTexte(
+        textes.cicatrices,
+        textesDeVeilleBasse?.cicatrices,
+        cicatrice.id,
+      ),
+      cause: trouverTexte(
+        textes.causes,
+        textesDeVeilleBasse?.causes,
+        cicatrice.cause,
+      ),
+      consequence: trouverTexte(
+        textes.consequencesCicatrices,
+        textesDeVeilleBasse?.consequencesCicatrices,
+        cicatrice.id,
+      ),
     })),
     recuperations: etat.crises.recuperations.map((recuperation) => ({
       id: recuperation.id,
-      garantie: libellerGarantie(recuperation.garantie, langue),
+      garantie: libellerGarantie(
+        recuperation.garantie,
+        langue,
+        textesDeVeilleBasse,
+      ),
       destination: textes.destinations[recuperation.destination],
       horizon: textes.horizon(recuperation.horizonTroncons),
-      condition: textes.conditionsRecuperation[recuperation.garantie],
+      condition: trouverTexte(
+        textes.conditionsRecuperation,
+        textesDeVeilleBasse?.conditionsRecuperation,
+        recuperation.garantie,
+      ),
       cout: libellerCoutDeRecuperation(recuperation, langue),
-      cause: textes.cicatrices[recuperation.cause],
+      cause: trouverTexte(
+        textes.cicatrices,
+        textesDeVeilleBasse?.cicatrices,
+        recuperation.cause,
+      ),
       statut: textes.statutsRecuperation[recuperation.statut],
     })),
   };

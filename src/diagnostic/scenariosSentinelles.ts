@@ -16,7 +16,7 @@ import {
   VERSION_SIMULATION_COURANTE,
 } from "../simulation/versions";
 
-export const VERSION_SCENARIOS_SENTINELLES = 3 as const;
+export const VERSION_SCENARIOS_SENTINELLES = 4 as const;
 
 export const FAMILLES_DE_SCENARIOS_SENTINELLES = [
   "debut-nominal",
@@ -211,312 +211,314 @@ interface CalibrationDeScenario {
   readonly risquee: CalibrationDeConduite;
 }
 
-const CALIBRATIONS_V3: Readonly<Record<string, CalibrationDeScenario>> = {
+const CALIBRATIONS_V4: Readonly<Record<string, CalibrationDeScenario>> = {
   "debut-nominal": {
-    snapshot: "0dbe3fc0",
+    snapshot: "8b8e52c9",
     prudente: {
       etapes: [
-        ["appliquee", "cee38dbc", "aff2fb9e"],
-        ["appliquee", "f71bf3df", "c26287a4"],
-        ["appliquee", "e8b0c7f9", "e0b6bb78"],
-        ["appliquee", "181bab2e", "8149ac96"],
-        ["appliquee", "dab1176d", "3e258581"],
-        ["appliquee", "1b3bb213", "ba64ef9e"],
+        ["appliquee", "e44489c5", "aff2fb9e"],
+        ["appliquee", "c65b116e", "c26287a4"],
+        ["appliquee", "de841ba8", "e0b6bb78"],
+        ["appliquee", "5e5331f5", "8149ac96"],
+        ["appliquee", "9232d4d2", "3e258581"],
+        ["appliquee", "7f314a84", "ba64ef9e"],
       ],
-      resultat: ["1b3bb213", "c7894952", 120],
+      resultat: ["7f314a84", "c7894952", 120],
     },
     risquee: {
       etapes: [
-        ["appliquee", "9608b77d", "d79c674f"],
-        ["appliquee", "3bd109cb", "0f114506"],
-        ["appliquee", "47166c76", "3e258581"],
-        ["appliquee", "fb8fdbf2", "debfe5f7"],
+        ["appliquee", "17562c34", "d79c674f"],
+        ["appliquee", "f2cd1b2a", "0f114506"],
+        ["appliquee", "64d99a07", "3e258581"],
+        ["appliquee", "486ad2c3", "debfe5f7"],
       ],
-      resultat: ["fb8fdbf2", "d14466cc", 120],
+      resultat: ["486ad2c3", "d14466cc", 120],
     },
   },
   "double-tension": {
-    snapshot: "c8e1e075",
+    snapshot: "18278774",
     prudente: {
       etapes: [
-        ["appliquee", "70bc60e5", "a5237aae"],
-        ["appliquee", "8ec758af", "f96f7e6d"],
-        ["appliquee", "2768a4ee", "a7678a5a"],
+        ["appliquee", "3351e7bc", "a5237aae"],
+        ["appliquee", "74feb616", "f96f7e6d"],
+        ["appliquee", "834669cf", "a7678a5a"],
       ],
-      resultat: ["2768a4ee", "40a813d5", 30],
+      resultat: ["834669cf", "40a813d5", 30],
     },
     risquee: {
       etapes: [
-        ["appliquee", "c6684535", "b95c389e"],
-        ["appliquee", "e72abb4e", "47eb7a00"],
-        ["appliquee", "43e7fe4d", "ab10e6fd"],
+        ["appliquee", "edf0585c", "b95c389e"],
+        ["appliquee", "8453c11f", "47eb7a00"],
+        ["appliquee", "4771177c", "ab10e6fd"],
       ],
-      resultat: ["43e7fe4d", "151bbec1", 30],
+      resultat: ["4771177c", "151bbec1", 30],
     },
   },
   "cascade-materielle": {
-    snapshot: "b5be9846",
+    snapshot: "8143cfff",
     prudente: {
       etapes: [
-        ["appliquee", "75ec30e7", "a42349ff"],
-        ["appliquee", "4c142638", "1100ad93"],
-        ["appliquee", "6193557a", "1438bf5c"],
-        ["appliquee", "3d8379fc", "776f9614"],
-        ["appliquee", "e3b2c3e1", "14255f38"],
+        ["appliquee", "8bcb4436", "a42349ff"],
+        ["appliquee", "1704f0e1", "1100ad93"],
+        ["appliquee", "57169edd", "1438bf5c"],
+        ["appliquee", "61ef283b", "776f9614"],
+        ["appliquee", "48f6707a", "14255f38"],
       ],
-      resultat: ["e3b2c3e1", "694487fe", 180],
+      resultat: ["48f6707a", "694487fe", 180],
     },
     risquee: {
       etapes: [
-        ["appliquee", "75ec30e7", "a42349ff"],
-        ["appliquee", "4c142638", "1100ad93"],
-        ["appliquee", "6193557a", "1438bf5c"],
-        ["appliquee", "c38d1ece", "1d683a82"],
-        ["appliquee", "3227b623", "fc727786"],
-        ["appliquee", "c053eb57", "941c4c66"],
-        ["appliquee", "934ecd6c", "33c001c0"],
+        ["appliquee", "8bcb4436", "a42349ff"],
+        ["appliquee", "1704f0e1", "1100ad93"],
+        ["appliquee", "57169edd", "1438bf5c"],
+        ["appliquee", "0ea2d091", "1d683a82"],
+        ["appliquee", "d04f2ba4", "fc727786"],
+        ["appliquee", "58554930", "941c4c66"],
+        ["appliquee", "ed297097", "33c001c0"],
       ],
-      resultat: ["934ecd6c", "bf1803ae", 660],
+      resultat: ["ed297097", "bf1803ae", 660],
     },
   },
   "cohorte-en-penurie": {
-    snapshot: "a7581a91",
+    snapshot: "7e9e6d39",
     prudente: {
       etapes: [
-        ["appliquee", "c5e8b262", "125e5b8d"],
-        ["appliquee", "3999a280", "f5ef49ed"],
-        ["appliquee", "d6856aeb", "71fb9131"],
-        ["appliquee", "c4d09570", "ae290aaf"],
-        ["appliquee", "5e92c982", "cd410d13"],
+        ["appliquee", "60ba0084", "dee842e9"],
+        ["appliquee", "3d4298fc", "bcf0d2b0"],
+        ["appliquee", "6f53f346", "72cdf3de"],
+        ["appliquee", "faf78f22", "8216968c"],
+        ["appliquee", "0c3ade9e", "941c4c66"],
+        ["appliquee", "70911d58", "a1bde86c"],
+        ["appliquee", "4f9c5bc9", "7c97f944"],
+        ["appliquee", "7f3e4fb0", "ae290aaf"],
+        ["appliquee", "2e7b6569", "cd410d13"],
       ],
-      resultat: ["5e92c982", "c13085d5", 1080],
+      resultat: ["2e7b6569", "5cf3d785", 1260],
     },
     risquee: {
       etapes: [
-        ["appliquee", "ee61c07e", "9fbaf835"],
-        ["appliquee", "9bf94f19", "e8e394c3"],
-        ["appliquee", "d3950caf", "7fa12c7f"],
-        ["appliquee", "8853f4b8", "ae290aaf"],
-        ["appliquee", "0979df1f", "62b77ccb"],
+        ["appliquee", "60ba0084", "dee842e9"],
+        ["appliquee", "3d4298fc", "bcf0d2b0"],
+        ["appliquee", "6f53f346", "72cdf3de"],
+        ["appliquee", "bb40a0b4", "5fea5d92"],
+        ["appliquee", "faecb7f0", "941c4c66"],
+        ["appliquee", "94aeaaa3", "a1bde86c"],
+        ["appliquee", "207fe313", "edc219fa"],
+        ["appliquee", "e9a12156", "ae290aaf"],
+        ["appliquee", "e8765440", "62b77ccb"],
       ],
-      resultat: ["0979df1f", "90ca5c3d", 1080],
+      resultat: ["e8765440", "ca5bc225", 1260],
     },
   },
   "expeditions-simultanees": {
-    snapshot: "3bbe6005",
+    snapshot: "c18296f4",
     prudente: {
       etapes: [
-        ["appliquee", "f90237e6", "350e6008"],
-        ["appliquee", "7b635dd1", "6ba3e117"],
+        ["appliquee", "3232ce67", "350e6008"],
+        ["appliquee", "cf5b8ee0", "6ba3e117"],
       ],
-      resultat: ["7b635dd1", "ffe03cba", 2520],
+      resultat: ["cf5b8ee0", "ffe03cba", 2520],
     },
     risquee: {
       etapes: [
-        ["appliquee", "f90237e6", "350e6008"],
-        ["appliquee", "51b1b070", "97e71c42"],
-        ["appliquee", "7d122b9c", "3a41ef3c"],
+        ["appliquee", "3232ce67", "350e6008"],
+        ["appliquee", "95044b59", "97e71c42"],
+        ["appliquee", "2885a955", "3a41ef3c"],
       ],
-      resultat: ["7d122b9c", "2718450c", 2520],
+      resultat: ["2885a955", "2718450c", 2520],
     },
   },
   "compagnon-indisponible": {
-    snapshot: "c4c35cee",
+    snapshot: "7899e48f",
     prudente: {
-      etapes: [["appliquee", "28ceae7c", "d284e99e"]],
-      resultat: ["28ceae7c", "d284e99e", 0],
+      etapes: [
+        ["appliquee", "19e5fe0d", "d284e99e"],
+      ],
+      resultat: ["19e5fe0d", "d284e99e", 0],
     },
     risquee: {
       etapes: [
-        ["refusee", "c4c35cee", "741638a5", "Ilyana Voss est indisponible."],
+        ["refusee", "7899e48f", "741638a5", "Ilyana Voss est indisponible."],
       ],
-      resultat: ["c4c35cee", "741638a5", 0],
+      resultat: ["7899e48f", "741638a5", 0],
     },
   },
   surcharge: {
-    snapshot: "2c697961",
+    snapshot: "91ae3c08",
     prudente: {
       etapes: [
-        ["appliquee", "5789145c", "0de8de41"],
-        ["appliquee", "10210a2d", "1673dac6"],
-        ["appliquee", "d4a0f50e", "be402c9b"],
-        ["appliquee", "06fe9eb3", "09387469"],
-        ["appliquee", "ec52fbc9", "1417d5bd"],
+        ["appliquee", "126ec96d", "0de8de41"],
+        ["appliquee", "807032c4", "1673dac6"],
+        ["appliquee", "817741cf", "be402c9b"],
+        ["appliquee", "0deafdfa", "09387469"],
+        ["appliquee", "b12dbe40", "1417d5bd"],
       ],
-      resultat: ["ec52fbc9", "95d8b8e8", 45],
+      resultat: ["b12dbe40", "95d8b8e8", 45],
     },
     risquee: {
       etapes: [
-        ["appliquee", "5789145c", "0de8de41"],
-        ["appliquee", "10210a2d", "1673dac6"],
-        [
-          "refusee",
-          "10210a2d",
-          "741638a5",
-          "La contrainte de Charge empêche ce Chantier.",
-        ],
+        ["appliquee", "126ec96d", "0de8de41"],
+        ["appliquee", "807032c4", "1673dac6"],
+        ["refusee", "807032c4", "741638a5", "La contrainte de Charge empêche ce Chantier."],
       ],
-      resultat: ["10210a2d", "2f0e1c5a", 0],
+      resultat: ["807032c4", "2f0e1c5a", 0],
     },
   },
   "route-coupee": {
-    snapshot: "2e6ba42a",
+    snapshot: "eb893533",
     prudente: {
-      etapes: [["appliquee", "67bc359b", "25d5c8de"]],
-      resultat: ["67bc359b", "25d5c8de", 0],
+      etapes: [
+        ["appliquee", "9ae0fde2", "25d5c8de"],
+      ],
+      resultat: ["9ae0fde2", "25d5c8de", 0],
     },
     risquee: {
       etapes: [
-        [
-          "refusee",
-          "2e6ba42a",
-          "741638a5",
-          "Le Tronçon de route « digue-des-puits » n’est plus physiquement praticable.",
-        ],
+        ["refusee", "eb893533", "741638a5", "Le Tronçon de route « digue-des-puits » n’est plus physiquement praticable."],
       ],
-      resultat: ["2e6ba42a", "741638a5", 0],
+      resultat: ["eb893533", "741638a5", 0],
     },
   },
   "abondance-exploitable": {
-    snapshot: "c406c6d7",
+    snapshot: "c3c09166",
     prudente: {
       etapes: [
-        ["appliquee", "c4002972", "0de8de41"],
-        ["appliquee", "3b04b771", "1673dac6"],
-        ["appliquee", "b601935f", "bca5f9de"],
-        ["appliquee", "15effe9a", "09387469"],
-        ["appliquee", "74fdae77", "c5dddfda"],
+        ["appliquee", "a40e7ebb", "0de8de41"],
+        ["appliquee", "e9627628", "1673dac6"],
+        ["appliquee", "b0a9eb36", "bca5f9de"],
+        ["appliquee", "135d394b", "09387469"],
+        ["appliquee", "d0877846", "c5dddfda"],
       ],
-      resultat: ["74fdae77", "9f9e6a2e", 60],
+      resultat: ["d0877846", "9f9e6a2e", 60],
     },
     risquee: {
       etapes: [
-        ["appliquee", "8e8d360e", "350e6008"],
-        ["appliquee", "db284422", "513acc4d"],
-        ["appliquee", "333a549d", "6ceb4d77"],
+        ["appliquee", "488db137", "350e6008"],
+        ["appliquee", "8321c9c3", "513acc4d"],
+        ["appliquee", "37a47e1c", "6ceb4d77"],
       ],
-      resultat: ["333a549d", "2307eca8", 9420],
+      resultat: ["37a47e1c", "2307eca8", 9420],
     },
   },
   "revelation-aiguillage-zero": {
-    snapshot: "a13cc261",
+    snapshot: "f8f392c0",
     prudente: {
       etapes: [
-        ["appliquee", "ff92b3c0", "467956df"],
-        ["appliquee", "57e80e0d", "a870ec52"],
+        ["appliquee", "cdf69929", "467956df"],
+        ["appliquee", "3a829e0c", "a870ec52"],
       ],
-      resultat: ["57e80e0d", "045e9e5c", 3000],
+      resultat: ["3a829e0c", "045e9e5c", 3000],
     },
     risquee: {
       etapes: [
-        ["appliquee", "ff92b3c0", "467956df"],
-        ["appliquee", "75bc74ce", "f89e7fce"],
+        ["appliquee", "cdf69929", "467956df"],
+        ["appliquee", "1bbe0bd7", "f89e7fce"],
       ],
-      resultat: ["75bc74ce", "6320eee0", 3000],
+      resultat: ["1bbe0bd7", "6320eee0", 3000],
     },
   },
   "revelation-couronne": {
-    snapshot: "0ac6075a",
+    snapshot: "a7ff684b",
     prudente: {
       etapes: [
-        ["appliquee", "c1405108", "43e3ae52"],
-        ["appliquee", "19540ae0", "5f214b23"],
+        ["appliquee", "6ebf04d9", "43e3ae52"],
+        ["appliquee", "83f5ea79", "5f214b23"],
       ],
-      resultat: ["19540ae0", "dd33a9cc", 4000],
+      resultat: ["83f5ea79", "dd33a9cc", 4000],
     },
     risquee: {
       etapes: [
-        ["appliquee", "c1405108", "43e3ae52"],
-        ["appliquee", "2c06faf9", "7d4bc53b"],
+        ["appliquee", "6ebf04d9", "43e3ae52"],
+        ["appliquee", "41088e78", "7d4bc53b"],
       ],
-      resultat: ["2c06faf9", "6bb41470", 4000],
+      resultat: ["41088e78", "6bb41470", 4000],
     },
   },
   "solution-finale-ancrer": {
-    snapshot: "d13a0783",
+    snapshot: "bc2a7c82",
     prudente: {
       etapes: [
-        ["appliquee", "2ca2994f", "69df907f"],
-        ["appliquee", "26f677c6", "3dd45549"],
-        ["appliquee", "c2d18ee4", "4cb0cde2"],
-        ["appliquee", "d84a5380", "9b41cbb2"],
-        ["appliquee", "68c531be", "74b3c65a"],
-        ["appliquee", "2a30a20a", "13d66448"],
-        ["appliquee", "00d030e4", "1fe7740e"],
-        ["appliquee", "6c87d4fa", "4314612c"],
+        ["appliquee", "1089ecae", "69df907f"],
+        ["appliquee", "d6aa96f7", "3dd45549"],
+        ["appliquee", "0e04f5ed", "4cb0cde2"],
+        ["appliquee", "18e06991", "9b41cbb2"],
+        ["appliquee", "9f5ef557", "74b3c65a"],
+        ["appliquee", "32d4ca5b", "13d66448"],
+        ["appliquee", "2cf928f5", "1fe7740e"],
+        ["appliquee", "8669f2ab", "4314612c"],
       ],
-      resultat: ["6c87d4fa", "bed5661d", 4200],
+      resultat: ["8669f2ab", "bed5661d", 4200],
     },
     risquee: {
       etapes: [
-        ["appliquee", "2ca2994f", "69df907f"],
-        ["appliquee", "26f677c6", "3dd45549"],
-        ["appliquee", "c2d18ee4", "4cb0cde2"],
-        ["appliquee", "d84a5380", "9b41cbb2"],
-        ["appliquee", "68c531be", "74b3c65a"],
-        ["appliquee", "d08713c5", "39015b8e"],
-        ["appliquee", "25566d5f", "1fe7740e"],
-        ["appliquee", "22a619a3", "71963b84"],
+        ["appliquee", "1089ecae", "69df907f"],
+        ["appliquee", "d6aa96f7", "3dd45549"],
+        ["appliquee", "0e04f5ed", "4cb0cde2"],
+        ["appliquee", "18e06991", "9b41cbb2"],
+        ["appliquee", "9f5ef557", "74b3c65a"],
+        ["appliquee", "99e2afcc", "39015b8e"],
+        ["appliquee", "1ffabf76", "1fe7740e"],
+        ["appliquee", "d5d38e4a", "71963b84"],
       ],
-      resultat: ["22a619a3", "ecf47983", 4200],
+      resultat: ["d5d38e4a", "ecf47983", 4200],
     },
   },
   "solution-finale-reaccorder": {
-    snapshot: "5ec9aa4f",
+    snapshot: "ab522116",
     prudente: {
       etapes: [
-        ["appliquee", "de72c5f5", "69df907f"],
-        ["appliquee", "9122f40a", "3dd45549"],
-        ["appliquee", "dcc58674", "4cb0cde2"],
-        ["appliquee", "aa568298", "81171206"],
-        ["appliquee", "8f33f2e8", "e79d67c6"],
-        ["appliquee", "73ef87bc", "bf7a66fe"],
-        ["appliquee", "b9f81942", "1fe7740e"],
-        ["appliquee", "35ed0220", "4314612c"],
+        ["appliquee", "1d086ca4", "69df907f"],
+        ["appliquee", "03ed8d63", "3dd45549"],
+        ["appliquee", "efc234e5", "4cb0cde2"],
+        ["appliquee", "e147c831", "81171206"],
+        ["appliquee", "1445aca1", "e79d67c6"],
+        ["appliquee", "da68440d", "bf7a66fe"],
+        ["appliquee", "a0629ae3", "1fe7740e"],
+        ["appliquee", "ba71bef1", "4314612c"],
       ],
-      resultat: ["35ed0220", "aca1224b", 4200],
+      resultat: ["ba71bef1", "aca1224b", 4200],
     },
     risquee: {
       etapes: [
-        ["appliquee", "de72c5f5", "69df907f"],
-        ["appliquee", "9122f40a", "3dd45549"],
-        ["appliquee", "dcc58674", "4cb0cde2"],
-        ["appliquee", "aa568298", "81171206"],
-        ["appliquee", "8f33f2e8", "e79d67c6"],
-        ["appliquee", "e1bc3d56", "cef11d62"],
-        ["appliquee", "05c25014", "1fe7740e"],
-        ["appliquee", "1e4f994e", "71963b84"],
+        ["appliquee", "1d086ca4", "69df907f"],
+        ["appliquee", "03ed8d63", "3dd45549"],
+        ["appliquee", "efc234e5", "4cb0cde2"],
+        ["appliquee", "e147c831", "81171206"],
+        ["appliquee", "1445aca1", "e79d67c6"],
+        ["appliquee", "4973837f", "cef11d62"],
+        ["appliquee", "3c72662d", "1fe7740e"],
+        ["appliquee", "38289c7f", "71963b84"],
       ],
-      resultat: ["1e4f994e", "26674e67", 4200],
+      resultat: ["38289c7f", "26674e67", 4200],
     },
   },
   "solution-finale-precipiter": {
-    snapshot: "e3fe2674",
+    snapshot: "7c11b8d5",
     prudente: {
       etapes: [
-        ["appliquee", "a345690a", "69df907f"],
-        ["appliquee", "0ee43471", "3dd45549"],
-        ["appliquee", "b854c0ef", "4cb0cde2"],
-        ["appliquee", "15f536cb", "8bbdb43b"],
-        ["appliquee", "3f472bca", "ee76a539"],
-        ["appliquee", "d0eb555d", "4abf338b"],
-        ["appliquee", "1fae8baf", "1fe7740e"],
-        ["appliquee", "d3f8a61b", "4314612c"],
+        ["appliquee", "722d9783", "69df907f"],
+        ["appliquee", "009bddb0", "3dd45549"],
+        ["appliquee", "b1b93886", "4cb0cde2"],
+        ["appliquee", "1f50227a", "8bbdb43b"],
+        ["appliquee", "a921a5fb", "ee76a539"],
+        ["appliquee", "c6d100dc", "4abf338b"],
+        ["appliquee", "1d76e85e", "1fe7740e"],
+        ["appliquee", "4fc3cbc2", "4314612c"],
       ],
-      resultat: ["d3f8a61b", "403fd334", 4200],
+      resultat: ["4fc3cbc2", "403fd334", 4200],
     },
     risquee: {
       etapes: [
-        ["appliquee", "a345690a", "69df907f"],
-        ["appliquee", "0ee43471", "3dd45549"],
-        ["appliquee", "b854c0ef", "4cb0cde2"],
-        ["appliquee", "15f536cb", "8bbdb43b"],
-        ["appliquee", "3f472bca", "ee76a539"],
-        ["appliquee", "abb7c0ae", "931d2144"],
-        ["appliquee", "af7db204", "1fe7740e"],
-        ["appliquee", "6959cace", "71963b84"],
+        ["appliquee", "722d9783", "69df907f"],
+        ["appliquee", "009bddb0", "3dd45549"],
+        ["appliquee", "b1b93886", "4cb0cde2"],
+        ["appliquee", "1f50227a", "8bbdb43b"],
+        ["appliquee", "a921a5fb", "ee76a539"],
+        ["appliquee", "3ee95a47", "931d2144"],
+        ["appliquee", "2d4217bd", "1fe7740e"],
+        ["appliquee", "8df23abf", "71963b84"],
       ],
-      resultat: ["6959cace", "54b76d85", 4200],
+      resultat: ["8df23abf", "54b76d85", 4200],
     },
   },
 };
@@ -621,10 +623,10 @@ function conduite(
 }
 
 function scenario(definition: ScenarioNonCalibre): ScenarioSentinelle {
-  const calibration = CALIBRATIONS_V3[definition.id];
+  const calibration = CALIBRATIONS_V4[definition.id];
   if (calibration === undefined) {
     throw new Error(
-      `Le scénario sentinelle « ${definition.id} » n’a pas de calibration V3.`,
+      `Le scénario sentinelle « ${definition.id} » n’a pas de calibration V4.`,
     );
   }
   const calibrerConduite = (
@@ -696,31 +698,68 @@ function construireScenariosSentinelles(): readonly ScenarioSentinelle[] {
   const cascadeMaterielle = creerCampagneInitiale(
     "SENTINELLE-V1-CASCADE-MATERIELLE",
   );
-  const cohorteEnPenurieInitiale = avecStocks(
-    sansIncident(creerCampagneInitiale("SENTINELLE-V1-COHORTE-PENURIE")),
-    { eau: 24, vivres: 30 },
-  );
-  const cohorteEnPenurie: EtatCampagne = {
-    ...cohorteEnPenurieInitiale,
-    tempsDuConvoi: { secondes: 480, vitesse: 4 },
-    routes: {
-      ...cohorteEnPenurieInitiale.routes,
-      position: "veille-basse",
-      jalons: [
-        {
-          id: "jalon-route-veille-basse",
-          type: "fin-de-troncon",
-          moment: 480,
-          tronconId: "chaussee-de-veille-basse",
-          cause: "front-de-cendre.condamnation-arriere",
-        },
-      ],
+  let cohorteEnPenurie = appliquerCommande(
+    creerCampagneInitiale("SENTINELLE-V1-COHORTE-PENURIE"),
+    {
+      type: "incident.ordonner",
+      incidentId: "purification.pompe-instable",
+      ordre: "maintenir-debit",
     },
-    narration: {
-      ...cohorteEnPenurieInitiale.narration,
-      evenementActif: "veille-basse.la-place-sous-le-phare",
+  ).etat;
+  cohorteEnPenurie = appliquerCommande(cohorteEnPenurie, {
+    type: "temps-du-convoi.ecouler",
+    secondesReelles: 60,
+  }).etat;
+  for (const [evenementId, choixId] of [
+    ["prologue.signaux-sous-la-cendre", "accueillir"],
+    ["prologue.reponse-du-phare", "consigner-harmonique"],
+    ["prologue.filtres-de-la-veille", "proteger-foyers"],
+    ["prologue.ilyana-au-clapet", "confier-clapet"],
+  ] as const) {
+    cohorteEnPenurie = appliquerCommande(cohorteEnPenurie, {
+      type: "evenement-narratif.choisir",
+      evenementId,
+      choixId,
+    }).etat;
+    if (evenementId !== "prologue.ilyana-au-clapet") {
+      cohorteEnPenurie = appliquerCommande(cohorteEnPenurie, {
+        type: "temps-du-convoi.ecouler",
+        secondesReelles: 1,
+      }).etat;
+    }
+  }
+  for (const commande of [
+    {
+      type: "temps-du-convoi.ecouler",
+      secondesReelles: 117,
     },
-  };
+    {
+      type: "crise.declencher",
+      criseId: "penurie-eau.pompe-purification",
+    },
+    {
+      type: "crise.resoudre",
+      criseId: "penurie-eau.pompe-purification",
+      reponseId: "isoler-et-rationner",
+    },
+    {
+      type: "engagement-de-route.confirmer",
+      tronconId: "chaussee-de-veille-basse",
+    },
+    {
+      type: "temps-du-convoi.regler-vitesse",
+      vitesse: 4,
+    },
+    {
+      type: "temps-du-convoi.ecouler",
+      secondesReelles: 120,
+    },
+  ] as const satisfies readonly CommandeCampagne[]) {
+    cohorteEnPenurie = appliquerCommande(
+      cohorteEnPenurie,
+      commande,
+    ).etat;
+  }
   const expeditionsInitiales = sansIncident(
     creerCampagneInitiale("SENTINELLE-V1-EXPEDITIONS-SIMULTANEES"),
   );
@@ -1126,20 +1165,45 @@ function construireScenariosSentinelles(): readonly ScenarioSentinelle[] {
             commande: {
               type: "evenement-narratif.choisir",
               evenementId: "veille-basse.la-place-sous-le-phare",
-              choixId: "rediriger",
+              choixId: "accueillir",
             },
           },
           {
             commande: {
               type: "temps-du-convoi.ecouler",
-              secondesReelles: 150,
+              secondesReelles: 30,
+            },
+          },
+          {
+            commande: {
+              type: "crise.declencher",
+              criseId: "veille-basse.accueil-sous-penurie",
+            },
+          },
+          {
+            commande: {
+              type: "crise.resoudre",
+              criseId: "veille-basse.accueil-sous-penurie",
+              reponseId: "partager-reserves-cohorte",
+            },
+          },
+          {
+            commande: {
+              type: "temps-du-convoi.regler-vitesse",
+              vitesse: 4,
+            },
+          },
+          {
+            commande: {
+              type: "temps-du-convoi.ecouler",
+              secondesReelles: 120,
             },
           },
           {
             commande: {
               type: "evenement-narratif.choisir",
               evenementId: "veille-basse.la-porte-des-filtres",
-              choixId: "renforcer-sas",
+              choixId: "ouvrir-hospice",
             },
           },
           {
@@ -1167,14 +1231,39 @@ function construireScenariosSentinelles(): readonly ScenarioSentinelle[] {
           {
             commande: {
               type: "temps-du-convoi.ecouler",
-              secondesReelles: 150,
+              secondesReelles: 30,
+            },
+          },
+          {
+            commande: {
+              type: "crise.declencher",
+              criseId: "veille-basse.accueil-sous-penurie",
+            },
+          },
+          {
+            commande: {
+              type: "crise.resoudre",
+              criseId: "veille-basse.accueil-sous-penurie",
+              reponseId: "renforcer-accueil",
+            },
+          },
+          {
+            commande: {
+              type: "temps-du-convoi.regler-vitesse",
+              vitesse: 4,
+            },
+          },
+          {
+            commande: {
+              type: "temps-du-convoi.ecouler",
+              secondesReelles: 120,
             },
           },
           {
             commande: {
               type: "evenement-narratif.choisir",
               evenementId: "veille-basse.la-porte-des-filtres",
-              choixId: "ouvrir-hospice",
+              choixId: "renforcer-sas",
             },
           },
           {

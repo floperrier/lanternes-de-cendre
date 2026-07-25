@@ -40,7 +40,7 @@ describe("catalogue des scénarios sentinelles", () => {
     for (const scenario of obtenirScenariosSentinelles()) {
       expect(scenario).toMatchObject({
         format: "lanternes-de-cendre.scenario-sentinelle",
-        version: 3,
+        version: 4,
         graine: expect.any(String),
         empreinteSnapshot: expect.stringMatching(/^[0-9a-f]{8}$/),
         invariants: INVARIANTS_SENTINELLES,
@@ -184,6 +184,40 @@ describe("exécution des scénarios sentinelles", () => {
     });
   });
 
+  it("enchaîne deux Crises dans les conduites prudente et risquée de Veille-Basse", () => {
+    const observations =
+      capturerEtatsEtEvenementsDesScenariosSentinelles().filter(
+        ({ scenarioId }) => scenarioId === "cohorte-en-penurie",
+      );
+
+    expect(observations).toHaveLength(2);
+    for (const observation of observations) {
+      expect(observation.etat.crises.historique.map(({ id }) => id)).toEqual([
+        "penurie-eau.pompe-purification",
+        "veille-basse.accueil-sous-penurie",
+      ]);
+      expect(observation.etat.crises.recuperations.at(-1)).toMatchObject({
+        statut: "accomplie",
+        coutApplique: [{ stock: "materiaux", quantite: 2 }],
+      });
+    }
+    expect(
+      observations.map(({ conduite, etat }) => ({
+        conduite,
+        reponse: etat.crises.historique.at(-1)?.reponseId,
+      })),
+    ).toEqual([
+      {
+        conduite: "prudente",
+        reponse: "partager-reserves-cohorte",
+      },
+      {
+        conduite: "risquee",
+        reponse: "renforcer-accueil",
+      },
+    ]);
+  });
+
   it("produit une capsule minimale au premier désaccord", () => {
     const scenario = obtenirScenariosSentinelles()[0]!;
     const premiereEtape = scenario.conduites.prudente.commandes[0]!;
@@ -215,14 +249,14 @@ describe("exécution des scénarios sentinelles", () => {
         format: "lanternes-de-cendre.capsule-sentinelle",
         version: 1,
         versions: {
-          scenarios: 3,
+          scenarios: 4,
           simulation: expect.any(Number),
           aleatoire: expect.any(Number),
           empreinte: expect.any(Number),
         },
         scenario: {
           id: scenario.id,
-          version: 3,
+          version: 4,
           conduite: "prudente",
         },
         graine: scenario.graine,

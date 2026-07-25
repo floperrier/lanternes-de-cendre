@@ -175,6 +175,18 @@ describe("Campagnes headless d’équilibrage", () => {
         strategie.haltesApresTroncons.length,
       );
     }
+    const campagnesAvecVeilleBasse = passe.campagnes.filter(
+      ({ faitsFinaux }) =>
+        faitsFinaux.includes(
+          "crise.veille-basse.accueil-sous-penurie",
+        ),
+    );
+    expect(campagnesAvecVeilleBasse.length).toBeGreaterThan(0);
+    expect(
+      campagnesAvecVeilleBasse.every(
+        ({ metriques }) => metriques.crises === 2,
+      ),
+    ).toBe(true);
     expect(passe.invariants).toEqual({
       sansImpasse: true,
       sansRecuperationGratuite: true,

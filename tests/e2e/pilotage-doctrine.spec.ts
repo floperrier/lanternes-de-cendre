@@ -5,6 +5,7 @@ import { installerHorlogeFixe } from "./horloge";
 test("les Autonomies précèdent les détails économiques sourcés", async ({
   page,
 }) => {
+  await installerHorlogeFixe(page);
   await page.goto("/");
 
   const pilotage = page.getByRole("complementary", {

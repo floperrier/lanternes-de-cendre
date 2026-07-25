@@ -21,6 +21,10 @@ function preparer(
   return modification({
     ...initial,
     tempsDuConvoi: { secondes: 2_400, vitesse: 4 },
+    crises: {
+      ...initial.crises,
+      faitAnnonceurHistoriqueIgnore: true,
+    },
     routes: { ...initial.routes, position: "signal-zero" },
     narration: {
       ...initial.narration,

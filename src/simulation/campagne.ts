@@ -1152,6 +1152,7 @@ type OptionsDApplicationDeCommande = {
   readonly coutsDesNacelles?: "historiques-v6";
   readonly autoriserApresDenouement?: "migration-v10";
   readonly recuperations?: "historiques-v11";
+  readonly crises?: "historiques-v12";
 };
 
 function appliquerCommandeSansEvaluationDesRecuperations(
@@ -1785,6 +1786,23 @@ export function appliquerCommande(
     commande,
     options,
   );
+  const annoncerCriseEligible = (
+    candidate: TransitionDeCampagne,
+  ): TransitionDeCampagne => {
+    if (options.crises === "historiques-v12") {
+      return candidate;
+    }
+    const annonce = annoncerCriseApresFaits(
+      candidate.etat.crises,
+      candidate.etat.narration.faitsDeCampagne,
+    );
+    return annonce.evenements.length === 0
+      ? candidate
+      : {
+          etat: { ...candidate.etat, crises: annonce.etat },
+          evenements: [...candidate.evenements, ...annonce.evenements],
+        };
+  };
   if (options.recuperations === "historiques-v11") {
     return transition;
   }
@@ -1835,6 +1853,16 @@ export function appliquerCommande(
               "bassins-fendus.eau-de-haut-puits" &&
             commande.choixId === "promettre-partage"
           ? ({ type: "aide-demandee-haut-puits" } as const)
+          : commande.type === "evenement-narratif.choisir" &&
+              commande.evenementId ===
+                "veille-basse.la-porte-des-filtres" &&
+              commande.choixId === "ouvrir-hospice"
+            ? ({ type: "hospice-ouvert-veille-basse" } as const)
+            : commande.type === "evenement-narratif.choisir" &&
+                commande.evenementId ===
+                  "veille-basse.la-porte-des-filtres" &&
+                commande.choixId === "renforcer-sas"
+              ? ({ type: "sas-renforce-veille-basse" } as const)
           : null;
   const evaluation = evaluerRecuperationsDeCrise(transition.etat.crises, {
     moment:
@@ -1854,13 +1882,13 @@ export function appliquerCommande(
     evaluation.faits.length === 0 &&
     evaluation.variationsDeStocks.length === 0
   ) {
-    return {
+    return annoncerCriseEligible({
       etat:
         evaluation.etat === transition.etat.crises
           ? transition.etat
           : { ...transition.etat, crises: evaluation.etat },
       evenements: transition.evenements,
-    };
+    });
   }
 
   let stocks = transition.etat.pilotage.economie.stocks;
@@ -1884,10 +1912,10 @@ export function appliquerCommande(
     },
     evaluation.faits,
   );
-  return {
+  return annoncerCriseEligible({
     etat: etatAvecResultat,
     evenements: [...transition.evenements, ...evaluation.evenements],
-  };
+  });
 }
 
 export function empreinteEtat(etat: EtatCampagne): string {

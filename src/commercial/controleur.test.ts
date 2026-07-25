@@ -177,6 +177,31 @@ describe("contrôleur d’Accès premium", () => {
     expect(stockage.lireBrut()).toBeNull();
   });
 
+  it("invalide sans planter un ancien contenu signé devenu incompatible", async () => {
+    const service = creerPortCommercial();
+    const stockage = creerStockageMemoire(
+      JSON.stringify({
+        version: 1,
+        identiteId: "usr_historique",
+        preuveLocale: "preuve-achat",
+        contenu: CONTENU,
+      }),
+    );
+    const controleur = creerControleurAccesPremium({
+      service,
+      stockage,
+      verifierPreuveLocale: async () => true,
+      installerContenuComplet: () => {
+        throw new Error("presentations-premium-invalides");
+      },
+    });
+
+    await expect(controleur.initialiser()).resolves.toBeUndefined();
+
+    expect(controleur.lireEtat()).toEqual({ statut: "demonstration" });
+    expect(stockage.lireBrut()).toBeNull();
+  });
+
   it("laisse la Démonstration verrouillée après un refus", async () => {
     const service = creerPortCommercial();
     service.definirRetour("acheter");

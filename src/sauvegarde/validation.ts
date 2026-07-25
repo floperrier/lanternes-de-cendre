@@ -11,6 +11,7 @@ import {
 import {
   VERSION_ALEATOIRE_COURANTE,
   VERSION_SIMULATION_AVANT_CRISES,
+  VERSION_SIMULATION_AVANT_CRISES_SEQUENTIELLES,
   VERSION_SIMULATION_AVANT_DENOUEMENT,
   VERSION_SIMULATION_AVANT_DEVERSOIR,
   VERSION_SIMULATION_AVANT_HAUT_PUITS,
@@ -104,13 +105,20 @@ import {
 import {
   DEFINITIONS_DES_REPONSES_A_LA_CRISE,
   FAIT_ANNONCANT_LA_CRISE,
+  FAIT_ANNONCANT_LA_CRISE_DE_VEILLE_BASSE,
   IDENTIFIANTS_DE_FAITS_DE_CRISE,
   IDENTIFIANTS_DE_FAITS_DE_RECUPERATION,
   IDENTIFIANT_DE_LA_CRISE_DE_REFERENCE,
+  IDENTIFIANT_DE_LA_CRISE_DE_VEILLE_BASSE,
   annoncerCriseApresFaits,
   creerEtatDesCrisesInitial,
   declencherCrise,
+  reconstruireHistoriqueDesCrises,
+  type CicatriceDeCampagne,
+  type CriseHistorique,
+  type DefinitionDeReponseALaCrise,
   type EtatDesCrises,
+  type RecuperationDeCrise,
 } from "../simulation/crise";
 import {
   creerEtatDeHautPuitsInitial,
@@ -328,7 +336,12 @@ export interface EtatCampagneV9
 }
 
 export interface EtatDesCrisesV11
-  extends Omit<EtatDesCrises, "recuperations"> {
+  extends Omit<
+    EtatDesCrises,
+    | "historique"
+    | "crisesSequentiellesHistoriquesIgnorees"
+    | "recuperations"
+  > {
   readonly recuperations: readonly {
     readonly id: string;
     readonly cause:
@@ -355,6 +368,17 @@ export interface EtatCampagneV11
   extends Omit<EtatCampagne, "version" | "crises"> {
   readonly version: typeof VERSION_SIMULATION_AVANT_RECUPERATIONS;
   readonly crises: EtatDesCrisesV11;
+}
+
+export type EtatDesCrisesV12 = Omit<
+  EtatDesCrises,
+  "historique" | "crisesSequentiellesHistoriquesIgnorees"
+>;
+
+export interface EtatCampagneV12
+  extends Omit<EtatCampagne, "version" | "crises"> {
+  readonly version: typeof VERSION_SIMULATION_AVANT_CRISES_SEQUENTIELLES;
+  readonly crises: EtatDesCrisesV12;
 }
 
 export function estObjet(valeur: unknown): valeur is ObjetInconnu {
@@ -471,13 +495,17 @@ export function estCommande(valeur: unknown): valeur is CommandeCampagne {
     return valeur.expeditionId === "vannes-grises";
   }
   if (valeur.type === "crise.declencher") {
-    return valeur.criseId === IDENTIFIANT_DE_LA_CRISE_DE_REFERENCE;
+    return (
+      valeur.criseId === IDENTIFIANT_DE_LA_CRISE_DE_REFERENCE ||
+      valeur.criseId === IDENTIFIANT_DE_LA_CRISE_DE_VEILLE_BASSE
+    );
   }
   if (valeur.type === "crise.resoudre") {
     return (
-      valeur.criseId === IDENTIFIANT_DE_LA_CRISE_DE_REFERENCE &&
       DEFINITIONS_DES_REPONSES_A_LA_CRISE.some(
-        (reponse) => reponse.id === valeur.reponseId,
+        (reponse) =>
+          reponse.criseId === valeur.criseId &&
+          reponse.id === valeur.reponseId,
       )
     );
   }
@@ -973,34 +1001,28 @@ export function estFaitDeCampagneV2(valeur: unknown): boolean {
         estEffetHumain(humains[0], "habitants.exposes", "nombre", 0)
       );
     }
-    if (valeur.cause !== IDENTIFIANT_DE_LA_CRISE_DE_REFERENCE) {
-      return false;
-    }
-    if (valeur.id === IDENTIFIANTS_DE_FAITS_DE_CRISE[1]) {
+    if (valeur.id === IDENTIFIANTS_DE_FAITS_DE_CRISE[4]) {
       return (
-        memesChaines(acteurs, ["porte-lanterne", "equipes-purification"]) &&
-        valeur.cible === "pompe-purification" &&
-        materiels.length === 1 &&
-        estEffetStock(materiels[0], -4) &&
-        humains.length === 0
+        valeur.cause === FAIT_ANNONCANT_LA_CRISE_DE_VEILLE_BASSE &&
+        memesChaines(acteurs, [
+          "cohorte-du-sillon",
+          "techniciens-veille-basse",
+        ]) &&
+        valeur.cible === "capacites-accueil-veille-basse" &&
+        materiels.length === 0 &&
+        humains.length === 1 &&
+        estEffetHumain(humains[0], "habitants.exposes", "nombre", 0)
       );
     }
-    if (valeur.id === IDENTIFIANTS_DE_FAITS_DE_CRISE[2]) {
-      return (
-        memesChaines(acteurs, ["porte-lanterne", "equipes-purification"]) &&
-        valeur.cible === "pompe-purification" &&
-        materiels.length === 1 &&
-        estEffetStock(materiels[0], -5, "remedes") &&
-        humains.length === 0
-      );
-    }
+    const definition = DEFINITIONS_DES_REPONSES_A_LA_CRISE.find(
+      (candidate) => candidate.faitProduit === valeur.id,
+    );
     return (
-      valeur.id === IDENTIFIANTS_DE_FAITS_DE_CRISE[3] &&
-      memesChaines(acteurs, ["porte-lanterne", "foyers-exposes"]) &&
-      valeur.cible === "foyers-du-convoi" &&
-      materiels.length === 0 &&
-      humains.length === 1 &&
-      estEffetHumain(humains[0], "habitants.modifies", "variation", -8)
+      definition !== undefined &&
+      sontStructurellementEgaux(
+        valeur,
+        faitDeResolutionAttendu(definition, valeur.moment as number),
+      )
     );
   }
 
@@ -1011,26 +1033,23 @@ export function estFaitDeCampagneV2(valeur: unknown): boolean {
   ) {
     const identifiant = String(valeur.id);
     const accomplie = identifiant.endsWith(".accomplie");
-    const socle = identifiant.includes(".socle-de-survie.");
-    const mobilite = identifiant.includes(".mobilite-minimale.");
-    const causeAttendue = socle
-      ? "cicatrice.rationnement-deau"
-      : mobilite
-        ? "cicatrice.reserve-de-remedes-entamee"
-        : "cicatrice.evacuation-des-foyers";
-    const acteursAttendus = socle
-      ? ["porte-lanterne", "equipes-purification"]
-      : mobilite
-        ? ["porte-lanterne", "equipes-medicales"]
-        : ["porte-lanterne", "habitants-haut-puits"];
-    const cibleAttendue = socle
-      ? "pompe-purification"
-      : mobilite
-        ? "haut-puits"
-        : "foyers-exposes";
-    const coutMaterielAttendu = accomplie && !mobilite;
+    const garantie = identifiant
+      .replace("crise.recuperation.", "")
+      .replace(/\.(?:accomplie|manquee)$/, "") as
+      RecuperationDeCrise["garantie"];
+    const definition = DEFINITIONS_DES_REPONSES_A_LA_CRISE.find(
+      (candidate) => candidate.recuperation.garantie === garantie,
+    );
+    if (definition === undefined) {
+      return false;
+    }
+    const { acteurs: acteursAttendus, cible: cibleAttendue } =
+      acteursEtCibleDeRecuperation(garantie);
+    const coutMaterielAttendu =
+      accomplie &&
+      definition.recuperation.coutAttendu === "deux-materiaux";
     return (
-      valeur.cause === causeAttendue &&
+      valeur.cause === definition.cicatrice.id &&
       memesChaines(acteurs, acteursAttendus) &&
       valeur.cible === cibleAttendue &&
       humains.length === 0 &&
@@ -3254,6 +3273,312 @@ function sontStructurellementEgaux(gauche: unknown, droite: unknown): boolean {
   );
 }
 
+function faitDeResolutionAttendu(
+  definition: DefinitionDeReponseALaCrise,
+  moment: number,
+): FaitDeCampagne {
+  const variationDeStock =
+    definition.cout.stock === undefined
+      ? undefined
+      : {
+          type: "stock.modifie" as const,
+          stock: definition.cout.stock,
+          variation: -(definition.cout.quantite ?? 0),
+        };
+  const variationDHabitants = -(definition.cout.habitants ?? 0);
+  return {
+    id: definition.faitProduit,
+    cause: definition.criseId,
+    acteurs: definition.acteurs,
+    cible: definition.cible,
+    moment,
+    effets: {
+      materiels:
+        variationDeStock === undefined ? [] : [variationDeStock],
+      humains:
+        variationDHabitants === 0
+          ? []
+          : [
+              {
+                type: "habitants.modifies",
+                variation: variationDHabitants,
+              },
+            ],
+    },
+  };
+}
+
+function acteursEtCibleDeRecuperation(
+  garantie: RecuperationDeCrise["garantie"],
+): {
+  readonly acteurs: readonly string[];
+  readonly cible: string;
+} {
+  if (garantie === "socle-de-survie") {
+    return {
+      acteurs: ["porte-lanterne", "equipes-purification"],
+      cible: "pompe-purification",
+    };
+  }
+  if (garantie === "mobilite-minimale") {
+    return {
+      acteurs: ["porte-lanterne", "equipes-medicales"],
+      cible: "haut-puits",
+    };
+  }
+  if (garantie === "aide-exterieure-identifiee") {
+    return {
+      acteurs: ["porte-lanterne", "habitants-haut-puits"],
+      cible: "foyers-exposes",
+    };
+  }
+  if (garantie === "cohorte-hydratee") {
+    return {
+      acteurs: ["porte-lanterne", "cohorte-du-sillon"],
+      cible: "hospice-du-sillon",
+    };
+  }
+  return {
+    acteurs: ["porte-lanterne", "techniciens-veille-basse"],
+    cible: "sas-de-veille-basse",
+  };
+}
+
+function appliquerResolutionAttendue(
+  etat: EtatDesCrises,
+  definition: DefinitionDeReponseALaCrise,
+  moment: number,
+): EtatDesCrises | undefined {
+  const crise = etat.criseActive;
+  if (crise === null || crise.id !== definition.criseId) {
+    return undefined;
+  }
+  const cicatrice: CicatriceDeCampagne = {
+    ...definition.cicatrice,
+    cause: definition.faitProduit,
+    acquiseA: moment,
+  };
+  const recuperation: RecuperationDeCrise = {
+    ...definition.recuperation,
+    id: `recuperation.${etat.recuperations.length + 1}`,
+    cause: cicatrice.id,
+    amorceeA: moment,
+    statut: "amorcee",
+    accomplieA: null,
+    manqueeA: null,
+    faitResultat: null,
+    coutApplique: [],
+  };
+  const historique: CriseHistorique = {
+    id: crise.id,
+    cause: crise.cause,
+    declencheeA: crise.declencheeA,
+    faitDeclenchement: crise.faitProduit,
+    resolueA: moment,
+    reponseId: definition.id,
+    faitResolution: definition.faitProduit,
+  };
+  return {
+    ...etat,
+    approvisionnementEau: "sous-tension",
+    alerte: null,
+    criseActive: null,
+    historique: [...etat.historique, historique],
+    cicatrices: [...etat.cicatrices, cicatrice],
+    recuperations: [...etat.recuperations, recuperation],
+  };
+}
+
+function estActionDeRecuperationCausee(
+  recuperation: RecuperationDeCrise,
+  fait: ObjetInconnu,
+  faits: readonly ObjetInconnu[],
+  routes: EtatDesRoutes,
+): boolean {
+  if (recuperation.condition === "rejoindre-haut-puits") {
+    return routes.engagements.some(
+      (engagement) =>
+        engagement.statut === "termine" &&
+        engagement.destination === recuperation.destination &&
+        engagement.arriveeA === fait.moment,
+    );
+  }
+  const faitCausal =
+    recuperation.condition === "demander-aide-haut-puits"
+      ? "bassins.haut-puits.partage-promis"
+      : recuperation.condition === "ouvrir-hospice-veille-basse"
+        ? "veille-basse.hospice-ouvert"
+        : recuperation.condition === "renforcer-sas-veille-basse"
+          ? "veille-basse.sas-renforce"
+          : null;
+  return (
+    faitCausal === null ||
+    faits.some(
+      (candidat) =>
+        candidat.id === faitCausal && candidat.moment === fait.moment,
+    )
+  );
+}
+
+function appliquerResultatDeRecuperationAttendu(
+  etat: EtatDesCrises,
+  fait: ObjetInconnu,
+  faitsAvant: readonly ObjetInconnu[],
+  infrastructure: EtatInfrastructure,
+  routes: EtatDesRoutes,
+  expeditions: EtatDesExpeditions,
+  hautPuits: EtatDeHautPuits,
+  veilleBasse: EtatDeVeilleBasse,
+): EtatDesCrises | undefined {
+  if (
+    typeof fait.id !== "string" ||
+    typeof fait.cause !== "string" ||
+    typeof fait.moment !== "number" ||
+    !estObjet(fait.effets) ||
+    !Array.isArray(fait.effets.materiels) ||
+    !Array.isArray(fait.effets.humains) ||
+    fait.effets.humains.length !== 0
+  ) {
+    return undefined;
+  }
+  const recuperation = etat.recuperations.find(
+    (candidate) =>
+      candidate.cause === fait.cause && candidate.statut === "amorcee",
+  );
+  if (recuperation === undefined) {
+    return undefined;
+  }
+  const accomplie = fait.id.endsWith(".accomplie");
+  const statut = accomplie ? "accomplie" : "manquee";
+  if (
+    fait.id !==
+    `crise.recuperation.${recuperation.garantie}.${statut}`
+  ) {
+    return undefined;
+  }
+  const { acteurs, cible } = acteursEtCibleDeRecuperation(
+    recuperation.garantie,
+  );
+  let coutApplique: RecuperationDeCrise["coutApplique"] = [];
+  if (accomplie) {
+    if (
+      !estActionDeRecuperationCausee(
+        recuperation,
+        fait,
+        faitsAvant,
+        routes,
+      )
+    ) {
+      return undefined;
+    }
+    if (recuperation.coutAttendu === "deux-materiaux") {
+      const materiauxAvant = calculerStockAttendu(
+        "materiaux",
+        fait.moment,
+        faitsAvant,
+        infrastructure,
+        routes,
+        expeditions,
+        hautPuits,
+        veilleBasse,
+      ).quantite;
+      if (materiauxAvant < 2) {
+        return undefined;
+      }
+      coutApplique = [{ stock: "materiaux", quantite: 2 }];
+    } else {
+      const engagement = routes.engagements.find(
+        (candidate) =>
+          candidate.statut === "termine" &&
+          candidate.destination === recuperation.destination &&
+          candidate.arriveeA === fait.moment,
+      );
+      if (engagement === undefined) {
+        return undefined;
+      }
+      const troncon = trouverTronconDeRoute(engagement.tronconId);
+      coutApplique = [
+        {
+          stock: "combustible",
+          quantite:
+            engagement.consommationsAppliquees?.combustible ??
+            troncon.consommationConnue.quantite,
+        },
+        {
+          stock: "eau",
+          quantite:
+            engagement.consommationsAppliquees?.eau ??
+            troncon.consommationIncertaine.quantiteReelle,
+        },
+      ];
+    }
+  } else {
+    const jalonDEcheance = routes.jalons
+      .filter((jalon) => jalon.moment > recuperation.amorceeA)
+      .sort((gauche, droite) => gauche.moment - droite.moment)[
+      recuperation.horizonTroncons - 1
+    ];
+    if (
+      jalonDEcheance === undefined ||
+      fait.moment !== jalonDEcheance.moment
+    ) {
+      return undefined;
+    }
+  }
+  const faitAttendu: FaitDeCampagne = {
+    id: fait.id,
+    cause: recuperation.cause,
+    acteurs,
+    cible,
+    moment: fait.moment,
+    effets: {
+      materiels:
+        accomplie && recuperation.coutAttendu === "deux-materiaux"
+          ? coutApplique.map(({ stock, quantite }) => ({
+              type: "stock.modifie" as const,
+              stock,
+              variation: -quantite,
+            }))
+          : [],
+      humains: [],
+    },
+  };
+  if (!sontStructurellementEgaux(fait, faitAttendu)) {
+    return undefined;
+  }
+  const recuperations = etat.recuperations.map((candidate) =>
+    candidate.id !== recuperation.id
+      ? candidate
+      : accomplie
+        ? {
+            ...candidate,
+            statut: "accomplie" as const,
+            accomplieA: fait.moment as number,
+            faitResultat: fait.id as string,
+            coutApplique,
+          }
+        : {
+            ...candidate,
+            statut: "manquee" as const,
+            manqueeA: fait.moment as number,
+            faitResultat: fait.id as string,
+            coutApplique: [],
+          },
+  );
+  const garantitLEau =
+    recuperation.garantie === "socle-de-survie" ||
+    recuperation.garantie === "mobilite-minimale" ||
+    recuperation.garantie === "aide-exterieure-identifiee";
+  return {
+    ...etat,
+    approvisionnementEau:
+      accomplie && garantitLEau
+        ? "assure"
+        : etat.approvisionnementEau,
+    recuperations,
+  };
+}
+
 function estEtatDesCrises(
   valeur: unknown,
   secondesCourantes: number,
@@ -3266,284 +3591,180 @@ function estEtatDesCrises(
   hautPuits: EtatDeHautPuits,
   veilleBasse: EtatDeVeilleBasse,
   autoriserMarqueurHistoriqueSansFait = false,
+  ignorerCrisesSequentielles = false,
 ): valeur is EtatDesCrises {
-  const faitAnnonceur = faits.find(
-    (fait) => fait.id === FAIT_ANNONCANT_LA_CRISE,
-  );
-  const faitDeRupture = faits.find(
-    (fait) => fait.id === IDENTIFIANTS_DE_FAITS_DE_CRISE[0],
-  );
-  const identifiantsDeResolution = [
-    IDENTIFIANTS_DE_FAITS_DE_CRISE[1],
-    IDENTIFIANTS_DE_FAITS_DE_CRISE[2],
-    IDENTIFIANTS_DE_FAITS_DE_CRISE[3],
-  ] as const;
-  const faitsDeResolution = faits.filter((fait) =>
-    identifiantsDeResolution.includes(fait.id as never),
-  );
-  const faitsDeResultatDeRecuperation = faits.filter((fait) =>
-    IDENTIFIANTS_DE_FAITS_DE_RECUPERATION.includes(fait.id as never),
-  );
-  if (
-    faits.filter((fait) => fait.id === IDENTIFIANTS_DE_FAITS_DE_CRISE[0])
-      .length > 1 ||
-    faitsDeResolution.length > 1 ||
-    faitsDeResultatDeRecuperation.length > 1 ||
-    (faitDeRupture !== undefined && faitAnnonceur === undefined) ||
-    (faitsDeResolution.length > 0 && faitDeRupture === undefined) ||
-    (faitsDeResultatDeRecuperation.length > 0 &&
-      faitsDeResolution.length === 0)
-  ) {
-    return false;
-  }
-
-  if (
-    estObjet(valeur) &&
-    valeur.faitAnnonceurHistoriqueIgnore === true
-  ) {
-    return (
-      (faitAnnonceur !== undefined ||
-        autoriserMarqueurHistoriqueSansFait) &&
-      faitDeRupture === undefined &&
-      faitsDeResolution.length === 0 &&
-      sontStructurellementEgaux(valeur, {
-        ...creerEtatDesCrisesInitial(),
-        faitAnnonceurHistoriqueIgnore: true,
-      })
-    );
-  }
   if (
     !estObjet(valeur) ||
-    valeur.faitAnnonceurHistoriqueIgnore !== false
+    typeof valeur.faitAnnonceurHistoriqueIgnore !== "boolean" ||
+    typeof valeur.crisesSequentiellesHistoriquesIgnorees !==
+      "boolean" ||
+    !Array.isArray(valeur.historique)
+  ) {
+    return false;
+  }
+  const faitAnnonceurPresent = faits.some(
+    (fait) => fait.id === FAIT_ANNONCANT_LA_CRISE,
+  );
+  const faitAccueilDeVeilleBassePresent = faits.some(
+    (fait) =>
+      fait.id === FAIT_ANNONCANT_LA_CRISE_DE_VEILLE_BASSE,
+  );
+  if (
+    valeur.faitAnnonceurHistoriqueIgnore &&
+    !faitAnnonceurPresent &&
+    !autoriserMarqueurHistoriqueSansFait
+  ) {
+    return false;
+  }
+  if (
+    valeur.crisesSequentiellesHistoriquesIgnorees &&
+    !faitAccueilDeVeilleBassePresent &&
+    !ignorerCrisesSequentielles
   ) {
     return false;
   }
 
-  let attendu = creerEtatDesCrisesInitial();
-  if (faitAnnonceur !== undefined) {
-    attendu = annoncerCriseApresFaits(
-      attendu,
-      [faitAnnonceur as unknown as FaitDeCampagne],
-    ).etat;
-  }
-  if (faitDeRupture !== undefined) {
-    if (
-      faitDeRupture.moment !== (faitAnnonceur!.moment as number) + 180 ||
-      faitDeRupture.moment > secondesCourantes
-    ) {
-      return false;
-    }
-    const faitsAvantRupture = faits.filter(
-      (fait) =>
-        fait !== faitDeRupture &&
-        (fait.moment as number) <= (faitDeRupture.moment as number),
-    );
-    const eauAvantRupture = calculerStockAttendu(
-      "eau",
-      faitDeRupture.moment as number,
-      faitsAvantRupture,
-      infrastructure,
-      {
-        ...routes,
-        engagements: routes.engagements.filter(
-          (engagement) =>
-            engagement.engageA <
-            (faitDeRupture.moment as number),
-        ),
-      },
-      expeditions,
-      hautPuits,
-      veilleBasse,
-    ).quantite;
-    const effets = faitDeRupture.effets as ObjetInconnu;
-    const effetDEau = (effets.materiels as ObjetInconnu[])[0];
-    if (
-      effetDEau.variation !== Math.min(0, 16 - eauAvantRupture)
-    ) {
-      return false;
-    }
-    const declenchement = declencherCrise(
-      attendu,
-      eauAvantRupture,
-      faitDeRupture.moment as number,
-    );
-    if (declenchement === undefined) {
-      return false;
-    }
-    attendu = declenchement.etat;
-  }
-  const faitDeResolution = faitsDeResolution[0];
-  if (faitDeResolution !== undefined) {
-    if (
-      faitDeRupture === undefined ||
-      (faitDeResolution.moment as number) < (faitDeRupture.moment as number)
-    ) {
-      return false;
-    }
-    const cause = identifiantsDeResolution.find(
-      (id) => id === faitDeResolution.id,
-    );
-    if (cause === undefined) {
-      return false;
-    }
-    const reponseId = cause.replace(
-      "crise.purification.",
-      "",
-    );
-    const definition = DEFINITIONS_DES_REPONSES_A_LA_CRISE.find(
-      (candidate) => candidate.id === reponseId,
-    );
-    if (definition === undefined) {
-      return false;
-    }
-    const cicatrice = {
-      ...definition.cicatrice,
-      cause,
-      acquiseA: faitDeResolution.moment as number,
-    };
-    attendu = {
-      ...attendu,
-      approvisionnementEau: "sous-tension",
-      alerte: null,
-      criseActive: null,
-      cicatrices: [cicatrice],
-      recuperations: [
-        {
-          ...definition.recuperation,
-          id: "recuperation.1",
-          cause: cicatrice.id,
-          amorceeA: faitDeResolution.moment as number,
-          statut: "amorcee",
-          accomplieA: null,
-          manqueeA: null,
-          faitResultat: null,
-          coutApplique: [],
-        },
-      ],
-    };
+  let attendu = {
+    ...creerEtatDesCrisesInitial(),
+    faitAnnonceurHistoriqueIgnore:
+      valeur.faitAnnonceurHistoriqueIgnore,
+    crisesSequentiellesHistoriquesIgnorees:
+      valeur.crisesSequentiellesHistoriquesIgnorees,
+  };
+  const faitsVus: ObjetInconnu[] = [];
+  const identifiantsDeDeclenchement = new Map([
+    [
+      "crise.purification.eau-contaminee",
+      IDENTIFIANT_DE_LA_CRISE_DE_REFERENCE,
+    ],
+    [
+      "crise.veille-basse.accueil-sous-penurie",
+      IDENTIFIANT_DE_LA_CRISE_DE_VEILLE_BASSE,
+    ],
+  ] as const);
+  const definitionsParFait = new Map(
+    DEFINITIONS_DES_REPONSES_A_LA_CRISE.map((definition) => [
+      definition.faitProduit,
+      definition,
+    ]),
+  );
+  const idsDeRecuperation = new Set<string>(
+    IDENTIFIANTS_DE_FAITS_DE_RECUPERATION,
+  );
 
-    const recuperation = attendu.recuperations[0]!;
-    const faitDeResultat = faitsDeResultatDeRecuperation[0];
-    const jalonsApresAmorce = routes.jalons
-      .filter((jalon) => jalon.moment > recuperation.amorceeA)
-      .sort((gauche, droite) => gauche.moment - droite.moment);
-    if (faitDeResultat !== undefined) {
-      const statut = String(faitDeResultat.id).endsWith(".accomplie")
-        ? "accomplie"
-        : "manquee";
-      const identifiantAttendu =
-        `crise.recuperation.${recuperation.garantie}.${statut}`;
-      const effets = faitDeResultat.effets;
+  for (const fait of faits) {
+    const criseDeclenchee = identifiantsDeDeclenchement.get(
+      String(fait.id) as
+        | "crise.purification.eau-contaminee"
+        | "crise.veille-basse.accueil-sous-penurie",
+    );
+    const definition = definitionsParFait.get(
+      String(fait.id) as DefinitionDeReponseALaCrise["faitProduit"],
+    );
+    if (criseDeclenchee !== undefined) {
       if (
-        faitDeResultat.id !== identifiantAttendu ||
-        faitDeResultat.cause !== recuperation.cause ||
-        typeof faitDeResultat.moment !== "number" ||
-        faitDeResultat.moment < recuperation.amorceeA ||
-        !estObjet(effets) ||
-        !Array.isArray(effets.materiels) ||
-        !Array.isArray(effets.humains) ||
-        effets.humains.length !== 0
+        attendu.alerte?.id !== criseDeclenchee ||
+        fait.moment !== attendu.alerte.ruptureA
       ) {
         return false;
       }
-
-      let coutApplique: readonly {
-        readonly stock:
-          | "vivres"
-          | "eau"
-          | "combustible"
-          | "materiaux"
-          | "remedes";
-        readonly quantite: number;
-      }[];
-      if (statut === "accomplie") {
-        if (recuperation.coutAttendu === "deux-materiaux") {
-          if (
-            effets.materiels.length !== 1 ||
-            !estObjet(effets.materiels[0]) ||
-            effets.materiels[0].type !== "stock.modifie" ||
-            effets.materiels[0].stock !== "materiaux" ||
-            effets.materiels[0].variation !== -2
-          ) {
-            return false;
-          }
-          coutApplique = [{ stock: "materiaux", quantite: 2 }];
-        } else {
-          if (effets.materiels.length !== 0) {
-            return false;
-          }
-          const engagement = routes.engagements.find(
-            (candidat) =>
-              candidat.statut === "termine" &&
-              candidat.destination === recuperation.destination &&
-              candidat.arriveeA === faitDeResultat.moment,
-          );
-          if (engagement === undefined) {
-            return false;
-          }
-          const troncon = trouverTronconDeRoute(engagement.tronconId);
-          coutApplique = [
-            {
-              stock: "combustible",
-              quantite:
-                engagement.consommationsAppliquees?.combustible ??
-                troncon.consommationConnue.quantite,
-            },
-            {
-              stock: "eau",
-              quantite:
-                engagement.consommationsAppliquees?.eau ??
-                troncon.consommationIncertaine.quantiteReelle,
-            },
-          ];
-        }
-        attendu = {
-          ...attendu,
-          approvisionnementEau: "assure",
-          recuperations: [
-            {
-              ...recuperation,
-              statut: "accomplie",
-              accomplieA: faitDeResultat.moment,
-              faitResultat: faitDeResultat.id as string,
-              coutApplique,
-            },
-          ],
-        };
-      } else {
-        const jalonDEcheance =
-          jalonsApresAmorce[recuperation.horizonTroncons - 1];
-        if (
-          effets.materiels.length !== 0 ||
-          jalonDEcheance === undefined ||
-          faitDeResultat.moment !== jalonDEcheance.moment
-        ) {
-          return false;
-        }
-        attendu = {
-          ...attendu,
-          recuperations: [
-            {
-              ...recuperation,
-              statut: "manquee",
-              manqueeA: faitDeResultat.moment,
-              faitResultat: faitDeResultat.id as string,
-            },
-          ],
-        };
-      }
-    } else {
-      const horizonAtteint =
-        jalonsApresAmorce.length >= recuperation.horizonTroncons;
-      const aideEnAttente =
-        recuperation.condition === "demander-aide-haut-puits" &&
-        evenementNarratifActif ===
-          "bassins-fendus.eau-de-haut-puits";
-      if (horizonAtteint && !aideEnAttente) {
+      const eauAvantRupture =
+        criseDeclenchee === IDENTIFIANT_DE_LA_CRISE_DE_REFERENCE
+          ? calculerStockAttendu(
+              "eau",
+              fait.moment as number,
+              faitsVus,
+              infrastructure,
+              {
+                ...routes,
+                engagements: routes.engagements.filter(
+                  (engagement) =>
+                    engagement.engageA < (fait.moment as number),
+                ),
+              },
+              expeditions,
+              hautPuits,
+              veilleBasse,
+            ).quantite
+          : 0;
+      const declenchement = declencherCrise(
+        attendu,
+        eauAvantRupture,
+        fait.moment as number,
+      );
+      if (
+        declenchement === undefined ||
+        !sontStructurellementEgaux(fait, declenchement.fait)
+      ) {
         return false;
       }
+      attendu = declenchement.etat;
+    } else if (definition !== undefined) {
+      if (
+        !sontStructurellementEgaux(
+          fait,
+          faitDeResolutionAttendu(
+            definition,
+            fait.moment as number,
+          ),
+        )
+      ) {
+        return false;
+      }
+      const resolu = appliquerResolutionAttendue(
+        attendu,
+        definition,
+        fait.moment as number,
+      );
+      if (resolu === undefined) {
+        return false;
+      }
+      attendu = resolu;
+    } else if (idsDeRecuperation.has(String(fait.id))) {
+      const resultat = appliquerResultatDeRecuperationAttendu(
+        attendu,
+        fait,
+        faitsVus,
+        infrastructure,
+        routes,
+        expeditions,
+        hautPuits,
+        veilleBasse,
+      );
+      if (resultat === undefined) {
+        return false;
+      }
+      attendu = resultat;
+    }
+
+    faitsVus.push(fait);
+    const annonce = annoncerCriseApresFaits(
+      attendu,
+      faitsVus as unknown as readonly FaitDeCampagne[],
+    ).etat;
+    attendu =
+      ignorerCrisesSequentielles &&
+      annonce.alerte?.id === IDENTIFIANT_DE_LA_CRISE_DE_VEILLE_BASSE
+        ? attendu
+        : annonce;
+  }
+
+  for (const recuperation of attendu.recuperations) {
+    if (recuperation.statut !== "amorcee") {
+      continue;
+    }
+    const horizonAtteint =
+      routes.jalons.filter(
+        (jalon) => jalon.moment > recuperation.amorceeA,
+      ).length >= recuperation.horizonTroncons;
+    const aideEnAttente =
+      recuperation.condition === "demander-aide-haut-puits" &&
+      evenementNarratifActif === "bassins-fendus.eau-de-haut-puits";
+    if (horizonAtteint && !aideEnAttente) {
+      return false;
     }
   }
+
   const suspensionRequise =
     attendu.criseActive !== null ||
     (attendu.alerte !== null &&
@@ -3782,6 +4003,7 @@ function lireEtatAvecSchemaCourant(
   utiliserCoutsHistoriquesDesNacelles = false,
   autoriserCausaliteHistoriqueSansMarqueur = false,
   autoriserTopologieHistoriqueSansMarqueur = false,
+  ignorerCrisesSequentielles = false,
 ): EtatCampagne | undefined {
   if (
     !estObjet(valeur) ||
@@ -3959,6 +4181,7 @@ function lireEtatAvecSchemaCourant(
         hautPuits,
         veilleBasse,
         autoriserMarqueurHistoriqueSansFait,
+        ignorerCrisesSequentielles,
       )) ||
     (trouverEngagementDeRouteActif(routes) !== undefined &&
       (infrastructure.deploiement === "halte" ||
@@ -4059,17 +4282,90 @@ export function lireSnapshotCourant(
   return lireEtatAvecSchemaCourant(valeur, true, true);
 }
 
-function promouvoirCrisesV11(valeur: unknown): unknown {
+function promouvoirCrisesV12(
+  valeur: unknown,
+  faits: readonly FaitDeCampagne[],
+): unknown {
+  if (!estObjet(valeur) || "historique" in valeur) {
+    return valeur;
+  }
+  return {
+    ...valeur,
+    crisesSequentiellesHistoriquesIgnorees: faits.some(
+      ({ id }) => id === FAIT_ANNONCANT_LA_CRISE_DE_VEILLE_BASSE,
+    ),
+    historique: reconstruireHistoriqueDesCrises(faits),
+  };
+}
+
+function lireEtatAvecSchemaV12(
+  valeur: unknown,
+  autoriserMarqueurHistoriqueSansFait = false,
+): EtatCampagneV12 | undefined {
+  if (
+    !estObjet(valeur) ||
+    valeur.version !== VERSION_SIMULATION_AVANT_CRISES_SEQUENTIELLES ||
+    !estObjet(valeur.narration) ||
+    !Array.isArray(valeur.narration.faitsDeCampagne) ||
+    !estObjet(valeur.crises) ||
+    "historique" in valeur.crises ||
+    "crisesSequentiellesHistoriquesIgnorees" in valeur.crises
+  ) {
+    return undefined;
+  }
+  const faits =
+    valeur.narration
+      .faitsDeCampagne as unknown as readonly FaitDeCampagne[];
+  const etatCourant = lireEtatAvecSchemaCourant(
+    {
+      ...valeur,
+      version: VERSION_SIMULATION_COURANTE,
+      crises: promouvoirCrisesV12(valeur.crises, faits),
+    },
+    true,
+    autoriserMarqueurHistoriqueSansFait,
+    false,
+    false,
+    false,
+    true,
+  );
+  return etatCourant === undefined
+    ? undefined
+    : (valeur as unknown as EtatCampagneV12);
+}
+
+export function lireEtatV12(
+  valeur: unknown,
+): EtatCampagneV12 | undefined {
+  return lireEtatAvecSchemaV12(valeur);
+}
+
+export function lireSnapshotV12(
+  valeur: unknown,
+): EtatCampagneV12 | undefined {
+  return lireEtatAvecSchemaV12(valeur, true);
+}
+
+function promouvoirCrisesV11(
+  valeur: unknown,
+  faits: readonly FaitDeCampagne[],
+): unknown {
   if (
     !estObjet(valeur) ||
     !Array.isArray(valeur.recuperations) ||
-    !Array.isArray(valeur.cicatrices)
+    !Array.isArray(valeur.cicatrices) ||
+    "historique" in valeur ||
+    "crisesSequentiellesHistoriquesIgnorees" in valeur
   ) {
     return valeur;
   }
   const cicatrices = valeur.cicatrices;
   return {
     ...valeur,
+    crisesSequentiellesHistoriquesIgnorees: faits.some(
+      ({ id }) => id === FAIT_ANNONCANT_LA_CRISE_DE_VEILLE_BASSE,
+    ),
+    historique: reconstruireHistoriqueDesCrises(faits),
     recuperations: valeur.recuperations.map((recuperation) => {
       if (!estObjet(recuperation)) {
         return recuperation;
@@ -4114,6 +4410,8 @@ function lireEtatAvecSchemaV11(
     valeur.version !== VERSION_SIMULATION_AVANT_RECUPERATIONS ||
     !estObjet(valeur.narration) ||
     !Array.isArray(valeur.narration.faitsDeCampagne) ||
+    !estObjet(valeur.crises) ||
+    "historique" in valeur.crises ||
     valeur.narration.faitsDeCampagne.some(
       (fait) =>
         estObjet(fait) &&
@@ -4123,14 +4421,21 @@ function lireEtatAvecSchemaV11(
   ) {
     return undefined;
   }
+  const faits =
+    valeur.narration
+      .faitsDeCampagne as unknown as readonly FaitDeCampagne[];
   const etatCourant = lireEtatAvecSchemaCourant(
     {
       ...valeur,
       version: VERSION_SIMULATION_COURANTE,
-      crises: promouvoirCrisesV11(valeur.crises),
+      crises: promouvoirCrisesV11(valeur.crises, faits),
     },
     true,
     autoriserMarqueurHistoriqueSansFait,
+    false,
+    false,
+    false,
+    true,
   );
   return etatCourant === undefined
     ? undefined
@@ -4170,10 +4475,18 @@ function lireEtatAvecSchemaV10(
         valeur.narration
           .faitsDeCampagne as unknown as readonly FaitDeCampagne[],
       ),
-      crises: promouvoirCrisesV11(valeur.crises),
+      crises: promouvoirCrisesV11(
+        valeur.crises,
+        ((valeur.narration as ObjetInconnu)
+          .faitsDeCampagne ?? []) as readonly FaitDeCampagne[],
+      ),
     },
     true,
     autoriserMarqueurHistoriqueSansFait,
+    false,
+    false,
+    false,
+    true,
   );
   return etatCourant === undefined
     ? undefined
@@ -4270,7 +4583,11 @@ function lireEtatAvecSchemaV9(
       ...valeur,
       version: VERSION_SIMULATION_COURANTE,
       denouement: CAMPAGNE_EN_COURS,
-      crises: promouvoirCrisesV11(valeur.crises),
+      crises: promouvoirCrisesV11(
+        valeur.crises,
+        ((valeur.narration as ObjetInconnu)
+          .faitsDeCampagne ?? []) as readonly FaitDeCampagne[],
+      ),
       routes: {
         ...valeur.routes,
         etatsReels: {
@@ -4282,6 +4599,10 @@ function lireEtatAvecSchemaV9(
     },
     true,
     autoriserMarqueurHistoriqueSansFait,
+    false,
+    false,
+    false,
+    true,
   );
   return etatCourant === undefined
     ? undefined
@@ -4366,7 +4687,11 @@ function lireEtatAvecSchemaV8(
       ...valeur,
       version: VERSION_SIMULATION_COURANTE,
       denouement: CAMPAGNE_EN_COURS,
-      crises: promouvoirCrisesV11(valeur.crises),
+      crises: promouvoirCrisesV11(
+        valeur.crises,
+        valeur.narration
+          .faitsDeCampagne as unknown as readonly FaitDeCampagne[],
+      ),
       routes: {
         ...valeur.routes,
         etatsReels: {
@@ -4379,6 +4704,10 @@ function lireEtatAvecSchemaV8(
     },
     true,
     autoriserMarqueurHistoriqueSansFait,
+    false,
+    false,
+    false,
+    true,
   );
   return etatCourant === undefined
     ? undefined
@@ -4458,7 +4787,11 @@ function lireEtatAvecSchemaV7(
       ...valeur,
       version: VERSION_SIMULATION_COURANTE,
       denouement: CAMPAGNE_EN_COURS,
-      crises: promouvoirCrisesV11(valeur.crises),
+      crises: promouvoirCrisesV11(
+        valeur.crises,
+        valeur.narration
+          .faitsDeCampagne as unknown as readonly FaitDeCampagne[],
+      ),
       hautPuits: {
         ...valeur.hautPuits,
         projetRegional: null,
@@ -4470,6 +4803,7 @@ function lireEtatAvecSchemaV7(
     true,
     autoriserMarqueurHistoriqueSansFait,
     false,
+    true,
     true,
     true,
   );
@@ -4536,7 +4870,11 @@ function lireEtatAvecSchemaV6(
       ...valeur,
       version: VERSION_SIMULATION_COURANTE,
       denouement: CAMPAGNE_EN_COURS,
-      crises: promouvoirCrisesV11(valeur.crises),
+      crises: promouvoirCrisesV11(
+        valeur.crises,
+        valeur.narration
+          .faitsDeCampagne as unknown as readonly FaitDeCampagne[],
+      ),
       devenirsDesSites: null,
       trameDeFer: creerEtatInitialDeLaTrameDeFer(),
       traverseLibre: creerEtatInitialDeTraverseLibre(),
@@ -4544,6 +4882,8 @@ function lireEtatAvecSchemaV6(
     true,
     autoriserMarqueurHistoriqueSansFait,
     true,
+    true,
+    false,
     true,
   );
   return etatCourant === undefined
@@ -4579,7 +4919,11 @@ function lireEtatAvecSchemaV5(
       ...valeur,
       version: VERSION_SIMULATION_COURANTE,
       denouement: CAMPAGNE_EN_COURS,
-      crises: promouvoirCrisesV11(valeur.crises),
+      crises: promouvoirCrisesV11(
+        valeur.crises,
+        ((valeur.narration as ObjetInconnu)
+          .faitsDeCampagne ?? []) as readonly FaitDeCampagne[],
+      ),
       hautPuits: creerEtatDeHautPuitsInitial(),
       devenirsDesSites: null,
       trameDeFer: creerEtatInitialDeLaTrameDeFer(),
@@ -4587,6 +4931,8 @@ function lireEtatAvecSchemaV5(
     },
     true,
     autoriserMarqueurHistoriqueSansFait,
+    false,
+    true,
     false,
     true,
   );
@@ -4624,7 +4970,11 @@ function lireEtatAvecSchemaV4(
       ...valeur,
       version: VERSION_SIMULATION_COURANTE,
       denouement: CAMPAGNE_EN_COURS,
-      crises: promouvoirCrisesV11(valeur.crises),
+      crises: promouvoirCrisesV11(
+        valeur.crises,
+        ((valeur.narration as ObjetInconnu)
+          .faitsDeCampagne ?? []) as readonly FaitDeCampagne[],
+      ),
       veilleBasse: creerEtatInitialDeVeilleBasse(),
       hautPuits: creerEtatDeHautPuitsInitial(),
       devenirsDesSites: null,
@@ -4633,6 +4983,8 @@ function lireEtatAvecSchemaV4(
     },
     true,
     autoriserMarqueurHistoriqueSansFait,
+    false,
+    true,
     false,
     true,
   );

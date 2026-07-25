@@ -43,6 +43,11 @@ export function EtatDesCrisesDuConvoi({
         <div role="status" className="alerte-de-crise">
           <h2>{projection.alerte.titre}</h2>
           <p>{projection.alerte.cause}</p>
+          <ol className="chaine-de-crise">
+            {projection.alerte.chaineVisible.map((maillon) => (
+              <li key={maillon}>{maillon}</li>
+            ))}
+          </ol>
           <p>
             {textes.fenetre} : <strong>{projection.alerte.echeance}</strong>
           </p>

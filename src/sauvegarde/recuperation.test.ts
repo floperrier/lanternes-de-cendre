@@ -107,8 +107,8 @@ describe("persistance des Récupérations de Crise", () => {
       exporterSauvegarde(sauvegarde),
     );
 
-    expect(VERSION_SIMULATION_COURANTE).toBe(12);
-    expect(VERSION_SAUVEGARDE_COURANTE).toBe(12);
+    expect(VERSION_SIMULATION_COURANTE).toBe(13);
+    expect(VERSION_SAUVEGARDE_COURANTE).toBe(13);
     expect(importation.statut).toBe("compatible");
     if (importation.statut !== "compatible") {
       return;
@@ -181,10 +181,18 @@ describe("persistance des Récupérations de Crise", () => {
         return recuperation;
       },
     );
+    const {
+      historique: _historique,
+      crisesSequentiellesHistoriquesIgnorees:
+        _crisesSequentiellesHistoriquesIgnorees,
+      ...crisesV11
+    } = courant.crises;
+    void _historique;
+    void _crisesSequentiellesHistoriquesIgnorees;
     const etatV11 = {
       ...courant,
       version: 11,
-      crises: { ...courant.crises, recuperations: recuperationsV11 },
+      crises: { ...crisesV11, recuperations: recuperationsV11 },
     };
     const empreinteV11 = empreinteEtat(
       etatV11 as unknown as EtatCampagne,

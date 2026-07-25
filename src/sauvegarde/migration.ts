@@ -24,7 +24,9 @@ import {
   DEFINITIONS_DES_REPONSES_A_LA_CRISE,
   creerEtatDesCrisesInitial,
   FAIT_ANNONCANT_LA_CRISE,
+  FAIT_ANNONCANT_LA_CRISE_DE_VEILLE_BASSE,
   ignorerFaitAnnonceurHistorique,
+  reconstruireHistoriqueDesCrises,
   type EtatDesCrises,
 } from "../simulation/crise";
 import { creerEtatDesExpeditionsInitial } from "../simulation/expeditions";
@@ -50,6 +52,7 @@ import type {
 } from "./types";
 import {
   VERSION_SIMULATION_AVANT_CRISES,
+  VERSION_SIMULATION_AVANT_CRISES_SEQUENTIELLES,
   VERSION_SIMULATION_AVANT_DENOUEMENT,
   VERSION_SIMULATION_AVANT_RECUPERATIONS,
   VERSION_SIMULATION_AVANT_DEVERSOIR,
@@ -66,6 +69,7 @@ import {
   VERSION_CONTENU_COURANTE,
   VERSION_SAUVEGARDE_AVANT_ROUTES,
   VERSION_SAUVEGARDE_AVANT_CRISES,
+  VERSION_SAUVEGARDE_AVANT_CRISES_SEQUENTIELLES,
   VERSION_SAUVEGARDE_AVANT_DENOUEMENT,
   VERSION_SAUVEGARDE_AVANT_RECUPERATIONS,
   VERSION_SAUVEGARDE_AVANT_DEVERSOIR,
@@ -104,6 +108,7 @@ import {
   lireEtatV9,
   lireEtatV10,
   lireEtatV11,
+  lireEtatV12,
   lireSnapshotV4,
   lireSnapshotV5,
   lireSnapshotV6,
@@ -112,6 +117,7 @@ import {
   lireSnapshotV9,
   lireSnapshotV10,
   lireSnapshotV11,
+  lireSnapshotV12,
   marquerCausaliteHistoriqueDeNarrationSiNecessaire,
   projeterEtatAvantRoutesHistorique,
   type EtatCampagneAvantCrises,
@@ -126,6 +132,7 @@ import {
   type EtatCampagneV9,
   type EtatCampagneV10,
   type EtatCampagneV11,
+  type EtatCampagneV12,
   type ObjetInconnu,
 } from "./validation";
 
@@ -140,13 +147,156 @@ const PLATEFORMES_DE_LA_SIMULATION_V2 = [
   "forge",
 ] as const;
 
+export function promouvoirEtatV12VersCourant(
+  etat: EtatCampagneV12,
+): EtatCampagne {
+  return {
+    ...etat,
+    version: VERSION_SIMULATION_COURANTE,
+    crises: {
+      ...etat.crises,
+      crisesSequentiellesHistoriquesIgnorees:
+        etat.narration.faitsDeCampagne.some(
+          ({ id }) =>
+            id === FAIT_ANNONCANT_LA_CRISE_DE_VEILLE_BASSE,
+        ),
+      historique: reconstruireHistoriqueDesCrises(
+        etat.narration.faitsDeCampagne,
+      ),
+    },
+  };
+}
+
+function normaliserEtatCourantEnV12(
+  etat: EtatCampagne,
+): EtatCampagneV12 {
+  const {
+    historique,
+    crisesSequentiellesHistoriquesIgnorees,
+    ...crises
+  } = etat.crises;
+  void historique;
+  void crisesSequentiellesHistoriquesIgnorees;
+  return {
+    ...etat,
+    version: VERSION_SIMULATION_AVANT_CRISES_SEQUENTIELLES,
+    crises,
+  };
+}
+
+export function migrerSauvegardeV12(
+  valeur: ObjetInconnu,
+): SauvegardeCampagne | undefined {
+  if (
+    valeur.format !== FORMAT_SAUVEGARDE ||
+    typeof valeur.id !== "string" ||
+    valeur.version !== VERSION_SAUVEGARDE_AVANT_CRISES_SEQUENTIELLES ||
+    !estObjet(valeur.versions) ||
+    valeur.versions.simulation !==
+      VERSION_SIMULATION_AVANT_CRISES_SEQUENTIELLES ||
+    valeur.versions.contenu !== VERSIONS_DU_SNAPSHOT_COURANT.contenu ||
+    valeur.versions.aleatoire !== VERSIONS_DU_SNAPSHOT_COURANT.aleatoire ||
+    valeur.versions.empreinte !== VERSIONS_DU_SNAPSHOT_COURANT.empreinte ||
+    typeof valeur.graine !== "string" ||
+    !estObjet(valeur.horloge) ||
+    typeof valeur.horloge.secondes !== "number" ||
+    !Number.isFinite(valeur.horloge.secondes) ||
+    !estObjet(valeur.reproduction) ||
+    !Array.isArray(valeur.reproduction.commandes) ||
+    typeof valeur.reproduction.empreinteSnapshot !== "string" ||
+    !EMPREINTE.test(valeur.reproduction.empreinteSnapshot) ||
+    typeof valeur.empreinte !== "string" ||
+    !EMPREINTE.test(valeur.empreinte)
+  ) {
+    return undefined;
+  }
+
+  const snapshotV12 = lireSnapshotV12(valeur.reproduction.snapshot);
+  const etatDeclareV12 = lireEtatV12(valeur.etat);
+  if (
+    snapshotV12 === undefined ||
+    etatDeclareV12 === undefined ||
+    valeur.graine !== etatDeclareV12.graine ||
+    valeur.horloge.secondes !== etatDeclareV12.tempsDuConvoi.secondes ||
+    empreinteEtat(snapshotV12 as unknown as EtatCampagne) !==
+      valeur.reproduction.empreinteSnapshot ||
+    empreinteEtat(etatDeclareV12 as unknown as EtatCampagne) !==
+      valeur.empreinte
+  ) {
+    return undefined;
+  }
+
+  let etat = promouvoirEtatV12VersCourant(snapshotV12);
+  try {
+    for (const [index, entree] of valeur.reproduction.commandes.entries()) {
+      if (
+        !estObjet(entree) ||
+        entree.sequence !== index ||
+        !estCommande(entree.commande) ||
+        typeof entree.empreinteApres !== "string" ||
+        !EMPREINTE.test(entree.empreinteApres)
+      ) {
+        return undefined;
+      }
+      etat = appliquerCommande(etat, entree.commande, {
+        crises: "historiques-v12",
+      }).etat;
+      if (
+        empreinteEtat(
+          normaliserEtatCourantEnV12(etat) as unknown as EtatCampagne,
+        ) !== entree.empreinteApres
+      ) {
+        return undefined;
+      }
+    }
+  } catch {
+    return undefined;
+  }
+
+  if (
+    !sontStructurellementEgaux(
+      normaliserEtatCourantEnV12(etat),
+      etatDeclareV12,
+    )
+  ) {
+    return undefined;
+  }
+
+  const etatCourant = promouvoirEtatV12VersCourant(etatDeclareV12);
+  if (
+    lireSnapshotCourant(etatCourant) === undefined ||
+    lireEtatCourant(etatCourant) === undefined
+  ) {
+    return undefined;
+  }
+  const reproduction: ReproductionDeCampagne = {
+    snapshot: etatCourant,
+    empreinteSnapshot: empreinteEtat(etatCourant),
+    commandes: [],
+  };
+  const sauvegarde = creerSauvegarde(etatCourant, reproduction);
+  return {
+    ...sauvegarde,
+    id: `${valeur.id}-v${VERSION_SAUVEGARDE_COURANTE}-${sauvegarde.empreinte}`,
+  };
+}
+
 function promouvoirCrisesV11VersCourant(
   crises:
     | EtatDesCrises
     | EtatCampagneV11["crises"],
+  faits: readonly FaitDeCampagne[],
 ): EtatDesCrises {
   return {
     ...crises,
+    crisesSequentiellesHistoriquesIgnorees:
+      "crisesSequentiellesHistoriquesIgnorees" in crises
+        ? crises.crisesSequentiellesHistoriquesIgnorees
+        : faits.some(
+            ({ id }) =>
+              id === FAIT_ANNONCANT_LA_CRISE_DE_VEILLE_BASSE,
+          ),
+    historique: reconstruireHistoriqueDesCrises(faits),
     recuperations: crises.recuperations.map((recuperation) => {
       if ("condition" in recuperation) {
         return recuperation;
@@ -180,8 +330,15 @@ function promouvoirCrisesV11VersCourant(
 function normaliserCrisesCourantesEnV11(
   crises: EtatDesCrises,
 ): EtatCampagneV11["crises"] {
+  const {
+    historique,
+    crisesSequentiellesHistoriquesIgnorees,
+    ...crisesSansHistorique
+  } = crises;
+  void historique;
+  void crisesSequentiellesHistoriquesIgnorees;
   return {
-    ...crises,
+    ...crisesSansHistorique,
     recuperations: crises.recuperations.map(
       ({
         condition,
@@ -206,7 +363,7 @@ function normaliserCrisesCourantesEnV11(
         };
       },
     ),
-  };
+  } as EtatCampagneV11["crises"];
 }
 
 export function promouvoirEtatV11VersCourant(
@@ -215,7 +372,10 @@ export function promouvoirEtatV11VersCourant(
   return {
     ...etat,
     version: VERSION_SIMULATION_COURANTE,
-    crises: promouvoirCrisesV11VersCourant(etat.crises),
+    crises: promouvoirCrisesV11VersCourant(
+      etat.crises,
+      etat.narration.faitsDeCampagne,
+    ),
   };
 }
 
@@ -332,7 +492,10 @@ export function promouvoirEtatV10VersCourant(
   return {
     ...etat,
     version: VERSION_SIMULATION_COURANTE,
-    crises: promouvoirCrisesV11VersCourant(etat.crises),
+    crises: promouvoirCrisesV11VersCourant(
+      etat.crises,
+      etat.narration.faitsDeCampagne,
+    ),
     denouement: reconstruireDenouementReussi(
       etat.narration.faitsDeCampagne,
     ),
@@ -839,7 +1002,10 @@ export function promouvoirEtatV4VersCourant(
     ...etat,
     version: VERSION_SIMULATION_COURANTE,
     denouement: CAMPAGNE_EN_COURS,
-    crises: promouvoirCrisesV11VersCourant(etat.crises),
+    crises: promouvoirCrisesV11VersCourant(
+      etat.crises,
+      etat.narration.faitsDeCampagne,
+    ),
     veilleBasse: creerEtatInitialDeVeilleBasse(),
     hautPuits: creerEtatDeHautPuitsInitial(),
     trameDeFer: creerEtatInitialDeLaTrameDeFer(),
@@ -858,7 +1024,10 @@ export function promouvoirEtatV6VersCourant(
     ...etat,
     version: VERSION_SIMULATION_COURANTE,
     denouement: CAMPAGNE_EN_COURS,
-    crises: promouvoirCrisesV11VersCourant(etat.crises),
+    crises: promouvoirCrisesV11VersCourant(
+      etat.crises,
+      etat.narration.faitsDeCampagne,
+    ),
     trameDeFer: creerEtatInitialDeLaTrameDeFer(),
     traverseLibre: creerEtatInitialDeTraverseLibre(),
     devenirsDesSites: null,
@@ -881,7 +1050,10 @@ function promouvoirEtatV6PourReplay(
     ...etat,
     version: VERSION_SIMULATION_COURANTE,
     denouement: CAMPAGNE_EN_COURS,
-    crises: promouvoirCrisesV11VersCourant(etat.crises),
+    crises: promouvoirCrisesV11VersCourant(
+      etat.crises,
+      etat.narration.faitsDeCampagne,
+    ),
     trameDeFer: creerEtatInitialDeLaTrameDeFer(),
     traverseLibre: creerEtatInitialDeTraverseLibre(),
     devenirsDesSites: null,
@@ -1118,7 +1290,10 @@ function promouvoirEtatV7PourReplay(
     ...etat,
     version: VERSION_SIMULATION_COURANTE,
     denouement: CAMPAGNE_EN_COURS,
-    crises: promouvoirCrisesV11VersCourant(etat.crises),
+    crises: promouvoirCrisesV11VersCourant(
+      etat.crises,
+      etat.narration.faitsDeCampagne,
+    ),
     hautPuits: {
       ...etat.hautPuits,
       projetRegional: null,
@@ -1384,7 +1559,10 @@ export function promouvoirEtatV8VersCourant(
     ...etat,
     version: VERSION_SIMULATION_COURANTE,
     denouement: CAMPAGNE_EN_COURS,
-    crises: promouvoirCrisesV11VersCourant(etat.crises),
+    crises: promouvoirCrisesV11VersCourant(
+      etat.crises,
+      etat.narration.faitsDeCampagne,
+    ),
     routes: {
       ...etat.routes,
       etatsReels: {
@@ -1569,7 +1747,10 @@ export function promouvoirEtatV9VersCourant(
     ...etat,
     version: VERSION_SIMULATION_COURANTE,
     denouement: CAMPAGNE_EN_COURS,
-    crises: promouvoirCrisesV11VersCourant(etat.crises),
+    crises: promouvoirCrisesV11VersCourant(
+      etat.crises,
+      etat.narration.faitsDeCampagne,
+    ),
     routes: {
       ...etat.routes,
       etatsReels: {
@@ -1767,7 +1948,10 @@ export function promouvoirEtatV5VersCourant(
     ...etat,
     version: VERSION_SIMULATION_COURANTE,
     denouement: CAMPAGNE_EN_COURS,
-    crises: promouvoirCrisesV11VersCourant(etat.crises),
+    crises: promouvoirCrisesV11VersCourant(
+      etat.crises,
+      etat.narration.faitsDeCampagne,
+    ),
     hautPuits: creerEtatDeHautPuitsInitial(),
     trameDeFer: creerEtatInitialDeLaTrameDeFer(),
     traverseLibre: creerEtatInitialDeTraverseLibre(),

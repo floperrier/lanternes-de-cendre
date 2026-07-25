@@ -60,7 +60,19 @@ function archiveV10(etatCourant: EtatCampagne): string {
   const { denouement, ...etatSansDenouement } =
     structuredClone(etatCourant);
   void denouement;
-  const etatV10 = { ...etatSansDenouement, version: 10 };
+  const {
+    historique: _historique,
+    crisesSequentiellesHistoriquesIgnorees:
+      _crisesSequentiellesHistoriquesIgnorees,
+    ...crisesV10
+  } = etatSansDenouement.crises;
+  void _historique;
+  void _crisesSequentiellesHistoriquesIgnorees;
+  const etatV10 = {
+    ...etatSansDenouement,
+    version: 10,
+    crises: crisesV10,
+  };
   const empreinte = empreinteEtat(etatV10 as unknown as EtatCampagne);
   return JSON.stringify({
     format: FORMAT_SAUVEGARDE,
@@ -94,8 +106,8 @@ describe("persistance du Dénouement de Campagne", () => {
       exporterSauvegarde(sauvegarde),
     );
 
-    expect(VERSION_SIMULATION_COURANTE).toBe(12);
-    expect(VERSION_SAUVEGARDE_COURANTE).toBe(12);
+    expect(VERSION_SIMULATION_COURANTE).toBe(13);
+    expect(VERSION_SAUVEGARDE_COURANTE).toBe(13);
     expect(parcours.arriveeAuNoeudSansConclusionObservee).toBe(true);
     expect(importation).toMatchObject({
       statut: "compatible",

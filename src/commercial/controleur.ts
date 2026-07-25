@@ -257,13 +257,18 @@ export function creerControleurAccesPremium({
           contenu: accesPersistant.contenu,
         });
         if (valide) {
-          installerContenuComplet(accesPersistant.contenu);
-          publier({
-            statut: "premium",
-            identiteId: accesPersistant.identiteId,
-            provenance: "hors-ligne",
-          });
-          return;
+          try {
+            installerContenuComplet(accesPersistant.contenu);
+            publier({
+              statut: "premium",
+              identiteId: accesPersistant.identiteId,
+              provenance: "hors-ligne",
+            });
+            return;
+          } catch {
+            // Un payload signé d’une ancienne version peut ne plus
+            // satisfaire le schéma de contenu courant.
+          }
         }
         stockage.effacer();
         publier({ statut: "demonstration" });

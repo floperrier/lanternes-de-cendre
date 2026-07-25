@@ -333,6 +333,13 @@ function filtrerDictionnaire(
 
 const faitsPremium = new Set([
   ...idsDeFaits(evenementsPremium),
+  "crise.veille-basse.accueil-sous-penurie",
+  "crise.veille-basse.partager-reserves-cohorte",
+  "crise.veille-basse.renforcer-accueil",
+  "crise.recuperation.cohorte-hydratee.accomplie",
+  "crise.recuperation.cohorte-hydratee.manquee",
+  "crise.recuperation.accueil-stabilise.accomplie",
+  "crise.recuperation.accueil-stabilise.manquee",
   ...conseilsPremium.flatMap((conseil) =>
     conseil.sujets.flatMap((sujet) =>
       sujet.decisions.map((decision) => decision.faitProduit)
@@ -342,11 +349,25 @@ const faitsPremium = new Set([
 const causesPremium = new Set([
   ...evenementsPremium.map(({ id }) => id),
   ...conseilsPremium.map(({ id }) => id),
+  "veille-basse.accueil-sous-penurie",
+  "veille-basse.cohorte-accueillie",
+  "cicatrice.reserves-partagees-veille-basse",
+  "cicatrice.capacites-accueil-saturees",
 ]);
 const acteursDeBase = acteurs(evenementsDeBase);
-const acteursPremium = acteurs(evenementsPremium);
+const acteursPremium = new Set([
+  ...acteurs(evenementsPremium),
+  "cohorte-du-sillon",
+  "techniciens-veille-basse",
+]);
 const ciblesDeBase = cibles(evenementsDeBase);
-const ciblesPremium = cibles(evenementsPremium);
+const ciblesPremium = new Set([
+  ...cibles(evenementsPremium),
+  "reserves-de-veille-basse",
+  "capacites-accueil-veille-basse",
+  "hospice-du-sillon",
+  "sas-de-veille-basse",
+]);
 const identifiantsDeJournalDeBase = new Set([
   ...acteursDeBase,
   ...ciblesDeBase,

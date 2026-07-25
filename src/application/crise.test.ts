@@ -21,6 +21,78 @@ function etatEnCrise() {
   }).etat;
 }
 
+function etatEnCriseAVeilleBasse(
+  declencherLaCrise = true,
+) {
+  let etat = appliquerCommande(
+    creerCampagneInitiale("CENDRE-CRISE-VEILLE-BASSE"),
+    {
+      type: "incident.ordonner",
+      incidentId: "purification.pompe-instable",
+      ordre: "maintenir-debit",
+    },
+  ).etat;
+  etat = appliquerCommande(etat, {
+    type: "temps-du-convoi.ecouler",
+    secondesReelles: 60,
+  }).etat;
+  for (const [evenementId, choixId] of [
+    ["prologue.signaux-sous-la-cendre", "accueillir"],
+    ["prologue.reponse-du-phare", "consigner-harmonique"],
+    ["prologue.filtres-de-la-veille", "proteger-foyers"],
+    ["prologue.ilyana-au-clapet", "confier-clapet"],
+  ] as const) {
+    etat = appliquerCommande(etat, {
+      type: "evenement-narratif.choisir",
+      evenementId,
+      choixId,
+    }).etat;
+    if (evenementId !== "prologue.ilyana-au-clapet") {
+      etat = appliquerCommande(etat, {
+        type: "temps-du-convoi.ecouler",
+        secondesReelles: 1,
+      }).etat;
+    }
+  }
+  for (const commande of [
+    { type: "temps-du-convoi.ecouler", secondesReelles: 117 },
+    {
+      type: "crise.declencher",
+      criseId: "penurie-eau.pompe-purification",
+    },
+    {
+      type: "crise.resoudre",
+      criseId: "penurie-eau.pompe-purification",
+      reponseId: "isoler-et-rationner",
+    },
+    {
+      type: "engagement-de-route.confirmer",
+      tronconId: "chaussee-de-veille-basse",
+    },
+    { type: "temps-du-convoi.regler-vitesse", vitesse: 4 },
+    { type: "temps-du-convoi.ecouler", secondesReelles: 120 },
+    {
+      type: "evenement-narratif.choisir",
+      evenementId: "veille-basse.la-place-sous-le-phare",
+      choixId: "accueillir",
+    },
+  ] as const) {
+    etat = appliquerCommande(etat, commande).etat;
+  }
+  if (!declencherLaCrise) {
+    return etat;
+  }
+  etat = appliquerCommande(etat, {
+    type: "temps-du-convoi.ecouler",
+    secondesReelles: 30,
+  }).etat;
+  etat = appliquerCommande(etat, {
+    type: "crise.declencher",
+    criseId: "veille-basse.accueil-sous-penurie",
+  }).etat;
+  return etat;
+}
+
 describe("projection des Crises", () => {
   it("rend la chaîne, deux réponses coûteuses et le dernier recours sans pourcentage", () => {
     const projection = projeterCrises(etatEnCrise(), "fr");
@@ -160,5 +232,76 @@ describe("projection des Crises", () => {
       { titre: "Water reserve — contamination isolated" },
       { titre: "Purification crisis — Remedies mobilized" },
     ]);
+  });
+
+  it("distingue la Crise de Veille-Basse, ses deux réponses et sa trace bilingue", () => {
+    const enCrise = etatEnCriseAVeilleBasse();
+
+    expect(projeterCrises(enCrise, "fr").active).toMatchObject({
+      id: "veille-basse.accueil-sous-penurie",
+      titre: "Crise — Cohorte accueillie sous pénurie",
+      cause:
+        "L’accueil décidé sous pénurie a saturé simultanément les réserves et les sas filtrés.",
+      chaineVisible: [
+        expect.stringContaining("Cohorte"),
+        expect.stringContaining("capacités d’accueil"),
+        expect.stringContaining("arbitrés"),
+      ],
+      reponses: [
+        expect.objectContaining({
+          id: "partager-reserves-cohorte",
+          coutConnu: "6 Vivres",
+          attribution: "Cohorte du Sillon",
+        }),
+        expect.objectContaining({
+          id: "renforcer-accueil",
+          coutConnu: "5 Matériaux",
+          attribution: "Techniciens de Veille-Basse",
+        }),
+      ],
+    });
+
+    const resolu = appliquerCommande(enCrise, {
+      type: "crise.resoudre",
+      criseId: "veille-basse.accueil-sous-penurie",
+      reponseId: "partager-reserves-cohorte",
+    }).etat;
+    expect(projeterCrises(resolu, "en")).toMatchObject({
+      active: null,
+      cicatrices: [
+        expect.anything(),
+        expect.objectContaining({
+          titre: "Reserves shared at Veille-Basse",
+          cause: "Emergency Provisions shared",
+        }),
+      ],
+      recuperations: [
+        expect.anything(),
+        expect.objectContaining({
+          garantie: "Cohort hydrated",
+          destination: "Veille-Basse",
+          condition: "Open Sillon Hospice.",
+          statut: "Recovery underway",
+        }),
+      ],
+    });
+    expect(
+      projeterPilotage(resolu, "en").journalCausal.slice(-2),
+    ).toMatchObject([
+      { titre: "Veille-Basse crisis — shelter under shortage" },
+      { titre: "Veille-Basse crisis — Provisions shared with the Cohort" },
+    ]);
+  });
+
+  it("rend la chaîne causale de Veille-Basse dès son alerte", () => {
+    expect(
+      projeterCrises(etatEnCriseAVeilleBasse(false), "fr").alerte,
+    ).toMatchObject({
+      titre: "Aggravation annoncée — accueil sous pénurie",
+      chaineVisible: [
+        expect.stringContaining("Cohorte"),
+        expect.stringContaining("capacités d’accueil"),
+      ],
+    });
   });
 });

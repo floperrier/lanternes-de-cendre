@@ -392,9 +392,9 @@ describe("migration v7 avant le Déversoir Noir", () => {
     }
     expect(importation.sauvegarde).toMatchObject({
       version: VERSION_SAUVEGARDE_COURANTE,
-      versions: { simulation: 12 },
+      versions: { simulation: 13 },
       etat: {
-        version: 12,
+        version: 13,
         devenirsDesSites: null,
         hautPuits: { projetRegional: null },
         routes: {
@@ -407,7 +407,7 @@ describe("migration v7 avant le Déversoir Noir", () => {
       },
       reproduction: {
         commandes: [],
-        snapshot: { version: 12 },
+        snapshot: { version: 13 },
       },
     });
   });

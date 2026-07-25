@@ -3,13 +3,20 @@ import type { EtatPilotage, IdentifiantDeStock } from "./pilotage";
 
 export const IDENTIFIANT_DE_LA_CRISE_DE_REFERENCE =
   "penurie-eau.pompe-purification" as const;
+export const IDENTIFIANT_DE_LA_CRISE_DE_VEILLE_BASSE =
+  "veille-basse.accueil-sous-penurie" as const;
 export const FAIT_ANNONCANT_LA_CRISE =
   "incident.purification.pompe-instable.debit-maintenu" as const;
+export const FAIT_ANNONCANT_LA_CRISE_DE_VEILLE_BASSE =
+  "veille-basse.cohorte-accueillie" as const;
 export const IDENTIFIANTS_DE_FAITS_DE_CRISE = [
   "crise.purification.eau-contaminee",
   "crise.purification.isoler-et-rationner",
   "crise.purification.mobiliser-les-remedes",
   "crise.purification.evacuer-les-foyers-exposes",
+  "crise.veille-basse.accueil-sous-penurie",
+  "crise.veille-basse.partager-reserves-cohorte",
+  "crise.veille-basse.renforcer-accueil",
 ] as const;
 export const IDENTIFIANTS_DE_FAITS_DE_RECUPERATION = [
   "crise.recuperation.socle-de-survie.accomplie",
@@ -18,22 +25,35 @@ export const IDENTIFIANTS_DE_FAITS_DE_RECUPERATION = [
   "crise.recuperation.mobilite-minimale.manquee",
   "crise.recuperation.aide-exterieure-identifiee.accomplie",
   "crise.recuperation.aide-exterieure-identifiee.manquee",
+  "crise.recuperation.cohorte-hydratee.accomplie",
+  "crise.recuperation.cohorte-hydratee.manquee",
+  "crise.recuperation.accueil-stabilise.accomplie",
+  "crise.recuperation.accueil-stabilise.manquee",
 ] as const;
 
+export type IdentifiantDeCrise =
+  | typeof IDENTIFIANT_DE_LA_CRISE_DE_REFERENCE
+  | typeof IDENTIFIANT_DE_LA_CRISE_DE_VEILLE_BASSE;
 export type IdentifiantDeFaitDeCrise =
   (typeof IDENTIFIANTS_DE_FAITS_DE_CRISE)[number];
 export type IdentifiantDeReponseALaCrise =
   | "isoler-et-rationner"
   | "mobiliser-les-remedes"
-  | "evacuer-les-foyers-exposes";
+  | "evacuer-les-foyers-exposes"
+  | "partager-reserves-cohorte"
+  | "renforcer-accueil";
 export type GarantieDeRecuperation =
   | "socle-de-survie"
   | "mobilite-minimale"
-  | "aide-exterieure-identifiee";
+  | "aide-exterieure-identifiee"
+  | "cohorte-hydratee"
+  | "accueil-stabilise";
 export type ConditionDeRecuperation =
   | "halte-de-purification"
   | "rejoindre-haut-puits"
-  | "demander-aide-haut-puits";
+  | "demander-aide-haut-puits"
+  | "ouvrir-hospice-veille-basse"
+  | "renforcer-sas-veille-basse";
 export type StatutDeRecuperation = "amorcee" | "accomplie" | "manquee";
 
 export interface CoutAppliqueAUneRecuperation {
@@ -42,47 +62,44 @@ export interface CoutAppliqueAUneRecuperation {
 }
 
 export interface AlerteDeCrise {
-  readonly id: typeof IDENTIFIANT_DE_LA_CRISE_DE_REFERENCE;
-  readonly cause: typeof FAIT_ANNONCANT_LA_CRISE;
+  readonly id: IdentifiantDeCrise;
+  readonly cause:
+    | typeof FAIT_ANNONCANT_LA_CRISE
+    | typeof FAIT_ANNONCANT_LA_CRISE_DE_VEILLE_BASSE;
   readonly annonceeA: number;
   readonly ruptureA: number;
-  readonly chaineVisible: readonly [
-    {
-      readonly id: "pompe-purification.degradee";
-      readonly cause: typeof FAIT_ANNONCANT_LA_CRISE;
-      readonly irreversible: true;
-    },
-    {
-      readonly id: "eau.purifiee.contamination-annoncee";
-      readonly cause: "pompe-purification.degradee";
-      readonly irreversible: false;
-    },
-  ];
+  readonly chaineVisible: readonly {
+    readonly id: string;
+    readonly cause: string;
+    readonly irreversible: boolean;
+  }[];
 }
 
 export interface CriseActive {
-  readonly id: typeof IDENTIFIANT_DE_LA_CRISE_DE_REFERENCE;
-  readonly cause: typeof FAIT_ANNONCANT_LA_CRISE;
+  readonly id: IdentifiantDeCrise;
+  readonly cause: AlerteDeCrise["cause"];
   readonly declencheeA: number;
-  readonly faitProduit: (typeof IDENTIFIANTS_DE_FAITS_DE_CRISE)[0];
-  readonly chaineVisible: readonly [
-    ...AlerteDeCrise["chaineVisible"],
-    {
-      readonly id: "eau.purifiee.contaminee";
-      readonly cause: "eau.purifiee.contamination-annoncee";
-      readonly irreversible: true;
-    },
-  ];
+  readonly faitProduit:
+    | "crise.purification.eau-contaminee"
+    | "crise.veille-basse.accueil-sous-penurie";
+  readonly chaineVisible: readonly {
+    readonly id: string;
+    readonly cause: string;
+    readonly irreversible: boolean;
+  }[];
 }
 
 export interface CicatriceDeCampagne {
   readonly id:
     | "cicatrice.rationnement-deau"
     | "cicatrice.reserve-de-remedes-entamee"
-    | "cicatrice.evacuation-des-foyers";
+    | "cicatrice.evacuation-des-foyers"
+    | "cicatrice.reserves-partagees-veille-basse"
+    | "cicatrice.capacites-accueil-saturees";
   readonly cause: Exclude<
     IdentifiantDeFaitDeCrise,
-    (typeof IDENTIFIANTS_DE_FAITS_DE_CRISE)[0]
+    | "crise.purification.eau-contaminee"
+    | "crise.veille-basse.accueil-sous-penurie"
   >;
   readonly acquiseA: number;
   readonly irreversible: true;
@@ -92,7 +109,7 @@ export interface RecuperationDeCrise {
   readonly id: string;
   readonly cause: CicatriceDeCampagne["id"];
   readonly garantie: GarantieDeRecuperation;
-  readonly destination: "halte-du-puits-sec" | "haut-puits";
+  readonly destination: "halte-du-puits-sec" | "haut-puits" | "veille-basse";
   readonly condition: ConditionDeRecuperation;
   readonly horizonTroncons: 1 | 2;
   readonly coutAttendu: "deux-materiaux" | "cout-du-troncon";
@@ -104,11 +121,23 @@ export interface RecuperationDeCrise {
   readonly coutApplique: readonly CoutAppliqueAUneRecuperation[];
 }
 
+export interface CriseHistorique {
+  readonly id: IdentifiantDeCrise;
+  readonly cause: CriseActive["cause"];
+  readonly declencheeA: number;
+  readonly faitDeclenchement: CriseActive["faitProduit"];
+  readonly resolueA: number;
+  readonly reponseId: IdentifiantDeReponseALaCrise;
+  readonly faitResolution: CicatriceDeCampagne["cause"];
+}
+
 export interface EtatDesCrises {
   readonly approvisionnementEau: "assure" | "sous-tension" | "rupture";
   readonly faitAnnonceurHistoriqueIgnore: boolean;
+  readonly crisesSequentiellesHistoriquesIgnorees: boolean;
   readonly alerte: AlerteDeCrise | null;
   readonly criseActive: CriseActive | null;
+  readonly historique: readonly CriseHistorique[];
   readonly cicatrices: readonly CicatriceDeCampagne[];
   readonly recuperations: readonly RecuperationDeCrise[];
 }
@@ -120,7 +149,11 @@ interface CoutDeReponse {
 }
 
 export interface DefinitionDeReponseALaCrise {
+  readonly criseId: IdentifiantDeCrise;
   readonly id: IdentifiantDeReponseALaCrise;
+  readonly faitProduit: CicatriceDeCampagne["cause"];
+  readonly acteurs: readonly string[];
+  readonly cible: string;
   readonly dernierRecours: boolean;
   readonly cout: CoutDeReponse;
   readonly cicatrice: Omit<CicatriceDeCampagne, "cause" | "acquiseA">;
@@ -136,7 +169,11 @@ export interface DefinitionDeReponseALaCrise {
 
 export const DEFINITIONS_DES_REPONSES_A_LA_CRISE = [
   {
+    criseId: IDENTIFIANT_DE_LA_CRISE_DE_REFERENCE,
     id: "isoler-et-rationner",
+    faitProduit: "crise.purification.isoler-et-rationner",
+    acteurs: ["porte-lanterne", "equipes-purification"],
+    cible: "pompe-purification",
     dernierRecours: false,
     cout: { stock: "materiaux", quantite: 4 },
     cicatrice: {
@@ -152,7 +189,11 @@ export const DEFINITIONS_DES_REPONSES_A_LA_CRISE = [
     },
   },
   {
+    criseId: IDENTIFIANT_DE_LA_CRISE_DE_REFERENCE,
     id: "mobiliser-les-remedes",
+    faitProduit: "crise.purification.mobiliser-les-remedes",
+    acteurs: ["porte-lanterne", "equipes-medicales"],
+    cible: "pompe-purification",
     dernierRecours: false,
     cout: { stock: "remedes", quantite: 5 },
     cicatrice: {
@@ -168,7 +209,11 @@ export const DEFINITIONS_DES_REPONSES_A_LA_CRISE = [
     },
   },
   {
+    criseId: IDENTIFIANT_DE_LA_CRISE_DE_REFERENCE,
     id: "evacuer-les-foyers-exposes",
+    faitProduit: "crise.purification.evacuer-les-foyers-exposes",
+    acteurs: ["porte-lanterne", "foyers-exposes"],
+    cible: "foyers-du-convoi",
     dernierRecours: true,
     cout: { habitants: 8 },
     cicatrice: {
@@ -183,40 +228,81 @@ export const DEFINITIONS_DES_REPONSES_A_LA_CRISE = [
       coutAttendu: "deux-materiaux",
     },
   },
+  {
+    criseId: IDENTIFIANT_DE_LA_CRISE_DE_VEILLE_BASSE,
+    id: "partager-reserves-cohorte",
+    faitProduit: "crise.veille-basse.partager-reserves-cohorte",
+    acteurs: ["porte-lanterne", "cohorte-du-sillon"],
+    cible: "reserves-de-veille-basse",
+    dernierRecours: false,
+    cout: { stock: "vivres", quantite: 6 },
+    cicatrice: {
+      id: "cicatrice.reserves-partagees-veille-basse",
+      irreversible: true,
+    },
+    recuperation: {
+      garantie: "cohorte-hydratee",
+      destination: "veille-basse",
+      condition: "ouvrir-hospice-veille-basse",
+      horizonTroncons: 1,
+      coutAttendu: "deux-materiaux",
+    },
+  },
+  {
+    criseId: IDENTIFIANT_DE_LA_CRISE_DE_VEILLE_BASSE,
+    id: "renforcer-accueil",
+    faitProduit: "crise.veille-basse.renforcer-accueil",
+    acteurs: ["porte-lanterne", "techniciens-veille-basse"],
+    cible: "capacites-accueil-veille-basse",
+    dernierRecours: false,
+    cout: { stock: "materiaux", quantite: 5 },
+    cicatrice: {
+      id: "cicatrice.capacites-accueil-saturees",
+      irreversible: true,
+    },
+    recuperation: {
+      garantie: "accueil-stabilise",
+      destination: "veille-basse",
+      condition: "renforcer-sas-veille-basse",
+      horizonTroncons: 2,
+      coutAttendu: "deux-materiaux",
+    },
+  },
 ] as const satisfies readonly DefinitionDeReponseALaCrise[];
 
 export type EvenementDeCrise =
   | {
       readonly type: "crise.aggravation-annoncee";
-      readonly criseId: typeof IDENTIFIANT_DE_LA_CRISE_DE_REFERENCE;
-      readonly cause: typeof FAIT_ANNONCANT_LA_CRISE;
+      readonly criseId: IdentifiantDeCrise;
+      readonly cause: AlerteDeCrise["cause"];
       readonly ruptureA: number;
-      readonly maillonIrreversible: "pompe-purification.degradee";
+      readonly maillonIrreversible: string;
     }
   | {
       readonly type: "crise.checkpoint-requis";
-      readonly criseId: typeof IDENTIFIANT_DE_LA_CRISE_DE_REFERENCE;
-      readonly cause: typeof FAIT_ANNONCANT_LA_CRISE;
+      readonly criseId: IdentifiantDeCrise;
+      readonly cause: AlerteDeCrise["cause"];
       readonly moment: number;
       readonly sauvegardeAtomiqueRequise: true;
     }
   | {
       readonly type: "crise.declenchee";
-      readonly criseId: typeof IDENTIFIANT_DE_LA_CRISE_DE_REFERENCE;
-      readonly cause: typeof FAIT_ANNONCANT_LA_CRISE;
+      readonly criseId: IdentifiantDeCrise;
+      readonly cause: AlerteDeCrise["cause"];
       readonly moment: number;
       readonly sauvegardeAtomiqueRequise: true;
-      readonly faitProduit: (typeof IDENTIFIANTS_DE_FAITS_DE_CRISE)[0];
-      readonly maillonIrreversible: "eau.purifiee.contaminee";
+      readonly faitProduit: CriseActive["faitProduit"];
+      readonly maillonIrreversible: string;
     }
   | {
       readonly type: "crise.resolue";
-      readonly criseId: typeof IDENTIFIANT_DE_LA_CRISE_DE_REFERENCE;
+      readonly criseId: IdentifiantDeCrise;
       readonly reponseId: IdentifiantDeReponseALaCrise;
       readonly moment: number;
       readonly faitProduit: Exclude<
         IdentifiantDeFaitDeCrise,
-        (typeof IDENTIFIANTS_DE_FAITS_DE_CRISE)[0]
+        | "crise.purification.eau-contaminee"
+        | "crise.veille-basse.accueil-sous-penurie"
       >;
       readonly cicatriceId: CicatriceDeCampagne["id"];
       readonly garantie: GarantieDeRecuperation;
@@ -253,6 +339,11 @@ export type ActionSignificativeDeRecuperation =
     }
   | {
       readonly type: "aide-demandee-haut-puits";
+    }
+  | {
+      readonly type:
+        | "hospice-ouvert-veille-basse"
+        | "sas-renforce-veille-basse";
     };
 
 export interface ContexteDEvaluationDesRecuperations {
@@ -275,24 +366,75 @@ export interface TransitionDesRecuperations {
 
 export interface CommandeDeResolutionDeCrise {
   readonly type: "crise.resoudre";
-  readonly criseId: typeof IDENTIFIANT_DE_LA_CRISE_DE_REFERENCE;
+  readonly criseId: IdentifiantDeCrise;
   readonly reponseId: IdentifiantDeReponseALaCrise;
 }
 
 export interface CommandeDeDeclenchementDeCrise {
   readonly type: "crise.declencher";
-  readonly criseId: typeof IDENTIFIANT_DE_LA_CRISE_DE_REFERENCE;
+  readonly criseId: IdentifiantDeCrise;
 }
 
 export function creerEtatDesCrisesInitial(): EtatDesCrises {
   return {
     approvisionnementEau: "assure",
     faitAnnonceurHistoriqueIgnore: false,
+    crisesSequentiellesHistoriquesIgnorees: false,
     alerte: null,
     criseActive: null,
+    historique: [],
     cicatrices: [],
     recuperations: [],
   };
+}
+
+export function reconstruireHistoriqueDesCrises(
+  faits: readonly FaitDeCampagne[],
+): readonly CriseHistorique[] {
+  const crises = [
+    {
+      id: IDENTIFIANT_DE_LA_CRISE_DE_REFERENCE,
+      cause: FAIT_ANNONCANT_LA_CRISE,
+      faitDeclenchement: "crise.purification.eau-contaminee",
+    },
+    {
+      id: IDENTIFIANT_DE_LA_CRISE_DE_VEILLE_BASSE,
+      cause: FAIT_ANNONCANT_LA_CRISE_DE_VEILLE_BASSE,
+      faitDeclenchement: "crise.veille-basse.accueil-sous-penurie",
+    },
+  ] as const;
+  return crises.flatMap((crise) => {
+    const declenchement = faits.find(
+      (fait) => fait.id === crise.faitDeclenchement,
+    );
+    const definition = DEFINITIONS_DES_REPONSES_A_LA_CRISE.find(
+      (candidate) =>
+        candidate.criseId === crise.id &&
+        faits.some((fait) => fait.id === candidate.faitProduit),
+    );
+    const resolution =
+      definition === undefined
+        ? undefined
+        : faits.find((fait) => fait.id === definition.faitProduit);
+    if (
+      declenchement === undefined ||
+      definition === undefined ||
+      resolution === undefined
+    ) {
+      return [];
+    }
+    return [
+      {
+        id: crise.id,
+        cause: crise.cause,
+        declencheeA: declenchement.moment,
+        faitDeclenchement: crise.faitDeclenchement,
+        resolueA: resolution.moment,
+        reponseId: definition.id,
+        faitResolution: definition.faitProduit,
+      },
+    ];
+  });
 }
 
 export function annoncerCriseApresFaits(
@@ -302,35 +444,74 @@ export function annoncerCriseApresFaits(
   readonly etat: EtatDesCrises;
   readonly evenements: readonly EvenementDeCrise[];
 } {
+  if (etat.alerte !== null || etat.criseActive !== null) {
+    return { etat, evenements: [] };
+  }
+  const idsHistoriques = new Set(etat.historique.map(({ id }) => id));
+  const faitDePurification = faits.find(
+    (candidat) => candidat.id === FAIT_ANNONCANT_LA_CRISE,
+  );
+  const faitDeVeilleBasse = faits.find(
+    (candidat) =>
+      candidat.id === FAIT_ANNONCANT_LA_CRISE_DE_VEILLE_BASSE,
+  );
+  let alerte: AlerteDeCrise | null = null;
+  let maillonIrreversible = "";
   if (
-    etat.faitAnnonceurHistoriqueIgnore ||
-    etat.alerte !== null ||
-    etat.criseActive !== null
+    !etat.faitAnnonceurHistoriqueIgnore &&
+    !idsHistoriques.has(IDENTIFIANT_DE_LA_CRISE_DE_REFERENCE) &&
+    faitDePurification !== undefined
   ) {
+    alerte = {
+      id: IDENTIFIANT_DE_LA_CRISE_DE_REFERENCE,
+      cause: FAIT_ANNONCANT_LA_CRISE,
+      annonceeA: faitDePurification.moment,
+      ruptureA: faitDePurification.moment + 180,
+      chaineVisible: [
+        {
+          id: "pompe-purification.degradee",
+          cause: FAIT_ANNONCANT_LA_CRISE,
+          irreversible: true,
+        },
+        {
+          id: "eau.purifiee.contamination-annoncee",
+          cause: "pompe-purification.degradee",
+          irreversible: false,
+        },
+      ],
+    };
+    maillonIrreversible = "pompe-purification.degradee";
+  } else if (
+    idsHistoriques.has(IDENTIFIANT_DE_LA_CRISE_DE_REFERENCE) &&
+    !idsHistoriques.has(IDENTIFIANT_DE_LA_CRISE_DE_VEILLE_BASSE) &&
+    !etat.crisesSequentiellesHistoriquesIgnorees &&
+    etat.approvisionnementEau !== "assure" &&
+    faitDeVeilleBasse !== undefined
+  ) {
+    alerte = {
+      id: IDENTIFIANT_DE_LA_CRISE_DE_VEILLE_BASSE,
+      cause: FAIT_ANNONCANT_LA_CRISE_DE_VEILLE_BASSE,
+      annonceeA: faitDeVeilleBasse.moment,
+      ruptureA: faitDeVeilleBasse.moment + 120,
+      chaineVisible: [
+        {
+          id: "veille-basse.cohorte-accueillie-sous-penurie",
+          cause: FAIT_ANNONCANT_LA_CRISE_DE_VEILLE_BASSE,
+          irreversible: true,
+        },
+        {
+          id: "veille-basse.capacite-accueil-saturee-annoncee",
+          cause: "veille-basse.cohorte-accueillie-sous-penurie",
+          irreversible: false,
+        },
+      ],
+    };
+    maillonIrreversible =
+      "veille-basse.cohorte-accueillie-sous-penurie";
+  }
+  if (alerte === null) {
     return { etat, evenements: [] };
   }
-  const fait = faits.find((candidat) => candidat.id === FAIT_ANNONCANT_LA_CRISE);
-  if (fait === undefined) {
-    return { etat, evenements: [] };
-  }
-  const alerte: AlerteDeCrise = {
-    id: IDENTIFIANT_DE_LA_CRISE_DE_REFERENCE,
-    cause: FAIT_ANNONCANT_LA_CRISE,
-    annonceeA: fait.moment,
-    ruptureA: fait.moment + 180,
-    chaineVisible: [
-      {
-        id: "pompe-purification.degradee",
-        cause: FAIT_ANNONCANT_LA_CRISE,
-        irreversible: true,
-      },
-      {
-        id: "eau.purifiee.contamination-annoncee",
-        cause: "pompe-purification.degradee",
-        irreversible: false,
-      },
-    ],
-  };
   return {
     etat: {
       ...etat,
@@ -343,7 +524,7 @@ export function annoncerCriseApresFaits(
         criseId: alerte.id,
         cause: alerte.cause,
         ruptureA: alerte.ruptureA,
-        maillonIrreversible: "pompe-purification.degradee",
+        maillonIrreversible,
       },
     ],
   };
@@ -390,17 +571,34 @@ export function declencherCrise(
   if (alerte === null || alerte.ruptureA !== moment) {
     return undefined;
   }
-  const variationDEau = Math.min(0, 16 - eauDisponible);
+  const estPurification =
+    alerte.id === IDENTIFIANT_DE_LA_CRISE_DE_REFERENCE;
+  const variationDEau = estPurification
+    ? Math.min(0, 16 - eauDisponible)
+    : 0;
+  const faitProduit = estPurification
+    ? "crise.purification.eau-contaminee"
+    : "crise.veille-basse.accueil-sous-penurie";
   const fait: FaitDeCampagne = {
-    id: IDENTIFIANTS_DE_FAITS_DE_CRISE[0],
+    id: faitProduit,
     cause: alerte.cause,
-    acteurs: ["equipes-purification", "foyers-du-convoi"],
-    cible: "reserve-deau-purifiee",
+    acteurs: estPurification
+      ? ["equipes-purification", "foyers-du-convoi"]
+      : ["cohorte-du-sillon", "techniciens-veille-basse"],
+    cible: estPurification
+      ? "reserve-deau-purifiee"
+      : "capacites-accueil-veille-basse",
     moment,
     effets: {
-      materiels: [
-        { type: "stock.modifie", stock: "eau", variation: variationDEau },
-      ],
+      materiels: estPurification
+        ? [
+            {
+              type: "stock.modifie",
+              stock: "eau",
+              variation: variationDEau,
+            },
+          ]
+        : [],
       humains: [{ type: "habitants.exposes", nombre: 0 }],
     },
   };
@@ -408,18 +606,28 @@ export function declencherCrise(
     id: alerte.id,
     cause: alerte.cause,
     declencheeA: moment,
-    faitProduit: IDENTIFIANTS_DE_FAITS_DE_CRISE[0],
+    faitProduit,
     chaineVisible: [
       ...alerte.chaineVisible,
       {
-        id: "eau.purifiee.contaminee",
-        cause: "eau.purifiee.contamination-annoncee",
+        id: estPurification
+          ? "eau.purifiee.contaminee"
+          : "veille-basse.reserves-et-accueil-en-rupture",
+        cause: estPurification
+          ? "eau.purifiee.contamination-annoncee"
+          : "veille-basse.capacite-accueil-saturee-annoncee",
         irreversible: true,
       },
     ],
   };
   return {
-    etat: { ...etat, approvisionnementEau: "rupture", criseActive },
+    etat: {
+      ...etat,
+      approvisionnementEau: estPurification
+        ? "rupture"
+        : etat.approvisionnementEau,
+      criseActive,
+    },
     variationDEau,
     fait,
     evenement: {
@@ -429,21 +637,32 @@ export function declencherCrise(
       moment,
       sauvegardeAtomiqueRequise: true,
       faitProduit: criseActive.faitProduit,
-      maillonIrreversible: "eau.purifiee.contaminee",
+      maillonIrreversible: estPurification
+        ? "eau.purifiee.contaminee"
+        : "veille-basse.reserves-et-accueil-en-rupture",
     },
   };
 }
 
 function trouverReponse(
   id: IdentifiantDeReponseALaCrise,
+  criseId: IdentifiantDeCrise,
 ): DefinitionDeReponseALaCrise {
   const reponse = DEFINITIONS_DES_REPONSES_A_LA_CRISE.find(
-    (candidate) => candidate.id === id,
+    (candidate) => candidate.id === id && candidate.criseId === criseId,
   );
   if (reponse === undefined) {
     throw new Error(`La réponse de Crise « ${id} » est inconnue.`);
   }
   return reponse;
+}
+
+export function listerDefinitionsDesReponsesALaCrise(
+  criseId: IdentifiantDeCrise,
+): readonly DefinitionDeReponseALaCrise[] {
+  return DEFINITIONS_DES_REPONSES_A_LA_CRISE.filter(
+    (reponse) => reponse.criseId === criseId,
+  );
 }
 
 export function reponseALaCriseEstViable(
@@ -479,15 +698,11 @@ export function resoudreCrise(
   if (crise === null || crise.id !== commande.criseId) {
     throw new Error(`La Crise « ${commande.criseId} » n’est pas active.`);
   }
-  const reponse = trouverReponse(commande.reponseId);
+  const reponse = trouverReponse(commande.reponseId, crise.id);
   if (!reponseALaCriseEstViable(reponse, pilotage, habitants)) {
     throw new Error("Les ressources disponibles ne couvrent pas cette réponse.");
   }
-  const faitProduit =
-    `crise.purification.${reponse.id}` as Exclude<
-      IdentifiantDeFaitDeCrise,
-      (typeof IDENTIFIANTS_DE_FAITS_DE_CRISE)[0]
-    >;
+  const faitProduit = reponse.faitProduit;
   const variationDeStock =
     reponse.cout.stock === undefined
       ? undefined
@@ -499,14 +714,8 @@ export function resoudreCrise(
   const fait: FaitDeCampagne = {
     id: faitProduit,
     cause: crise.id,
-    acteurs:
-      reponse.id === "evacuer-les-foyers-exposes"
-        ? ["porte-lanterne", "foyers-exposes"]
-        : ["porte-lanterne", "equipes-purification"],
-    cible:
-      reponse.id === "evacuer-les-foyers-exposes"
-        ? "foyers-du-convoi"
-        : "pompe-purification",
+    acteurs: reponse.acteurs,
+    cible: reponse.cible,
     moment,
     effets: {
       materiels:
@@ -541,6 +750,18 @@ export function resoudreCrise(
       approvisionnementEau: "sous-tension",
       alerte: null,
       criseActive: null,
+      historique: [
+        ...etat.historique,
+        {
+          id: crise.id,
+          cause: crise.cause,
+          declencheeA: crise.declencheeA,
+          faitDeclenchement: crise.faitProduit,
+          resolueA: moment,
+          reponseId: reponse.id,
+          faitResolution: faitProduit,
+        },
+      ],
       cicatrices: [...etat.cicatrices, cicatrice],
       recuperations: [...etat.recuperations, recuperation],
     },
@@ -587,7 +808,13 @@ function actionAccomplitRecuperation(
       action.destination === recuperation.destination
     );
   }
-  return action.type === "aide-demandee-haut-puits";
+  if (recuperation.condition === "demander-aide-haut-puits") {
+    return action.type === "aide-demandee-haut-puits";
+  }
+  if (recuperation.condition === "ouvrir-hospice-veille-basse") {
+    return action.type === "hospice-ouvert-veille-basse";
+  }
+  return action.type === "sas-renforce-veille-basse";
 }
 
 function coutPourAccomplir(
@@ -615,13 +842,21 @@ function creerFaitDeResultat(
       ? ["porte-lanterne", "equipes-purification"]
       : recuperation.garantie === "mobilite-minimale"
         ? ["porte-lanterne", "equipes-medicales"]
-        : ["porte-lanterne", "habitants-haut-puits"];
+        : recuperation.garantie === "aide-exterieure-identifiee"
+          ? ["porte-lanterne", "habitants-haut-puits"]
+          : recuperation.garantie === "cohorte-hydratee"
+            ? ["porte-lanterne", "cohorte-du-sillon"]
+            : ["porte-lanterne", "techniciens-veille-basse"];
   const cible =
     recuperation.garantie === "socle-de-survie"
       ? "pompe-purification"
       : recuperation.garantie === "mobilite-minimale"
         ? "haut-puits"
-        : "foyers-exposes";
+        : recuperation.garantie === "aide-exterieure-identifiee"
+          ? "foyers-exposes"
+          : recuperation.garantie === "cohorte-hydratee"
+            ? "hospice-du-sillon"
+            : "sas-de-veille-basse";
   return {
     id: identifiantDeFaitDeRecuperation(recuperation, statut),
     cause: recuperation.cause,
@@ -695,7 +930,13 @@ export function evaluerRecuperationsDeCrise(
           faitProduit: fait.id,
           coutApplique,
         });
-        approvisionnementEau = "assure";
+        if (
+          recuperation.garantie === "socle-de-survie" ||
+          recuperation.garantie === "mobilite-minimale" ||
+          recuperation.garantie === "aide-exterieure-identifiee"
+        ) {
+          approvisionnementEau = "assure";
+        }
         return {
           ...recuperation,
           statut: "accomplie" as const,

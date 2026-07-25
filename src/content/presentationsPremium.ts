@@ -2,6 +2,32 @@ import type { Langue } from "./types";
 
 type DictionnaireDeTextes = Readonly<Record<string, string>>;
 
+export interface TextesDeCriseDeVeilleBasse {
+  readonly alerteTitre: string;
+  readonly alerteCause: string;
+  readonly titre: string;
+  readonly cause: string;
+  readonly chaine: readonly string[];
+  readonly reponses: Readonly<
+    Record<
+      string,
+      {
+        readonly intention: string;
+        readonly coutConnu: string;
+        readonly consequence: string;
+        readonly mitigation: string;
+        readonly pireConsequence: string;
+        readonly attribution: string;
+      }
+    >
+  >;
+  readonly cicatrices: DictionnaireDeTextes;
+  readonly consequencesCicatrices: DictionnaireDeTextes;
+  readonly causes: DictionnaireDeTextes;
+  readonly garanties: DictionnaireDeTextes;
+  readonly conditionsRecuperation: DictionnaireDeTextes;
+}
+
 export interface TextesDeHautPuits {
   readonly titre: string;
   readonly colonie: string;
@@ -42,6 +68,7 @@ export interface TextesDeHautPuits {
 }
 
 export interface TextesDeVeilleBasse {
+  readonly crise: TextesDeCriseDeVeilleBasse;
   readonly titre: string;
   readonly veilleBasse: string;
   readonly typeColonie: string;
@@ -379,6 +406,91 @@ function estDictionnaireAvecCles(
         typeof valeur[cle] === "string" &&
         (valeur[cle] as string).length > 0,
     )
+  );
+}
+
+function estPresentationDeCriseDeVeilleBasse(
+  valeur: unknown,
+): boolean {
+  if (
+    !estObjet(valeur) ||
+    !["alerteTitre", "alerteCause", "titre", "cause"].every(
+      (champ) =>
+        typeof valeur[champ] === "string" &&
+        (valeur[champ] as string).length > 0,
+    ) ||
+    !Array.isArray(valeur.chaine) ||
+    valeur.chaine.length !== 3 ||
+    !valeur.chaine.every(
+      (maillon) => typeof maillon === "string" && maillon.length > 0,
+    ) ||
+    !estObjet(valeur.reponses)
+  ) {
+    return false;
+  }
+  const champsDeReponse = [
+    "intention",
+    "coutConnu",
+    "consequence",
+    "mitigation",
+    "pireConsequence",
+    "attribution",
+  ] as const;
+  const reponses = valeur.reponses as Record<string, unknown>;
+  if (
+    !["partager-reserves-cohorte", "renforcer-accueil"].every(
+      (id) =>
+        estObjet(reponses[id]) &&
+        champsDeReponse.every(
+          (champ) =>
+            typeof (reponses[id] as Record<string, unknown>)[
+              champ
+            ] === "string" &&
+            (
+              (reponses[id] as Record<string, unknown>)[
+                champ
+              ] as string
+            ).length > 0,
+        ),
+    )
+  ) {
+    return false;
+  }
+  const cicatrices = [
+    "cicatrice.reserves-partagees-veille-basse",
+    "cicatrice.capacites-accueil-saturees",
+  ] as const;
+  const causes = [
+    "crise.veille-basse.partager-reserves-cohorte",
+    "crise.veille-basse.renforcer-accueil",
+  ] as const;
+  const garanties = [
+    "cohorte-hydratee",
+    "accueil-stabilise",
+  ] as const;
+  return (
+    estDictionnaireAvecCles(valeur.cicatrices, cicatrices) &&
+    estDictionnaireAvecCles(
+      valeur.consequencesCicatrices,
+      cicatrices,
+    ) &&
+    estDictionnaireAvecCles(valeur.causes, causes) &&
+    estDictionnaireAvecCles(valeur.garanties, garanties) &&
+    estDictionnaireAvecCles(
+      valeur.conditionsRecuperation,
+      garanties,
+    )
+  );
+}
+
+function estPresentationDeVeilleBasse(valeur: unknown): boolean {
+  if (!estObjet(valeur)) {
+    return false;
+  }
+  const { crise, ...autresTextes } = valeur;
+  return (
+    estArbreDeTextes(autresTextes) &&
+    estPresentationDeCriseDeVeilleBasse(crise)
   );
 }
 
@@ -794,31 +906,25 @@ export function installerPresentationsPremium(valeur: unknown): void {
     !surfacesAttendues.every((surface) => {
       return (
         estObjet(presentations[surface]) &&
-        ["fr", "en"].every((langue) =>
-          surface === "ouvertureCouronne"
-            ? estPresentationDeLOuvertureDeLaCouronne(
-                (presentations[surface] as Record<string, unknown>)[
-                  langue
-                ],
-              )
-            : surface === "finale"
-              ? estPresentationDuContratFinal(
-                  (presentations[surface] as Record<string, unknown>)[
-                    langue
-                  ],
+        ["fr", "en"].every((langue) => {
+          const presentation = (
+            presentations[surface] as Record<string, unknown>
+          )[langue];
+          if (!estObjet(presentation)) {
+            return false;
+          }
+          return surface === "veilleBasse"
+            ? estPresentationDeVeilleBasse(presentation)
+            : surface === "ouvertureCouronne"
+              ? estPresentationDeLOuvertureDeLaCouronne(
+                  presentation,
                 )
-            : surface === "epilogue"
-              ? estPresentationDeLEpilogue(
-                  (presentations[surface] as Record<string, unknown>)[
-                    langue
-                  ],
-                )
-            : estArbreDeTextes(
-                (presentations[surface] as Record<string, unknown>)[
-                  langue
-                ],
-              ),
-        )
+              : surface === "finale"
+                ? estPresentationDuContratFinal(presentation)
+                : surface === "epilogue"
+                  ? estPresentationDeLEpilogue(presentation)
+                  : estArbreDeTextes(presentation);
+        })
       );
     })
   ) {

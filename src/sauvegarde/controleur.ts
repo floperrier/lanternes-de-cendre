@@ -9,10 +9,7 @@ import {
   type EtatCampagne,
   type GraineDeCampagne,
 } from "../simulation/campagne";
-import {
-  criseAttendSonCheckpoint,
-  IDENTIFIANT_DE_LA_CRISE_DE_REFERENCE,
-} from "../simulation/crise";
+import { criseAttendSonCheckpoint } from "../simulation/crise";
 import {
   creerPortDePersistanceIndexedDb,
   type ArchivePersistante,
@@ -232,9 +229,13 @@ export function creerControleurDeSessionCampagne({
     ) {
       return;
     }
+    const alerte = etatCourant.crises.alerte;
+    if (alerte === null) {
+      return;
+    }
     applicationDuCheckpoint.envoyerCommande({
       type: "crise.declencher",
-      criseId: IDENTIFIANT_DE_LA_CRISE_DE_REFERENCE,
+      criseId: alerte.id,
     });
   };
 
