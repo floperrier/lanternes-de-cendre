@@ -56,6 +56,7 @@ import {
   VERSION_SIMULATION_AVANT_CRISES,
   VERSION_SIMULATION_AVANT_CRISE_DE_TRAME,
   VERSION_SIMULATION_AVANT_CRISE_DU_HALO,
+  VERSION_SIMULATION_AVANT_EXTINCTION_DU_PHARE,
   VERSION_SIMULATION_AVANT_CRISES_SEQUENTIELLES,
   VERSION_SIMULATION_AVANT_DENOUEMENT,
   VERSION_SIMULATION_AVANT_RECUPERATIONS,
@@ -75,6 +76,7 @@ import {
   VERSION_SAUVEGARDE_AVANT_CRISES,
   VERSION_SAUVEGARDE_AVANT_CRISE_DE_TRAME,
   VERSION_SAUVEGARDE_AVANT_CRISE_DU_HALO,
+  VERSION_SAUVEGARDE_AVANT_EXTINCTION_DU_PHARE,
   VERSION_SAUVEGARDE_AVANT_CRISES_SEQUENTIELLES,
   VERSION_SAUVEGARDE_AVANT_DENOUEMENT,
   VERSION_SAUVEGARDE_AVANT_RECUPERATIONS,
@@ -117,6 +119,7 @@ import {
   lireEtatV12,
   lireEtatV13,
   lireEtatV14,
+  lireEtatV15,
   lireSnapshotV4,
   lireSnapshotV5,
   lireSnapshotV6,
@@ -128,6 +131,7 @@ import {
   lireSnapshotV12,
   lireSnapshotV13,
   lireSnapshotV14,
+  lireSnapshotV15,
   marquerCausaliteHistoriqueDeNarrationSiNecessaire,
   projeterEtatAvantRoutesHistorique,
   type EtatCampagneAvantCrises,
@@ -145,6 +149,7 @@ import {
   type EtatCampagneV12,
   type EtatCampagneV13,
   type EtatCampagneV14,
+  type EtatCampagneV15,
   type ObjetInconnu,
 } from "./validation";
 
@@ -158,6 +163,122 @@ const PLATEFORMES_DE_LA_SIMULATION_V2 = [
   "vigie",
   "forge",
 ] as const;
+
+export function promouvoirEtatV15VersCourant(
+  etat: EtatCampagneV15,
+): EtatCampagne {
+  return {
+    ...etat,
+    version: VERSION_SIMULATION_COURANTE,
+  };
+}
+
+function normaliserEtatCourantEnV15(
+  etat: EtatCampagne,
+): EtatCampagneV15 {
+  return {
+    ...etat,
+    version: VERSION_SIMULATION_AVANT_EXTINCTION_DU_PHARE,
+  };
+}
+
+export function migrerSauvegardeV15(
+  valeur: ObjetInconnu,
+): SauvegardeCampagne | undefined {
+  if (
+    valeur.format !== FORMAT_SAUVEGARDE ||
+    typeof valeur.id !== "string" ||
+    valeur.version !==
+      VERSION_SAUVEGARDE_AVANT_EXTINCTION_DU_PHARE ||
+    !estObjet(valeur.versions) ||
+    valeur.versions.simulation !==
+      VERSION_SIMULATION_AVANT_EXTINCTION_DU_PHARE ||
+    valeur.versions.contenu !== VERSIONS_DU_SNAPSHOT_COURANT.contenu ||
+    valeur.versions.aleatoire !== VERSIONS_DU_SNAPSHOT_COURANT.aleatoire ||
+    valeur.versions.empreinte !== VERSIONS_DU_SNAPSHOT_COURANT.empreinte ||
+    typeof valeur.graine !== "string" ||
+    !estObjet(valeur.horloge) ||
+    typeof valeur.horloge.secondes !== "number" ||
+    !Number.isFinite(valeur.horloge.secondes) ||
+    !estObjet(valeur.reproduction) ||
+    !Array.isArray(valeur.reproduction.commandes) ||
+    typeof valeur.reproduction.empreinteSnapshot !== "string" ||
+    !EMPREINTE.test(valeur.reproduction.empreinteSnapshot) ||
+    typeof valeur.empreinte !== "string" ||
+    !EMPREINTE.test(valeur.empreinte)
+  ) {
+    return undefined;
+  }
+
+  const snapshotV15 = lireSnapshotV15(valeur.reproduction.snapshot);
+  const etatDeclareV15 = lireEtatV15(valeur.etat);
+  if (
+    snapshotV15 === undefined ||
+    etatDeclareV15 === undefined ||
+    valeur.graine !== etatDeclareV15.graine ||
+    valeur.horloge.secondes !== etatDeclareV15.tempsDuConvoi.secondes ||
+    empreinteEtat(snapshotV15 as unknown as EtatCampagne) !==
+      valeur.reproduction.empreinteSnapshot ||
+    empreinteEtat(etatDeclareV15 as unknown as EtatCampagne) !==
+      valeur.empreinte
+  ) {
+    return undefined;
+  }
+
+  let etat = promouvoirEtatV15VersCourant(snapshotV15);
+  try {
+    for (const [index, entree] of valeur.reproduction.commandes.entries()) {
+      if (
+        !estObjet(entree) ||
+        entree.sequence !== index ||
+        !estCommande(entree.commande) ||
+        typeof entree.empreinteApres !== "string" ||
+        !EMPREINTE.test(entree.empreinteApres)
+      ) {
+        return undefined;
+      }
+      etat = appliquerCommande(etat, entree.commande, {
+        crises: "historiques-v15",
+      }).etat;
+      if (
+        empreinteEtat(
+          normaliserEtatCourantEnV15(etat) as unknown as EtatCampagne,
+        ) !== entree.empreinteApres
+      ) {
+        return undefined;
+      }
+    }
+  } catch {
+    return undefined;
+  }
+
+  if (
+    !sontStructurellementEgaux(
+      normaliserEtatCourantEnV15(etat),
+      etatDeclareV15,
+    )
+  ) {
+    return undefined;
+  }
+
+  const etatCourant = promouvoirEtatV15VersCourant(etatDeclareV15);
+  if (
+    lireSnapshotCourant(etatCourant) === undefined ||
+    lireEtatCourant(etatCourant) === undefined
+  ) {
+    return undefined;
+  }
+  const reproduction: ReproductionDeCampagne = {
+    snapshot: etatCourant,
+    empreinteSnapshot: empreinteEtat(etatCourant),
+    commandes: [],
+  };
+  const sauvegarde = creerSauvegarde(etatCourant, reproduction);
+  return {
+    ...sauvegarde,
+    id: `${valeur.id}-v${VERSION_SAUVEGARDE_COURANTE}-${sauvegarde.empreinte}`,
+  };
+}
 
 export function promouvoirEtatV14VersCourant(
   etat: EtatCampagneV14,
@@ -604,6 +725,7 @@ function promouvoirCrisesV11VersCourant(
       }
       const definition = DEFINITIONS_DES_REPONSES_A_LA_CRISE.find(
         ({ recuperation: attendue }) =>
+          attendue !== undefined &&
           attendue.garantie === recuperation.garantie &&
           attendue.destination === recuperation.destination &&
           attendue.horizonTroncons === recuperation.horizonTroncons,
@@ -611,7 +733,10 @@ function promouvoirCrisesV11VersCourant(
       const cicatrice = crises.cicatrices.find(
         ({ id }) => id === recuperation.cause,
       );
-      if (definition === undefined || cicatrice === undefined) {
+      if (
+        definition?.recuperation === undefined ||
+        cicatrice === undefined
+      ) {
         throw new Error("La Récupération v11 ne possède pas de cause valide.");
       }
       return {

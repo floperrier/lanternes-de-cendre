@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { readFile } from "node:fs/promises";
 
 import { installerHorlogeFixe } from "./horloge";
 
@@ -101,6 +102,33 @@ async function creerArchiveALaSaturationDuHalo(
       .find(({ id }) => id === "saturation-halo");
     if (scenario === undefined) {
       throw new Error("La sentinelle du Halo est absente.");
+    }
+    return sauvegardeModule.exporterSauvegarde(
+      sauvegardeModule.creerSauvegarde(
+        scenario.snapshot,
+        sauvegardeModule.creerReproductionInitiale(scenario.snapshot),
+      ),
+    );
+  });
+}
+
+async function creerArchiveALExtinctionDuPhare(
+  page: Page,
+): Promise<string> {
+  return page.evaluate(async () => {
+    const urlScenarios = "/src/diagnostic/scenariosSentinelles.ts";
+    const urlSauvegarde = "/src/sauvegarde/sauvegarde.ts";
+    const scenariosModule = (await import(
+      /* @vite-ignore */ urlScenarios
+    )) as typeof import("../../src/diagnostic/scenariosSentinelles");
+    const sauvegardeModule = (await import(
+      /* @vite-ignore */ urlSauvegarde
+    )) as typeof import("../../src/sauvegarde/sauvegarde");
+    const scenario = scenariosModule
+      .obtenirScenariosSentinelles()
+      .find(({ id }) => id === "extinction-phare-sans-aide");
+    if (scenario === undefined) {
+      throw new Error("La sentinelle de l’Extinction est absente.");
     }
     return sauvegardeModule.exporterSauvegarde(
       sauvegardeModule.creerSauvegarde(
@@ -449,4 +477,94 @@ test("la saturation du Halo expose ses causes, son dernier recours et persiste s
   await expect(sauvegardeDuHalo.getByRole("status")).toHaveText(
     "Sauvegarde à jour.",
   );
+});
+
+test("l’Extinction se choisit, se consulte et s’exporte entièrement au clavier", async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await installerHorlogeFixe(page);
+  await page.goto("/");
+  await activerPremiumDeTest(page, "crise-extinction");
+
+  await page
+    .getByLabel("Choisir une sauvegarde à importer")
+    .setInputFiles({
+      name: "extinction-du-phare.json",
+      mimeType: "application/json",
+      buffer: Buffer.from(await creerArchiveALExtinctionDuPhare(page)),
+    });
+
+  const crise = page.getByRole("alertdialog", {
+    name: "Crise terminale — Extinction du Phare",
+  });
+  await expect(crise).toBeVisible();
+  await expect(crise).toContainText("Récupération manquée");
+  await expect(crise).toContainText("stabiliser l’anneau du Halo");
+  await expect(crise).toContainText("14 Habitants");
+  await expect(crise).toContainText("28 Habitants");
+  const aide = crise.getByRole("button", {
+    name: /Solliciter l’alliance préparée/,
+  });
+  await expect(aide).toHaveCount(0);
+
+  const evacuation = crise.getByRole("button", {
+    name: /Sauver le plus d’Habitants possible/,
+  });
+  await expect(crise).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(evacuation).toBeFocused();
+  await page.keyboard.press("Enter");
+
+  const epilogue = page.locator(".epilogue-campagne--defaite");
+  await expect(epilogue).toHaveAttribute("lang", "fr");
+  await expect(
+    epilogue.getByRole("heading", {
+      name: "Bilan de l’Extinction du Phare",
+      level: 2,
+    }),
+  ).toBeFocused();
+  await expect(epilogue).toContainText("quatorze personnes perdues");
+  await expect(epilogue).toContainText("Le Cœur est abandonné");
+
+  const journal = epilogue.getByText(/^Journal causal \(\d+\)$/);
+  await journal.focus();
+  await page.keyboard.press("Enter");
+  await expect(
+    epilogue.getByRole("heading", {
+      name: "Extinction du Phare",
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(
+    epilogue.getByRole("heading", {
+      name: "Extinction du Phare — évacuation du Cœur",
+    }),
+  ).toBeVisible();
+
+  const anglais = page.getByRole("button", { name: "English" });
+  await anglais.focus();
+  await page.keyboard.press("Enter");
+  await expect(epilogue).toHaveAttribute("lang", "en");
+  await expect(epilogue).toContainText("Campaign denouement — Defeat");
+  await expect(epilogue).toContainText("Lighthouse Extinction report");
+  await expect(epilogue.getByText(/^Causal journal \(\d+\)$/)).toBeVisible();
+
+  const exportCommence = page.waitForEvent("download");
+  const exporter = page
+    .getByRole("region", { name: "Sauvegarde de Campagne" })
+    .getByRole("button", { name: "Exporter" });
+  await exporter.focus();
+  await page.keyboard.press("Enter");
+  const telechargement = await exportCommence;
+  expect(telechargement.suggestedFilename()).toBe(
+    "lanternes-de-cendre-sauvegarde.json",
+  );
+  const chemin = await telechargement.path();
+  if (chemin === null) {
+    throw new Error("L’archive de Défaite n’a pas été téléchargée.");
+  }
+  const archive = await readFile(chemin, "utf8");
+  expect(archive).toContain("defaite.extinction.evacuations-du-coeur");
+  expect(archive).toContain('"phare":"eteint"');
 });

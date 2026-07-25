@@ -5,9 +5,11 @@ import {
 } from "../content/presentationsPremium";
 import type { EtatCampagne } from "../simulation/campagne";
 import {
+  aideExterieureEstPreparee,
   IDENTIFIANT_DE_LA_CRISE_DE_VEILLE_BASSE,
   IDENTIFIANT_DE_LA_CRISE_DE_TRAME,
   IDENTIFIANT_DE_LA_CRISE_DU_HALO,
+  IDENTIFIANT_DE_LA_CRISE_TERMINALE,
   listerDefinitionsDesReponsesALaCrise,
   reponseALaCriseEstViable,
   type GarantieDeRecuperation,
@@ -267,6 +269,15 @@ const TEXTES = {
 
 type PresentationDeReponse =
   TextesDeCriseDeVeilleBasse["reponses"][string];
+type PresentationDeCrise = {
+  readonly alerteTitre: string;
+  readonly alerteCause: string;
+  readonly titre: string;
+  readonly cause: string;
+  readonly chaine: readonly string[];
+  readonly maillons?: Readonly<Record<string, string>>;
+  readonly reponses: Readonly<Record<string, PresentationDeReponse>>;
+};
 
 const PRESENTATION_DE_REPONSE_MASQUEE: PresentationDeReponse = {
   intention: "",
@@ -336,12 +347,15 @@ export function projeterCrises(
   langue: Langue = "fr",
 ): ProjectionDesCrises {
   const textes = TEXTES[langue];
+  const presentationsPremium = lirePresentationsPremium();
   const textesDeVeilleBasse =
-    lirePresentationsPremium()?.veilleBasse[langue].crise;
+    presentationsPremium?.veilleBasse[langue].crise;
   const textesDeTrame =
-    lirePresentationsPremium()?.trame?.[langue].crise;
+    presentationsPremium?.trame?.[langue].crise;
   const textesDuHalo =
-    lirePresentationsPremium()?.couronne?.[langue].crise;
+    presentationsPremium?.couronne?.[langue].crise;
+  const textesDeLExtinction =
+    presentationsPremium?.extinction?.[langue].crise;
   const textesPremium = {
     cicatrices: {
       ...textesDeVeilleBasse?.cicatrices,
@@ -382,35 +396,70 @@ export function projeterCrises(
     alerte?.id === IDENTIFIANT_DE_LA_CRISE_DE_TRAME;
   const alerteDuHalo =
     alerte?.id === IDENTIFIANT_DE_LA_CRISE_DU_HALO;
+  const alerteDeLExtinction =
+    alerte?.id === IDENTIFIANT_DE_LA_CRISE_TERMINALE;
   const criseDeVeilleBasse =
     active?.id === IDENTIFIANT_DE_LA_CRISE_DE_VEILLE_BASSE;
   const criseDeTrame =
     active?.id === IDENTIFIANT_DE_LA_CRISE_DE_TRAME;
   const criseDuHalo =
     active?.id === IDENTIFIANT_DE_LA_CRISE_DU_HALO;
-  const presentationDeLAlerte = alerteDeTrame
-    ? textesDeTrame
-    : alerteDuHalo
-      ? textesDuHalo
-      : alerteDeVeilleBasse
-        ? textesDeVeilleBasse
-        : undefined;
-  const presentationDeLaCrise = criseDeTrame
-    ? textesDeTrame
-    : criseDuHalo
-      ? textesDuHalo
-      : criseDeVeilleBasse
-        ? textesDeVeilleBasse
-        : undefined;
+  const criseDeLExtinction =
+    active?.id === IDENTIFIANT_DE_LA_CRISE_TERMINALE;
+  const presentationDeLAlerte: PresentationDeCrise | undefined =
+    alerteDeLExtinction
+      ? textesDeLExtinction
+      : alerteDeTrame
+        ? textesDeTrame
+        : alerteDuHalo
+          ? textesDuHalo
+          : alerteDeVeilleBasse
+            ? textesDeVeilleBasse
+            : undefined;
+  const presentationDeLaCrise: PresentationDeCrise | undefined =
+    criseDeLExtinction
+      ? textesDeLExtinction
+      : criseDeTrame
+        ? textesDeTrame
+        : criseDuHalo
+          ? textesDuHalo
+          : criseDeVeilleBasse
+            ? textesDeVeilleBasse
+            : undefined;
   const projeterChaine = (
     chaine: readonly { readonly id: string }[],
-    presentation: TextesDeCriseDeVeilleBasse | undefined,
+    presentation: PresentationDeCrise | undefined,
+    extinction: boolean,
   ): readonly string[] =>
     presentation?.maillons === undefined
       ? (presentation?.chaine ?? textes.chaine).slice(0, chaine.length)
-      : chaine.map(
-          ({ id }) => presentation.maillons?.[id] ?? id,
-        );
+      : chaine.map(({ id }) => {
+          const libelleDirect = presentation.maillons?.[id];
+          if (libelleDirect !== undefined || !extinction) {
+            return libelleDirect ?? id;
+          }
+          const cicatrice = trouverTexte(
+            textes.cicatrices,
+            textesPremium.cicatrices,
+            id,
+          );
+          if (cicatrice.length > 0) {
+            return cicatrice;
+          }
+          const recuperation = id.match(
+            /^recuperation\.(.+)\.(accomplie|manquee)$/,
+          );
+          if (recuperation !== null) {
+            const garantie = recuperation[1] as GarantieDeRecuperation;
+            const statut = recuperation[2] as "accomplie" | "manquee";
+            return `${libellerGarantie(
+              garantie,
+              langue,
+              textesPremium,
+            )} — ${textes.statutsRecuperation[statut]}`;
+          }
+          return id;
+        });
   return {
     alerte:
       alerte === null || active !== null
@@ -425,6 +474,7 @@ export function projeterCrises(
             chaineVisible: projeterChaine(
               alerte.chaineVisible,
               presentationDeLAlerte,
+              alerteDeLExtinction,
             ),
             echeance: formaterEcheance(
               Math.max(0, alerte.ruptureA - etat.tempsDuConvoi.secondes),
@@ -443,11 +493,20 @@ export function projeterCrises(
             chaineVisible: projeterChaine(
               active.chaineVisible,
               presentationDeLaCrise,
+              criseDeLExtinction,
             ),
             instruction: textes.instruction,
             reponses: listerDefinitionsDesReponsesALaCrise(
               active.id,
-            ).map((reponse) => {
+            )
+              .filter(
+                (reponse) =>
+                  !reponse.aideExterieureRequise ||
+                  aideExterieureEstPreparee(
+                    etat.narration.faitsDeCampagne,
+                  ),
+              )
+              .map((reponse) => {
               const viable = reponseALaCriseEstViable(
                 reponse,
                 etat.pilotage,
@@ -460,6 +519,9 @@ export function projeterCrises(
                     plateforme,
                   ),
                 ).length,
+                aideExterieureEstPreparee(
+                  etat.narration.faitsDeCampagne,
+                ),
               );
               const presentations = (
                 presentationDeLaCrise?.reponses ?? textes.reponses
@@ -476,7 +538,7 @@ export function projeterCrises(
                 viable,
                 refus: viable ? null : textes.refus,
               };
-            }),
+              }),
           },
     cicatrices: etat.crises.cicatrices.map((cicatrice) => ({
       id: cicatrice.id,

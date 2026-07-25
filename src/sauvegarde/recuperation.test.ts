@@ -107,8 +107,8 @@ describe("persistance des Récupérations de Crise", () => {
       exporterSauvegarde(sauvegarde),
     );
 
-    expect(VERSION_SIMULATION_COURANTE).toBe(15);
-    expect(VERSION_SAUVEGARDE_COURANTE).toBe(15);
+    expect(VERSION_SIMULATION_COURANTE).toBe(16);
+    expect(VERSION_SAUVEGARDE_COURANTE).toBe(16);
     expect(importation.statut).toBe("compatible");
     if (importation.statut !== "compatible") {
       return;

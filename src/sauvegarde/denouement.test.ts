@@ -112,8 +112,8 @@ describe("persistance du Dénouement de Campagne", () => {
       exporterSauvegarde(sauvegarde),
     );
 
-    expect(VERSION_SIMULATION_COURANTE).toBe(15);
-    expect(VERSION_SAUVEGARDE_COURANTE).toBe(15);
+    expect(VERSION_SIMULATION_COURANTE).toBe(16);
+    expect(VERSION_SAUVEGARDE_COURANTE).toBe(16);
     expect(parcours.arriveeAuNoeudSansConclusionObservee).toBe(true);
     expect(importation).toMatchObject({
       statut: "compatible",

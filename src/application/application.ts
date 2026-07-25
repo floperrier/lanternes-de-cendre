@@ -43,7 +43,7 @@ export interface ProjectionDeCampagne {
   readonly statutDuTemps: "En pause" | "En marche";
   readonly vitesse: VitesseDuConvoi;
   readonly habitants: number;
-  readonly phare: "actif" | "halo-sature";
+  readonly phare: "actif" | "halo-sature" | "eteint";
   readonly formation: "grappe";
   readonly nombreDePlateformes: number;
   readonly transformationRegionale: {

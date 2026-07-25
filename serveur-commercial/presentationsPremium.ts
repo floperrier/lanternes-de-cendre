@@ -2304,6 +2304,349 @@ export const PRESENTATIONS_PREMIUM = {
       },
     },
   },
+  extinction: {
+    fr: {
+      crise: {
+        alerteTitre: "Extinction du Phare annoncée",
+        alerteCause:
+          "Une Récupération manquée a supprimé trop de réponses capables de préserver la Cité-caravane.",
+        titre: "Crise terminale — Extinction du Phare",
+        cause:
+          "Une Récupération manquée laisse moins de deux réponses de survie : le Phare va s’éteindre.",
+        chaine: [],
+        maillons: {
+          "couronne.ouverture.rail-ouverte":
+            "La voie du Rail a ouvert l’Anneau intérieur.",
+          "couronne.ouverture.phares-ouvertes":
+            "La voie des Phares a ouvert l’Anneau intérieur.",
+          "couronne.ouverture.colonies-ouvertes":
+            "La voie des Colonies a ouvert l’Anneau intérieur.",
+          "couronne.ouverture.breche-ouverte":
+            "La Brèche de secours a ouvert l’Anneau intérieur.",
+          "reponse.stabiliser-anneau-du-halo.indisponible":
+            "Les Matériaux ou les Récupérations ne permettent plus de stabiliser l’anneau du Halo.",
+          "reponse.relayer-halo-par-les-veilleurs.indisponible":
+            "Les Veilleurs ne peuvent plus relayer le Halo.",
+          "reponse.condamner-couronne-exterieure.indisponible":
+            "La Couronne extérieure ne peut plus être condamnée sans perdre la Cité-caravane.",
+          "phare.extinction-annoncee":
+            "L’Extinction du Phare est inévitable.",
+          "phare.extinction-imminente":
+            "Le Halo consume la dernière lumière du Phare.",
+        },
+        reponses: {
+          "evacuer-le-coeur": {
+            intention: "Sauver le plus d’Habitants possible",
+            coutConnu: "14 Habitants laissés hors de l’évacuation",
+            consequence: "Le Cœur et le Phare sont abandonnés.",
+            mitigation:
+              "Les registres essentiels partent avec les évacués.",
+            pireConsequence:
+              "La Cité-caravane se disperse sans foyer commun.",
+            attribution: "Foyers du Cœur",
+          },
+          "transmettre-sous-le-halo": {
+            intention: "Émettre une dernière transmission sous le Halo",
+            coutConnu:
+              "28 Habitants affectés à la dernière transmission",
+            consequence:
+              "Le coût humain augmente pour transmettre les connaissances.",
+            mitigation:
+              "Les colonies reçoivent l’intégralité des registres.",
+            pireConsequence:
+              "Les équipes du Phare ne quittent pas le Cœur à temps.",
+            attribution: "Équipes du Phare",
+          },
+          "solliciter-aide-exterieure": {
+            intention: "Solliciter l’alliance préparée",
+            coutConnu:
+              "9 Habitants affectés à l’évacuation alliée",
+            consequence:
+              "Le Cœur est confié aux alliés et le convoi se disperse.",
+            mitigation: "Des copies des registres sont partagées.",
+            pireConsequence:
+              "L’alliance décide désormais du devenir du Cœur.",
+            attribution: "Alliés de la Couronne",
+          },
+        },
+        cicatrices: {},
+        consequencesCicatrices: {},
+        causes: {},
+        garanties: {},
+        destinations: {},
+        conditionsRecuperation: {},
+      },
+      denouement: {
+        denouementTitre: "Dénouement de campagne — Défaite",
+        statut: "Campagne terminée avant le Nœud",
+        titre: "Bilan de l’Extinction du Phare",
+        eyebrow: "La dernière lumière",
+        introduction:
+          "Le Phare est éteint. Ce bilan restitue le choix final, ses pertes et la chaîne qui l’a rendu nécessaire.",
+        choix: "Choix terminal",
+        cause: "Cause de l’Extinction",
+        moment: "Moment de l’Extinction",
+        issue: "Issue",
+        defaite: "Défaite",
+        recuperationManquee: "Récupération échouée",
+        choixTerminaux: {
+          "evacuer-le-coeur": "Évacuer le Cœur",
+          "transmettre-sous-le-halo": "Transmettre sous le Halo",
+          "solliciter-aide-exterieure":
+            "Solliciter l’aide extérieure",
+        },
+        garanties: {
+          "socle-de-survie": "Socle de survie attendu",
+          "mobilite-minimale": "Mobilité minimale attendue",
+          "aide-exterieure-identifiee": "Aide extérieure attendue",
+          "cohorte-hydratee": "Cohorte hydratée",
+          "accueil-stabilise": "Accueil stabilisé",
+          "charge-repartie-trame": "Charge répartie dans la Trame",
+          "attelage-recale-trame": "Attelage recalé dans la Trame",
+          "halo-reparti-au-noeud": "Charge du Halo répartie au Nœud",
+          "releve-des-veilleurs-au-noeud":
+            "Relève des Veilleurs au Nœud",
+          "passage-interieur-preserve": "Passage intérieur préservé",
+        },
+        habitants: {
+          "evacuation-prioritaire":
+            "L’évacuation prioritaire sauve le plus d’Habitants possible, au prix de quatorze personnes perdues.",
+          "transmission-sacrificielle":
+            "La transmission est maintenue au prix d’un sacrifice humain plus lourd.",
+          "evacuation-alliee":
+            "L’alliance organise une évacuation partagée ; neuf Habitants restent affectés à son coût.",
+        },
+        coeur: {
+          abandonne:
+            "Le Cœur est abandonné lorsque le Phare s’éteint.",
+          "eteint-apres-transmission":
+            "Le Cœur est éteint après la dernière transmission.",
+          "confie-aux-allies":
+            "Le Cœur est confié aux alliés qui ont préparé l’évacuation.",
+        },
+        connaissances: {
+          "registres-emportes":
+            "Les registres essentiels sont emportés avec les évacués.",
+          "transmises-aux-colonies":
+            "Les connaissances sont transmises aux colonies sous le Halo.",
+          "copies-partagees":
+            "Des copies des registres sont partagées avec les alliés.",
+        },
+      },
+      journal: {
+        titres: {
+          "crise.extinction-du-phare": "Extinction du Phare",
+          "defaite.extinction.evacuations-du-coeur":
+            "Extinction du Phare — évacuation du Cœur",
+          "defaite.extinction.transmission-sous-halo":
+            "Extinction du Phare — dernière transmission",
+          "defaite.extinction.aide-exterieure-sollicitee":
+            "Extinction du Phare — évacuation alliée",
+        },
+        causes: {
+          "crise.recuperation.cohorte-hydratee.manquee":
+            "Récupération de la Cohorte hydratée manquée",
+          "crise.recuperation.accueil-stabilise.manquee":
+            "Récupération de l’Accueil stabilisé manquée",
+          "crise.recuperation.charge-repartie-trame.manquee":
+            "Récupération de la Charge répartie manquée",
+          "crise.recuperation.attelage-recale-trame.manquee":
+            "Récupération de l’Attelage recalé manquée",
+          "crise.recuperation.halo-reparti-au-noeud.manquee":
+            "Récupération de la Charge du Halo manquée",
+          "crise.recuperation.releve-des-veilleurs-au-noeud.manquee":
+            "Récupération de la Relève des Veilleurs manquée",
+          "crise.recuperation.passage-interieur-preserve.manquee":
+            "Récupération du Passage intérieur manquée",
+        },
+        acteurs: {
+          "equipes-du-phare": "Équipes du Phare",
+          "foyers-du-coeur": "Foyers du Cœur",
+          "allies-de-la-couronne": "Alliés de la Couronne",
+        },
+        cibles: {
+          "phare-de-la-cite-caravane": "Phare de la Cité-caravane",
+          "evacuation-prioritaire-du-coeur":
+            "Évacuation prioritaire du Cœur",
+          "derniere-transmission-du-halo":
+            "Dernière transmission du Halo",
+          "evacuation-alliee-du-coeur":
+            "Évacuation alliée du Cœur",
+        },
+      },
+    },
+    en: {
+      crise: {
+        alerteTitre: "Lighthouse Extinction announced",
+        alerteCause:
+          "A missed Recovery removed too many responses able to preserve the Caravan City.",
+        titre: "Terminal crisis — Lighthouse Extinction",
+        cause:
+          "A missed Recovery leaves fewer than two survival responses: the Lighthouse will go dark.",
+        chaine: [],
+        maillons: {
+          "couronne.ouverture.rail-ouverte":
+            "The Rail route opened the Inner Ring.",
+          "couronne.ouverture.phares-ouvertes":
+            "The Lighthouse route opened the Inner Ring.",
+          "couronne.ouverture.colonies-ouvertes":
+            "The Colonies route opened the Inner Ring.",
+          "couronne.ouverture.breche-ouverte":
+            "The emergency breach opened the Inner Ring.",
+          "reponse.stabiliser-anneau-du-halo.indisponible":
+            "Materials or Recoveries can no longer stabilize the Halo ring.",
+          "reponse.relayer-halo-par-les-veilleurs.indisponible":
+            "The Watchers can no longer relay the Halo.",
+          "reponse.condamner-couronne-exterieure.indisponible":
+            "The Outer Crown can no longer be sealed without losing the Caravan City.",
+          "phare.extinction-annoncee":
+            "Lighthouse Extinction is inevitable.",
+          "phare.extinction-imminente":
+            "The Halo consumes the Lighthouse’s last light.",
+        },
+        reponses: {
+          "evacuer-le-coeur": {
+            intention: "Save as many inhabitants as possible",
+            coutConnu: "14 inhabitants left outside the evacuation",
+            consequence: "The Heart and Lighthouse are abandoned.",
+            mitigation: "Essential records leave with the evacuees.",
+            pireConsequence:
+              "The Caravan City scatters without a shared home.",
+            attribution: "Heart Hearths",
+          },
+          "transmettre-sous-le-halo": {
+            intention: "Send one brief transmission under the Halo",
+            coutConnu:
+              "28 inhabitants assigned to the final transmission",
+            consequence:
+              "The human cost rises so the knowledge can be transmitted.",
+            mitigation:
+              "The colonies receive the complete records.",
+            pireConsequence:
+              "The Lighthouse crews cannot leave the Heart in time.",
+            attribution: "Lighthouse crews",
+          },
+          "solliciter-aide-exterieure": {
+            intention: "Call on the prepared alliance",
+            coutConnu:
+              "9 inhabitants assigned to the allied evacuation",
+            consequence:
+              "The Heart is entrusted to the allies and the convoy scatters.",
+            mitigation: "Copies of the records are shared.",
+            pireConsequence:
+              "The alliance now decides the Heart’s future.",
+            attribution: "Crown allies",
+          },
+        },
+        cicatrices: {},
+        consequencesCicatrices: {},
+        causes: {},
+        garanties: {},
+        destinations: {},
+        conditionsRecuperation: {},
+      },
+      denouement: {
+        denouementTitre: "Campaign denouement — Defeat",
+        statut: "Campaign ended before the Node",
+        titre: "Lighthouse Extinction report",
+        eyebrow: "The last light",
+        introduction:
+          "The Lighthouse is dark. This report records the final choice, its losses, and the chain that made it necessary.",
+        choix: "Terminal choice",
+        cause: "Cause of Extinction",
+        moment: "Extinction time",
+        issue: "Outcome",
+        defaite: "Defeat",
+        recuperationManquee: "Failed recovery",
+        choixTerminaux: {
+          "evacuer-le-coeur": "Evacuate the Heart",
+          "transmettre-sous-le-halo": "Transmit under the Halo",
+          "solliciter-aide-exterieure": "Call on external aid",
+        },
+        garanties: {
+          "socle-de-survie": "Expected survival baseline",
+          "mobilite-minimale": "Expected minimum mobility",
+          "aide-exterieure-identifiee": "Expected external aid",
+          "cohorte-hydratee": "Cohort supplied with Water",
+          "accueil-stabilise": "Reception stabilized",
+          "charge-repartie-trame":
+            "Load redistributed through the Iron Weave",
+          "attelage-recale-trame":
+            "Formation realigned through the Iron Weave",
+          "halo-reparti-au-noeud":
+            "Halo load redistributed at the Node",
+          "releve-des-veilleurs-au-noeud":
+            "Watcher relief secured at the Node",
+          "passage-interieur-preserve": "Inner passage preserved",
+        },
+        habitants: {
+          "evacuation-prioritaire":
+            "The priority evacuation saves as many inhabitants as possible, at the cost of fourteen people.",
+          "transmission-sacrificielle":
+            "The transmission is maintained at a higher human cost.",
+          "evacuation-alliee":
+            "The allied evacuation is shared; nine inhabitants remain assigned to its cost.",
+        },
+        coeur: {
+          abandonne:
+            "The Heart is abandoned when the Lighthouse goes dark.",
+          "eteint-apres-transmission":
+            "The Heart goes dark after the final transmission.",
+          "confie-aux-allies":
+            "The Heart is entrusted to the allies who prepared the evacuation.",
+        },
+        connaissances: {
+          "registres-emportes":
+            "The essential records leave with the evacuees.",
+          "transmises-aux-colonies":
+            "The knowledge is transmitted to the colonies under the Halo.",
+          "copies-partagees":
+            "Copies of the records are shared with the allies.",
+        },
+      },
+      journal: {
+        titres: {
+          "crise.extinction-du-phare": "Lighthouse Extinction",
+          "defaite.extinction.evacuations-du-coeur":
+            "Lighthouse Extinction — Heart evacuation",
+          "defaite.extinction.transmission-sous-halo":
+            "Lighthouse Extinction — final transmission",
+          "defaite.extinction.aide-exterieure-sollicitee":
+            "Lighthouse Extinction — allied evacuation",
+        },
+        causes: {
+          "crise.recuperation.cohorte-hydratee.manquee":
+            "Missed Cohort Water Recovery",
+          "crise.recuperation.accueil-stabilise.manquee":
+            "Missed Reception Recovery",
+          "crise.recuperation.charge-repartie-trame.manquee":
+            "Missed Iron Weave load Recovery",
+          "crise.recuperation.attelage-recale-trame.manquee":
+            "Missed Formation realignment Recovery",
+          "crise.recuperation.halo-reparti-au-noeud.manquee":
+            "Missed Halo load Recovery",
+          "crise.recuperation.releve-des-veilleurs-au-noeud.manquee":
+            "Missed Watcher relief Recovery",
+          "crise.recuperation.passage-interieur-preserve.manquee":
+            "Missed Inner passage Recovery",
+        },
+        acteurs: {
+          "equipes-du-phare": "Lighthouse crews",
+          "foyers-du-coeur": "Heart Hearths",
+          "allies-de-la-couronne": "Crown allies",
+        },
+        cibles: {
+          "phare-de-la-cite-caravane": "Caravan City Lighthouse",
+          "evacuation-prioritaire-du-coeur":
+            "Priority evacuation of the Heart",
+          "derniere-transmission-du-halo":
+            "Final Halo transmission",
+          "evacuation-alliee-du-coeur":
+            "Allied Heart evacuation",
+        },
+      },
+    },
+  },
   epilogue: {
     fr: {
       titre: "Épilogue de la Campagne",

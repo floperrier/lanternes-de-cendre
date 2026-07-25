@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 
 import type { ProjectionDeLEpilogue } from "../application/epilogue";
 import type { Langue } from "../content/types";
+import { JournalCausal } from "./JournalCausal";
 
 export function Epilogue({
   projection,
@@ -17,6 +18,61 @@ export function Epilogue({
 
   if (!projection.visible) {
     return null;
+  }
+
+  if (projection.defaite !== null && projection.denouement !== null) {
+    return (
+      <article
+        className="epilogue-campagne epilogue-campagne--defaite"
+        aria-labelledby="titre-epilogue"
+        lang={langue}
+      >
+        <header className="epilogue-campagne__entete">
+          <p className="eyebrow">{projection.eyebrow}</p>
+          <h2 ref={titre} id="titre-epilogue" tabIndex={-1}>
+            {projection.titre}
+          </h2>
+          <p>{projection.introduction}</p>
+        </header>
+        <section
+          className="epilogue-campagne__denouement"
+          aria-labelledby="titre-denouement-campagne"
+        >
+          <h3 id="titre-denouement-campagne">
+            {projection.denouement.titre}
+          </h3>
+          <p>{projection.denouement.statut}</p>
+          <dl>
+            {([
+              projection.denouement.solution,
+              projection.denouement.variante,
+              projection.denouement.cause,
+              projection.denouement.moment,
+            ] as const).map(({ libelle, valeur }) => (
+              <div key={libelle}>
+                <dt>{libelle}</dt>
+                <dd>{valeur}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+        <section
+          className="epilogue-campagne__bilan"
+          aria-labelledby="titre-bilan-extinction"
+        >
+          <h3 id="titre-bilan-extinction">
+            {projection.defaite.titre}
+          </h3>
+          <p>{projection.defaite.habitants}</p>
+          <p>{projection.defaite.coeur}</p>
+          <p>{projection.defaite.connaissances}</p>
+          <JournalCausal
+            entrees={projection.defaite.journalCausal}
+            langue={langue}
+          />
+        </section>
+      </article>
+    );
   }
 
   return (

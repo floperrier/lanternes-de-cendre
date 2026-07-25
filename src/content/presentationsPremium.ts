@@ -331,6 +331,34 @@ export interface TextesDeLEpilogue {
   readonly aucun: string;
 }
 
+export interface TextesDeLExtinction {
+  readonly crise: TextesDeCriseDeVeilleBasse;
+  readonly denouement: {
+    readonly denouementTitre: string;
+    readonly statut: string;
+    readonly titre: string;
+    readonly eyebrow: string;
+    readonly introduction: string;
+    readonly choix: string;
+    readonly cause: string;
+    readonly moment: string;
+    readonly issue: string;
+    readonly defaite: string;
+    readonly recuperationManquee: string;
+    readonly choixTerminaux: DictionnaireDeTextes;
+    readonly garanties: DictionnaireDeTextes;
+    readonly habitants: DictionnaireDeTextes;
+    readonly coeur: DictionnaireDeTextes;
+    readonly connaissances: DictionnaireDeTextes;
+  };
+  readonly journal: {
+    readonly titres: DictionnaireDeTextes;
+    readonly causes: DictionnaireDeTextes;
+    readonly acteurs: DictionnaireDeTextes;
+    readonly cibles: DictionnaireDeTextes;
+  };
+}
+
 export interface PresentationsPremium {
   readonly hautPuits: Readonly<Record<Langue, TextesDeHautPuits>>;
   readonly veilleBasse: Readonly<Record<Langue, TextesDeVeilleBasse>>;
@@ -353,6 +381,7 @@ export interface PresentationsPremium {
   >;
   readonly finale?: Readonly<Record<Langue, TextesDuContratFinal>>;
   readonly epilogue?: Readonly<Record<Langue, TextesDeLEpilogue>>;
+  readonly extinction?: Readonly<Record<Langue, TextesDeLExtinction>>;
   readonly deversoir?: Readonly<
     Record<
       Langue,
@@ -579,6 +608,131 @@ function estDictionnaireDeTextesNonVide(valeur: unknown): boolean {
     Object.values(valeur).every(
       (texte) => typeof texte === "string" && texte.length > 0,
     )
+  );
+}
+
+function estDictionnaireDeTextes(valeur: unknown): boolean {
+  return (
+    estObjet(valeur) &&
+    Object.values(valeur).every(
+      (texte) => typeof texte === "string" && texte.length > 0,
+    )
+  );
+}
+
+function estPresentationDeLExtinction(valeur: unknown): boolean {
+  if (
+    !estObjet(valeur) ||
+    !estObjet(valeur.crise) ||
+    !estObjet(valeur.denouement) ||
+    !estObjet(valeur.journal)
+  ) {
+    return false;
+  }
+  const crise = valeur.crise;
+  const denouement = valeur.denouement;
+  const journal = valeur.journal;
+  const champsDeReponse = [
+    "intention",
+    "coutConnu",
+    "consequence",
+    "mitigation",
+    "pireConsequence",
+    "attribution",
+  ] as const;
+  if (
+    !["alerteTitre", "alerteCause", "titre", "cause"].every(
+      (champ) =>
+        typeof crise[champ] === "string" &&
+        (crise[champ] as string).length > 0,
+    ) ||
+    !Array.isArray(crise.chaine) ||
+    !crise.chaine.every(
+      (maillon) => typeof maillon === "string" && maillon.length > 0,
+    ) ||
+    !estDictionnaireDeTextesNonVide(crise.maillons) ||
+    !estObjet(crise.reponses) ||
+    ![
+      "evacuer-le-coeur",
+      "transmettre-sous-le-halo",
+      "solliciter-aide-exterieure",
+    ].every((id) => {
+      const reponse = (crise.reponses as Record<string, unknown>)[id];
+      return (
+        estObjet(reponse) &&
+        champsDeReponse.every(
+          (champ) =>
+            typeof reponse[champ] === "string" &&
+            (reponse[champ] as string).length > 0,
+        )
+      );
+    }) ||
+    ![
+      "cicatrices",
+      "consequencesCicatrices",
+      "causes",
+      "garanties",
+      "destinations",
+      "conditionsRecuperation",
+    ].every((champ) => estDictionnaireDeTextes(crise[champ]))
+  ) {
+    return false;
+  }
+  if (
+    ![
+      "denouementTitre",
+      "statut",
+      "titre",
+      "eyebrow",
+      "introduction",
+      "choix",
+      "cause",
+      "moment",
+      "issue",
+      "defaite",
+      "recuperationManquee",
+    ].every(
+      (champ) =>
+        typeof denouement[champ] === "string" &&
+        (denouement[champ] as string).length > 0,
+    ) ||
+    !estDictionnaireAvecCles(denouement.choixTerminaux, [
+      "evacuer-le-coeur",
+      "transmettre-sous-le-halo",
+      "solliciter-aide-exterieure",
+    ]) ||
+    !estDictionnaireAvecCles(denouement.garanties, [
+      "socle-de-survie",
+      "mobilite-minimale",
+      "aide-exterieure-identifiee",
+      "cohorte-hydratee",
+      "accueil-stabilise",
+      "charge-repartie-trame",
+      "attelage-recale-trame",
+      "halo-reparti-au-noeud",
+      "releve-des-veilleurs-au-noeud",
+      "passage-interieur-preserve",
+    ]) ||
+    !estDictionnaireAvecCles(denouement.habitants, [
+      "evacuation-prioritaire",
+      "transmission-sacrificielle",
+      "evacuation-alliee",
+    ]) ||
+    !estDictionnaireAvecCles(denouement.coeur, [
+      "abandonne",
+      "eteint-apres-transmission",
+      "confie-aux-allies",
+    ]) ||
+    !estDictionnaireAvecCles(denouement.connaissances, [
+      "registres-emportes",
+      "transmises-aux-colonies",
+      "copies-partagees",
+    ])
+  ) {
+    return false;
+  }
+  return ["titres", "causes", "acteurs", "cibles"].every((champ) =>
+    estDictionnaireDeTextesNonVide(journal[champ]),
   );
 }
 
@@ -1061,6 +1215,11 @@ export function installerPresentationsPremium(valeur: unknown): void {
       : []),
     ...(inclutFinale || inclutEpilogue ? ["finale"] : []),
     ...(inclutEpilogue ? ["epilogue"] : []),
+    ...(inclutOuvertureDeLaCouronne ||
+    inclutFinale ||
+    inclutEpilogue
+      ? ["extinction"]
+      : []),
   ];
   if (
     !estObjet(presentations) ||
@@ -1088,6 +1247,8 @@ export function installerPresentationsPremium(valeur: unknown): void {
                 ? estPresentationDuContratFinal(presentation)
                 : surface === "epilogue"
                   ? estPresentationDeLEpilogue(presentation)
+                  : surface === "extinction"
+                    ? estPresentationDeLExtinction(presentation)
                   : estArbreDeTextes(presentation);
         })
       );

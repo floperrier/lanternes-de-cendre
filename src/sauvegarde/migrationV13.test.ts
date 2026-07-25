@@ -157,9 +157,9 @@ describe("migration v13 vers la Crise matérielle de la Trame", () => {
     expect(migration).toBeDefined();
     expect(migration).toMatchObject({
       version: VERSION_SAUVEGARDE_COURANTE,
-      versions: { simulation: 15 },
+      versions: { simulation: 16 },
       etat: {
-        version: 15,
+        version: 16,
         crises: {
           crisesDeTrameHistoriquesIgnorees: false,
           alerte: null,

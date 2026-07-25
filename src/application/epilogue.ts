@@ -1,11 +1,18 @@
 import { catalogueDEvenements } from "../content/catalogue";
-import { lirePresentationsPremium } from "../content/presentationsPremium";
+import {
+  lirePresentationsPremium,
+  type TextesDeLExtinction,
+} from "../content/presentationsPremium";
 import type { Langue } from "../content/types";
 import type { EtatCampagne } from "../simulation/campagne";
 import {
   reconstruireEpilogue,
   type RetourModulaireDeLEpilogue,
 } from "../simulation/epilogue";
+import {
+  projeterPilotage,
+  type ProjectionDuJournalCausal,
+} from "./pilotage";
 
 export interface ProjectionDeLEpilogue {
   readonly visible: boolean;
@@ -28,6 +35,13 @@ export interface ProjectionDeLEpilogue {
       readonly libelle: string;
       readonly valeur: string;
     };
+  } | null;
+  readonly defaite: {
+    readonly titre: string;
+    readonly habitants: string;
+    readonly coeur: string;
+    readonly connaissances: string;
+    readonly journalCausal: readonly ProjectionDuJournalCausal[];
   } | null;
   readonly titre: string;
   readonly eyebrow: string;
@@ -79,6 +93,7 @@ export interface ProjectionDeLEpilogue {
 const PROJECTION_MASQUEE: ProjectionDeLEpilogue = {
   visible: false,
   denouement: null,
+  defaite: null,
   titre: "",
   eyebrow: "",
   introduction: "",
@@ -129,6 +144,24 @@ const TEXTES_DU_DENOUEMENT = {
   },
 } as const;
 
+function libellerCauseDExtinction(
+  cause: string,
+  textes: TextesDeLExtinction["denouement"],
+): string {
+  const recuperationManquee = cause.match(
+    /^crise\.recuperation\.(.+)\.manquee$/,
+  );
+  if (recuperationManquee === null) {
+    return humaniserIdentifiant(cause);
+  }
+  const garantie =
+    textes.garanties[recuperationManquee[1] ?? ""];
+  if (garantie === undefined) {
+    return humaniserIdentifiant(cause);
+  }
+  return `${textes.recuperationManquee} — ${garantie}`;
+}
+
 function formaterMomentDuDenouement(secondes: number): string {
   const minutes = Math.floor(secondes / 60);
   const secondesRestantes = secondes % 60;
@@ -152,6 +185,59 @@ export function projeterEpilogue(
   etat: EtatCampagne,
   langue: Langue = "fr",
 ): ProjectionDeLEpilogue {
+  if (etat.denouement.statut === "defaite") {
+    const textes =
+      lirePresentationsPremium()?.extinction?.[langue].denouement;
+    if (textes === undefined) {
+      return PROJECTION_MASQUEE;
+    }
+    const journalCausal = projeterPilotage(etat, langue).journalCausal;
+    return {
+      visible: true,
+      denouement: {
+        titre: textes.denouementTitre,
+        statut: textes.statut,
+        solution: {
+          libelle: textes.choix,
+          valeur: textes.choixTerminaux[etat.denouement.choix] ?? "",
+        },
+        variante: {
+          libelle: textes.issue,
+          valeur: textes.defaite,
+        },
+        cause: {
+          libelle: textes.cause,
+          valeur: libellerCauseDExtinction(
+            etat.denouement.cause,
+            textes,
+          ),
+        },
+        moment: {
+          libelle: textes.moment,
+          valeur: formaterMomentDuDenouement(etat.denouement.moment),
+        },
+      },
+      defaite: {
+        titre: textes.titre,
+        habitants: textes.habitants[etat.denouement.devenirs.habitants],
+        coeur: textes.coeur[etat.denouement.devenirs.coeur],
+        connaissances:
+          textes.connaissances[
+            etat.denouement.devenirs.connaissances
+          ],
+        journalCausal,
+      },
+      titre: textes.titre,
+      eyebrow: textes.eyebrow,
+      introduction: textes.introduction,
+      axes: [],
+      sortDuCoeur: { libelle: "", valeur: "" },
+      revelation: { libelle: "", valeur: "" },
+      compagnons: [],
+      retours: [],
+      libelles: {},
+    };
+  }
   const epilogue = reconstruireEpilogue(etat);
   const presentations = lirePresentationsPremium();
   const textes = presentations?.epilogue?.[langue];
@@ -235,6 +321,7 @@ export function projeterEpilogue(
   return {
     visible: true,
     denouement,
+    defaite: null,
     titre: textes.titre,
     eyebrow: textes.eyebrow,
     introduction: textes.introduction,

@@ -1,5 +1,6 @@
 import type { EtatCampagne } from "../simulation/campagne";
 import { catalogueDEvenements } from "../content/catalogue";
+import { lirePresentationsPremium } from "../content/presentationsPremium";
 import type { Langue } from "../content/types";
 import type {
   EffetHumainDeFait,
@@ -268,6 +269,8 @@ const JOURNAL_GENERIQUE: Readonly<
       "cicatrice.reserve-de-remedes-entamee":
         "Réserve de Remèdes entamée",
       "cicatrice.evacuation-des-foyers": "Évacuation des Foyers",
+      "crise.recuperation.socle-de-survie.manquee":
+        "Récupération du Socle de survie manquée",
       "prologue.signaux-sous-la-cendre": "Des signaux sous la cendre",
     },
     acteurs: {
@@ -337,6 +340,8 @@ const JOURNAL_GENERIQUE: Readonly<
       "cicatrice.reserve-de-remedes-entamee":
         "Depleted Remedy reserve",
       "cicatrice.evacuation-des-foyers": "Hearth evacuation",
+      "crise.recuperation.socle-de-survie.manquee":
+        "Missed Survival baseline Recovery",
       "prologue.signaux-sous-la-cendre": "Signals beneath the ash",
     },
     acteurs: {
@@ -410,6 +415,10 @@ function libellesDuJournalDeContenu(langue: Langue) {
   return catalogueDEvenements.libellesTransversaux[langue].journal;
 }
 
+function libellesDuJournalDeLExtinction(langue: Langue) {
+  return lirePresentationsPremium()?.extinction?.[langue].journal;
+}
+
 function titrerFait(fait: FaitDeCampagne, langue: Langue): string {
   const titreDeRetour = fait.id.includes(".retour.")
     ? TITRES_DE_RETOUR_D_EXPEDITION[langue]
@@ -419,6 +428,7 @@ function titrerFait(fait: FaitDeCampagne, langue: Langue): string {
     titreDeRetour ??
     TITRES_DES_RAPPORTS_D_EXPEDITION[langue][fait.cause] ??
     libellesDuJournalDeContenu(langue).titres[fait.id] ??
+    libellesDuJournalDeLExtinction(langue)?.titres[fait.id] ??
     JOURNAL_GENERIQUE[langue].titres[fait.id];
   if (titre === undefined) {
     throw new Error(
@@ -432,6 +442,7 @@ function expliquerCause(fait: FaitDeCampagne, langue: Langue): string {
   return (
     textesDeJournalDuConseil(fait, langue)?.cause.modele ??
     libellesDuJournalDeContenu(langue).causes[fait.cause] ??
+    libellesDuJournalDeLExtinction(langue)?.causes[fait.cause] ??
     JOURNAL_GENERIQUE[langue].causes[fait.cause] ??
     fait.cause
   );
@@ -448,6 +459,7 @@ function libellerActeurs(
   return fait.acteurs.map(
     (acteur) =>
       libellesDuJournalDeContenu(langue).acteurs[acteur] ??
+      libellesDuJournalDeLExtinction(langue)?.acteurs[acteur] ??
       JOURNAL_GENERIQUE[langue].acteurs[acteur] ??
       acteur,
   );
@@ -457,6 +469,7 @@ function libellerCible(fait: FaitDeCampagne, langue: Langue): string {
   return (
     textesDeJournalDuConseil(fait, langue)?.cible.modele ??
     libellesDuJournalDeContenu(langue).cibles[fait.cible] ??
+    libellesDuJournalDeLExtinction(langue)?.cibles[fait.cible] ??
     JOURNAL_GENERIQUE[langue].cibles[fait.cible] ??
     fait.cible
   );

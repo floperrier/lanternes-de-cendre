@@ -68,14 +68,17 @@ import {
   type EvenementDeDecisionDuConseil,
 } from "./conseil";
 import {
+  aideExterieureEstPreparee,
   annoncerCriseApresFaits,
   creerEtatDesCrisesInitial,
   criseAttendSonCheckpoint,
   declencherCrise,
   evaluerRecuperationsDeCrise,
   IDENTIFIANT_DE_LA_CRISE_DU_HALO,
+  IDENTIFIANT_DE_LA_CRISE_TERMINALE,
   prochaineSecondeDeCrise,
   resoudreCrise as resoudreCriseActive,
+  resoudreCriseTerminale,
   type CommandeDeDeclenchementDeCrise,
   type CommandeDeResolutionDeCrise,
   type EtatDesCrises,
@@ -169,7 +172,7 @@ export interface EtatCampagne {
   };
   readonly citeCaravane: {
     readonly habitants: number;
-    readonly phare: "actif" | "halo-sature";
+    readonly phare: "actif" | "halo-sature" | "eteint";
     readonly formation: {
       readonly type: "grappe";
       readonly plateformes: readonly IdentifiantPlateformeMobile[];
@@ -1186,7 +1189,8 @@ type OptionsDApplicationDeCommande = {
   readonly crises?:
     | "historiques-v12"
     | "historiques-v13"
-    | "historiques-v14";
+    | "historiques-v14"
+    | "historiques-v15";
 };
 
 function appliquerCommandeSansEvaluationDesRecuperations(
@@ -1505,7 +1509,9 @@ function appliquerCommandeSansEvaluationDesRecuperations(
         ...etat,
         citeCaravane:
           crise.etat.criseActive?.id ===
-          IDENTIFIANT_DE_LA_CRISE_DU_HALO
+            IDENTIFIANT_DE_LA_CRISE_DU_HALO ||
+          crise.etat.criseActive?.id ===
+            IDENTIFIANT_DE_LA_CRISE_TERMINALE
             ? { ...etat.citeCaravane, phare: "halo-sature" }
             : etat.citeCaravane,
         crises: crise.etat,
@@ -1526,6 +1532,37 @@ function appliquerCommandeSansEvaluationDesRecuperations(
   }
 
   if (commande.type === "crise.resoudre") {
+    if (commande.criseId === IDENTIFIANT_DE_LA_CRISE_TERMINALE) {
+      const resolution = resoudreCriseTerminale(
+        etat.crises,
+        etat.pilotage,
+        etat.citeCaravane.habitants,
+        commande,
+        etat.tempsDuConvoi.secondes,
+        aideExterieureEstPreparee(
+          etat.narration.faitsDeCampagne,
+        ),
+      );
+      const etatResolu = enregistrerFaitsDeCampagne(
+        {
+          ...etat,
+          denouement: resolution.denouement,
+          citeCaravane: {
+            ...etat.citeCaravane,
+            phare: "eteint",
+            habitants:
+              etat.citeCaravane.habitants +
+              resolution.variationDHabitants,
+          },
+          crises: resolution.etat,
+        },
+        [resolution.fait],
+      );
+      return {
+        etat: etatResolu,
+        evenements: [resolution.evenement],
+      };
+    }
     const plateformesDetachables =
       listerPlateformesDetachablesDeLaCampagne(etat);
     const resolution = resoudreCriseActive(
@@ -1940,8 +1977,13 @@ export function appliquerCommande(
                   dernierJalon.tronconId
                 ] ?? null),
           phare: candidate.etat.citeCaravane.phare,
+          habitantsDisponibles:
+            candidate.etat.citeCaravane.habitants,
         };
       })(),
+      options.crises === undefined
+        ? {}
+        : { extinction: "historique" }
     );
     if (
       options.crises === "historiques-v13" &&

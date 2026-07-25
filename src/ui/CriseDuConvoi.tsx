@@ -51,9 +51,13 @@ export function CriseDuConvoi({
         : null;
     const premiereReponse =
       dialogue.current?.querySelector<HTMLButtonElement>("button:not(:disabled)");
-    (premiereReponse ?? dialogue.current)?.focus();
+    const cibleInitiale =
+      crise.id === "extinction-du-phare"
+        ? dialogue.current
+        : (premiereReponse ?? dialogue.current);
+    cibleInitiale?.focus({ preventScroll: true });
     return () => focusPrecedent?.focus();
-  }, []);
+  }, [crise.id]);
 
   const contenirLeFocus = (evenement: KeyboardEvent<HTMLElement>) => {
     if (evenement.key !== "Tab" || dialogue.current === null) {

@@ -109,6 +109,95 @@ function dictionnaire(...cles: readonly string[]) {
   return Object.fromEntries(cles.map((cle) => [cle, cle]));
 }
 
+const PRESENTATION_REPONSE_TERMINALE_VALIDE = {
+  intention: "Intention",
+  coutConnu: "Coût",
+  consequence: "Conséquence",
+  mitigation: "Atténuation",
+  pireConsequence: "Pire conséquence",
+  attribution: "Attribution",
+};
+
+const PRESENTATION_EXTINCTION_VALIDE = {
+  crise: {
+    alerteTitre: "Alerte d’Extinction",
+    alerteCause: "Cause de l’alerte",
+    titre: "Extinction du Phare",
+    cause: "Cause de la crise",
+    chaine: [],
+    maillons: { "phare.extinction-annoncee": "Extinction annoncée" },
+    reponses: {
+      "evacuer-le-coeur": PRESENTATION_REPONSE_TERMINALE_VALIDE,
+      "transmettre-sous-le-halo":
+        PRESENTATION_REPONSE_TERMINALE_VALIDE,
+      "solliciter-aide-exterieure":
+        PRESENTATION_REPONSE_TERMINALE_VALIDE,
+    },
+    cicatrices: {},
+    consequencesCicatrices: {},
+    causes: {},
+    garanties: {},
+    destinations: {},
+    conditionsRecuperation: {},
+  },
+  denouement: {
+    denouementTitre: "Dénouement — Défaite",
+    statut: "Campagne terminée",
+    titre: "Bilan de l’Extinction",
+    eyebrow: "Dernière lumière",
+    introduction: "Le Phare est éteint.",
+    choix: "Choix terminal",
+    cause: "Cause",
+    moment: "Moment",
+    issue: "Issue",
+    defaite: "Défaite",
+    recuperationManquee: "Récupération manquée",
+    choixTerminaux: dictionnaire(
+      "evacuer-le-coeur",
+      "transmettre-sous-le-halo",
+      "solliciter-aide-exterieure",
+    ),
+    garanties: dictionnaire(
+      "socle-de-survie",
+      "mobilite-minimale",
+      "aide-exterieure-identifiee",
+      "cohorte-hydratee",
+      "accueil-stabilise",
+      "charge-repartie-trame",
+      "attelage-recale-trame",
+      "halo-reparti-au-noeud",
+      "releve-des-veilleurs-au-noeud",
+      "passage-interieur-preserve",
+    ),
+    habitants: dictionnaire(
+      "evacuation-prioritaire",
+      "transmission-sacrificielle",
+      "evacuation-alliee",
+    ),
+    coeur: dictionnaire(
+      "abandonne",
+      "eteint-apres-transmission",
+      "confie-aux-allies",
+    ),
+    connaissances: dictionnaire(
+      "registres-emportes",
+      "transmises-aux-colonies",
+      "copies-partagees",
+    ),
+  },
+  journal: {
+    titres: { "crise.extinction-du-phare": "Extinction du Phare" },
+    causes: { "crise.recuperation.manquee": "Récupération manquée" },
+    acteurs: { "equipes-du-phare": "Équipes du Phare" },
+    cibles: { "phare-de-la-cite-caravane": "Phare" },
+  },
+};
+
+const PRESENTATIONS_EXTINCTION_VALIDES = {
+  fr: PRESENTATION_EXTINCTION_VALIDE,
+  en: PRESENTATION_EXTINCTION_VALIDE,
+};
+
 const PRESENTATION_OUVERTURE_VALIDE = {
   titre: "Ouverture de la Couronne",
   eyebrow: "Anneau intérieur",
@@ -621,6 +710,22 @@ describe("installation du contenu narratif premium", () => {
           },
         },
       }),
+    ).toThrow("presentations-premium-invalides");
+    expect(() =>
+      installerPresentationsPremium({
+        ...lotOuverture,
+        catalogue: {
+          ...lotOuverture.catalogue,
+          presentations: {
+            ...presentationsDeCouronne,
+            ouvertureCouronne: {
+              fr: PRESENTATION_OUVERTURE_VALIDE,
+              en: PRESENTATION_OUVERTURE_VALIDE,
+            },
+            extinction: PRESENTATIONS_EXTINCTION_VALIDES,
+          },
+        },
+      }),
     ).not.toThrow();
   });
 
@@ -666,6 +771,7 @@ describe("installation du contenu narratif premium", () => {
               fr: PRESENTATION_FINALE_VALIDE,
               en: PRESENTATION_FINALE_VALIDE,
             },
+            extinction: PRESENTATIONS_EXTINCTION_VALIDES,
           },
         },
       }),
@@ -777,6 +883,68 @@ describe("installation du contenu narratif premium", () => {
               fr: PRESENTATION_EPILOGUE_VALIDE,
               en: PRESENTATION_EPILOGUE_VALIDE,
             },
+            extinction: PRESENTATIONS_EXTINCTION_VALIDES,
+          },
+        },
+      }),
+    ).not.toThrow();
+  });
+
+  it("exige et valide la présentation bilingue de l’Extinction avec l’Épilogue", () => {
+    const lotEpilogue = {
+      version: 1,
+      catalogue: {
+        evenements: [
+          {
+            id: "epilogue.revelation.le-registre-des-rejets",
+          },
+        ],
+        presentations: {
+          ...PRESENTATIONS_VALIDES,
+          finale: {
+            fr: PRESENTATION_FINALE_VALIDE,
+            en: PRESENTATION_FINALE_VALIDE,
+          },
+          epilogue: {
+            fr: PRESENTATION_EPILOGUE_VALIDE,
+            en: PRESENTATION_EPILOGUE_VALIDE,
+          },
+        },
+      },
+    };
+
+    expect(() =>
+      installerPresentationsPremium(lotEpilogue),
+    ).toThrow("presentations-premium-invalides");
+    expect(() =>
+      installerPresentationsPremium({
+        ...lotEpilogue,
+        catalogue: {
+          ...lotEpilogue.catalogue,
+          presentations: {
+            ...lotEpilogue.catalogue.presentations,
+            extinction: {
+              fr: PRESENTATION_EXTINCTION_VALIDE,
+              en: {
+                ...PRESENTATION_EXTINCTION_VALIDE,
+                denouement: {
+                  ...PRESENTATION_EXTINCTION_VALIDE.denouement,
+                  titre: "",
+                },
+              },
+            },
+          },
+        },
+      }),
+    ).toThrow("presentations-premium-invalides");
+    expect(() =>
+      installerPresentationsPremium({
+        ...lotEpilogue,
+        catalogue: {
+          ...lotEpilogue.catalogue,
+          presentations: {
+            ...lotEpilogue.catalogue.presentations,
+            extinction: PRESENTATIONS_EXTINCTION_VALIDES,
           },
         },
       }),

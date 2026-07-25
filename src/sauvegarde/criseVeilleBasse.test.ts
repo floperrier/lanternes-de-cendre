@@ -201,8 +201,8 @@ describe("persistance de la Crise séquentielle de Veille-Basse", () => {
       ),
     );
 
-    expect(VERSION_SIMULATION_COURANTE).toBe(15);
-    expect(VERSION_SAUVEGARDE_COURANTE).toBe(15);
+    expect(VERSION_SIMULATION_COURANTE).toBe(16);
+    expect(VERSION_SAUVEGARDE_COURANTE).toBe(16);
     expect(lireSnapshotCourant(parcours.reproduction.snapshot)).toBeDefined();
     expect(lireEtatCourant(parcours.etat)).toBeDefined();
     expect(rejouerReproduction(parcours.reproduction)).toEqual({

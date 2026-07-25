@@ -13,6 +13,7 @@ import {
   VERSION_SIMULATION_AVANT_CRISES,
   VERSION_SIMULATION_AVANT_CRISE_DE_TRAME,
   VERSION_SIMULATION_AVANT_CRISE_DU_HALO,
+  VERSION_SIMULATION_AVANT_EXTINCTION_DU_PHARE,
   VERSION_SIMULATION_AVANT_CRISES_SEQUENTIELLES,
   VERSION_SIMULATION_AVANT_DENOUEMENT,
   VERSION_SIMULATION_AVANT_DEVERSOIR,
@@ -28,6 +29,7 @@ import {
 } from "../simulation/versions";
 import {
   CAMPAGNE_EN_COURS,
+  reconstruireDenouement,
   reconstruireDenouementReussi,
 } from "../simulation/denouement";
 import {
@@ -121,9 +123,12 @@ import {
   IDENTIFIANT_DE_LA_CRISE_DE_TRAME,
   IDENTIFIANT_DE_LA_CRISE_DE_VEILLE_BASSE,
   IDENTIFIANT_DE_LA_CRISE_DU_HALO,
+  IDENTIFIANT_DE_LA_CRISE_TERMINALE,
+  aideExterieureEstPreparee,
   annoncerCriseApresFaits,
   creerEtatDesCrisesInitial,
   declencherCrise,
+  resoudreCriseTerminale,
   reconstruireHistoriqueDesCrises,
   type CicatriceDeCampagne,
   type CriseHistorique,
@@ -419,6 +424,11 @@ export interface EtatCampagneV14
   readonly crises: EtatDesCrisesV14;
 }
 
+export interface EtatCampagneV15
+  extends Omit<EtatCampagne, "version"> {
+  readonly version: typeof VERSION_SIMULATION_AVANT_EXTINCTION_DU_PHARE;
+}
+
 export function estObjet(valeur: unknown): valeur is ObjetInconnu {
   return (
     valeur !== null && typeof valeur === "object" && !Array.isArray(valeur)
@@ -535,7 +545,10 @@ export function estCommande(valeur: unknown): valeur is CommandeCampagne {
   if (valeur.type === "crise.declencher") {
     return (
       valeur.criseId === IDENTIFIANT_DE_LA_CRISE_DE_REFERENCE ||
-      valeur.criseId === IDENTIFIANT_DE_LA_CRISE_DE_VEILLE_BASSE
+      valeur.criseId === IDENTIFIANT_DE_LA_CRISE_DE_VEILLE_BASSE ||
+      valeur.criseId === IDENTIFIANT_DE_LA_CRISE_DE_TRAME ||
+      valeur.criseId === IDENTIFIANT_DE_LA_CRISE_DU_HALO ||
+      valeur.criseId === IDENTIFIANT_DE_LA_CRISE_TERMINALE
     );
   }
   if (valeur.type === "crise.resoudre") {
@@ -1090,6 +1103,21 @@ export function estFaitDeCampagneV2(valeur: unknown): boolean {
         estEffetHumain(humains[0], "habitants.exposes", "nombre", 0)
       );
     }
+    if (valeur.id === "crise.extinction-du-phare") {
+      return (
+        typeof valeur.cause === "string" &&
+        valeur.cause.startsWith("crise.recuperation.") &&
+        valeur.cause.endsWith(".manquee") &&
+        memesChaines(acteurs, [
+          "foyers-du-coeur",
+          "equipes-du-phare",
+        ]) &&
+        valeur.cible === "phare-de-la-cite-caravane" &&
+        materiels.length === 0 &&
+        humains.length === 1 &&
+        estEffetHumain(humains[0], "habitants.exposes", "nombre", 0)
+      );
+    }
     const definition = DEFINITIONS_DES_REPONSES_A_LA_CRISE.find(
       (candidate) => candidate.faitProduit === valeur.id,
     );
@@ -1111,6 +1139,9 @@ export function estFaitDeCampagneV2(valeur: unknown): boolean {
           definition,
           valeur.moment as number,
           plateformeDetachee,
+          definition.terminale
+            ? String(valeur.cause)
+            : definition.criseId,
         ),
       )
     );
@@ -1128,9 +1159,13 @@ export function estFaitDeCampagneV2(valeur: unknown): boolean {
       .replace(/\.(?:accomplie|manquee)$/, "") as
       RecuperationDeCrise["garantie"];
     const definition = DEFINITIONS_DES_REPONSES_A_LA_CRISE.find(
-      (candidate) => candidate.recuperation.garantie === garantie,
+      (candidate) => candidate.recuperation?.garantie === garantie,
     );
-    if (definition === undefined) {
+    if (
+      definition === undefined ||
+      definition.recuperation === undefined ||
+      definition.cicatrice === undefined
+    ) {
       return false;
     }
     const { acteurs: acteursAttendus, cible: cibleAttendue } =
@@ -3500,6 +3535,7 @@ function faitDeResolutionAttendu(
   definition: DefinitionDeReponseALaCrise,
   moment: number,
   plateformeDetachee?: string,
+  cause: string = definition.criseId,
 ): FaitDeCampagne {
   const variationDeStock =
     definition.cout.stock === undefined
@@ -3512,7 +3548,7 @@ function faitDeResolutionAttendu(
   const variationDHabitants = -(definition.cout.habitants ?? 0);
   return {
     id: definition.faitProduit,
-    cause: definition.criseId,
+    cause,
     acteurs: definition.acteurs,
     cible: definition.cible,
     moment,
@@ -3604,12 +3640,18 @@ function appliquerResolutionAttendue(
   moment: number,
 ): EtatDesCrises | undefined {
   const crise = etat.criseActive;
-  if (crise === null || crise.id !== definition.criseId) {
+  if (
+    crise === null ||
+    crise.id !== definition.criseId ||
+    definition.terminale ||
+    definition.cicatrice === undefined ||
+    definition.recuperation === undefined
+  ) {
     return undefined;
   }
   const cicatrice: CicatriceDeCampagne = {
     ...definition.cicatrice,
-    cause: definition.faitProduit,
+    cause: definition.faitProduit as CicatriceDeCampagne["cause"],
     acquiseA: moment,
   };
   const recuperation: RecuperationDeCrise = {
@@ -3868,6 +3910,7 @@ function estEtatDesCrises(
   veilleBasse: EtatDeVeilleBasse,
   autoriserMarqueurHistoriqueSansFait = false,
   ignorerCrisesSequentielles = false,
+  ignorerExtinctionHistorique = false,
 ): valeur is EtatDesCrises {
   if (
     !estObjet(valeur) ||
@@ -3952,6 +3995,10 @@ function estEtatDesCrises(
     [
       "crise.couronne.saturation-du-halo",
       IDENTIFIANT_DE_LA_CRISE_DU_HALO,
+    ],
+    [
+      "crise.extinction-du-phare",
+      IDENTIFIANT_DE_LA_CRISE_TERMINALE,
     ],
   ] as const);
   const definitionsParFait = new Map(
@@ -4101,6 +4148,7 @@ function estEtatDesCrises(
           ? null
           : (routes.etatsReels[dernierJalon.tronconId] ?? null),
       phare: "actif" as const,
+      habitantsDisponibles: Number.POSITIVE_INFINITY,
     };
   };
   const annoncerAuMoment = (moment: number) => {
@@ -4108,6 +4156,9 @@ function estEtatDesCrises(
       attendu,
       faitsVus as unknown as readonly FaitDeCampagne[],
       contexteMaterielAuMoment(moment, faitsVus),
+      ignorerExtinctionHistorique
+        ? { extinction: "historique" }
+        : {},
     ).etat;
     attendu =
       ignorerCrisesSequentielles &&
@@ -4130,7 +4181,8 @@ function estEtatDesCrises(
         | "crise.purification.eau-contaminee"
         | "crise.veille-basse.accueil-sous-penurie"
         | "crise.trame.cascade-materielle"
-        | "crise.couronne.saturation-du-halo",
+        | "crise.couronne.saturation-du-halo"
+        | "crise.extinction-du-phare",
     );
     const definition = definitionsParFait.get(
       String(fait.id) as DefinitionDeReponseALaCrise["faitProduit"],
@@ -4189,10 +4241,37 @@ function estEtatDesCrises(
             definition,
             fait.moment as number,
             plateformeDetachee,
+            definition.terminale
+              ? String(fait.cause)
+              : definition.criseId,
           ),
         )
       ) {
         return false;
+      }
+      if (definition.terminale) {
+        let resolutionTerminale;
+        try {
+          resolutionTerminale = resoudreCriseTerminale(
+            attendu,
+            pilotage,
+            Number.POSITIVE_INFINITY,
+            {
+              type: "crise.resoudre",
+              criseId: IDENTIFIANT_DE_LA_CRISE_TERMINALE,
+              reponseId: definition.id,
+            },
+            fait.moment as number,
+            aideExterieureEstPreparee(
+              faitsVus as unknown as readonly FaitDeCampagne[],
+            ),
+          );
+        } catch {
+          return false;
+        }
+        attendu = resolutionTerminale.etat;
+        faitsVus.push(fait);
+        continue;
       }
       const resolu = appliquerResolutionAttendue(
         attendu,
@@ -4324,6 +4403,7 @@ function lirePartiesCommunesDEtat(
   validerFait: (fait: unknown) => boolean,
   plateformesAttendues: readonly string[],
   autoriserPlateformeRegionale = false,
+  autoriserPhareEteint = false,
 ): Omit<EtatCampagneV1, "version"> | undefined {
   const temps = valeur.tempsDuConvoi;
   const cite = valeur.citeCaravane;
@@ -4377,7 +4457,9 @@ function lirePartiesCommunesDEtat(
     typeof cite.habitants !== "number" ||
     !Number.isInteger(cite.habitants) ||
     cite.habitants < 0 ||
-    (cite.phare !== "actif" && cite.phare !== "halo-sature") ||
+    (cite.phare !== "actif" &&
+      cite.phare !== "halo-sature" &&
+      (!autoriserPhareEteint || cite.phare !== "eteint")) ||
     !estObjet(cite.formation) ||
     cite.formation.type !== "grappe" ||
     !estTableauDeChaines(cite.formation.plateformes) ||
@@ -4425,7 +4507,7 @@ function lirePartiesCommunesDEtat(
     },
     citeCaravane: {
       habitants: cite.habitants,
-      phare: cite.phare as "actif" | "halo-sature",
+      phare: cite.phare as "actif" | "halo-sature" | "eteint",
       formation: {
         type: "grappe",
         plateformes: cite.formation
@@ -4571,6 +4653,7 @@ function lireEtatAvecSchemaCourant(
   autoriserCausaliteHistoriqueSansMarqueur = false,
   autoriserTopologieHistoriqueSansMarqueur = false,
   ignorerCrisesSequentielles = false,
+  ignorerExtinctionHistorique = false,
 ): EtatCampagne | undefined {
   if (
     !estObjet(valeur) ||
@@ -4582,6 +4665,7 @@ function lireEtatAvecSchemaCourant(
     valeur,
     estFaitDeCampagneV2,
     IDENTIFIANTS_PLATEFORMES_MOBILES,
+    true,
     true,
   );
   const flux = valeur.fluxPseudoAleatoires;
@@ -4640,7 +4724,7 @@ function lireEtatAvecSchemaCourant(
     ) ||
     !sontStructurellementEgaux(
       denouement,
-      reconstruireDenouementReussi(
+      reconstruireDenouement(
         narration.faitsDeCampagne as unknown as readonly FaitDeCampagne[],
       ),
     ) ||
@@ -4764,11 +4848,15 @@ function lireEtatAvecSchemaCourant(
         veilleBasse,
         autoriserMarqueurHistoriqueSansFait,
         ignorerCrisesSequentielles,
+        ignorerExtinctionHistorique,
       )) ||
     (parties.citeCaravane.phare === "halo-sature") !==
       (estObjet(crises) &&
         estObjet(crises.criseActive) &&
-        crises.criseActive.id === IDENTIFIANT_DE_LA_CRISE_DU_HALO) ||
+        (crises.criseActive.id === IDENTIFIANT_DE_LA_CRISE_DU_HALO ||
+          crises.criseActive.id === IDENTIFIANT_DE_LA_CRISE_TERMINALE)) ||
+    (parties.citeCaravane.phare === "eteint") !==
+      (estObjet(denouement) && denouement.statut === "defaite") ||
     (trouverEngagementDeRouteActif(routes) !== undefined &&
       (infrastructure.deploiement === "halte" ||
         infrastructure.chantierActif !== null)) ||
@@ -4866,6 +4954,48 @@ export function lireSnapshotCourant(
   valeur: unknown,
 ): EtatCampagne | undefined {
   return lireEtatAvecSchemaCourant(valeur, true, true);
+}
+
+function lireEtatAvecSchemaV15(
+  valeur: unknown,
+  autoriserMarqueurHistoriqueSansFait = false,
+): EtatCampagneV15 | undefined {
+  if (
+    !estObjet(valeur) ||
+    valeur.version !==
+      VERSION_SIMULATION_AVANT_EXTINCTION_DU_PHARE ||
+    !estObjet(valeur.citeCaravane) ||
+    valeur.citeCaravane.phare === "eteint" ||
+    !estObjet(valeur.denouement) ||
+    valeur.denouement.statut === "defaite"
+  ) {
+    return undefined;
+  }
+  const etatCourant = lireEtatAvecSchemaCourant(
+    { ...valeur, version: VERSION_SIMULATION_COURANTE },
+    true,
+    autoriserMarqueurHistoriqueSansFait,
+    false,
+    false,
+    false,
+    false,
+    true,
+  );
+  return etatCourant === undefined
+    ? undefined
+    : (valeur as unknown as EtatCampagneV15);
+}
+
+export function lireEtatV15(
+  valeur: unknown,
+): EtatCampagneV15 | undefined {
+  return lireEtatAvecSchemaV15(valeur);
+}
+
+export function lireSnapshotV15(
+  valeur: unknown,
+): EtatCampagneV15 | undefined {
+  return lireEtatAvecSchemaV15(valeur, true);
 }
 
 function promouvoirCrisesV14(
@@ -5102,6 +5232,7 @@ function promouvoirCrisesV11(
       }
       const definition = DEFINITIONS_DES_REPONSES_A_LA_CRISE.find(
         ({ recuperation: attendue }) =>
+          attendue !== undefined &&
           attendue.garantie === recuperation.garantie &&
           attendue.destination === recuperation.destination &&
           attendue.horizonTroncons === recuperation.horizonTroncons,
@@ -5111,7 +5242,7 @@ function promouvoirCrisesV11(
           estObjet(candidate) && candidate.id === recuperation.cause,
       );
       if (
-        definition === undefined ||
+        definition?.recuperation === undefined ||
         !estObjet(cicatrice) ||
         typeof cicatrice.acquiseA !== "number"
       ) {

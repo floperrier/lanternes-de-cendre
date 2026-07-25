@@ -1,11 +1,17 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  appliquerCommande,
   creerCampagneInitiale,
   empreinteEtat,
+  type CommandeCampagne,
   type EtatCampagne,
   type FaitDeCampagne,
 } from "../simulation/campagne";
+import {
+  executerCampagneHeadless,
+  STRATEGIES_D_EQUILIBRAGE,
+} from "../diagnostic/equilibrageCampagne";
 import { VERSION_SIMULATION_AVANT_CRISE_DU_HALO } from "../simulation/versions";
 import {
   migrerSauvegardeV14,
@@ -64,6 +70,80 @@ function faitDeClef(): FaitDeCampagne {
   };
 }
 
+function archiveV14TraversantLaClef(): ObjetInconnu {
+  const estFaitDeClef = (id: string) =>
+    id === "couronne.ouverture.clef-collective" ||
+    id === "couronne.ouverture.clef-confiee-aux-gardiennes";
+  const strategie = STRATEGIES_D_EQUILIBRAGE.find(
+    ({ id }) => id === "vitesse-sous-contrainte",
+  )!;
+  const campagne = executerCampagneHeadless({
+    graine: "MIGRATION-V14-TRAVERSE-CLEF",
+    strategie,
+    tracerEmpreintes: true,
+  });
+  let snapshot = creerCampagneInitiale(campagne.graine);
+  let commandeDeClef: CommandeCampagne | undefined;
+  let etatApresClef: EtatCampagne | undefined;
+
+  for (const etape of campagne.commandes) {
+    const candidate = appliquerCommande(snapshot, etape.commande).etat;
+    if (
+      candidate.narration.faitsDeCampagne.some(
+        ({ id }) => estFaitDeClef(id),
+      ) &&
+      !snapshot.narration.faitsDeCampagne.some(
+        ({ id }) => estFaitDeClef(id),
+      )
+    ) {
+      commandeDeClef = etape.commande;
+      etatApresClef = {
+        ...candidate,
+        crises: {
+          ...candidate.crises,
+          alerte: null,
+        },
+      };
+      break;
+    }
+    snapshot = candidate;
+  }
+  if (commandeDeClef === undefined || etatApresClef === undefined) {
+    throw new Error("La campagne de migration n’atteint pas la clef.");
+  }
+
+  const snapshotV14 = normaliserEnV14(snapshot);
+  const etatV14 = normaliserEnV14(etatApresClef);
+  const empreinteSnapshot = empreinteEtat(
+    snapshotV14 as unknown as EtatCampagne,
+  );
+  const empreinte = empreinteEtat(etatV14 as unknown as EtatCampagne);
+  return {
+    format: FORMAT_SAUVEGARDE,
+    id: `archive-v14-clef-${empreinte}`,
+    version: VERSION_SAUVEGARDE_AVANT_CRISE_DU_HALO,
+    versions: {
+      ...VERSIONS_DU_SNAPSHOT_COURANT,
+      simulation: VERSION_SIMULATION_AVANT_CRISE_DU_HALO,
+    },
+    graine: etatV14.graine,
+    horloge: { secondes: etatV14.tempsDuConvoi.secondes },
+    etat: etatV14,
+    reproduction: {
+      snapshot: snapshotV14,
+      empreinteSnapshot,
+      commandes: [
+        {
+          sequence: 0,
+          commande: commandeDeClef,
+          empreinteApres: empreinte,
+        },
+      ],
+    },
+    empreinte,
+  };
+}
+
 describe("migration v14 vers la Crise de saturation du Halo", () => {
   it("migre une archive antérieure à la clef sans neutraliser la future Crise", () => {
     const migration = migrerSauvegardeV14(
@@ -73,9 +153,9 @@ describe("migration v14 vers la Crise de saturation du Halo", () => {
     expect(migration).toBeDefined();
     expect(migration).toMatchObject({
       version: VERSION_SAUVEGARDE_COURANTE,
-      versions: { simulation: 15 },
+      versions: { simulation: 16 },
       etat: {
-        version: 15,
+        version: 16,
         crises: {
           crisesDuHaloHistoriquesIgnorees: false,
           alerte: null,
@@ -102,5 +182,22 @@ describe("migration v14 vers la Crise de saturation du Halo", () => {
       alerte: null,
       criseActive: null,
     });
+  });
+
+  it("rejoue un journal v14 non vide qui traverse la consignation de la clef", () => {
+    const migration = migrerSauvegardeV14(
+      archiveV14TraversantLaClef(),
+    );
+
+    expect(migration).toBeDefined();
+    expect(migration?.reproduction.commandes).toEqual([]);
+    expect(
+      migration?.etat.narration.faitsDeCampagne.some(({ id }) =>
+        /^couronne\.ouverture\.clef-(collective|confiee-aux-gardiennes)$/.test(
+          id,
+        ),
+      ),
+    ).toBe(true);
+    expect(migration?.etat.denouement.statut).toBe("en-cours");
   });
 });

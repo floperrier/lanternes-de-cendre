@@ -13,13 +13,14 @@ import {
 } from "./scenariosSentinelles";
 
 describe("catalogue des scénarios sentinelles", () => {
-  it("versionne les onze familles et décline les trois Solutions finales", () => {
+  it("versionne les douze familles et décline les trois Solutions finales", () => {
     const scenarios = obtenirScenariosSentinelles();
     expect(FAMILLES_DE_SCENARIOS_SENTINELLES).toEqual([
       "debut-nominal",
       "double-tension",
       "cascade-materielle",
       "saturation-halo",
+      "extinction-phare",
       "cohorte-en-penurie",
       "expeditions-simultanees",
       "compagnon-indisponible",
@@ -42,7 +43,7 @@ describe("catalogue des scénarios sentinelles", () => {
     for (const scenario of obtenirScenariosSentinelles()) {
       expect(scenario).toMatchObject({
         format: "lanternes-de-cendre.scenario-sentinelle",
-        version: 5,
+        version: 6,
         graine: expect.any(String),
         empreinteSnapshot: expect.stringMatching(/^[0-9a-f]{8}$/),
         invariants: INVARIANTS_SENTINELLES,
@@ -316,6 +317,79 @@ describe("exécution des scénarios sentinelles", () => {
     expect(risquee.etat.denouement.statut).toBe("en-cours");
   });
 
+  it("sentinellise la Défaite sans aide, avec aide et son évitement par Récupération", () => {
+    const scenarios = obtenirScenariosSentinelles();
+    const observations = capturerEtatsEtEvenementsDesScenariosSentinelles();
+    const sansAide = scenarios.find(
+      ({ id }) => id === "extinction-phare-sans-aide",
+    )!;
+    const avecAide = scenarios.find(
+      ({ id }) => id === "extinction-phare-avec-aide",
+    )!;
+    const extinctionEvitee = scenarios.find(
+      ({ id }) => id === "extinction-evitee-recuperation",
+    )!;
+
+    expect(sansAide.snapshot.crises.criseActive?.id).toBe(
+      "extinction-du-phare",
+    );
+    expect(avecAide.snapshot.crises.criseActive?.id).toBe(
+      "extinction-du-phare",
+    );
+    expect(
+      sansAide.snapshot.narration.faitsDeCampagne.map(({ id }) => id),
+    ).not.toContain("trame.aiguillage-zero.charte-partagee");
+    expect(
+      avecAide.snapshot.narration.faitsDeCampagne.map(({ id }) => id),
+    ).toContain("trame.aiguillage-zero.charte-partagee");
+    expect(
+      avecAide.snapshot.narration.faitsDeCampagne.find(
+        ({ id }) => id === "trame.aiguillage-zero.charte-partagee",
+      )?.moment,
+    ).toBeLessThan(
+      avecAide.snapshot.narration.faitsDeCampagne.find(
+        ({ id }) => id === "crise.extinction-du-phare",
+      )!.moment,
+    );
+
+    expect(
+      observations
+        .filter(
+          ({ scenarioId }) =>
+            scenarioId === "extinction-phare-sans-aide" ||
+            scenarioId === "extinction-phare-avec-aide",
+        )
+        .map(({ etat }) => etat.denouement.statut),
+    ).toEqual(["defaite", "defaite", "defaite", "defaite"]);
+    expect(
+      observations.find(
+        ({ scenarioId, conduite }) =>
+          scenarioId === "extinction-phare-avec-aide" &&
+          conduite === "prudente",
+      )?.etat.denouement,
+    ).toMatchObject({
+      statut: "defaite",
+      choix: "solliciter-aide-exterieure",
+    });
+
+    expect(extinctionEvitee.snapshot.crises.criseActive?.id).toBe(
+      "couronne-muette.saturation-du-halo",
+    );
+    expect(
+      extinctionEvitee.snapshot.crises.recuperations.some(
+        ({ statut }) => statut === "accomplie",
+      ),
+    ).toBe(true);
+    for (const observation of observations.filter(
+      ({ scenarioId }) => scenarioId === "extinction-evitee-recuperation",
+    )) {
+      expect(observation.etat.denouement.statut).not.toBe("defaite");
+      expect(
+        observation.etat.narration.faitsDeCampagne.map(({ id }) => id),
+      ).not.toContain("crise.extinction-du-phare");
+    }
+  });
+
   it("produit une capsule minimale au premier désaccord", () => {
     const scenario = obtenirScenariosSentinelles()[0]!;
     const premiereEtape = scenario.conduites.prudente.commandes[0]!;
@@ -347,14 +421,14 @@ describe("exécution des scénarios sentinelles", () => {
         format: "lanternes-de-cendre.capsule-sentinelle",
         version: 1,
         versions: {
-          scenarios: 5,
+          scenarios: 6,
           simulation: expect.any(Number),
           aleatoire: expect.any(Number),
           empreinte: expect.any(Number),
         },
         scenario: {
           id: scenario.id,
-          version: 5,
+          version: 6,
           conduite: "prudente",
         },
         graine: scenario.graine,

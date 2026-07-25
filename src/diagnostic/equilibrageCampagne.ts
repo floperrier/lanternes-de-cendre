@@ -24,6 +24,9 @@ import {
 } from "../simulation/conseil";
 import {
   DEFINITIONS_DES_REPONSES_A_LA_CRISE,
+  aideExterieureEstPreparee,
+  IDENTIFIANT_DE_LA_CRISE_DU_HALO,
+  IDENTIFIANT_DE_LA_CRISE_TERMINALE,
   reponseALaCriseEstViable,
   type IdentifiantDeCrise,
   type IdentifiantDeReponseALaCrise,
@@ -41,8 +44,9 @@ import {
 import { routeAvalDesBassinsEstPreparee } from "../simulation/nacelles";
 
 export const VERSION_FORMAT_CAMPAGNE_HEADLESS = 1 as const;
-export const VERSION_REGLES_D_EQUILIBRAGE_COURANTE = 2 as const;
+export const VERSION_REGLES_D_EQUILIBRAGE_COURANTE = 3 as const;
 const VERSION_REGLES_LIGNE_ZERO_PRESERVEE = 2 as const;
+const VERSION_REGLES_EXTINCTION_DU_PHARE = 3 as const;
 export const NOMBRE_DE_GRAINES_STANDARD = 256 as const;
 export const NOMBRE_DE_GRAINES_NOCTURNE = 2_048 as const;
 
@@ -55,9 +59,16 @@ export const HISTORIQUE_DES_REGLES_D_EQUILIBRAGE = [
     ],
   },
   {
-    version: VERSION_REGLES_D_EQUILIBRAGE_COURANTE,
+    version: VERSION_REGLES_LIGNE_ZERO_PRESERVEE,
     changements: [
       "la Ligne Zéro accepte les deux résolutions causales du Déversoir",
+    ],
+  },
+  {
+    version: VERSION_REGLES_D_EQUILIBRAGE_COURANTE,
+    changements: [
+      "l’Extinction du Phare conclut les stratégies qui ont manqué une Récupération et perdu leurs réponses de survie",
+      "la fréquence terminale, la non-arrivée et l’échec stratégique sont mesurés séparément",
     ],
   },
 ] as const;
@@ -505,6 +516,7 @@ export interface MetriquesDeCampagneHeadless {
   >;
   readonly crisesCausalesEtUniques: boolean;
   readonly arriveeAuNoeud: boolean;
+  readonly defaiteStrategique: boolean;
   readonly secondesActives: number;
   readonly secondesDeChargeDEntretien: number;
   readonly dureesDeHalte: readonly number[];
@@ -984,6 +996,7 @@ function listerReponsesDeCriseViables(
         (plateforme) =>
           etat.citeCaravane.formation.plateformes.includes(plateforme),
       ).length,
+      aideExterieureEstPreparee(etat.narration.faitsDeCampagne),
     ),
   ).map(({ id }) => id);
 }
@@ -1028,6 +1041,7 @@ export function executerCampagneHeadless({
       "veille-basse.accueil-sous-penurie": 0,
       "trame-fer.cascade-materielle": 0,
       "couronne-muette.saturation-du-halo": 0,
+      "extinction-du-phare": 0,
     },
     secondesActives: 0,
     secondesDeChargeDEntretien: 0,
@@ -1080,7 +1094,13 @@ export function executerCampagneHeadless({
           "La version historique exigeait le relevé de la Ligne Zéro.",
         );
       }
-      const transition = appliquerCommande(etat, commande);
+      const transition = appliquerCommande(
+        etat,
+        commande,
+        versionRegles < VERSION_REGLES_EXTINCTION_DU_PHARE
+          ? { crises: "historiques-v15" }
+          : {},
+      );
       etat = transition.etat;
       if (
         commandesImposees !== undefined &&
@@ -1347,8 +1367,8 @@ export function executerCampagneHeadless({
     }
 
     if (
-      etat.crises.alerte?.id ===
-      "couronne-muette.saturation-du-halo"
+      etat.crises.alerte?.id === IDENTIFIANT_DE_LA_CRISE_DU_HALO ||
+      etat.crises.alerte?.id === IDENTIFIANT_DE_LA_CRISE_TERMINALE
     ) {
       if (
         etat.tempsDuConvoi.vitesse !== 4 &&
@@ -1649,9 +1669,8 @@ export function executerCampagneHeadless({
           (id.includes("charge-repartie-trame") ||
             id.includes("attelage-recale-trame")),
         ))) &&
-    (metriques.crisesParIdentifiant[
-      "couronne-muette.saturation-du-halo"
-    ] === 0 ||
+    (metriques.crisesParIdentifiant[IDENTIFIANT_DE_LA_CRISE_DU_HALO] ===
+      0 ||
       (faitsFinaux.includes("crise.couronne.saturation-du-halo") &&
         faitsFinaux.some(
           (id) =>
@@ -1665,7 +1684,19 @@ export function executerCampagneHeadless({
             id ===
               "crise.couronne.relayer-halo-par-les-veilleurs" ||
             id === "crise.couronne.condamner-couronne-exterieure",
-        )));
+        ))) &&
+    (metriques.crisesParIdentifiant[
+      IDENTIFIANT_DE_LA_CRISE_TERMINALE
+    ] === 0 ||
+      (faitsFinaux.includes("crise.extinction-du-phare") &&
+        faitsFinaux.some((id) =>
+          id.startsWith("crise.recuperation.") &&
+          id.endsWith(".manquee"),
+        ) &&
+        faitsFinaux.some((id) =>
+          id.startsWith("defaite.extinction."),
+        ) &&
+        etat.denouement.statut === "defaite"));
   return {
     format: "lanternes-de-cendre.campagne-headless",
     version: VERSION_FORMAT_CAMPAGNE_HEADLESS,
@@ -1686,6 +1717,7 @@ export function executerCampagneHeadless({
       crisesParIdentifiant: metriques.crisesParIdentifiant,
       crisesCausalesEtUniques,
       arriveeAuNoeud: etat.routes.position === "noeud-central",
+      defaiteStrategique: etat.denouement.statut === "defaite",
       secondesActives: metriques.secondesActives,
       secondesDeChargeDEntretien:
         metriques.secondesDeChargeDEntretien,
@@ -1740,6 +1772,7 @@ export interface MetriquesAgregeesDEquilibrage {
 
 export interface InvariantsDEquilibrage {
   readonly sansImpasse: boolean;
+  readonly sansErreur: boolean;
   readonly sansRecuperationGratuite: boolean;
   readonly sansBoucleProfitable: boolean;
   readonly crisesUniquesEtCausales: boolean;
@@ -1899,7 +1932,8 @@ export function verifierInvariantsDEquilibrage(
   campagnes: readonly ResultatDeCampagneHeadless[],
 ): InvariantsDEquilibrage {
   return {
-    sansImpasse: campagnes.every(({ statut }) => statut === "terminee"),
+    sansImpasse: campagnes.every(({ statut }) => statut !== "impasse"),
+    sansErreur: campagnes.every(({ statut }) => statut !== "erreur"),
     sansRecuperationGratuite: campagnes.every(
       ({ recuperationsGratuites }) => recuperationsGratuites === 0,
     ),

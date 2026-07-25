@@ -16,7 +16,7 @@
     "test": "npm run content:compile && vitest run",
     "test:e2e": "npm run content:compile && playwright test",
     "scenarios:check": "tsx scripts/scenarios-sentinelles.ts",
-    "equilibrage:check": "tsx scripts/equilibrage-campagne.ts --graines 256 --comparer-version-precedente --resume artifacts/equilibrage/standard.json",
+    "equilibrage:check": "tsx scripts/equilibrage-campagne.ts --graines 256 --comparer-version-precedente --ecrire-reference artifacts/equilibrage/reference-v3.json.gz --resume artifacts/equilibrage/standard.json",
     "equilibrage:nightly": "tsx scripts/equilibrage-campagne.ts --nocturne --resume artifacts/equilibrage/nocturne.json",
     "test:bundle-boundary": "tsx scripts/verifier-frontiere-premium.ts",
     "budgets:check": "tsx scripts/budgets-campagne.ts",

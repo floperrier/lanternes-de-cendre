@@ -135,6 +135,55 @@ describe("Campagnes headless d’équilibrage", () => {
     expect(premiere).toEqual(seconde);
   });
 
+  it("sépare une Défaite exécutée de l’arrivée au Nœud et conserve la référence des règles v2", () => {
+    const strategie = STRATEGIES_D_EQUILIBRAGE.find(
+      ({ id }) => id === "opportunisme-marchand",
+    )!;
+    const courante = executerCampagneHeadless({
+      graine: "EQUILIBRAGE-000000",
+      strategie,
+      tracerEmpreintes: true,
+    });
+    const historique = executerCampagneHeadless({
+      graine: "EQUILIBRAGE-000000",
+      strategie,
+      versionRegles: 2,
+      tracerEmpreintes: true,
+    });
+
+    expect(courante).toMatchObject({
+      versionRegles: 3,
+      statut: "terminee",
+      positionFinale: "anneau-interieur",
+      denouementFinal: { statut: "defaite" },
+      metriques: {
+        arriveeAuNoeud: false,
+        defaiteStrategique: true,
+        crisesParIdentifiant: {
+          "couronne-muette.saturation-du-halo": 0,
+          "extinction-du-phare": 1,
+        },
+        crisesCausalesEtUniques: true,
+      },
+      recuperationsGratuites: 0,
+      bouclesProfitables: 0,
+    });
+    expect(historique).toMatchObject({
+      versionRegles: 2,
+      statut: "terminee",
+      positionFinale: "noeud-central",
+      denouementFinal: { statut: "solution-finale" },
+      metriques: {
+        arriveeAuNoeud: true,
+        defaiteStrategique: false,
+        crisesParIdentifiant: {
+          "couronne-muette.saturation-du-halo": 1,
+          "extinction-du-phare": 0,
+        },
+      },
+    });
+  });
+
   it("exécute la matrice Graines × stratégies sans réduire la couverture", () => {
     const passe = executerPasseDEquilibrage({
       nombreDeGraines: 2,
@@ -161,15 +210,19 @@ describe("Campagnes headless d’équilibrage", () => {
       const strategie = STRATEGIES_D_EQUILIBRAGE.find(
         ({ id }) => id === campagne.strategieId,
       )!;
+      const tronconsAttendus =
+        campagne.denouementFinal.statut === "defaite"
+          ? strategie.itineraire.troncons.slice(0, -1)
+          : strategie.itineraire.troncons;
       expect(
         campagne.commandes.flatMap(({ commande }) =>
           commande.type === "engagement-de-route.confirmer"
             ? [commande.tronconId]
             : [],
         ),
-      ).toEqual(strategie.itineraire.troncons);
+      ).toEqual(tronconsAttendus);
       expect(campagne.metriques.tronconsParcourus).toBe(
-        strategie.itineraire.troncons.length,
+        tronconsAttendus.length,
       );
       expect(campagne.metriques.dureesDeHalte).toHaveLength(
         strategie.haltesApresTroncons.length,
@@ -201,12 +254,17 @@ describe("Campagnes headless d’équilibrage", () => {
           ] === 1 &&
           metriques.crisesParIdentifiant[
             "couronne-muette.saturation-du-halo"
-          ] === 1 &&
+          ] +
+            metriques.crisesParIdentifiant[
+              "extinction-du-phare"
+            ] ===
+            1 &&
           metriques.crisesCausalesEtUniques,
       ),
     ).toBe(true);
     expect(passe.invariants).toEqual({
       sansImpasse: true,
+      sansErreur: true,
       sansRecuperationGratuite: true,
       sansBoucleProfitable: true,
       crisesUniquesEtCausales: true,
@@ -304,12 +362,14 @@ describe("Campagnes headless d’équilibrage", () => {
     expect(passes.map(({ invariants }) => invariants)).toEqual([
       {
         sansImpasse: true,
+        sansErreur: true,
         sansRecuperationGratuite: true,
         sansBoucleProfitable: true,
         crisesUniquesEtCausales: true,
       },
       {
         sansImpasse: true,
+        sansErreur: true,
         sansRecuperationGratuite: true,
         sansBoucleProfitable: true,
         crisesUniquesEtCausales: true,
@@ -538,6 +598,7 @@ describe("Campagnes headless d’équilibrage", () => {
     const conforme = resultatMinimal();
     expect(verifierInvariantsDEquilibrage([conforme])).toEqual({
       sansImpasse: true,
+      sansErreur: true,
       sansRecuperationGratuite: true,
       sansBoucleProfitable: true,
       crisesUniquesEtCausales: true,
@@ -546,16 +607,25 @@ describe("Campagnes headless d’équilibrage", () => {
     expect(
       verifierInvariantsDEquilibrage([
         { ...conforme, statut: "impasse", raisonDEchec: "aucune-commande" },
-        { ...conforme, statut: "erreur", raisonDEchec: "commande-refusee" },
         { ...conforme, recuperationsGratuites: 1 },
         { ...conforme, bouclesSondees: 0 },
         { ...conforme, bouclesProfitables: 1 },
       ]),
     ).toEqual({
       sansImpasse: false,
+      sansErreur: true,
       sansRecuperationGratuite: false,
       sansBoucleProfitable: false,
       crisesUniquesEtCausales: true,
+    });
+
+    expect(
+      verifierInvariantsDEquilibrage([
+        { ...conforme, statut: "erreur", raisonDEchec: "commande-refusee" },
+      ]),
+    ).toMatchObject({
+      sansImpasse: true,
+      sansErreur: false,
     });
   });
 });
@@ -589,6 +659,7 @@ function resultatMinimal(): ResultatDeCampagneHeadless {
         "veille-basse.accueil-sous-penurie": 0,
         "trame-fer.cascade-materielle": 0,
         "couronne-muette.saturation-du-halo": 0,
+        "extinction-du-phare": 0,
       },
       crisesCausalesEtUniques: true,
       arriveeAuNoeud: true,
@@ -601,6 +672,7 @@ function resultatMinimal(): ResultatDeCampagneHeadless {
       selectionsStrategiques: [],
       coutsFinaux: { stocks: {}, habitants: 0, cicatrices: 0 },
       coutFinal: 0,
+      defaiteStrategique: false,
     },
     recuperationsGratuites: 0,
     bouclesSondees: 2,

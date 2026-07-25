@@ -14,6 +14,29 @@ export type DenouementDeCampagne =
       readonly variante: VarianteFinale;
       readonly cause: string;
       readonly moment: number;
+    }
+  | {
+      readonly statut: "defaite";
+      readonly choix:
+        | "evacuer-le-coeur"
+        | "transmettre-sous-le-halo"
+        | "solliciter-aide-exterieure";
+      readonly cause: string;
+      readonly moment: number;
+      readonly devenirs: {
+        readonly habitants:
+          | "evacuation-prioritaire"
+          | "transmission-sacrificielle"
+          | "evacuation-alliee";
+        readonly coeur:
+          | "abandonne"
+          | "eteint-apres-transmission"
+          | "confie-aux-allies";
+        readonly connaissances:
+          | "registres-emportes"
+          | "transmises-aux-colonies"
+          | "copies-partagees";
+      };
     };
 
 export const CAMPAGNE_EN_COURS: DenouementDeCampagne = Object.freeze({
@@ -122,4 +145,60 @@ export function reconstruireDenouementReussi(
     cause: finale.cause,
     moment: faitDAchevement.moment,
   };
+}
+
+const DEFAITES_PAR_FAIT = {
+  "defaite.extinction.evacuations-du-coeur": {
+    choix: "evacuer-le-coeur",
+    devenirs: {
+      habitants: "evacuation-prioritaire",
+      coeur: "abandonne",
+      connaissances: "registres-emportes",
+    },
+  },
+  "defaite.extinction.transmission-sous-halo": {
+    choix: "transmettre-sous-le-halo",
+    devenirs: {
+      habitants: "transmission-sacrificielle",
+      coeur: "eteint-apres-transmission",
+      connaissances: "transmises-aux-colonies",
+    },
+  },
+  "defaite.extinction.aide-exterieure-sollicitee": {
+    choix: "solliciter-aide-exterieure",
+    devenirs: {
+      habitants: "evacuation-alliee",
+      coeur: "confie-aux-allies",
+      connaissances: "copies-partagees",
+    },
+  },
+} as const;
+
+export function reconstruireDenouement(
+  faits: readonly FaitDeCampagne[],
+): DenouementDeCampagne {
+  const extinction = faits.find(
+    (fait) => fait.id === "crise.extinction-du-phare",
+  );
+  const faitDeDefaite = faits.find(
+    (fait) => fait.id in DEFAITES_PAR_FAIT,
+  );
+  if (
+    extinction !== undefined &&
+    faitDeDefaite !== undefined &&
+    faitDeDefaite.moment === extinction.moment
+  ) {
+    const defaite =
+      DEFAITES_PAR_FAIT[
+        faitDeDefaite.id as keyof typeof DEFAITES_PAR_FAIT
+      ];
+    return {
+      statut: "defaite",
+      choix: defaite.choix,
+      cause: faitDeDefaite.cause,
+      moment: faitDeDefaite.moment,
+      devenirs: defaite.devenirs,
+    };
+  }
+  return reconstruireDenouementReussi(faits);
 }
