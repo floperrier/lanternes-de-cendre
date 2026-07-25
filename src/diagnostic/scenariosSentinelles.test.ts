@@ -13,12 +13,13 @@ import {
 } from "./scenariosSentinelles";
 
 describe("catalogue des scénarios sentinelles", () => {
-  it("versionne les dix familles et décline les trois Solutions finales", () => {
+  it("versionne les onze familles et décline les trois Solutions finales", () => {
     const scenarios = obtenirScenariosSentinelles();
     expect(FAMILLES_DE_SCENARIOS_SENTINELLES).toEqual([
       "debut-nominal",
       "double-tension",
       "cascade-materielle",
+      "saturation-halo",
       "cohorte-en-penurie",
       "expeditions-simultanees",
       "compagnon-indisponible",
@@ -41,7 +42,7 @@ describe("catalogue des scénarios sentinelles", () => {
     for (const scenario of obtenirScenariosSentinelles()) {
       expect(scenario).toMatchObject({
         format: "lanternes-de-cendre.scenario-sentinelle",
-        version: 4,
+        version: 5,
         graine: expect.any(String),
         empreinteSnapshot: expect.stringMatching(/^[0-9a-f]{8}$/),
         invariants: INVARIANTS_SENTINELLES,
@@ -282,6 +283,39 @@ describe("exécution des scénarios sentinelles", () => {
     ]);
   });
 
+  it("couvre le Halo préparé et le dernier recours sans inventer de Défaite", () => {
+    const observations =
+      capturerEtatsEtEvenementsDesScenariosSentinelles().filter(
+        ({ scenarioId }) => scenarioId === "saturation-halo",
+      );
+    expect(observations).toHaveLength(2);
+
+    const prudente = observations.find(
+      ({ conduite }) => conduite === "prudente",
+    )!;
+    const risquee = observations.find(
+      ({ conduite }) => conduite === "risquee",
+    )!;
+    expect(
+      prudente.etat.narration.faitsDeCampagne.map(({ id }) => id),
+    ).toEqual(
+      expect.arrayContaining([
+        "crise.couronne.stabiliser-anneau-du-halo",
+        "crise.recuperation.halo-reparti-au-noeud.accomplie",
+      ]),
+    );
+    expect(
+      risquee.etat.narration.faitsDeCampagne.map(({ id }) => id),
+    ).toEqual(
+      expect.arrayContaining([
+        "crise.couronne.condamner-couronne-exterieure",
+        "crise.recuperation.passage-interieur-preserve.accomplie",
+      ]),
+    );
+    expect(prudente.etat.denouement.statut).toBe("en-cours");
+    expect(risquee.etat.denouement.statut).toBe("en-cours");
+  });
+
   it("produit une capsule minimale au premier désaccord", () => {
     const scenario = obtenirScenariosSentinelles()[0]!;
     const premiereEtape = scenario.conduites.prudente.commandes[0]!;
@@ -313,14 +347,14 @@ describe("exécution des scénarios sentinelles", () => {
         format: "lanternes-de-cendre.capsule-sentinelle",
         version: 1,
         versions: {
-          scenarios: 4,
+          scenarios: 5,
           simulation: expect.any(Number),
           aleatoire: expect.any(Number),
           empreinte: expect.any(Number),
         },
         scenario: {
           id: scenario.id,
-          version: 4,
+          version: 5,
           conduite: "prudente",
         },
         graine: scenario.graine,

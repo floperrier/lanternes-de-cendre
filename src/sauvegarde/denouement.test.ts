@@ -66,11 +66,14 @@ function archiveV10(etatCourant: EtatCampagne): string {
       _crisesSequentiellesHistoriquesIgnorees,
     crisesDeTrameHistoriquesIgnorees:
       _crisesDeTrameHistoriquesIgnorees,
+    crisesDuHaloHistoriquesIgnorees:
+      _crisesDuHaloHistoriquesIgnorees,
     ...crisesV10
   } = etatSansDenouement.crises;
   void _historique;
   void _crisesSequentiellesHistoriquesIgnorees;
   void _crisesDeTrameHistoriquesIgnorees;
+  void _crisesDuHaloHistoriquesIgnorees;
   const etatV10 = {
     ...etatSansDenouement,
     version: 10,
@@ -109,8 +112,8 @@ describe("persistance du Dénouement de Campagne", () => {
       exporterSauvegarde(sauvegarde),
     );
 
-    expect(VERSION_SIMULATION_COURANTE).toBe(14);
-    expect(VERSION_SAUVEGARDE_COURANTE).toBe(14);
+    expect(VERSION_SIMULATION_COURANTE).toBe(15);
+    expect(VERSION_SAUVEGARDE_COURANTE).toBe(15);
     expect(parcours.arriveeAuNoeudSansConclusionObservee).toBe(true);
     expect(importation).toMatchObject({
       statut: "compatible",

@@ -73,6 +73,7 @@ import {
   criseAttendSonCheckpoint,
   declencherCrise,
   evaluerRecuperationsDeCrise,
+  IDENTIFIANT_DE_LA_CRISE_DU_HALO,
   prochaineSecondeDeCrise,
   resoudreCrise as resoudreCriseActive,
   type CommandeDeDeclenchementDeCrise,
@@ -168,7 +169,7 @@ export interface EtatCampagne {
   };
   readonly citeCaravane: {
     readonly habitants: number;
-    readonly phare: "actif";
+    readonly phare: "actif" | "halo-sature";
     readonly formation: {
       readonly type: "grappe";
       readonly plateformes: readonly IdentifiantPlateformeMobile[];
@@ -1182,7 +1183,10 @@ type OptionsDApplicationDeCommande = {
   readonly coutsDesNacelles?: "historiques-v6";
   readonly autoriserApresDenouement?: "migration-v10";
   readonly recuperations?: "historiques-v11";
-  readonly crises?: "historiques-v12" | "historiques-v13";
+  readonly crises?:
+    | "historiques-v12"
+    | "historiques-v13"
+    | "historiques-v14";
 };
 
 function appliquerCommandeSansEvaluationDesRecuperations(
@@ -1499,6 +1503,11 @@ function appliquerCommandeSansEvaluationDesRecuperations(
     const etatEnCrise = enregistrerFaitsDeCampagne(
       {
         ...etat,
+        citeCaravane:
+          crise.etat.criseActive?.id ===
+          IDENTIFIANT_DE_LA_CRISE_DU_HALO
+            ? { ...etat.citeCaravane, phare: "halo-sature" }
+            : etat.citeCaravane,
         crises: crise.etat,
         pilotage: {
           ...etat.pilotage,
@@ -1556,6 +1565,10 @@ function appliquerCommandeSansEvaluationDesRecuperations(
         ...etat,
         citeCaravane: {
           ...etat.citeCaravane,
+          phare:
+            commande.criseId === IDENTIFIANT_DE_LA_CRISE_DU_HALO
+              ? "actif"
+              : etat.citeCaravane.phare,
           habitants:
             etat.citeCaravane.habitants + resolution.variationDHabitants,
           formation: {
@@ -1685,6 +1698,16 @@ function appliquerCommandeSansEvaluationDesRecuperations(
   }
 
   if (commande.type === "engagement-de-route.confirmer") {
+    if (
+      etat.crises.alerte?.id === IDENTIFIANT_DE_LA_CRISE_DU_HALO &&
+      trouverTronconDeRoute(commande.tronconId).extremites.includes(
+        "noeud-central",
+      )
+    ) {
+      throw new Error(
+        "La saturation du Halo doit être affrontée avant l’engagement vers le Nœud.",
+      );
+    }
     if (
       etat.infrastructure.deploiement === "halte" ||
       etat.infrastructure.chantierActif !== null
@@ -1916,12 +1939,20 @@ export function appliquerCommande(
               : (candidate.etat.routes.etatsReels[
                   dernierJalon.tronconId
                 ] ?? null),
+          phare: candidate.etat.citeCaravane.phare,
         };
       })(),
     );
     if (
       options.crises === "historiques-v13" &&
-      annonce.etat.alerte?.id === "trame-fer.cascade-materielle"
+      (annonce.etat.alerte?.id === "trame-fer.cascade-materielle" ||
+        annonce.etat.alerte?.id === IDENTIFIANT_DE_LA_CRISE_DU_HALO)
+    ) {
+      return candidate;
+    }
+    if (
+      options.crises === "historiques-v14" &&
+      annonce.etat.alerte?.id === IDENTIFIANT_DE_LA_CRISE_DU_HALO
     ) {
       return candidate;
     }

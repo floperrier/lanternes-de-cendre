@@ -20,7 +20,8 @@ export const VERSION_SAUVEGARDE_AVANT_DENOUEMENT = 10 as const;
 export const VERSION_SAUVEGARDE_AVANT_RECUPERATIONS = 11 as const;
 export const VERSION_SAUVEGARDE_AVANT_CRISES_SEQUENTIELLES = 12 as const;
 export const VERSION_SAUVEGARDE_AVANT_CRISE_DE_TRAME = 13 as const;
-export const VERSION_SAUVEGARDE_COURANTE = 14 as const;
+export const VERSION_SAUVEGARDE_AVANT_CRISE_DU_HALO = 14 as const;
+export const VERSION_SAUVEGARDE_COURANTE = 15 as const;
 export { VERSION_CONTENU_COURANTE } from "../content/types";
 
 export const VERSIONS_DU_SNAPSHOT_COURANT = Object.freeze({

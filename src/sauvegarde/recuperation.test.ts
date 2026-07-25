@@ -107,8 +107,8 @@ describe("persistance des Récupérations de Crise", () => {
       exporterSauvegarde(sauvegarde),
     );
 
-    expect(VERSION_SIMULATION_COURANTE).toBe(14);
-    expect(VERSION_SAUVEGARDE_COURANTE).toBe(14);
+    expect(VERSION_SIMULATION_COURANTE).toBe(15);
+    expect(VERSION_SAUVEGARDE_COURANTE).toBe(15);
     expect(importation.statut).toBe("compatible");
     if (importation.statut !== "compatible") {
       return;
@@ -187,11 +187,14 @@ describe("persistance des Récupérations de Crise", () => {
         _crisesSequentiellesHistoriquesIgnorees,
       crisesDeTrameHistoriquesIgnorees:
         _crisesDeTrameHistoriquesIgnorees,
+      crisesDuHaloHistoriquesIgnorees:
+        _crisesDuHaloHistoriquesIgnorees,
       ...crisesV11
     } = courant.crises;
     void _historique;
     void _crisesSequentiellesHistoriquesIgnorees;
     void _crisesDeTrameHistoriquesIgnorees;
+    void _crisesDuHaloHistoriquesIgnorees;
     const etatV11 = {
       ...courant,
       version: 11,

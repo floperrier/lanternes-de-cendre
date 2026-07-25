@@ -541,6 +541,7 @@ MC4CAQAwBQYDK2VwBCIEIGoBdws9nVuf8ZvtDfSPHmd6e3/2jumRQA4HMdla7eEZ
         cookiesSecurises:
           options.mode === "production" ||
           origineApplication.startsWith("https://"),
+        limitationActive: options.mode !== "development",
         envoyerLien: async ({ email, url }) => {
           if (options.mode !== "production") {
             liensDeTest.set(email.toLocaleLowerCase("en-US"), url);

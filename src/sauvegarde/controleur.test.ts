@@ -83,6 +83,7 @@ describe("contrôleur de session persistante", () => {
             faitAnnonceurHistoriqueIgnore: false,
             crisesSequentiellesHistoriquesIgnorees: false,
             crisesDeTrameHistoriquesIgnorees: false,
+            crisesDuHaloHistoriquesIgnorees: false,
             alerte: expect.objectContaining({ ruptureA: 180 }),
             criseActive: null,
             historique: [],

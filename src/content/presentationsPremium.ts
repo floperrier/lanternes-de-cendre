@@ -8,6 +8,7 @@ export interface TextesDeCriseDeVeilleBasse {
   readonly titre: string;
   readonly cause: string;
   readonly chaine: readonly string[];
+  readonly maillons?: DictionnaireDeTextes;
   readonly reponses: Readonly<
     Record<
       string,
@@ -217,6 +218,7 @@ export interface TextesDeLAiguillageZero {
 }
 
 export interface TextesDesApprochesDeLaCouronne {
+  readonly crise?: TextesDeCriseDeVeilleBasse;
   readonly titre: string;
   readonly eyebrow: string;
   readonly besoins: DictionnaireDeTextes;
@@ -576,6 +578,89 @@ function estDictionnaireDeTextesNonVide(valeur: unknown): boolean {
     Object.keys(valeur).length > 0 &&
     Object.values(valeur).every(
       (texte) => typeof texte === "string" && texte.length > 0,
+    )
+  );
+}
+
+function estPresentationDeCouronne(valeur: unknown): boolean {
+  if (!estObjet(valeur)) {
+    return false;
+  }
+  if (!("crise" in valeur)) {
+    return estArbreDeTextes(valeur);
+  }
+  const { crise, ...autresTextes } = valeur;
+  if (
+    !estArbreDeTextes(autresTextes) ||
+    !estObjet(crise) ||
+    !["alerteTitre", "alerteCause", "titre", "cause"].every(
+      (champ) =>
+        typeof crise[champ] === "string" &&
+        (crise[champ] as string).length > 0,
+    ) ||
+    !Array.isArray(crise.chaine) ||
+    crise.chaine.length !== 4 ||
+    !crise.chaine.every(
+      (maillon) => typeof maillon === "string" && maillon.length > 0,
+    ) ||
+    !estDictionnaireDeTextesNonVide(crise.maillons) ||
+    !estObjet(crise.reponses)
+  ) {
+    return false;
+  }
+  const champsDeReponse = [
+    "intention",
+    "coutConnu",
+    "consequence",
+    "mitigation",
+    "pireConsequence",
+    "attribution",
+  ] as const;
+  const reponses = crise.reponses as Record<string, unknown>;
+  const idsDeReponse = [
+    "stabiliser-anneau-du-halo",
+    "relayer-halo-par-les-veilleurs",
+    "condamner-couronne-exterieure",
+  ] as const;
+  const cicatrices = [
+    "cicatrice.halo-bride-par-les-etais",
+    "cicatrice.veilleurs-lies-au-halo",
+    "cicatrice.couronne-exterieure-condamnee",
+  ] as const;
+  const causes = [
+    "crise.couronne.stabiliser-anneau-du-halo",
+    "crise.couronne.relayer-halo-par-les-veilleurs",
+    "crise.couronne.condamner-couronne-exterieure",
+  ] as const;
+  const garanties = [
+    "halo-reparti-au-noeud",
+    "releve-des-veilleurs-au-noeud",
+    "passage-interieur-preserve",
+  ] as const;
+  return (
+    idsDeReponse.every(
+      (id) =>
+        estObjet(reponses[id]) &&
+        champsDeReponse.every(
+          (champ) =>
+            typeof (reponses[id] as Record<string, unknown>)[champ] ===
+              "string" &&
+            (
+              (reponses[id] as Record<string, unknown>)[champ] as string
+            ).length > 0,
+        ),
+    ) &&
+    estDictionnaireAvecCles(crise.cicatrices, cicatrices) &&
+    estDictionnaireAvecCles(
+      crise.consequencesCicatrices,
+      cicatrices,
+    ) &&
+    estDictionnaireAvecCles(crise.causes, causes) &&
+    estDictionnaireAvecCles(crise.garanties, garanties) &&
+    estDictionnaireAvecCles(crise.destinations, ["noeud-central"]) &&
+    estDictionnaireAvecCles(
+      crise.conditionsRecuperation,
+      garanties,
     )
   );
 }
@@ -993,6 +1078,8 @@ export function installerPresentationsPremium(valeur: unknown): void {
             ? estPresentationDeVeilleBasse(presentation)
             : surface === "trame"
               ? estPresentationDeTrame(presentation)
+            : surface === "couronne"
+              ? estPresentationDeCouronne(presentation)
             : surface === "ouvertureCouronne"
               ? estPresentationDeLOuvertureDeLaCouronne(
                   presentation,

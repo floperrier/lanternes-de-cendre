@@ -1144,6 +1144,165 @@ export const PRESENTATIONS_PREMIUM = {
     fr: {
       titre: "Approches de la Couronne",
       eyebrow: "Couronne muette · Deux voies",
+      crise: {
+        alerteTitre: "Aggravation annoncée — saturation du Halo",
+        alerteCause:
+          "L’ouverture consignée de la Couronne fait remonter dans le Halo les fragilités régionales et les récupérations inachevées.",
+        titre: "Crise — Saturation du Halo de la Couronne",
+        cause:
+          "Le Phare actif ne peut plus absorber seul les contraintes accumulées par les voies, les Cicatrices et leurs Récupérations.",
+        chaine: [
+          "L’ouverture de la Couronne transmet ses contraintes au Halo.",
+          "Les Cicatrices régionales s’y superposent.",
+          "Les Récupérations antérieures modulent la saturation.",
+          "Rupture locale : le Halo sature avant le Nœud.",
+        ],
+        maillons: {
+          "couronne.ouverture.rail-ouverte":
+            "L’ouverture ferroviaire charge les verrous intacts de la Couronne.",
+          "couronne.ouverture.phares-ouvertes":
+            "L’ouverture par les Phares accorde directement les verrous au Halo.",
+          "couronne.ouverture.colonies-ouvertes":
+            "L’ouverture par les Colonies répartit la charge entre des relais régionaux.",
+          "couronne.ouverture.breche-ouverte":
+            "La brèche de secours endommage irréversiblement le Nœud et surcharge son passage intérieur.",
+          "cicatrice.rationnement-deau":
+            "Le rationnement de l’Eau réduit le refroidissement disponible au Halo.",
+          "cicatrice.reserve-de-remedes-entamee":
+            "La réserve de Remèdes entamée limite la relève des équipes exposées.",
+          "cicatrice.evacuation-des-foyers":
+            "Les Foyers évacués laissent moins de veilleurs pour tenir la Couronne.",
+          "cicatrice.reserves-partagees-veille-basse":
+            "Les réserves partagées à Veille-Basse réduisent l’autonomie régionale.",
+          "cicatrice.capacites-accueil-saturees":
+            "Les sas saturés de Veille-Basse renvoient leur pression vers la Couronne.",
+          "cicatrice.chassis-etaye-dans-l-urgence":
+            "Les châssis étayés transmettent encore leurs vibrations au Phare.",
+          "cicatrice.plateforme-detachee-trame":
+            "La Plateforme détachée prive le Halo d’un relais mobile.",
+          "recuperation.socle-de-survie.amorcee":
+            "Le Socle de survie reste en récupération.",
+          "recuperation.socle-de-survie.accomplie":
+            "Le Socle de survie récupéré amortit une part de la saturation.",
+          "recuperation.socle-de-survie.manquee":
+            "Le Socle de survie manqué amplifie la saturation.",
+          "recuperation.mobilite-minimale.amorcee":
+            "La mobilité minimale reste en récupération.",
+          "recuperation.mobilite-minimale.accomplie":
+            "La mobilité restaurée apporte une relève au Halo.",
+          "recuperation.mobilite-minimale.manquee":
+            "La mobilité non restaurée immobilise les équipes du Halo.",
+          "recuperation.aide-exterieure-identifiee.amorcee":
+            "L’aide extérieure identifiée n’est pas encore acquise.",
+          "recuperation.aide-exterieure-identifiee.accomplie":
+            "L’aide extérieure acquise soulage les relais de la Couronne.",
+          "recuperation.aide-exterieure-identifiee.manquee":
+            "L’aide extérieure manquée laisse la Couronne isolée.",
+          "recuperation.cohorte-hydratee.amorcee":
+            "L’hydratation de la Cohorte reste en récupération.",
+          "recuperation.cohorte-hydratee.accomplie":
+            "La Cohorte hydratée stabilise un relais régional.",
+          "recuperation.cohorte-hydratee.manquee":
+            "La Cohorte non hydratée ajoute sa pénurie à la charge du Halo.",
+          "recuperation.accueil-stabilise.amorcee":
+            "La stabilisation de l’accueil reste inachevée.",
+          "recuperation.accueil-stabilise.accomplie":
+            "L’accueil stabilisé amortit la pression de Veille-Basse.",
+          "recuperation.accueil-stabilise.manquee":
+            "L’accueil non stabilisé renvoie sa pression vers le Halo.",
+          "recuperation.charge-repartie-trame.amorcee":
+            "La répartition de Charge de la Trame reste inachevée.",
+          "recuperation.charge-repartie-trame.accomplie":
+            "La Charge répartie réduit les vibrations reçues par le Halo.",
+          "recuperation.charge-repartie-trame.manquee":
+            "La Charge non répartie s’ajoute à la saturation.",
+          "recuperation.attelage-recale-trame.amorcee":
+            "Le recalage de l’attelage reste inachevé.",
+          "recuperation.attelage-recale-trame.accomplie":
+            "L’attelage recalé stabilise les relais mobiles du Halo.",
+          "recuperation.attelage-recale-trame.manquee":
+            "L’attelage non recalé désaccorde encore les relais du Halo.",
+          "phare.halo-sature-annonce":
+            "Dans deux minutes locales, le Halo du Phare saturera avant le Nœud.",
+          "phare.halo-sature":
+            "Le Halo du Phare sature et le Temps du convoi est suspendu.",
+        },
+        reponses: {
+          "stabiliser-anneau-du-halo": {
+            intention: "Stabiliser l’anneau du Halo par des étais",
+            coutConnu: "6 Matériaux",
+            consequence:
+              "Les étais brident irréversiblement l’amplitude future du Halo.",
+            mitigation:
+              "La charge pourra être répartie au Nœud sous un Tronçon.",
+            pireConsequence:
+              "Sans arrivée au Nœud, le Phare restera bridé sans répartir la charge.",
+            attribution: "Équipes d’entretien du Phare",
+          },
+          "relayer-halo-par-les-veilleurs": {
+            intention: "Lier cinq Veilleurs à la relève du Halo",
+            coutConnu: "5 Habitants affectés",
+            consequence:
+              "Cinq Habitants quittent irréversiblement les Foyers pour tenir la veille.",
+            mitigation:
+              "Leur relève pourra être organisée au Nœud sous un Tronçon.",
+            pireConsequence:
+              "Sans relève au Nœud, les Veilleurs resteront liés à la Couronne.",
+            attribution: "Veilleurs de la Couronne",
+          },
+          "condamner-couronne-exterieure": {
+            intention: "Condamner la Couronne extérieure",
+            coutConnu: "11 Habitants affectés",
+            consequence:
+              "Onze Habitants et les accès extérieurs restent abandonnés derrière les cloisons.",
+            mitigation:
+              "Le passage intérieur vers le Nœud demeure praticable.",
+            pireConsequence:
+              "La Couronne extérieure ne pourra plus rejoindre la Cité-caravane.",
+            attribution: "Foyers de la Couronne",
+          },
+        },
+        cicatrices: {
+          "cicatrice.halo-bride-par-les-etais":
+            "Halo bridé par les étais",
+          "cicatrice.veilleurs-lies-au-halo":
+            "Veilleurs liés au Halo",
+          "cicatrice.couronne-exterieure-condamnee":
+            "Couronne extérieure condamnée",
+        },
+        consequencesCicatrices: {
+          "cicatrice.halo-bride-par-les-etais":
+            "Le Phare conserve les étais qui limitent irréversiblement l’amplitude de son Halo.",
+          "cicatrice.veilleurs-lies-au-halo":
+            "Cinq Habitants restent absents des Foyers tant que la relève n’est pas organisée.",
+          "cicatrice.couronne-exterieure-condamnee":
+            "Les accès et Foyers de la Couronne extérieure ne rejoindront plus le convoi.",
+        },
+        causes: {
+          "crise.couronne.stabiliser-anneau-du-halo":
+            "Stabilisation irréversible de l’anneau",
+          "crise.couronne.relayer-halo-par-les-veilleurs":
+            "Relève humaine liée au Halo",
+          "crise.couronne.condamner-couronne-exterieure":
+            "Condamnation de dernier recours",
+        },
+        garanties: {
+          "halo-reparti-au-noeud": "Charge du Halo répartie au Nœud",
+          "releve-des-veilleurs-au-noeud":
+            "Relève des Veilleurs au Nœud",
+          "passage-interieur-preserve":
+            "Passage intérieur préservé",
+        },
+        destinations: { "noeud-central": "Nœud central" },
+        conditionsRecuperation: {
+          "halo-reparti-au-noeud":
+            "Atteindre le Nœud central sous un Tronçon.",
+          "releve-des-veilleurs-au-noeud":
+            "Atteindre le Nœud central pour organiser la relève.",
+          "passage-interieur-preserve":
+            "Atteindre le Nœud central par le passage intérieur.",
+        },
+      },
       besoins: {
         "pieces-de-voie": "Pièces de voie et abris de quai",
         "filtres-de-sanctuaire": "Filtres du sanctuaire et relevés étanches",
@@ -1208,6 +1367,165 @@ export const PRESENTATIONS_PREMIUM = {
     en: {
       titre: "Silent Crown Approaches",
       eyebrow: "Silent Crown · Two routes",
+      crise: {
+        alerteTitre: "Escalation announced — Halo saturation",
+        alerteCause:
+          "Recording the Crown opening feeds regional fragilities and unfinished recoveries back into the Halo.",
+        titre: "Crisis — Silent Crown Halo saturation",
+        cause:
+          "The active Lighthouse can no longer absorb the constraints accumulated by the routes, Scars and their Recoveries.",
+        chaine: [
+          "Opening the Crown transmits its constraints to the Halo.",
+          "Regional Scars overlap within it.",
+          "Earlier Recoveries modulate the saturation.",
+          "Local failure: the Halo saturates before the Node.",
+        ],
+        maillons: {
+          "couronne.ouverture.rail-ouverte":
+            "The rail opening loads the Crown’s intact locks.",
+          "couronne.ouverture.phares-ouvertes":
+            "The Lighthouse opening tunes the locks directly to the Halo.",
+          "couronne.ouverture.colonies-ouvertes":
+            "The Colony opening spreads load across regional relays.",
+          "couronne.ouverture.breche-ouverte":
+            "The emergency breach irreversibly damages the Node and overloads its inner passage.",
+          "cicatrice.rationnement-deau":
+            "Water rationing reduces cooling available to the Halo.",
+          "cicatrice.reserve-de-remedes-entamee":
+            "The depleted Remedy reserve limits relief for exposed crews.",
+          "cicatrice.evacuation-des-foyers":
+            "Evacuated Hearths leave fewer watchers to hold the Crown.",
+          "cicatrice.reserves-partagees-veille-basse":
+            "Reserves shared at Lower Watch reduce regional autonomy.",
+          "cicatrice.capacites-accueil-saturees":
+            "Lower Watch’s saturated airlocks feed pressure toward the Crown.",
+          "cicatrice.chassis-etaye-dans-l-urgence":
+            "Braced frames still transmit their vibration to the Lighthouse.",
+          "cicatrice.plateforme-detachee-trame":
+            "The detached Platform deprives the Halo of a mobile relay.",
+          "recuperation.socle-de-survie.amorcee":
+            "Recovery of the survival baseline is still underway.",
+          "recuperation.socle-de-survie.accomplie":
+            "The recovered survival baseline absorbs part of the saturation.",
+          "recuperation.socle-de-survie.manquee":
+            "The missed survival baseline amplifies saturation.",
+          "recuperation.mobilite-minimale.amorcee":
+            "Minimum mobility is still being recovered.",
+          "recuperation.mobilite-minimale.accomplie":
+            "Restored mobility brings relief to the Halo.",
+          "recuperation.mobilite-minimale.manquee":
+            "Unrestored mobility strands the Halo crews.",
+          "recuperation.aide-exterieure-identifiee.amorcee":
+            "Identified outside help has not yet been secured.",
+          "recuperation.aide-exterieure-identifiee.accomplie":
+            "Secured outside help relieves Crown relays.",
+          "recuperation.aide-exterieure-identifiee.manquee":
+            "Missed outside help leaves the Crown isolated.",
+          "recuperation.cohorte-hydratee.amorcee":
+            "The Cohort’s hydration recovery remains underway.",
+          "recuperation.cohorte-hydratee.accomplie":
+            "The hydrated Cohort stabilizes a regional relay.",
+          "recuperation.cohorte-hydratee.manquee":
+            "The unhydrated Cohort adds its shortage to the Halo load.",
+          "recuperation.accueil-stabilise.amorcee":
+            "Shelter stabilization remains unfinished.",
+          "recuperation.accueil-stabilise.accomplie":
+            "Stabilized shelter absorbs Lower Watch’s pressure.",
+          "recuperation.accueil-stabilise.manquee":
+            "Unstabilized shelter feeds its pressure toward the Halo.",
+          "recuperation.charge-repartie-trame.amorcee":
+            "Iron Weave load redistribution remains unfinished.",
+          "recuperation.charge-repartie-trame.accomplie":
+            "Redistributed load reduces vibration reaching the Halo.",
+          "recuperation.charge-repartie-trame.manquee":
+            "Unredistributed load adds to saturation.",
+          "recuperation.attelage-recale-trame.amorcee":
+            "Consist realignment remains unfinished.",
+          "recuperation.attelage-recale-trame.accomplie":
+            "The realigned consist stabilizes the Halo’s mobile relays.",
+          "recuperation.attelage-recale-trame.manquee":
+            "The unaligned consist keeps the Halo relays out of tune.",
+          "phare.halo-sature-annonce":
+            "In two local minutes, the Lighthouse Halo will saturate before the Node.",
+          "phare.halo-sature":
+            "The Lighthouse Halo saturates and Convoy Time is paused.",
+        },
+        reponses: {
+          "stabiliser-anneau-du-halo": {
+            intention: "Brace the Halo ring",
+            coutConnu: "6 Materials",
+            consequence:
+              "The braces irreversibly limit the Halo’s future amplitude.",
+            mitigation:
+              "Its load can be redistributed at the Node within one segment.",
+            pireConsequence:
+              "Without reaching the Node, the Lighthouse stays constrained without shedding its load.",
+            attribution: "Lighthouse maintenance crews",
+          },
+          "relayer-halo-par-les-veilleurs": {
+            intention: "Bind five Watchers to Halo relief",
+            coutConnu: "5 inhabitants assigned",
+            consequence:
+              "Five inhabitants irreversibly leave their Hearths to hold the watch.",
+            mitigation:
+              "Their relief can be organized at the Node within one segment.",
+            pireConsequence:
+              "Without relief at the Node, the Watchers remain bound to the Crown.",
+            attribution: "Crown Watchers",
+          },
+          "condamner-couronne-exterieure": {
+            intention: "Seal the outer Crown",
+            coutConnu: "11 inhabitants assigned",
+            consequence:
+              "Eleven inhabitants and the outer accesses remain abandoned behind the bulkheads.",
+            mitigation:
+              "The inner passage toward the Node remains viable.",
+            pireConsequence:
+              "The outer Crown can never rejoin the Caravan-city.",
+            attribution: "Crown Hearths",
+          },
+        },
+        cicatrices: {
+          "cicatrice.halo-bride-par-les-etais":
+            "Halo constrained by braces",
+          "cicatrice.veilleurs-lies-au-halo":
+            "Watchers bound to the Halo",
+          "cicatrice.couronne-exterieure-condamnee":
+            "Outer Crown sealed",
+        },
+        consequencesCicatrices: {
+          "cicatrice.halo-bride-par-les-etais":
+            "The Lighthouse retains braces that irreversibly limit its Halo amplitude.",
+          "cicatrice.veilleurs-lies-au-halo":
+            "Five inhabitants remain absent from their Hearths until relief is organized.",
+          "cicatrice.couronne-exterieure-condamnee":
+            "The outer Crown’s accesses and Hearths can never rejoin the convoy.",
+        },
+        causes: {
+          "crise.couronne.stabiliser-anneau-du-halo":
+            "Irreversible ring stabilization",
+          "crise.couronne.relayer-halo-par-les-veilleurs":
+            "Human relief bound to the Halo",
+          "crise.couronne.condamner-couronne-exterieure":
+            "Last-resort sealing",
+        },
+        garanties: {
+          "halo-reparti-au-noeud": "Halo load redistributed at the Node",
+          "releve-des-veilleurs-au-noeud":
+            "Watcher relief at the Node",
+          "passage-interieur-preserve":
+            "Inner passage preserved",
+        },
+        destinations: { "noeud-central": "Central Node" },
+        conditionsRecuperation: {
+          "halo-reparti-au-noeud":
+            "Reach the Central Node within one route segment.",
+          "releve-des-veilleurs-au-noeud":
+            "Reach the Central Node to organize relief.",
+          "passage-interieur-preserve":
+            "Reach the Central Node through the inner passage.",
+        },
+      },
       besoins: {
         "pieces-de-voie": "Track parts and platform shelters",
         "filtres-de-sanctuaire": "Sanctuary filters and sealed surveys",

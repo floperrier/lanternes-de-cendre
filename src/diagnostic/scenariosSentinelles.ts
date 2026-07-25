@@ -20,12 +20,13 @@ import {
   VERSION_SIMULATION_COURANTE,
 } from "../simulation/versions";
 
-export const VERSION_SCENARIOS_SENTINELLES = 4 as const;
+export const VERSION_SCENARIOS_SENTINELLES = 5 as const;
 
 export const FAMILLES_DE_SCENARIOS_SENTINELLES = [
   "debut-nominal",
   "double-tension",
   "cascade-materielle",
+  "saturation-halo",
   "cohorte-en-penurie",
   "expeditions-simultanees",
   "compagnon-indisponible",
@@ -215,44 +216,44 @@ interface CalibrationDeScenario {
   readonly risquee: CalibrationDeConduite;
 }
 
-const CALIBRATIONS_V4: Readonly<Record<string, CalibrationDeScenario>> = {
+const CALIBRATIONS_V5: Readonly<Record<string, CalibrationDeScenario>> = {
   "debut-nominal": {
-    "snapshot": "d7e6907a",
+    "snapshot": "e6a66b74",
     "prudente": {
       "etapes": [
         [
           "appliquee",
-          "5f31e48e",
+          "930eaeda",
           "aff2fb9e"
         ],
         [
           "appliquee",
-          "ea25f78d",
+          "082ec56b",
           "c26287a4"
         ],
         [
           "appliquee",
-          "f7dc0703",
+          "18c05e53",
           "e0b6bb78"
         ],
         [
           "appliquee",
-          "60268450",
+          "9624ddfe",
           "8149ac96"
         ],
         [
           "appliquee",
-          "2e5dc6bb",
+          "1e58ee7f",
           "3e258581"
         ],
         [
           "appliquee",
-          "9bba4a7d",
+          "d15c7a6f",
           "ba64ef9e"
         ]
       ],
       "resultat": [
-        "9bba4a7d",
+        "d15c7a6f",
         "c7894952",
         120
       ]
@@ -261,54 +262,54 @@ const CALIBRATIONS_V4: Readonly<Record<string, CalibrationDeScenario>> = {
       "etapes": [
         [
           "appliquee",
-          "86dfa99f",
+          "263ead8d",
           "d79c674f"
         ],
         [
           "appliquee",
-          "bb3dab21",
+          "a8d09a0b",
           "0f114506"
         ],
         [
           "appliquee",
-          "7486a024",
+          "36772a1c",
           "3e258581"
         ],
         [
           "appliquee",
-          "c060f938",
+          "22703a9a",
           "debfe5f7"
         ]
       ],
       "resultat": [
-        "c060f938",
+        "22703a9a",
         "d14466cc",
         120
       ]
     }
   },
   "double-tension": {
-    "snapshot": "bbe304d7",
+    "snapshot": "9a67aa37",
     "prudente": {
       "etapes": [
         [
           "appliquee",
-          "d7ade5a7",
+          "7738bd6b",
           "a5237aae"
         ],
         [
           "appliquee",
-          "2c428c1d",
+          "f0fb7fc5",
           "f96f7e6d"
         ],
         [
           "appliquee",
-          "f29fb3ac",
+          "b08a0754",
           "a7678a5a"
         ]
       ],
       "resultat": [
-        "f29fb3ac",
+        "b08a0754",
         "40a813d5",
         30
       ]
@@ -317,49 +318,49 @@ const CALIBRATIONS_V4: Readonly<Record<string, CalibrationDeScenario>> = {
       "etapes": [
         [
           "appliquee",
-          "028f59a7",
+          "1a6381eb",
           "b95c389e"
         ],
         [
           "appliquee",
-          "57d3441c",
+          "28ff45d4",
           "47eb7a00"
         ],
         [
           "appliquee",
-          "c6ac2b7f",
+          "58f99bcb",
           "ab10e6fd"
         ]
       ],
       "resultat": [
-        "c6ac2b7f",
+        "58f99bcb",
         "151bbec1",
         30
       ]
     }
   },
   "cascade-materielle": {
-    "snapshot": "91413de0",
+    "snapshot": "79b58502",
     "prudente": {
       "etapes": [
         [
           "appliquee",
-          "09ece810",
+          "ddf41e1e",
           "35d1ef22"
         ],
         [
           "appliquee",
-          "6f83a954",
+          "013b9172",
           "941c4c66"
         ],
         [
           "appliquee",
-          "e72bf47a",
+          "709152ca",
           "a7e2dcc4"
         ]
       ],
       "resultat": [
-        "e72bf47a",
+        "709152ca",
         "40a91e1c",
         4320
       ]
@@ -368,114 +369,175 @@ const CALIBRATIONS_V4: Readonly<Record<string, CalibrationDeScenario>> = {
       "etapes": [
         [
           "appliquee",
-          "36c6ace0",
+          "186a7628",
           "2071b34b"
         ],
         [
           "appliquee",
-          "6b40e064",
+          "be10e15c",
           "941c4c66"
         ],
         [
           "appliquee",
-          "c0adc2e6",
+          "7fd9e36e",
           "65c2bf38"
         ],
         [
           "appliquee",
-          "6422d46a",
+          "c1dd3074",
           "ae3a67b6"
         ],
         [
           "appliquee",
-          "27535226",
+          "2a6b34b0",
           "813281aa"
         ],
         [
           "appliquee",
-          "0a03bfaf",
+          "5e46b073",
           "678db458"
         ],
         [
           "appliquee",
-          "0a03bfaf",
+          "5e46b073",
           "741638a5"
         ],
         [
           "appliquee",
-          "da4dc16a",
+          "37f1294a",
           "37a546d5"
         ],
         [
           "appliquee",
-          "4a9a1516",
+          "ae9e9d8e",
           "941c4c66"
         ],
         [
           "appliquee",
-          "4ab2e1f5",
+          "aaceef93",
           "218f120f"
         ]
       ],
       "resultat": [
-        "4ab2e1f5",
+        "aaceef93",
         "0893d8e9",
         4920
       ]
     }
   },
-  "cohorte-en-penurie": {
-    "snapshot": "143632e8",
+  "saturation-halo": {
+    "snapshot": "6932c2e8",
     "prudente": {
       "etapes": [
         [
           "appliquee",
-          "8abb6a85",
-          "dee842e9"
+          "0d3f5b86",
+          "5589efbb"
         ],
         [
           "appliquee",
-          "ab452e19",
-          "bcf0d2b0"
+          "071ca482",
+          "4ef53e47"
         ],
         [
           "appliquee",
-          "d6235a2d",
-          "72cdf3de"
-        ],
-        [
-          "appliquee",
-          "f9b79963",
-          "8216968c"
-        ],
-        [
-          "appliquee",
-          "af637987",
+          "35c5d4f6",
           "941c4c66"
         ],
         [
           "appliquee",
-          "7fd8558d",
+          "f69c20b7",
+          "7620edaa"
+        ]
+      ],
+      "resultat": [
+        "f69c20b7",
+        "1e076203",
+        6660
+      ]
+    },
+    "risquee": {
+      "etapes": [
+        [
+          "appliquee",
+          "1afaadf5",
+          "4a94c229"
+        ],
+        [
+          "appliquee",
+          "e709cbcd",
+          "4ef53e47"
+        ],
+        [
+          "appliquee",
+          "6559d4d9",
+          "941c4c66"
+        ],
+        [
+          "appliquee",
+          "18f5587a",
+          "702225bc"
+        ]
+      ],
+      "resultat": [
+        "18f5587a",
+        "96aa4815",
+        6660
+      ]
+    }
+  },
+  "cohorte-en-penurie": {
+    "snapshot": "4082002c",
+    "prudente": {
+      "etapes": [
+        [
+          "appliquee",
+          "95a21ae5",
+          "dee842e9"
+        ],
+        [
+          "appliquee",
+          "d67da63b",
+          "bcf0d2b0"
+        ],
+        [
+          "appliquee",
+          "48020557",
+          "72cdf3de"
+        ],
+        [
+          "appliquee",
+          "03696c21",
+          "8216968c"
+        ],
+        [
+          "appliquee",
+          "0658a645",
+          "941c4c66"
+        ],
+        [
+          "appliquee",
+          "c9ca3533",
           "a1bde86c"
         ],
         [
           "appliquee",
-          "8335acf0",
+          "1b325590",
           "7c97f944"
         ],
         [
           "appliquee",
-          "7edcda61",
+          "02824009",
           "ae290aaf"
         ],
         [
           "appliquee",
-          "466a743c",
+          "b16dcc36",
           "cd410d13"
         ]
       ],
       "resultat": [
-        "466a743c",
+        "b16dcc36",
         "5cf3d785",
         1260
       ]
@@ -484,74 +546,74 @@ const CALIBRATIONS_V4: Readonly<Record<string, CalibrationDeScenario>> = {
       "etapes": [
         [
           "appliquee",
-          "8abb6a85",
+          "95a21ae5",
           "dee842e9"
         ],
         [
           "appliquee",
-          "ab452e19",
+          "d67da63b",
           "bcf0d2b0"
         ],
         [
           "appliquee",
-          "d6235a2d",
+          "48020557",
           "72cdf3de"
         ],
         [
           "appliquee",
-          "3cd50e99",
+          "099e1255",
           "5fea5d92"
         ],
         [
           "appliquee",
-          "e52228d5",
+          "7d0c9c71",
           "941c4c66"
         ],
         [
           "appliquee",
-          "eb7c0c2a",
+          "4d3150fa",
           "a1bde86c"
         ],
         [
           "appliquee",
-          "4fc939b6",
+          "9206ab7e",
           "edc219fa"
         ],
         [
           "appliquee",
-          "e84ec05b",
+          "05adb9bb",
           "ae290aaf"
         ],
         [
           "appliquee",
-          "03f43765",
+          "8b25456f",
           "62b77ccb"
         ]
       ],
       "resultat": [
-        "03f43765",
+        "8b25456f",
         "ca5bc225",
         1260
       ]
     }
   },
   "expeditions-simultanees": {
-    "snapshot": "522f13f7",
+    "snapshot": "49f57fc3",
     "prudente": {
       "etapes": [
         [
           "appliquee",
-          "2aaac6c4",
+          "5bc2576c",
           "350e6008"
         ],
         [
           "appliquee",
-          "e89871ab",
+          "ed1141db",
           "6ba3e117"
         ]
       ],
       "resultat": [
-        "e89871ab",
+        "ed1141db",
         "ffe03cba",
         2520
       ]
@@ -560,39 +622,39 @@ const CALIBRATIONS_V4: Readonly<Record<string, CalibrationDeScenario>> = {
       "etapes": [
         [
           "appliquee",
-          "2aaac6c4",
+          "5bc2576c",
           "350e6008"
         ],
         [
           "appliquee",
-          "eaf2607a",
+          "9982e74c",
           "97e71c42"
         ],
         [
           "appliquee",
-          "314e634e",
+          "75b408f0",
           "3a41ef3c"
         ]
       ],
       "resultat": [
-        "314e634e",
+        "75b408f0",
         "2718450c",
         2520
       ]
     }
   },
   "compagnon-indisponible": {
-    "snapshot": "cd7c5c3c",
+    "snapshot": "ca86bcda",
     "prudente": {
       "etapes": [
         [
           "appliquee",
-          "30f1a48e",
+          "f7b74ed4",
           "d284e99e"
         ]
       ],
       "resultat": [
-        "30f1a48e",
+        "f7b74ed4",
         "d284e99e",
         0
       ]
@@ -601,50 +663,50 @@ const CALIBRATIONS_V4: Readonly<Record<string, CalibrationDeScenario>> = {
       "etapes": [
         [
           "refusee",
-          "cd7c5c3c",
+          "ca86bcda",
           "741638a5",
           "Ilyana Voss est indisponible."
         ]
       ],
       "resultat": [
-        "cd7c5c3c",
+        "ca86bcda",
         "741638a5",
         0
       ]
     }
   },
   "surcharge": {
-    "snapshot": "80a9ee7b",
+    "snapshot": "38d8923b",
     "prudente": {
       "etapes": [
         [
           "appliquee",
-          "d93ebe6e",
+          "02bf7f4e",
           "0de8de41"
         ],
         [
           "appliquee",
-          "3753f17f",
+          "30c98891",
           "1673dac6"
         ],
         [
           "appliquee",
-          "b748ab6c",
+          "f3b06dda",
           "be402c9b"
         ],
         [
           "appliquee",
-          "4c7e3769",
+          "8fe621a7",
           "09387469"
         ],
         [
           "appliquee",
-          "dc418cb3",
+          "53f6a70f",
           "1417d5bd"
         ]
       ],
       "resultat": [
-        "dc418cb3",
+        "53f6a70f",
         "95d8b8e8",
         45
       ]
@@ -653,40 +715,40 @@ const CALIBRATIONS_V4: Readonly<Record<string, CalibrationDeScenario>> = {
       "etapes": [
         [
           "appliquee",
-          "d93ebe6e",
+          "02bf7f4e",
           "0de8de41"
         ],
         [
           "appliquee",
-          "3753f17f",
+          "30c98891",
           "1673dac6"
         ],
         [
           "refusee",
-          "3753f17f",
+          "30c98891",
           "741638a5",
           "La contrainte de Charge empêche ce Chantier."
         ]
       ],
       "resultat": [
-        "3753f17f",
+        "30c98891",
         "2f0e1c5a",
         0
       ]
     }
   },
   "route-coupee": {
-    "snapshot": "d2adf8f0",
+    "snapshot": "0f68efa8",
     "prudente": {
       "etapes": [
         [
           "appliquee",
-          "b4f2e101",
+          "aae36bb3",
           "25d5c8de"
         ]
       ],
       "resultat": [
-        "b4f2e101",
+        "aae36bb3",
         "25d5c8de",
         0
       ]
@@ -695,50 +757,50 @@ const CALIBRATIONS_V4: Readonly<Record<string, CalibrationDeScenario>> = {
       "etapes": [
         [
           "refusee",
-          "d2adf8f0",
+          "0f68efa8",
           "741638a5",
           "Le Tronçon de route « digue-des-puits » n’est plus physiquement praticable."
         ]
       ],
       "resultat": [
-        "d2adf8f0",
+        "0f68efa8",
         "741638a5",
         0
       ]
     }
   },
   "abondance-exploitable": {
-    "snapshot": "953af9a5",
+    "snapshot": "b7d24fa5",
     "prudente": {
       "etapes": [
         [
           "appliquee",
-          "9fe00188",
+          "3c45ff38",
           "0de8de41"
         ],
         [
           "appliquee",
-          "1aa8df1b",
+          "1d3da7f5",
           "1673dac6"
         ],
         [
           "appliquee",
-          "4e1ef88d",
+          "235a09ab",
           "bca5f9de"
         ],
         [
           "appliquee",
-          "56784210",
+          "85be767e",
           "09387469"
         ],
         [
           "appliquee",
-          "a3d46425",
+          "37511ebd",
           "c5dddfda"
         ]
       ],
       "resultat": [
-        "a3d46425",
+        "37511ebd",
         "9f9e6a2e",
         60
       ]
@@ -747,44 +809,44 @@ const CALIBRATIONS_V4: Readonly<Record<string, CalibrationDeScenario>> = {
       "etapes": [
         [
           "appliquee",
-          "a663860c",
+          "540c6d24",
           "350e6008"
         ],
         [
           "appliquee",
-          "82b807e8",
+          "edacd330",
           "513acc4d"
         ],
         [
           "appliquee",
-          "47fcefcf",
+          "7133c96d",
           "6ceb4d77"
         ]
       ],
       "resultat": [
-        "47fcefcf",
+        "7133c96d",
         "2307eca8",
         9420
       ]
     }
   },
   "revelation-aiguillage-zero": {
-    "snapshot": "fe3ea47b",
+    "snapshot": "64cf77a7",
     "prudente": {
       "etapes": [
         [
           "appliquee",
-          "f53f770a",
+          "87f1b6fc",
           "467956df"
         ],
         [
           "appliquee",
-          "3658e77f",
+          "fd9ad7c7",
           "a870ec52"
         ]
       ],
       "resultat": [
-        "3658e77f",
+        "fd9ad7c7",
         "045e9e5c",
         3000
       ]
@@ -793,39 +855,39 @@ const CALIBRATIONS_V4: Readonly<Record<string, CalibrationDeScenario>> = {
       "etapes": [
         [
           "appliquee",
-          "f53f770a",
+          "87f1b6fc",
           "467956df"
         ],
         [
           "appliquee",
-          "f8e58cbc",
+          "85e12a5a",
           "f89e7fce"
         ]
       ],
       "resultat": [
-        "f8e58cbc",
+        "85e12a5a",
         "6320eee0",
         3000
       ]
     }
   },
   "revelation-couronne": {
-    "snapshot": "1b736ae0",
+    "snapshot": "38db3922",
     "prudente": {
       "etapes": [
         [
           "appliquee",
-          "5fd0ff02",
+          "51793188",
           "43e3ae52"
         ],
         [
           "appliquee",
-          "1db0a5ba",
+          "39592088",
           "5f214b23"
         ]
       ],
       "resultat": [
-        "1db0a5ba",
+        "39592088",
         "dd33a9cc",
         4000
       ]
@@ -834,69 +896,69 @@ const CALIBRATIONS_V4: Readonly<Record<string, CalibrationDeScenario>> = {
       "etapes": [
         [
           "appliquee",
-          "5fd0ff02",
+          "51793188",
           "43e3ae52"
         ],
         [
           "appliquee",
-          "97e8a3b3",
+          "52c6b6cd",
           "7d4bc53b"
         ]
       ],
       "resultat": [
-        "97e8a3b3",
+        "52c6b6cd",
         "6bb41470",
         4000
       ]
     }
   },
   "solution-finale-ancrer": {
-    "snapshot": "9b01dc89",
+    "snapshot": "cc22720b",
     "prudente": {
       "etapes": [
         [
           "appliquee",
-          "d498c40d",
+          "92804529",
           "69df907f"
         ],
         [
           "appliquee",
-          "34f782f4",
+          "d4733196",
           "3dd45549"
         ],
         [
           "appliquee",
-          "80c42346",
+          "363ceb9c",
           "4cb0cde2"
         ],
         [
           "appliquee",
-          "74342cba",
+          "4a3821fa",
           "9b41cbb2"
         ],
         [
           "appliquee",
-          "35f95a5c",
+          "3e456518",
           "74b3c65a"
         ],
         [
           "appliquee",
-          "dd133a40",
+          "9c03df5c",
           "13d66448"
         ],
         [
           "appliquee",
-          "33d45cd6",
+          "643219c2",
           "1fe7740e"
         ],
         [
           "appliquee",
-          "cb3121e0",
+          "b8ec3d38",
           "4314612c"
         ]
       ],
       "resultat": [
-        "cb3121e0",
+        "b8ec3d38",
         "bed5661d",
         4200
       ]
@@ -905,99 +967,99 @@ const CALIBRATIONS_V4: Readonly<Record<string, CalibrationDeScenario>> = {
       "etapes": [
         [
           "appliquee",
-          "d498c40d",
+          "92804529",
           "69df907f"
         ],
         [
           "appliquee",
-          "34f782f4",
+          "d4733196",
           "3dd45549"
         ],
         [
           "appliquee",
-          "80c42346",
+          "363ceb9c",
           "4cb0cde2"
         ],
         [
           "appliquee",
-          "74342cba",
+          "4a3821fa",
           "9b41cbb2"
         ],
         [
           "appliquee",
-          "35f95a5c",
+          "3e456518",
           "74b3c65a"
         ],
         [
           "appliquee",
-          "68b5d4d7",
+          "9710380f",
           "39015b8e"
         ],
         [
           "appliquee",
-          "d8ee631d",
+          "d951e87d",
           "1fe7740e"
         ],
         [
           "appliquee",
-          "81de1029",
+          "b94fe81b",
           "71963b84"
         ]
       ],
       "resultat": [
-        "81de1029",
+        "b94fe81b",
         "ecf47983",
         4200
       ]
     }
   },
   "solution-finale-reaccorder": {
-    "snapshot": "6358f18d",
+    "snapshot": "676fe9d5",
     "prudente": {
       "etapes": [
         [
           "appliquee",
-          "b67b40a7",
+          "913f4895",
           "69df907f"
         ],
         [
           "appliquee",
-          "9f271010",
+          "4d4ec7e4",
           "3dd45549"
         ],
         [
           "appliquee",
-          "eb9f6c96",
+          "1e9bd85e",
           "4cb0cde2"
         ],
         [
           "appliquee",
-          "17b6ecc2",
+          "de03a262",
           "81171206"
         ],
         [
           "appliquee",
-          "953811a2",
+          "c00a379c",
           "e79d67c6"
         ],
         [
           "appliquee",
-          "dc3c34ce",
+          "1010e1f4",
           "bf7a66fe"
         ],
         [
           "appliquee",
-          "9f3d50f8",
+          "ebe6cf46",
           "1fe7740e"
         ],
         [
           "appliquee",
-          "d19b34ca",
+          "73057408",
           "4314612c"
         ]
       ],
       "resultat": [
-        "d19b34ca",
+        "73057408",
         "aca1224b",
         4200
       ]
@@ -1006,99 +1068,99 @@ const CALIBRATIONS_V4: Readonly<Record<string, CalibrationDeScenario>> = {
       "etapes": [
         [
           "appliquee",
-          "b67b40a7",
+          "913f4895",
           "69df907f"
         ],
         [
           "appliquee",
-          "9f271010",
+          "4d4ec7e4",
           "3dd45549"
         ],
         [
           "appliquee",
-          "eb9f6c96",
+          "1e9bd85e",
           "4cb0cde2"
         ],
         [
           "appliquee",
-          "17b6ecc2",
+          "de03a262",
           "81171206"
         ],
         [
           "appliquee",
-          "953811a2",
+          "c00a379c",
           "e79d67c6"
         ],
         [
           "appliquee",
-          "5feb4144",
+          "51e73d82",
           "cef11d62"
         ],
         [
           "appliquee",
-          "015cfc96",
+          "51ef624c",
           "1fe7740e"
         ],
         [
           "appliquee",
-          "81f1b9bc",
+          "1f5b4b44",
           "71963b84"
         ]
       ],
       "resultat": [
-        "81f1b9bc",
+        "1f5b4b44",
         "26674e67",
         4200
       ]
     }
   },
   "solution-finale-precipiter": {
-    "snapshot": "feaaa3d6",
+    "snapshot": "4e6a1696",
     "prudente": {
       "etapes": [
         [
           "appliquee",
-          "5fb67970",
+          "205580d6",
           "69df907f"
         ],
         [
           "appliquee",
-          "f9703f5b",
+          "415400ab",
           "3dd45549"
         ],
         [
           "appliquee",
-          "08b60acd",
+          "e9fb3f31",
           "4cb0cde2"
         ],
         [
           "appliquee",
-          "c13696a1",
+          "79784ba3",
           "8bbdb43b"
         ],
         [
           "appliquee",
-          "2501eca0",
+          "fecdf202",
           "ee76a539"
         ],
         [
           "appliquee",
-          "3f21e03f",
+          "938a8d09",
           "4abf338b"
         ],
         [
           "appliquee",
-          "c22a423d",
+          "261d6c13",
           "1fe7740e"
         ],
         [
           "appliquee",
-          "00054381",
+          "32c80f8f",
           "4314612c"
         ]
       ],
       "resultat": [
-        "00054381",
+        "32c80f8f",
         "403fd334",
         4200
       ]
@@ -1107,47 +1169,47 @@ const CALIBRATIONS_V4: Readonly<Record<string, CalibrationDeScenario>> = {
       "etapes": [
         [
           "appliquee",
-          "5fb67970",
+          "205580d6",
           "69df907f"
         ],
         [
           "appliquee",
-          "f9703f5b",
+          "415400ab",
           "3dd45549"
         ],
         [
           "appliquee",
-          "08b60acd",
+          "e9fb3f31",
           "4cb0cde2"
         ],
         [
           "appliquee",
-          "c13696a1",
+          "79784ba3",
           "8bbdb43b"
         ],
         [
           "appliquee",
-          "2501eca0",
+          "fecdf202",
           "ee76a539"
         ],
         [
           "appliquee",
-          "ba5f05bc",
+          "0eb606a8",
           "931d2144"
         ],
         [
           "appliquee",
-          "bb328586",
+          "a81e0546",
           "1fe7740e"
         ],
         [
           "appliquee",
-          "cbaa343c",
+          "36bf4dbe",
           "71963b84"
         ]
       ],
       "resultat": [
-        "cbaa343c",
+        "36bf4dbe",
         "54b76d85",
         4200
       ]
@@ -1276,6 +1338,50 @@ function snapshotDeCriseDeTrame(): EtatCampagne {
   return etat;
 }
 
+let snapshotDeCriseDuHaloEnCache: EtatCampagne | undefined;
+
+function snapshotDeCriseDuHalo(): EtatCampagne {
+  if (snapshotDeCriseDuHaloEnCache !== undefined) {
+    return snapshotDeCriseDuHaloEnCache;
+  }
+  const strategie = STRATEGIES_D_EQUILIBRAGE.find(
+    ({ id }) => id === "vitesse-sous-contrainte",
+  );
+  if (strategie === undefined) {
+    throw new Error("Stratégie sentinelle du Halo absente.");
+  }
+  const graine = "SENTINELLE-HALO";
+  const campagne = executerCampagneHeadless({
+    graine,
+    strategie,
+    tracerEmpreintes: true,
+  });
+  const indexDeResolution = campagne.commandes.findIndex(
+    ({ commande }) =>
+      commande.type === "crise.resoudre" &&
+      commande.criseId === "couronne-muette.saturation-du-halo",
+  );
+  if (indexDeResolution < 0) {
+    throw new Error("La campagne sentinelle n’atteint pas la saturation du Halo.");
+  }
+
+  let etat = creerCampagneInitiale(graine);
+  for (const etape of campagne.commandes.slice(0, indexDeResolution)) {
+    if (etape.statut !== "appliquee") {
+      throw new Error("Le préambule du Halo contient une commande refusée.");
+    }
+    etat = appliquerCommande(etat, etape.commande).etat;
+  }
+  if (
+    etat.crises.criseActive?.id !==
+      "couronne-muette.saturation-du-halo"
+  ) {
+    throw new Error("Le snapshot causal du Halo est invalide.");
+  }
+  snapshotDeCriseDuHaloEnCache = etat;
+  return etat;
+}
+
 function etapes(
   commandes: readonly {
     readonly commande: CommandeCampagne;
@@ -1299,10 +1405,10 @@ function conduite(
 }
 
 function scenario(definition: ScenarioNonCalibre): ScenarioSentinelle {
-  const calibration = CALIBRATIONS_V4[definition.id];
+  const calibration = CALIBRATIONS_V5[definition.id];
   if (calibration === undefined) {
     throw new Error(
-      `Le scénario sentinelle « ${definition.id} » n’a pas de calibration V4.`,
+      `Le scénario sentinelle « ${definition.id} » n’a pas de calibration V5.`,
     );
   }
   const calibrerConduite = (
@@ -1372,6 +1478,7 @@ function construireScenariosSentinelles(): readonly ScenarioSentinelle[] {
     { eau: 90, combustible: 72 },
   );
   const cascadeMaterielle = snapshotDeCriseDeTrame();
+  const saturationHalo = snapshotDeCriseDuHalo();
   let cohorteEnPenurie = appliquerCommande(
     creerCampagneInitiale("SENTINELLE-V1-COHORTE-PENURIE"),
     {
@@ -1834,6 +1941,68 @@ function construireScenariosSentinelles(): readonly ScenarioSentinelle[] {
             commande: {
               type: "temps-du-convoi.ecouler",
               secondesReelles: 150,
+            },
+          },
+        ]),
+      },
+    }),
+    scenario({
+      id: "saturation-halo",
+      famille: "saturation-halo",
+      graine: saturationHalo.graine,
+      snapshot: saturationHalo,
+      conduites: {
+        prudente: conduite([
+          {
+            commande: {
+              type: "crise.resoudre",
+              criseId: "couronne-muette.saturation-du-halo",
+              reponseId: "stabiliser-anneau-du-halo",
+            },
+          },
+          {
+            commande: {
+              type: "engagement-de-route.confirmer",
+              tronconId: "breche-de-secours-du-noeud",
+            },
+          },
+          {
+            commande: {
+              type: "temps-du-convoi.regler-vitesse",
+              vitesse: 4,
+            },
+          },
+          {
+            commande: {
+              type: "temps-du-convoi.ecouler",
+              secondesReelles: 105,
+            },
+          },
+        ]),
+        risquee: conduite([
+          {
+            commande: {
+              type: "crise.resoudre",
+              criseId: "couronne-muette.saturation-du-halo",
+              reponseId: "condamner-couronne-exterieure",
+            },
+          },
+          {
+            commande: {
+              type: "engagement-de-route.confirmer",
+              tronconId: "breche-de-secours-du-noeud",
+            },
+          },
+          {
+            commande: {
+              type: "temps-du-convoi.regler-vitesse",
+              vitesse: 4,
+            },
+          },
+          {
+            commande: {
+              type: "temps-du-convoi.ecouler",
+              secondesReelles: 105,
             },
           },
         ]),

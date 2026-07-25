@@ -195,9 +195,12 @@ describe("Campagnes headless d’équilibrage", () => {
     expect(
       campagnesAvecCascadeMaterielle.every(
         ({ metriques }) =>
-          metriques.crises === 3 &&
+          metriques.crises >= 3 &&
           metriques.crisesParIdentifiant[
             "trame-fer.cascade-materielle"
+          ] === 1 &&
+          metriques.crisesParIdentifiant[
+            "couronne-muette.saturation-du-halo"
           ] === 1 &&
           metriques.crisesCausalesEtUniques,
       ),
@@ -585,6 +588,7 @@ function resultatMinimal(): ResultatDeCampagneHeadless {
         "penurie-eau.pompe-purification": 0,
         "veille-basse.accueil-sous-penurie": 0,
         "trame-fer.cascade-materielle": 0,
+        "couronne-muette.saturation-du-halo": 0,
       },
       crisesCausalesEtUniques: true,
       arriveeAuNoeud: true,

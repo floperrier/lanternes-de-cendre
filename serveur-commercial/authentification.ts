@@ -10,6 +10,7 @@ export interface OptionsDAuthentificationCommerciale {
   readonly secret: string;
   readonly database: NonNullable<BetterAuthOptions["database"]>;
   readonly cookiesSecurises?: boolean;
+  readonly limitationActive?: boolean;
   readonly envoyerLien: (message: {
     readonly email: string;
     readonly url: string;
@@ -30,6 +31,7 @@ export function creerAuthentificationCommerciale({
   secret,
   database,
   cookiesSecurises = true,
+  limitationActive = true,
   envoyerLien,
   auditer,
 }: OptionsDAuthentificationCommerciale) {
@@ -50,7 +52,7 @@ export function creerAuthentificationCommerciale({
     database,
     trustedOrigins: [origineApplication],
     rateLimit: {
-      enabled: true,
+      enabled: limitationActive,
       storage: "database",
       customRules: {
         "/sign-in/magic-link": { window: 60, max: 5 },

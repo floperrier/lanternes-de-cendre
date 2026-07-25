@@ -12,6 +12,7 @@ import {
   VERSION_ALEATOIRE_COURANTE,
   VERSION_SIMULATION_AVANT_CRISES,
   VERSION_SIMULATION_AVANT_CRISE_DE_TRAME,
+  VERSION_SIMULATION_AVANT_CRISE_DU_HALO,
   VERSION_SIMULATION_AVANT_CRISES_SEQUENTIELLES,
   VERSION_SIMULATION_AVANT_DENOUEMENT,
   VERSION_SIMULATION_AVANT_DEVERSOIR,
@@ -113,11 +114,13 @@ import {
   FAIT_ANNONCANT_LA_CRISE,
   FAIT_ANNONCANT_LA_CRISE_DE_TRAME,
   FAIT_ANNONCANT_LA_CRISE_DE_VEILLE_BASSE,
+  FAITS_ANNONCANT_LA_CRISE_DU_HALO,
   IDENTIFIANTS_DE_FAITS_DE_CRISE,
   IDENTIFIANTS_DE_FAITS_DE_RECUPERATION,
   IDENTIFIANT_DE_LA_CRISE_DE_REFERENCE,
   IDENTIFIANT_DE_LA_CRISE_DE_TRAME,
   IDENTIFIANT_DE_LA_CRISE_DE_VEILLE_BASSE,
+  IDENTIFIANT_DE_LA_CRISE_DU_HALO,
   annoncerCriseApresFaits,
   creerEtatDesCrisesInitial,
   declencherCrise,
@@ -349,6 +352,7 @@ export interface EtatDesCrisesV11
     | "historique"
     | "crisesSequentiellesHistoriquesIgnorees"
     | "crisesDeTrameHistoriquesIgnorees"
+    | "crisesDuHaloHistoriquesIgnorees"
     | "recuperations"
   > {
   readonly recuperations: readonly {
@@ -384,6 +388,7 @@ export type EtatDesCrisesV12 = Omit<
   | "historique"
   | "crisesSequentiellesHistoriquesIgnorees"
   | "crisesDeTrameHistoriquesIgnorees"
+  | "crisesDuHaloHistoriquesIgnorees"
 >;
 
 export interface EtatCampagneV12
@@ -394,13 +399,24 @@ export interface EtatCampagneV12
 
 export type EtatDesCrisesV13 = Omit<
   EtatDesCrises,
-  "crisesDeTrameHistoriquesIgnorees"
+  "crisesDeTrameHistoriquesIgnorees" | "crisesDuHaloHistoriquesIgnorees"
 >;
 
 export interface EtatCampagneV13
   extends Omit<EtatCampagne, "version" | "crises"> {
   readonly version: typeof VERSION_SIMULATION_AVANT_CRISE_DE_TRAME;
   readonly crises: EtatDesCrisesV13;
+}
+
+export type EtatDesCrisesV14 = Omit<
+  EtatDesCrises,
+  "crisesDuHaloHistoriquesIgnorees"
+>;
+
+export interface EtatCampagneV14
+  extends Omit<EtatCampagne, "version" | "crises"> {
+  readonly version: typeof VERSION_SIMULATION_AVANT_CRISE_DU_HALO;
+  readonly crises: EtatDesCrisesV14;
 }
 
 export function estObjet(valeur: unknown): valeur is ObjetInconnu {
@@ -1054,6 +1070,21 @@ export function estFaitDeCampagneV2(valeur: unknown): boolean {
           "ateliers-grand-aiguillage",
         ]) &&
         valeur.cible === "chassis-de-la-cite-caravane" &&
+        materiels.length === 0 &&
+        humains.length === 1 &&
+        estEffetHumain(humains[0], "habitants.exposes", "nombre", 0)
+      );
+    }
+    if (valeur.id === IDENTIFIANTS_DE_FAITS_DE_CRISE[10]) {
+      return (
+        FAITS_ANNONCANT_LA_CRISE_DU_HALO.includes(
+          valeur.cause as (typeof FAITS_ANNONCANT_LA_CRISE_DU_HALO)[number],
+        ) &&
+        memesChaines(acteurs, [
+          "veilleurs-de-la-couronne",
+          "equipes-du-phare",
+        ]) &&
+        valeur.cible === "halo-du-phare" &&
         materiels.length === 0 &&
         humains.length === 1 &&
         estEffetHumain(humains[0], "habitants.exposes", "nombre", 0)
@@ -3546,14 +3577,19 @@ function acteursEtCibleDeRecuperation(
   }
   if (
     garantie === "charge-repartie-trame" ||
-    garantie === "attelage-recale-trame"
+    garantie === "attelage-recale-trame" ||
+    garantie === "halo-reparti-au-noeud" ||
+    garantie === "releve-des-veilleurs-au-noeud" ||
+    garantie === "passage-interieur-preserve"
   ) {
     return {
       acteurs: ["porte-lanterne", "equipes-entretien"],
       cible:
         garantie === "charge-repartie-trame"
           ? "marche-des-traverses"
-          : "signal-zero",
+          : garantie === "attelage-recale-trame"
+            ? "signal-zero"
+            : "noeud-central",
     };
   }
   return {
@@ -3839,6 +3875,7 @@ function estEtatDesCrises(
     typeof valeur.crisesSequentiellesHistoriquesIgnorees !==
       "boolean" ||
     typeof valeur.crisesDeTrameHistoriquesIgnorees !== "boolean" ||
+    typeof valeur.crisesDuHaloHistoriquesIgnorees !== "boolean" ||
     !Array.isArray(valeur.historique)
   ) {
     return false;
@@ -3852,6 +3889,13 @@ function estEtatDesCrises(
   );
   const faitDeTramePresent = faits.some(
     (fait) => fait.id === FAIT_ANNONCANT_LA_CRISE_DE_TRAME,
+  );
+  const faitDuHaloPresent = faits.some((fait) =>
+    FAITS_ANNONCANT_LA_CRISE_DU_HALO.includes(
+      String(
+        fait.id,
+      ) as (typeof FAITS_ANNONCANT_LA_CRISE_DU_HALO)[number],
+    ),
   );
   if (
     valeur.faitAnnonceurHistoriqueIgnore &&
@@ -3873,6 +3917,12 @@ function estEtatDesCrises(
   ) {
     return false;
   }
+  if (
+    valeur.crisesDuHaloHistoriquesIgnorees &&
+    !faitDuHaloPresent
+  ) {
+    return false;
+  }
 
   let attendu = {
     ...creerEtatDesCrisesInitial(),
@@ -3882,6 +3932,8 @@ function estEtatDesCrises(
       valeur.crisesSequentiellesHistoriquesIgnorees,
     crisesDeTrameHistoriquesIgnorees:
       valeur.crisesDeTrameHistoriquesIgnorees,
+    crisesDuHaloHistoriquesIgnorees:
+      valeur.crisesDuHaloHistoriquesIgnorees,
   };
   const faitsVus: ObjetInconnu[] = [];
   const identifiantsDeDeclenchement = new Map([
@@ -3896,6 +3948,10 @@ function estEtatDesCrises(
     [
       "crise.trame.cascade-materielle",
       IDENTIFIANT_DE_LA_CRISE_DE_TRAME,
+    ],
+    [
+      "crise.couronne.saturation-du-halo",
+      IDENTIFIANT_DE_LA_CRISE_DU_HALO,
     ],
   ] as const);
   const definitionsParFait = new Map(
@@ -4044,6 +4100,7 @@ function estEtatDesCrises(
         dernierJalon === undefined
           ? null
           : (routes.etatsReels[dernierJalon.tronconId] ?? null),
+      phare: "actif" as const,
     };
   };
   const annoncerAuMoment = (moment: number) => {
@@ -4072,7 +4129,8 @@ function estEtatDesCrises(
       String(fait.id) as
         | "crise.purification.eau-contaminee"
         | "crise.veille-basse.accueil-sous-penurie"
-        | "crise.trame.cascade-materielle",
+        | "crise.trame.cascade-materielle"
+        | "crise.couronne.saturation-du-halo",
     );
     const definition = definitionsParFait.get(
       String(fait.id) as DefinitionDeReponseALaCrise["faitProduit"],
@@ -4168,7 +4226,10 @@ function estEtatDesCrises(
       (fait.moment as number) >= momentAnnonceDeTrame
     ) {
       annoncerAuMoment(
-        momentAnnonceDeTrame ?? (fait.moment as number),
+        momentAnnonceDeTrame !== undefined &&
+          (fait.moment as number) <= momentAnnonceDeTrame
+          ? momentAnnonceDeTrame
+          : (fait.moment as number),
       );
     } else {
       const annonce = annoncerCriseApresFaits(
@@ -4316,7 +4377,7 @@ function lirePartiesCommunesDEtat(
     typeof cite.habitants !== "number" ||
     !Number.isInteger(cite.habitants) ||
     cite.habitants < 0 ||
-    cite.phare !== "actif" ||
+    (cite.phare !== "actif" && cite.phare !== "halo-sature") ||
     !estObjet(cite.formation) ||
     cite.formation.type !== "grappe" ||
     !estTableauDeChaines(cite.formation.plateformes) ||
@@ -4364,7 +4425,7 @@ function lirePartiesCommunesDEtat(
     },
     citeCaravane: {
       habitants: cite.habitants,
-      phare: "actif",
+      phare: cite.phare as "actif" | "halo-sature",
       formation: {
         type: "grappe",
         plateformes: cite.formation
@@ -4704,6 +4765,10 @@ function lireEtatAvecSchemaCourant(
         autoriserMarqueurHistoriqueSansFait,
         ignorerCrisesSequentielles,
       )) ||
+    (parties.citeCaravane.phare === "halo-sature") !==
+      (estObjet(crises) &&
+        estObjet(crises.criseActive) &&
+        crises.criseActive.id === IDENTIFIANT_DE_LA_CRISE_DU_HALO) ||
     (trouverEngagementDeRouteActif(routes) !== undefined &&
       (infrastructure.deploiement === "halte" ||
         infrastructure.chantierActif !== null)) ||
@@ -4803,6 +4868,66 @@ export function lireSnapshotCourant(
   return lireEtatAvecSchemaCourant(valeur, true, true);
 }
 
+function promouvoirCrisesV14(
+  valeur: unknown,
+  faits: readonly FaitDeCampagne[],
+): unknown {
+  if (!estObjet(valeur) || "crisesDuHaloHistoriquesIgnorees" in valeur) {
+    return valeur;
+  }
+  return {
+    ...valeur,
+    crisesDuHaloHistoriquesIgnorees: faits.some(({ id }) =>
+      FAITS_ANNONCANT_LA_CRISE_DU_HALO.includes(
+        id as (typeof FAITS_ANNONCANT_LA_CRISE_DU_HALO)[number],
+      ),
+    ),
+  };
+}
+
+function lireEtatAvecSchemaV14(
+  valeur: unknown,
+  autoriserMarqueurHistoriqueSansFait = false,
+): EtatCampagneV14 | undefined {
+  if (
+    !estObjet(valeur) ||
+    valeur.version !== VERSION_SIMULATION_AVANT_CRISE_DU_HALO ||
+    !estObjet(valeur.narration) ||
+    !Array.isArray(valeur.narration.faitsDeCampagne) ||
+    !estObjet(valeur.crises) ||
+    "crisesDuHaloHistoriquesIgnorees" in valeur.crises
+  ) {
+    return undefined;
+  }
+  const faits =
+    valeur.narration
+      .faitsDeCampagne as unknown as readonly FaitDeCampagne[];
+  const etatCourant = lireEtatAvecSchemaCourant(
+    {
+      ...valeur,
+      version: VERSION_SIMULATION_COURANTE,
+      crises: promouvoirCrisesV14(valeur.crises, faits),
+    },
+    true,
+    autoriserMarqueurHistoriqueSansFait,
+  );
+  return etatCourant === undefined
+    ? undefined
+    : (valeur as unknown as EtatCampagneV14);
+}
+
+export function lireEtatV14(
+  valeur: unknown,
+): EtatCampagneV14 | undefined {
+  return lireEtatAvecSchemaV14(valeur);
+}
+
+export function lireSnapshotV14(
+  valeur: unknown,
+): EtatCampagneV14 | undefined {
+  return lireEtatAvecSchemaV14(valeur, true);
+}
+
 function promouvoirCrisesV13(
   valeur: unknown,
   faits: readonly FaitDeCampagne[],
@@ -4814,6 +4939,11 @@ function promouvoirCrisesV13(
     ...valeur,
     crisesDeTrameHistoriquesIgnorees: faits.some(
       ({ id }) => id === FAIT_ANNONCANT_LA_CRISE_DE_TRAME,
+    ),
+    crisesDuHaloHistoriquesIgnorees: faits.some(({ id }) =>
+      FAITS_ANNONCANT_LA_CRISE_DU_HALO.includes(
+        id as (typeof FAITS_ANNONCANT_LA_CRISE_DU_HALO)[number],
+      ),
     ),
   };
 }
@@ -4828,7 +4958,8 @@ function lireEtatAvecSchemaV13(
     !estObjet(valeur.narration) ||
     !Array.isArray(valeur.narration.faitsDeCampagne) ||
     !estObjet(valeur.crises) ||
-    "crisesDeTrameHistoriquesIgnorees" in valeur.crises
+    "crisesDeTrameHistoriquesIgnorees" in valeur.crises ||
+    "crisesDuHaloHistoriquesIgnorees" in valeur.crises
   ) {
     return undefined;
   }
@@ -4873,6 +5004,11 @@ function promouvoirCrisesV12(
     crisesDeTrameHistoriquesIgnorees: faits.some(
       ({ id }) => id === FAIT_ANNONCANT_LA_CRISE_DE_TRAME,
     ),
+    crisesDuHaloHistoriquesIgnorees: faits.some(({ id }) =>
+      FAITS_ANNONCANT_LA_CRISE_DU_HALO.includes(
+        id as (typeof FAITS_ANNONCANT_LA_CRISE_DU_HALO)[number],
+      ),
+    ),
     crisesSequentiellesHistoriquesIgnorees: faits.some(
       ({ id }) => id === FAIT_ANNONCANT_LA_CRISE_DE_VEILLE_BASSE,
     ),
@@ -4892,7 +5028,8 @@ function lireEtatAvecSchemaV12(
     !estObjet(valeur.crises) ||
     "historique" in valeur.crises ||
     "crisesSequentiellesHistoriquesIgnorees" in valeur.crises ||
-    "crisesDeTrameHistoriquesIgnorees" in valeur.crises
+    "crisesDeTrameHistoriquesIgnorees" in valeur.crises ||
+    "crisesDuHaloHistoriquesIgnorees" in valeur.crises
   ) {
     return undefined;
   }
@@ -4939,7 +5076,8 @@ function promouvoirCrisesV11(
     !Array.isArray(valeur.cicatrices) ||
     "historique" in valeur ||
     "crisesSequentiellesHistoriquesIgnorees" in valeur ||
-    "crisesDeTrameHistoriquesIgnorees" in valeur
+    "crisesDeTrameHistoriquesIgnorees" in valeur ||
+    "crisesDuHaloHistoriquesIgnorees" in valeur
   ) {
     return valeur;
   }
@@ -4948,6 +5086,11 @@ function promouvoirCrisesV11(
     ...valeur,
     crisesDeTrameHistoriquesIgnorees: faits.some(
       ({ id }) => id === FAIT_ANNONCANT_LA_CRISE_DE_TRAME,
+    ),
+    crisesDuHaloHistoriquesIgnorees: faits.some(({ id }) =>
+      FAITS_ANNONCANT_LA_CRISE_DU_HALO.includes(
+        id as (typeof FAITS_ANNONCANT_LA_CRISE_DU_HALO)[number],
+      ),
     ),
     crisesSequentiellesHistoriquesIgnorees: faits.some(
       ({ id }) => id === FAIT_ANNONCANT_LA_CRISE_DE_VEILLE_BASSE,

@@ -104,11 +104,14 @@ function exporterArchiveV12(courant: EtatCampagne): string {
       _crisesSequentiellesHistoriquesIgnorees,
     crisesDeTrameHistoriquesIgnorees:
       _crisesDeTrameHistoriquesIgnorees,
+    crisesDuHaloHistoriquesIgnorees:
+      _crisesDuHaloHistoriquesIgnorees,
     ...crisesV12
   } = courant.crises;
   void _historique;
   void _crisesSequentiellesHistoriquesIgnorees;
   void _crisesDeTrameHistoriquesIgnorees;
+  void _crisesDuHaloHistoriquesIgnorees;
   const etatV12 = {
     ...courant,
     version: VERSION_SAUVEGARDE_AVANT_CRISES_SEQUENTIELLES,
@@ -198,8 +201,8 @@ describe("persistance de la Crise séquentielle de Veille-Basse", () => {
       ),
     );
 
-    expect(VERSION_SIMULATION_COURANTE).toBe(14);
-    expect(VERSION_SAUVEGARDE_COURANTE).toBe(14);
+    expect(VERSION_SIMULATION_COURANTE).toBe(15);
+    expect(VERSION_SAUVEGARDE_COURANTE).toBe(15);
     expect(lireSnapshotCourant(parcours.reproduction.snapshot)).toBeDefined();
     expect(lireEtatCourant(parcours.etat)).toBeDefined();
     expect(rejouerReproduction(parcours.reproduction)).toEqual({

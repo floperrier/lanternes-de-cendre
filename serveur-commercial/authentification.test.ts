@@ -11,6 +11,7 @@ const ORIGINE = "http://localhost:4173";
 
 async function creerAuth(
   database: DatabaseSync = new DatabaseSync(":memory:"),
+  limitationActive = true,
 ) {
   const messages: { email: string; url: string }[] = [];
   const auth = creerAuthentificationCommerciale({
@@ -19,6 +20,7 @@ async function creerAuth(
     secret: "mT8qL2vN7sR4xK9cD1gH6jP3wF0yB5eZaU",
     database,
     cookiesSecurises: false,
+    limitationActive,
     envoyerLien: async (message) => {
       messages.push(message);
     },
@@ -54,6 +56,35 @@ async function creerSession(
 }
 
 describe("authentification commerciale Better Auth", () => {
+  it("désactive explicitement la limite dans le serveur de développement", async () => {
+    const { auth, database } = await creerAuth(
+      new DatabaseSync(":memory:"),
+      false,
+    );
+    const statuts: number[] = [];
+
+    for (let index = 0; index < 6; index += 1) {
+      const reponse = await auth.handler(
+        new Request(`${ORIGINE}/api/auth/sign-in/magic-link`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            origin: ORIGINE,
+            "x-real-ip": "127.0.0.1",
+          },
+          body: JSON.stringify({
+            email: `veilleuse-${index}@example.test`,
+            callbackURL: `${ORIGINE}/?commerce=restaurer`,
+          }),
+        }),
+      );
+      statuts.push(reponse.status);
+    }
+
+    expect(statuts).toEqual([200, 200, 200, 200, 200, 200]);
+    database.close();
+  });
+
   it("envoie un magic link, crée une session HttpOnly et consomme le lien une fois", async () => {
     const { auth, database, messages } = await creerAuth();
     await auth.api.signInMagicLink({

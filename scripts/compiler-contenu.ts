@@ -347,6 +347,16 @@ const faitsPremium = new Set([
   "crise.recuperation.charge-repartie-trame.manquee",
   "crise.recuperation.attelage-recale-trame.accomplie",
   "crise.recuperation.attelage-recale-trame.manquee",
+  "crise.couronne.saturation-du-halo",
+  "crise.couronne.stabiliser-anneau-du-halo",
+  "crise.couronne.relayer-halo-par-les-veilleurs",
+  "crise.couronne.condamner-couronne-exterieure",
+  "crise.recuperation.halo-reparti-au-noeud.accomplie",
+  "crise.recuperation.halo-reparti-au-noeud.manquee",
+  "crise.recuperation.releve-des-veilleurs-au-noeud.accomplie",
+  "crise.recuperation.releve-des-veilleurs-au-noeud.manquee",
+  "crise.recuperation.passage-interieur-preserve.accomplie",
+  "crise.recuperation.passage-interieur-preserve.manquee",
   ...conseilsPremium.flatMap((conseil) =>
     conseil.sujets.flatMap((sujet) =>
       sujet.decisions.map((decision) => decision.faitProduit)
@@ -363,6 +373,12 @@ const causesPremium = new Set([
   "trame-fer.cascade-materielle",
   "cicatrice.chassis-etaye-dans-l-urgence",
   "cicatrice.plateforme-detachee-trame",
+  "couronne.ouverture.clef-confiee-aux-gardiennes",
+  "couronne.ouverture.clef-collective",
+  "couronne-muette.saturation-du-halo",
+  "cicatrice.halo-bride-par-les-etais",
+  "cicatrice.veilleurs-lies-au-halo",
+  "cicatrice.couronne-exterieure-condamnee",
 ]);
 const acteursDeBase = acteurs(evenementsDeBase);
 const acteursPremium = new Set([
@@ -371,6 +387,10 @@ const acteursPremium = new Set([
   "techniciens-veille-basse",
   "equipes-entretien",
   "ateliers-grand-aiguillage",
+  "veilleurs-de-la-couronne",
+  "equipes-du-phare",
+  "equipes-entretien-du-phare",
+  "foyers-de-la-couronne",
 ]);
 const ciblesDeBase = cibles(evenementsDeBase);
 const ciblesPremium = new Set([
@@ -383,6 +403,11 @@ const ciblesPremium = new Set([
   "plateforme-mobile-detachee",
   "marche-des-traverses",
   "signal-zero",
+  "halo-du-phare",
+  "anneau-du-halo",
+  "veille-du-halo",
+  "couronne-exterieure",
+  "noeud-central",
 ]);
 const identifiantsDeJournalDeBase = new Set([
   ...acteursDeBase,

@@ -7,6 +7,7 @@ import type { EtatCampagne } from "../simulation/campagne";
 import {
   IDENTIFIANT_DE_LA_CRISE_DE_VEILLE_BASSE,
   IDENTIFIANT_DE_LA_CRISE_DE_TRAME,
+  IDENTIFIANT_DE_LA_CRISE_DU_HALO,
   listerDefinitionsDesReponsesALaCrise,
   reponseALaCriseEstViable,
   type GarantieDeRecuperation,
@@ -339,30 +340,38 @@ export function projeterCrises(
     lirePresentationsPremium()?.veilleBasse[langue].crise;
   const textesDeTrame =
     lirePresentationsPremium()?.trame?.[langue].crise;
+  const textesDuHalo =
+    lirePresentationsPremium()?.couronne?.[langue].crise;
   const textesPremium = {
     cicatrices: {
       ...textesDeVeilleBasse?.cicatrices,
       ...textesDeTrame?.cicatrices,
+      ...textesDuHalo?.cicatrices,
     },
     consequencesCicatrices: {
       ...textesDeVeilleBasse?.consequencesCicatrices,
       ...textesDeTrame?.consequencesCicatrices,
+      ...textesDuHalo?.consequencesCicatrices,
     },
     causes: {
       ...textesDeVeilleBasse?.causes,
       ...textesDeTrame?.causes,
+      ...textesDuHalo?.causes,
     },
     garanties: {
       ...textesDeVeilleBasse?.garanties,
       ...textesDeTrame?.garanties,
+      ...textesDuHalo?.garanties,
     },
     conditionsRecuperation: {
       ...textesDeVeilleBasse?.conditionsRecuperation,
       ...textesDeTrame?.conditionsRecuperation,
+      ...textesDuHalo?.conditionsRecuperation,
     },
     destinations: {
       ...textesDeVeilleBasse?.destinations,
       ...textesDeTrame?.destinations,
+      ...textesDuHalo?.destinations,
     },
   };
   const alerte = etat.crises.alerte;
@@ -371,20 +380,37 @@ export function projeterCrises(
     alerte?.id === IDENTIFIANT_DE_LA_CRISE_DE_VEILLE_BASSE;
   const alerteDeTrame =
     alerte?.id === IDENTIFIANT_DE_LA_CRISE_DE_TRAME;
+  const alerteDuHalo =
+    alerte?.id === IDENTIFIANT_DE_LA_CRISE_DU_HALO;
   const criseDeVeilleBasse =
     active?.id === IDENTIFIANT_DE_LA_CRISE_DE_VEILLE_BASSE;
   const criseDeTrame =
     active?.id === IDENTIFIANT_DE_LA_CRISE_DE_TRAME;
+  const criseDuHalo =
+    active?.id === IDENTIFIANT_DE_LA_CRISE_DU_HALO;
   const presentationDeLAlerte = alerteDeTrame
     ? textesDeTrame
-    : alerteDeVeilleBasse
-      ? textesDeVeilleBasse
-      : undefined;
+    : alerteDuHalo
+      ? textesDuHalo
+      : alerteDeVeilleBasse
+        ? textesDeVeilleBasse
+        : undefined;
   const presentationDeLaCrise = criseDeTrame
     ? textesDeTrame
-    : criseDeVeilleBasse
-      ? textesDeVeilleBasse
-      : undefined;
+    : criseDuHalo
+      ? textesDuHalo
+      : criseDeVeilleBasse
+        ? textesDeVeilleBasse
+        : undefined;
+  const projeterChaine = (
+    chaine: readonly { readonly id: string }[],
+    presentation: TextesDeCriseDeVeilleBasse | undefined,
+  ): readonly string[] =>
+    presentation?.maillons === undefined
+      ? (presentation?.chaine ?? textes.chaine).slice(0, chaine.length)
+      : chaine.map(
+          ({ id }) => presentation.maillons?.[id] ?? id,
+        );
   return {
     alerte:
       alerte === null || active !== null
@@ -396,9 +422,10 @@ export function projeterCrises(
             cause:
               presentationDeLAlerte?.alerteCause ??
               textes.alerteCause,
-            chaineVisible: (
-              presentationDeLAlerte?.chaine ?? textes.chaine
-            ).slice(0, alerte.chaineVisible.length),
+            chaineVisible: projeterChaine(
+              alerte.chaineVisible,
+              presentationDeLAlerte,
+            ),
             echeance: formaterEcheance(
               Math.max(0, alerte.ruptureA - etat.tempsDuConvoi.secondes),
               langue,
@@ -413,8 +440,10 @@ export function projeterCrises(
               presentationDeLaCrise?.titre ?? textes.criseTitre,
             cause:
               presentationDeLaCrise?.cause ?? textes.criseCause,
-            chaineVisible:
-              presentationDeLaCrise?.chaine ?? textes.chaine,
+            chaineVisible: projeterChaine(
+              active.chaineVisible,
+              presentationDeLaCrise,
+            ),
             instruction: textes.instruction,
             reponses: listerDefinitionsDesReponsesALaCrise(
               active.id,

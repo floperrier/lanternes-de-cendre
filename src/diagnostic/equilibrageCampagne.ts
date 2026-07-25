@@ -959,7 +959,11 @@ function choisirReponseDeCrise(
       return reponseId;
     }
   }
-  return "evacuer-les-foyers-exposes";
+  const premiereReponseViable = reponsesViables[0];
+  if (premiereReponseViable === undefined) {
+    throw new Error(`Aucune réponse viable pour « ${etat.crises.criseActive?.id} ».`);
+  }
+  return premiereReponseViable;
 }
 
 function listerReponsesDeCriseViables(
@@ -1023,6 +1027,7 @@ export function executerCampagneHeadless({
       "penurie-eau.pompe-purification": 0,
       "veille-basse.accueil-sous-penurie": 0,
       "trame-fer.cascade-materielle": 0,
+      "couronne-muette.saturation-du-halo": 0,
     },
     secondesActives: 0,
     secondesDeChargeDEntretien: 0,
@@ -1341,6 +1346,34 @@ export function executerCampagneHeadless({
       continue;
     }
 
+    if (
+      etat.crises.alerte?.id ===
+      "couronne-muette.saturation-du-halo"
+    ) {
+      if (
+        etat.tempsDuConvoi.vitesse !== 4 &&
+        !executer({
+          type: "temps-du-convoi.regler-vitesse",
+          vitesse: 4,
+        })
+      ) {
+        break;
+      }
+      if (
+        !executer({
+          type: "temps-du-convoi.ecouler",
+          secondesReelles: Math.ceil(
+            (etat.crises.alerte.ruptureA -
+              etat.tempsDuConvoi.secondes) /
+              4,
+          ),
+        })
+      ) {
+        break;
+      }
+      continue;
+    }
+
     const engagement = trouverEngagementDeRouteActif(etat.routes);
     if (engagement !== undefined) {
       if (
@@ -1615,6 +1648,23 @@ export function executerCampagneHeadless({
           id.startsWith("crise.recuperation.") &&
           (id.includes("charge-repartie-trame") ||
             id.includes("attelage-recale-trame")),
+        ))) &&
+    (metriques.crisesParIdentifiant[
+      "couronne-muette.saturation-du-halo"
+    ] === 0 ||
+      (faitsFinaux.includes("crise.couronne.saturation-du-halo") &&
+        faitsFinaux.some(
+          (id) =>
+            id === "couronne.ouverture.clef-collective" ||
+            id ===
+              "couronne.ouverture.clef-confiee-aux-gardiennes",
+        ) &&
+        faitsFinaux.some(
+          (id) =>
+            id === "crise.couronne.stabiliser-anneau-du-halo" ||
+            id ===
+              "crise.couronne.relayer-halo-par-les-veilleurs" ||
+            id === "crise.couronne.condamner-couronne-exterieure",
         )));
   return {
     format: "lanternes-de-cendre.campagne-headless",

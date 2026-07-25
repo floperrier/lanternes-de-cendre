@@ -8,12 +8,18 @@ export const IDENTIFIANT_DE_LA_CRISE_DE_VEILLE_BASSE =
   "veille-basse.accueil-sous-penurie" as const;
 export const IDENTIFIANT_DE_LA_CRISE_DE_TRAME =
   "trame-fer.cascade-materielle" as const;
+export const IDENTIFIANT_DE_LA_CRISE_DU_HALO =
+  "couronne-muette.saturation-du-halo" as const;
 export const FAIT_ANNONCANT_LA_CRISE =
   "incident.purification.pompe-instable.debit-maintenu" as const;
 export const FAIT_ANNONCANT_LA_CRISE_DE_VEILLE_BASSE =
   "veille-basse.cohorte-accueillie" as const;
 export const FAIT_ANNONCANT_LA_CRISE_DE_TRAME =
   "trame.grand-aiguillage.refroidissement-rationne" as const;
+export const FAITS_ANNONCANT_LA_CRISE_DU_HALO = [
+  "couronne.ouverture.clef-confiee-aux-gardiennes",
+  "couronne.ouverture.clef-collective",
+] as const;
 export const IDENTIFIANTS_DE_FAITS_DE_CRISE = [
   "crise.purification.eau-contaminee",
   "crise.purification.isoler-et-rationner",
@@ -25,6 +31,10 @@ export const IDENTIFIANTS_DE_FAITS_DE_CRISE = [
   "crise.trame.cascade-materielle",
   "crise.trame.etayer-chassis",
   "crise.trame.detacher-plateforme",
+  "crise.couronne.saturation-du-halo",
+  "crise.couronne.stabiliser-anneau-du-halo",
+  "crise.couronne.relayer-halo-par-les-veilleurs",
+  "crise.couronne.condamner-couronne-exterieure",
 ] as const;
 export const IDENTIFIANTS_DE_FAITS_DE_RECUPERATION = [
   "crise.recuperation.socle-de-survie.accomplie",
@@ -41,12 +51,19 @@ export const IDENTIFIANTS_DE_FAITS_DE_RECUPERATION = [
   "crise.recuperation.charge-repartie-trame.manquee",
   "crise.recuperation.attelage-recale-trame.accomplie",
   "crise.recuperation.attelage-recale-trame.manquee",
+  "crise.recuperation.halo-reparti-au-noeud.accomplie",
+  "crise.recuperation.halo-reparti-au-noeud.manquee",
+  "crise.recuperation.releve-des-veilleurs-au-noeud.accomplie",
+  "crise.recuperation.releve-des-veilleurs-au-noeud.manquee",
+  "crise.recuperation.passage-interieur-preserve.accomplie",
+  "crise.recuperation.passage-interieur-preserve.manquee",
 ] as const;
 
 export type IdentifiantDeCrise =
   | typeof IDENTIFIANT_DE_LA_CRISE_DE_REFERENCE
   | typeof IDENTIFIANT_DE_LA_CRISE_DE_VEILLE_BASSE
-  | typeof IDENTIFIANT_DE_LA_CRISE_DE_TRAME;
+  | typeof IDENTIFIANT_DE_LA_CRISE_DE_TRAME
+  | typeof IDENTIFIANT_DE_LA_CRISE_DU_HALO;
 export type IdentifiantDeFaitDeCrise =
   (typeof IDENTIFIANTS_DE_FAITS_DE_CRISE)[number];
 export type IdentifiantDeReponseALaCrise =
@@ -56,7 +73,10 @@ export type IdentifiantDeReponseALaCrise =
   | "partager-reserves-cohorte"
   | "renforcer-accueil"
   | "etayer-chassis"
-  | "detacher-plateforme";
+  | "detacher-plateforme"
+  | "stabiliser-anneau-du-halo"
+  | "relayer-halo-par-les-veilleurs"
+  | "condamner-couronne-exterieure";
 export type GarantieDeRecuperation =
   | "socle-de-survie"
   | "mobilite-minimale"
@@ -64,7 +84,10 @@ export type GarantieDeRecuperation =
   | "cohorte-hydratee"
   | "accueil-stabilise"
   | "charge-repartie-trame"
-  | "attelage-recale-trame";
+  | "attelage-recale-trame"
+  | "halo-reparti-au-noeud"
+  | "releve-des-veilleurs-au-noeud"
+  | "passage-interieur-preserve";
 export type ConditionDeRecuperation =
   | "halte-de-purification"
   | "rejoindre-haut-puits"
@@ -72,7 +95,8 @@ export type ConditionDeRecuperation =
   | "ouvrir-hospice-veille-basse"
   | "renforcer-sas-veille-basse"
   | "rejoindre-marche-des-traverses"
-  | "rejoindre-signal-zero";
+  | "rejoindre-signal-zero"
+  | "rejoindre-noeud-central";
 export type StatutDeRecuperation = "amorcee" | "accomplie" | "manquee";
 
 export interface CoutAppliqueAUneRecuperation {
@@ -85,7 +109,8 @@ export interface AlerteDeCrise {
   readonly cause:
     | typeof FAIT_ANNONCANT_LA_CRISE
     | typeof FAIT_ANNONCANT_LA_CRISE_DE_VEILLE_BASSE
-    | typeof FAIT_ANNONCANT_LA_CRISE_DE_TRAME;
+    | typeof FAIT_ANNONCANT_LA_CRISE_DE_TRAME
+    | (typeof FAITS_ANNONCANT_LA_CRISE_DU_HALO)[number];
   readonly annonceeA: number;
   readonly ruptureA: number;
   readonly chaineVisible: readonly {
@@ -102,7 +127,8 @@ export interface CriseActive {
   readonly faitProduit:
     | "crise.purification.eau-contaminee"
     | "crise.veille-basse.accueil-sous-penurie"
-    | "crise.trame.cascade-materielle";
+    | "crise.trame.cascade-materielle"
+    | "crise.couronne.saturation-du-halo";
   readonly chaineVisible: readonly {
     readonly id: string;
     readonly cause: string;
@@ -118,12 +144,16 @@ export interface CicatriceDeCampagne {
     | "cicatrice.reserves-partagees-veille-basse"
     | "cicatrice.capacites-accueil-saturees"
     | "cicatrice.chassis-etaye-dans-l-urgence"
-    | "cicatrice.plateforme-detachee-trame";
+    | "cicatrice.plateforme-detachee-trame"
+    | "cicatrice.halo-bride-par-les-etais"
+    | "cicatrice.veilleurs-lies-au-halo"
+    | "cicatrice.couronne-exterieure-condamnee";
   readonly cause: Exclude<
     IdentifiantDeFaitDeCrise,
     | "crise.purification.eau-contaminee"
     | "crise.veille-basse.accueil-sous-penurie"
     | "crise.trame.cascade-materielle"
+    | "crise.couronne.saturation-du-halo"
   >;
   readonly acquiseA: number;
   readonly irreversible: true;
@@ -138,7 +168,8 @@ export interface RecuperationDeCrise {
     | "haut-puits"
     | "veille-basse"
     | "marche-des-traverses"
-    | "signal-zero";
+    | "signal-zero"
+    | "noeud-central";
   readonly condition: ConditionDeRecuperation;
   readonly horizonTroncons: 1 | 2;
   readonly coutAttendu: "deux-materiaux" | "cout-du-troncon";
@@ -165,6 +196,7 @@ export interface EtatDesCrises {
   readonly faitAnnonceurHistoriqueIgnore: boolean;
   readonly crisesSequentiellesHistoriquesIgnorees: boolean;
   readonly crisesDeTrameHistoriquesIgnorees: boolean;
+  readonly crisesDuHaloHistoriquesIgnorees: boolean;
   readonly alerte: AlerteDeCrise | null;
   readonly criseActive: CriseActive | null;
   readonly historique: readonly CriseHistorique[];
@@ -339,6 +371,66 @@ export const DEFINITIONS_DES_REPONSES_A_LA_CRISE = [
       coutAttendu: "cout-du-troncon",
     },
   },
+  {
+    criseId: IDENTIFIANT_DE_LA_CRISE_DU_HALO,
+    id: "stabiliser-anneau-du-halo",
+    faitProduit: "crise.couronne.stabiliser-anneau-du-halo",
+    acteurs: ["porte-lanterne", "equipes-entretien-du-phare"],
+    cible: "anneau-du-halo",
+    dernierRecours: false,
+    cout: { stock: "materiaux", quantite: 6 },
+    cicatrice: {
+      id: "cicatrice.halo-bride-par-les-etais",
+      irreversible: true,
+    },
+    recuperation: {
+      garantie: "halo-reparti-au-noeud",
+      destination: "noeud-central",
+      condition: "rejoindre-noeud-central",
+      horizonTroncons: 1,
+      coutAttendu: "cout-du-troncon",
+    },
+  },
+  {
+    criseId: IDENTIFIANT_DE_LA_CRISE_DU_HALO,
+    id: "relayer-halo-par-les-veilleurs",
+    faitProduit: "crise.couronne.relayer-halo-par-les-veilleurs",
+    acteurs: ["porte-lanterne", "veilleurs-de-la-couronne"],
+    cible: "veille-du-halo",
+    dernierRecours: false,
+    cout: { habitants: 5 },
+    cicatrice: {
+      id: "cicatrice.veilleurs-lies-au-halo",
+      irreversible: true,
+    },
+    recuperation: {
+      garantie: "releve-des-veilleurs-au-noeud",
+      destination: "noeud-central",
+      condition: "rejoindre-noeud-central",
+      horizonTroncons: 1,
+      coutAttendu: "cout-du-troncon",
+    },
+  },
+  {
+    criseId: IDENTIFIANT_DE_LA_CRISE_DU_HALO,
+    id: "condamner-couronne-exterieure",
+    faitProduit: "crise.couronne.condamner-couronne-exterieure",
+    acteurs: ["porte-lanterne", "foyers-de-la-couronne"],
+    cible: "couronne-exterieure",
+    dernierRecours: true,
+    cout: { habitants: 11 },
+    cicatrice: {
+      id: "cicatrice.couronne-exterieure-condamnee",
+      irreversible: true,
+    },
+    recuperation: {
+      garantie: "passage-interieur-preserve",
+      destination: "noeud-central",
+      condition: "rejoindre-noeud-central",
+      horizonTroncons: 1,
+      coutAttendu: "cout-du-troncon",
+    },
+  },
 ] as const satisfies readonly DefinitionDeReponseALaCrise[];
 
 export type EvenementDeCrise =
@@ -375,6 +467,7 @@ export type EvenementDeCrise =
         | "crise.purification.eau-contaminee"
         | "crise.veille-basse.accueil-sous-penurie"
         | "crise.trame.cascade-materielle"
+        | "crise.couronne.saturation-du-halo"
       >;
       readonly cicatriceId: CicatriceDeCampagne["id"];
       readonly garantie: GarantieDeRecuperation;
@@ -435,6 +528,7 @@ export interface ContexteMaterielDeCrise {
   readonly plateformesDisponibles: number;
   readonly dernierTronconTermine: string | null;
   readonly etatDuDernierTroncon: "praticable" | "degrade" | "coupe" | null;
+  readonly phare?: "actif" | "halo-sature";
 }
 
 export interface TransitionDesRecuperations {
@@ -464,6 +558,7 @@ export function creerEtatDesCrisesInitial(): EtatDesCrises {
     faitAnnonceurHistoriqueIgnore: false,
     crisesSequentiellesHistoriquesIgnorees: false,
     crisesDeTrameHistoriquesIgnorees: false,
+    crisesDuHaloHistoriquesIgnorees: false,
     alerte: null,
     criseActive: null,
     historique: [],
@@ -491,6 +586,11 @@ export function reconstruireHistoriqueDesCrises(
       cause: FAIT_ANNONCANT_LA_CRISE_DE_TRAME,
       faitDeclenchement: "crise.trame.cascade-materielle",
     },
+    {
+      id: IDENTIFIANT_DE_LA_CRISE_DU_HALO,
+      cause: FAITS_ANNONCANT_LA_CRISE_DU_HALO[0],
+      faitDeclenchement: "crise.couronne.saturation-du-halo",
+    },
   ] as const;
   return crises.flatMap((crise) => {
     const declenchement = faits.find(
@@ -515,7 +615,10 @@ export function reconstruireHistoriqueDesCrises(
     return [
       {
         id: crise.id,
-        cause: crise.cause,
+        cause:
+          (crise.id === IDENTIFIANT_DE_LA_CRISE_DU_HALO
+            ? declenchement.cause
+            : crise.cause) as CriseHistorique["cause"],
         declencheeA: declenchement.moment,
         faitDeclenchement: crise.faitDeclenchement,
         resolueA: resolution.moment,
@@ -548,6 +651,13 @@ export function annoncerCriseApresFaits(
   const faitDeTrame = faits.find(
     (candidat) => candidat.id === FAIT_ANNONCANT_LA_CRISE_DE_TRAME,
   );
+  const faitDuHalo = [...faits]
+    .reverse()
+    .find((candidat) =>
+      FAITS_ANNONCANT_LA_CRISE_DU_HALO.includes(
+        candidat.id as (typeof FAITS_ANNONCANT_LA_CRISE_DU_HALO)[number],
+      ),
+    );
   let alerte: AlerteDeCrise | null = null;
   let maillonIrreversible = "";
   if (
@@ -641,6 +751,64 @@ export function annoncerCriseApresFaits(
       ],
     };
     maillonIrreversible = "trame.ponts-lourds-fatigues";
+  } else if (
+    !idsHistoriques.has(IDENTIFIANT_DE_LA_CRISE_DU_HALO) &&
+    !etat.crisesDuHaloHistoriquesIgnorees &&
+    faitDuHalo !== undefined &&
+    contexteMateriel?.position === "anneau-interieur" &&
+    contexteMateriel.phare === "actif" &&
+    etat.cicatrices.length > 0 &&
+    etat.recuperations.length > 0
+  ) {
+    const ouverture = [...faits]
+      .reverse()
+      .find((fait) =>
+        [
+          "couronne.ouverture.rail-ouverte",
+          "couronne.ouverture.phares-ouvertes",
+          "couronne.ouverture.colonies-ouvertes",
+          "couronne.ouverture.breche-ouverte",
+        ].includes(fait.id),
+      );
+    if (ouverture !== undefined) {
+      const cicatrices = etat.cicatrices.map((cicatrice) => ({
+        id: cicatrice.id,
+        cause: cicatrice.cause,
+        irreversible: true,
+      }));
+      const recuperations = etat.recuperations.map((recuperation) => ({
+        id: `recuperation.${recuperation.garantie}.${recuperation.statut}`,
+        cause: recuperation.cause,
+        irreversible: recuperation.statut === "manquee",
+      }));
+      alerte = {
+        id: IDENTIFIANT_DE_LA_CRISE_DU_HALO,
+        cause:
+          faitDuHalo.id as (typeof FAITS_ANNONCANT_LA_CRISE_DU_HALO)[number],
+        annonceeA: contexteMateriel.momentCourant,
+        ruptureA: contexteMateriel.momentCourant + 120,
+        chaineVisible: [
+          {
+            id: ouverture.id,
+            cause: faitDuHalo.id,
+            irreversible:
+              ouverture.id === "couronne.ouverture.breche-ouverte",
+          },
+          ...cicatrices,
+          ...recuperations,
+          {
+            id: "phare.halo-sature-annonce",
+            cause:
+              recuperations.at(-1)?.id ??
+              cicatrices.at(-1)?.id ??
+              ouverture.id,
+            irreversible: false,
+          },
+        ],
+      };
+      maillonIrreversible =
+        cicatrices.at(-1)?.id ?? ouverture.id;
+    }
   }
   if (alerte === null) {
     return { etat, evenements: [] };
@@ -648,7 +816,10 @@ export function annoncerCriseApresFaits(
   return {
     etat: {
       ...etat,
-      approvisionnementEau: "sous-tension",
+      approvisionnementEau:
+        alerte.id === IDENTIFIANT_DE_LA_CRISE_DU_HALO
+          ? etat.approvisionnementEau
+          : "sous-tension",
       alerte,
     },
     evenements: [
@@ -708,6 +879,7 @@ export function declencherCrise(
     alerte.id === IDENTIFIANT_DE_LA_CRISE_DE_REFERENCE;
   const estVeilleBasse =
     alerte.id === IDENTIFIANT_DE_LA_CRISE_DE_VEILLE_BASSE;
+  const estHalo = alerte.id === IDENTIFIANT_DE_LA_CRISE_DU_HALO;
   const variationDEau = estPurification
     ? Math.min(0, 16 - eauDisponible)
     : 0;
@@ -715,7 +887,9 @@ export function declencherCrise(
     ? "crise.purification.eau-contaminee"
     : estVeilleBasse
       ? "crise.veille-basse.accueil-sous-penurie"
-      : "crise.trame.cascade-materielle";
+      : estHalo
+        ? "crise.couronne.saturation-du-halo"
+        : "crise.trame.cascade-materielle";
   const fait: FaitDeCampagne = {
     id: faitProduit,
     cause: alerte.cause,
@@ -723,11 +897,15 @@ export function declencherCrise(
       ? ["equipes-purification", "foyers-du-convoi"]
       : estVeilleBasse
         ? ["cohorte-du-sillon", "techniciens-veille-basse"]
+        : estHalo
+          ? ["veilleurs-de-la-couronne", "equipes-du-phare"]
         : ["equipes-entretien", "ateliers-grand-aiguillage"],
     cible: estPurification
       ? "reserve-deau-purifiee"
       : estVeilleBasse
         ? "capacites-accueil-veille-basse"
+        : estHalo
+          ? "halo-du-phare"
         : "chassis-de-la-cite-caravane",
     moment,
     effets: {
@@ -755,11 +933,15 @@ export function declencherCrise(
           ? "eau.purifiee.contaminee"
           : estVeilleBasse
             ? "veille-basse.reserves-et-accueil-en-rupture"
+            : estHalo
+              ? "phare.halo-sature"
             : "trame.chassis-en-cascade",
         cause: estPurification
           ? "eau.purifiee.contamination-annoncee"
           : estVeilleBasse
             ? "veille-basse.capacite-accueil-saturee-annoncee"
+            : estHalo
+              ? "phare.halo-sature-annonce"
             : "trame.refroidissement-differe",
         irreversible: true,
       },
@@ -786,6 +968,8 @@ export function declencherCrise(
         ? "eau.purifiee.contaminee"
         : estVeilleBasse
           ? "veille-basse.reserves-et-accueil-en-rupture"
+          : estHalo
+            ? "phare.halo-sature"
           : "trame.chassis-en-cascade",
     },
   };
@@ -932,7 +1116,10 @@ export function resoudreCrise(
   return {
     etat: {
       ...etat,
-      approvisionnementEau: "sous-tension",
+      approvisionnementEau:
+        crise.id === IDENTIFIANT_DE_LA_CRISE_DU_HALO
+          ? etat.approvisionnementEau
+          : "sous-tension",
       alerte: null,
       criseActive: null,
       historique: [
@@ -996,7 +1183,8 @@ function actionAccomplitRecuperation(
   }
   if (
     recuperation.condition === "rejoindre-marche-des-traverses" ||
-    recuperation.condition === "rejoindre-signal-zero"
+    recuperation.condition === "rejoindre-signal-zero" ||
+    recuperation.condition === "rejoindre-noeud-central"
   ) {
     return (
       action.type === "troncon-termine" &&
