@@ -1,14 +1,19 @@
 import type { FaitDeCampagne } from "./faits";
+import type { IdentifiantDePlateformeMobile } from "./infrastructure";
 import type { EtatPilotage, IdentifiantDeStock } from "./pilotage";
 
 export const IDENTIFIANT_DE_LA_CRISE_DE_REFERENCE =
   "penurie-eau.pompe-purification" as const;
 export const IDENTIFIANT_DE_LA_CRISE_DE_VEILLE_BASSE =
   "veille-basse.accueil-sous-penurie" as const;
+export const IDENTIFIANT_DE_LA_CRISE_DE_TRAME =
+  "trame-fer.cascade-materielle" as const;
 export const FAIT_ANNONCANT_LA_CRISE =
   "incident.purification.pompe-instable.debit-maintenu" as const;
 export const FAIT_ANNONCANT_LA_CRISE_DE_VEILLE_BASSE =
   "veille-basse.cohorte-accueillie" as const;
+export const FAIT_ANNONCANT_LA_CRISE_DE_TRAME =
+  "trame.grand-aiguillage.refroidissement-rationne" as const;
 export const IDENTIFIANTS_DE_FAITS_DE_CRISE = [
   "crise.purification.eau-contaminee",
   "crise.purification.isoler-et-rationner",
@@ -17,6 +22,9 @@ export const IDENTIFIANTS_DE_FAITS_DE_CRISE = [
   "crise.veille-basse.accueil-sous-penurie",
   "crise.veille-basse.partager-reserves-cohorte",
   "crise.veille-basse.renforcer-accueil",
+  "crise.trame.cascade-materielle",
+  "crise.trame.etayer-chassis",
+  "crise.trame.detacher-plateforme",
 ] as const;
 export const IDENTIFIANTS_DE_FAITS_DE_RECUPERATION = [
   "crise.recuperation.socle-de-survie.accomplie",
@@ -29,11 +37,16 @@ export const IDENTIFIANTS_DE_FAITS_DE_RECUPERATION = [
   "crise.recuperation.cohorte-hydratee.manquee",
   "crise.recuperation.accueil-stabilise.accomplie",
   "crise.recuperation.accueil-stabilise.manquee",
+  "crise.recuperation.charge-repartie-trame.accomplie",
+  "crise.recuperation.charge-repartie-trame.manquee",
+  "crise.recuperation.attelage-recale-trame.accomplie",
+  "crise.recuperation.attelage-recale-trame.manquee",
 ] as const;
 
 export type IdentifiantDeCrise =
   | typeof IDENTIFIANT_DE_LA_CRISE_DE_REFERENCE
-  | typeof IDENTIFIANT_DE_LA_CRISE_DE_VEILLE_BASSE;
+  | typeof IDENTIFIANT_DE_LA_CRISE_DE_VEILLE_BASSE
+  | typeof IDENTIFIANT_DE_LA_CRISE_DE_TRAME;
 export type IdentifiantDeFaitDeCrise =
   (typeof IDENTIFIANTS_DE_FAITS_DE_CRISE)[number];
 export type IdentifiantDeReponseALaCrise =
@@ -41,19 +54,25 @@ export type IdentifiantDeReponseALaCrise =
   | "mobiliser-les-remedes"
   | "evacuer-les-foyers-exposes"
   | "partager-reserves-cohorte"
-  | "renforcer-accueil";
+  | "renforcer-accueil"
+  | "etayer-chassis"
+  | "detacher-plateforme";
 export type GarantieDeRecuperation =
   | "socle-de-survie"
   | "mobilite-minimale"
   | "aide-exterieure-identifiee"
   | "cohorte-hydratee"
-  | "accueil-stabilise";
+  | "accueil-stabilise"
+  | "charge-repartie-trame"
+  | "attelage-recale-trame";
 export type ConditionDeRecuperation =
   | "halte-de-purification"
   | "rejoindre-haut-puits"
   | "demander-aide-haut-puits"
   | "ouvrir-hospice-veille-basse"
-  | "renforcer-sas-veille-basse";
+  | "renforcer-sas-veille-basse"
+  | "rejoindre-marche-des-traverses"
+  | "rejoindre-signal-zero";
 export type StatutDeRecuperation = "amorcee" | "accomplie" | "manquee";
 
 export interface CoutAppliqueAUneRecuperation {
@@ -65,7 +84,8 @@ export interface AlerteDeCrise {
   readonly id: IdentifiantDeCrise;
   readonly cause:
     | typeof FAIT_ANNONCANT_LA_CRISE
-    | typeof FAIT_ANNONCANT_LA_CRISE_DE_VEILLE_BASSE;
+    | typeof FAIT_ANNONCANT_LA_CRISE_DE_VEILLE_BASSE
+    | typeof FAIT_ANNONCANT_LA_CRISE_DE_TRAME;
   readonly annonceeA: number;
   readonly ruptureA: number;
   readonly chaineVisible: readonly {
@@ -81,7 +101,8 @@ export interface CriseActive {
   readonly declencheeA: number;
   readonly faitProduit:
     | "crise.purification.eau-contaminee"
-    | "crise.veille-basse.accueil-sous-penurie";
+    | "crise.veille-basse.accueil-sous-penurie"
+    | "crise.trame.cascade-materielle";
   readonly chaineVisible: readonly {
     readonly id: string;
     readonly cause: string;
@@ -95,11 +116,14 @@ export interface CicatriceDeCampagne {
     | "cicatrice.reserve-de-remedes-entamee"
     | "cicatrice.evacuation-des-foyers"
     | "cicatrice.reserves-partagees-veille-basse"
-    | "cicatrice.capacites-accueil-saturees";
+    | "cicatrice.capacites-accueil-saturees"
+    | "cicatrice.chassis-etaye-dans-l-urgence"
+    | "cicatrice.plateforme-detachee-trame";
   readonly cause: Exclude<
     IdentifiantDeFaitDeCrise,
     | "crise.purification.eau-contaminee"
     | "crise.veille-basse.accueil-sous-penurie"
+    | "crise.trame.cascade-materielle"
   >;
   readonly acquiseA: number;
   readonly irreversible: true;
@@ -109,7 +133,12 @@ export interface RecuperationDeCrise {
   readonly id: string;
   readonly cause: CicatriceDeCampagne["id"];
   readonly garantie: GarantieDeRecuperation;
-  readonly destination: "halte-du-puits-sec" | "haut-puits" | "veille-basse";
+  readonly destination:
+    | "halte-du-puits-sec"
+    | "haut-puits"
+    | "veille-basse"
+    | "marche-des-traverses"
+    | "signal-zero";
   readonly condition: ConditionDeRecuperation;
   readonly horizonTroncons: 1 | 2;
   readonly coutAttendu: "deux-materiaux" | "cout-du-troncon";
@@ -135,6 +164,7 @@ export interface EtatDesCrises {
   readonly approvisionnementEau: "assure" | "sous-tension" | "rupture";
   readonly faitAnnonceurHistoriqueIgnore: boolean;
   readonly crisesSequentiellesHistoriquesIgnorees: boolean;
+  readonly crisesDeTrameHistoriquesIgnorees: boolean;
   readonly alerte: AlerteDeCrise | null;
   readonly criseActive: CriseActive | null;
   readonly historique: readonly CriseHistorique[];
@@ -146,6 +176,7 @@ interface CoutDeReponse {
   readonly stock?: IdentifiantDeStock;
   readonly quantite?: number;
   readonly habitants?: number;
+  readonly plateformes?: number;
 }
 
 export interface DefinitionDeReponseALaCrise {
@@ -268,6 +299,46 @@ export const DEFINITIONS_DES_REPONSES_A_LA_CRISE = [
       coutAttendu: "deux-materiaux",
     },
   },
+  {
+    criseId: IDENTIFIANT_DE_LA_CRISE_DE_TRAME,
+    id: "etayer-chassis",
+    faitProduit: "crise.trame.etayer-chassis",
+    acteurs: ["porte-lanterne", "equipes-entretien"],
+    cible: "chassis-de-la-cite-caravane",
+    dernierRecours: false,
+    cout: { stock: "materiaux", quantite: 7 },
+    cicatrice: {
+      id: "cicatrice.chassis-etaye-dans-l-urgence",
+      irreversible: true,
+    },
+    recuperation: {
+      garantie: "charge-repartie-trame",
+      destination: "marche-des-traverses",
+      condition: "rejoindre-marche-des-traverses",
+      horizonTroncons: 1,
+      coutAttendu: "cout-du-troncon",
+    },
+  },
+  {
+    criseId: IDENTIFIANT_DE_LA_CRISE_DE_TRAME,
+    id: "detacher-plateforme",
+    faitProduit: "crise.trame.detacher-plateforme",
+    acteurs: ["porte-lanterne", "equipes-entretien"],
+    cible: "plateforme-mobile-detachee",
+    dernierRecours: false,
+    cout: { plateformes: 1 },
+    cicatrice: {
+      id: "cicatrice.plateforme-detachee-trame",
+      irreversible: true,
+    },
+    recuperation: {
+      garantie: "attelage-recale-trame",
+      destination: "signal-zero",
+      condition: "rejoindre-signal-zero",
+      horizonTroncons: 2,
+      coutAttendu: "cout-du-troncon",
+    },
+  },
 ] as const satisfies readonly DefinitionDeReponseALaCrise[];
 
 export type EvenementDeCrise =
@@ -303,6 +374,7 @@ export type EvenementDeCrise =
         IdentifiantDeFaitDeCrise,
         | "crise.purification.eau-contaminee"
         | "crise.veille-basse.accueil-sous-penurie"
+        | "crise.trame.cascade-materielle"
       >;
       readonly cicatriceId: CicatriceDeCampagne["id"];
       readonly garantie: GarantieDeRecuperation;
@@ -354,6 +426,17 @@ export interface ContexteDEvaluationDesRecuperations {
   readonly demandeDAideEnAttente: boolean;
 }
 
+export interface ContexteMaterielDeCrise {
+  readonly momentCourant: number;
+  readonly position: string;
+  readonly margeDeCharge: number;
+  readonly doctrineEntretien: "preventif" | "equilibre" | "urgence";
+  readonly materiauxDisponibles: number;
+  readonly plateformesDisponibles: number;
+  readonly dernierTronconTermine: string | null;
+  readonly etatDuDernierTroncon: "praticable" | "degrade" | "coupe" | null;
+}
+
 export interface TransitionDesRecuperations {
   readonly etat: EtatDesCrises;
   readonly variationsDeStocks: readonly {
@@ -380,6 +463,7 @@ export function creerEtatDesCrisesInitial(): EtatDesCrises {
     approvisionnementEau: "assure",
     faitAnnonceurHistoriqueIgnore: false,
     crisesSequentiellesHistoriquesIgnorees: false,
+    crisesDeTrameHistoriquesIgnorees: false,
     alerte: null,
     criseActive: null,
     historique: [],
@@ -401,6 +485,11 @@ export function reconstruireHistoriqueDesCrises(
       id: IDENTIFIANT_DE_LA_CRISE_DE_VEILLE_BASSE,
       cause: FAIT_ANNONCANT_LA_CRISE_DE_VEILLE_BASSE,
       faitDeclenchement: "crise.veille-basse.accueil-sous-penurie",
+    },
+    {
+      id: IDENTIFIANT_DE_LA_CRISE_DE_TRAME,
+      cause: FAIT_ANNONCANT_LA_CRISE_DE_TRAME,
+      faitDeclenchement: "crise.trame.cascade-materielle",
     },
   ] as const;
   return crises.flatMap((crise) => {
@@ -440,6 +529,7 @@ export function reconstruireHistoriqueDesCrises(
 export function annoncerCriseApresFaits(
   etat: EtatDesCrises,
   faits: readonly FaitDeCampagne[],
+  contexteMateriel?: ContexteMaterielDeCrise,
 ): {
   readonly etat: EtatDesCrises;
   readonly evenements: readonly EvenementDeCrise[];
@@ -454,6 +544,9 @@ export function annoncerCriseApresFaits(
   const faitDeVeilleBasse = faits.find(
     (candidat) =>
       candidat.id === FAIT_ANNONCANT_LA_CRISE_DE_VEILLE_BASSE,
+  );
+  const faitDeTrame = faits.find(
+    (candidat) => candidat.id === FAIT_ANNONCANT_LA_CRISE_DE_TRAME,
   );
   let alerte: AlerteDeCrise | null = null;
   let maillonIrreversible = "";
@@ -508,6 +601,46 @@ export function annoncerCriseApresFaits(
     };
     maillonIrreversible =
       "veille-basse.cohorte-accueillie-sous-penurie";
+  } else if (
+    idsHistoriques.has(IDENTIFIANT_DE_LA_CRISE_DE_REFERENCE) &&
+    idsHistoriques.has(IDENTIFIANT_DE_LA_CRISE_DE_VEILLE_BASSE) &&
+    !idsHistoriques.has(IDENTIFIANT_DE_LA_CRISE_DE_TRAME) &&
+    !etat.crisesDeTrameHistoriquesIgnorees &&
+    faitDeTrame !== undefined &&
+    contexteMateriel?.position === "grand-aiguillage" &&
+    contexteMateriel.margeDeCharge <= 12 &&
+    contexteMateriel.doctrineEntretien !== "preventif" &&
+    contexteMateriel.materiauxDisponibles >= 7 &&
+    contexteMateriel.plateformesDisponibles > 1 &&
+    contexteMateriel.dernierTronconTermine ===
+      "voie-des-ponts-lourds" &&
+    (contexteMateriel.etatDuDernierTroncon === "degrade" ||
+      contexteMateriel.etatDuDernierTroncon === "coupe")
+  ) {
+    alerte = {
+      id: IDENTIFIANT_DE_LA_CRISE_DE_TRAME,
+      cause: FAIT_ANNONCANT_LA_CRISE_DE_TRAME,
+      annonceeA: contexteMateriel.momentCourant,
+      ruptureA: contexteMateriel.momentCourant + 120,
+      chaineVisible: [
+        {
+          id: "trame.ponts-lourds-fatigues",
+          cause: "voie-des-ponts-lourds.degradee",
+          irreversible: true,
+        },
+        {
+          id: "trame.charge-sans-marge",
+          cause: "trame.ponts-lourds-fatigues",
+          irreversible: false,
+        },
+        {
+          id: "trame.refroidissement-differe",
+          cause: FAIT_ANNONCANT_LA_CRISE_DE_TRAME,
+          irreversible: false,
+        },
+      ],
+    };
+    maillonIrreversible = "trame.ponts-lourds-fatigues";
   }
   if (alerte === null) {
     return { etat, evenements: [] };
@@ -573,21 +706,29 @@ export function declencherCrise(
   }
   const estPurification =
     alerte.id === IDENTIFIANT_DE_LA_CRISE_DE_REFERENCE;
+  const estVeilleBasse =
+    alerte.id === IDENTIFIANT_DE_LA_CRISE_DE_VEILLE_BASSE;
   const variationDEau = estPurification
     ? Math.min(0, 16 - eauDisponible)
     : 0;
   const faitProduit = estPurification
     ? "crise.purification.eau-contaminee"
-    : "crise.veille-basse.accueil-sous-penurie";
+    : estVeilleBasse
+      ? "crise.veille-basse.accueil-sous-penurie"
+      : "crise.trame.cascade-materielle";
   const fait: FaitDeCampagne = {
     id: faitProduit,
     cause: alerte.cause,
     acteurs: estPurification
       ? ["equipes-purification", "foyers-du-convoi"]
-      : ["cohorte-du-sillon", "techniciens-veille-basse"],
+      : estVeilleBasse
+        ? ["cohorte-du-sillon", "techniciens-veille-basse"]
+        : ["equipes-entretien", "ateliers-grand-aiguillage"],
     cible: estPurification
       ? "reserve-deau-purifiee"
-      : "capacites-accueil-veille-basse",
+      : estVeilleBasse
+        ? "capacites-accueil-veille-basse"
+        : "chassis-de-la-cite-caravane",
     moment,
     effets: {
       materiels: estPurification
@@ -612,10 +753,14 @@ export function declencherCrise(
       {
         id: estPurification
           ? "eau.purifiee.contaminee"
-          : "veille-basse.reserves-et-accueil-en-rupture",
+          : estVeilleBasse
+            ? "veille-basse.reserves-et-accueil-en-rupture"
+            : "trame.chassis-en-cascade",
         cause: estPurification
           ? "eau.purifiee.contamination-annoncee"
-          : "veille-basse.capacite-accueil-saturee-annoncee",
+          : estVeilleBasse
+            ? "veille-basse.capacite-accueil-saturee-annoncee"
+            : "trame.refroidissement-differe",
         irreversible: true,
       },
     ],
@@ -639,7 +784,9 @@ export function declencherCrise(
       faitProduit: criseActive.faitProduit,
       maillonIrreversible: estPurification
         ? "eau.purifiee.contaminee"
-        : "veille-basse.reserves-et-accueil-en-rupture",
+        : estVeilleBasse
+          ? "veille-basse.reserves-et-accueil-en-rupture"
+          : "trame.chassis-en-cascade",
     },
   };
 }
@@ -669,11 +816,19 @@ export function reponseALaCriseEstViable(
   reponse: DefinitionDeReponseALaCrise,
   pilotage: EtatPilotage,
   habitants: number,
+  plateformes = Number.POSITIVE_INFINITY,
+  plateformesDetachables = Math.max(0, plateformes - 1),
 ): boolean {
   if (reponse.cout.stock !== undefined) {
     return (
       pilotage.economie.stocks[reponse.cout.stock].quantite >=
       (reponse.cout.quantite ?? 0)
+    );
+  }
+  if (reponse.cout.plateformes !== undefined) {
+    return (
+      plateformes > reponse.cout.plateformes &&
+      plateformesDetachables >= reponse.cout.plateformes
     );
   }
   return habitants > (reponse.cout.habitants ?? 0);
@@ -683,14 +838,17 @@ export function resoudreCrise(
   etat: EtatDesCrises,
   pilotage: EtatPilotage,
   habitants: number,
+  plateformes: number,
   commande: CommandeDeResolutionDeCrise,
   moment: number,
+  plateformesDisponibles?: readonly IdentifiantDePlateformeMobile[],
 ): {
   readonly etat: EtatDesCrises;
   readonly variationDeStock:
     | { readonly stock: IdentifiantDeStock; readonly variation: number }
     | undefined;
   readonly variationDHabitants: number;
+  readonly plateformeADetacher: IdentifiantDePlateformeMobile | null;
   readonly fait: FaitDeCampagne;
   readonly evenement: EvenementDeCrise;
 } {
@@ -699,7 +857,15 @@ export function resoudreCrise(
     throw new Error(`La Crise « ${commande.criseId} » n’est pas active.`);
   }
   const reponse = trouverReponse(commande.reponseId, crise.id);
-  if (!reponseALaCriseEstViable(reponse, pilotage, habitants)) {
+  if (
+    !reponseALaCriseEstViable(
+      reponse,
+      pilotage,
+      habitants,
+      plateformes,
+      plateformesDisponibles?.length,
+    )
+  ) {
     throw new Error("Les ressources disponibles ne couvrent pas cette réponse.");
   }
   const faitProduit = reponse.faitProduit;
@@ -711,6 +877,18 @@ export function resoudreCrise(
           variation: -(reponse.cout.quantite ?? 0),
         };
   const variationDHabitants = -(reponse.cout.habitants ?? 0);
+  let plateformeADetacher: IdentifiantDePlateformeMobile | null =
+    null;
+  if (reponse.cout.plateformes !== undefined) {
+    const candidate =
+      plateformesDisponibles?.find(
+        (plateforme) => plateforme === "intendance",
+      ) ?? plateformesDisponibles?.[0];
+    if (candidate === undefined) {
+      throw new Error("Aucune Plateforme libre ne peut être détachée.");
+    }
+    plateformeADetacher = candidate;
+  }
   const fait: FaitDeCampagne = {
     id: faitProduit,
     cause: crise.id,
@@ -719,9 +897,16 @@ export function resoudreCrise(
     moment,
     effets: {
       materiels:
-        variationDeStock === undefined
-          ? []
-          : [{ type: "stock.modifie", ...variationDeStock }],
+        variationDeStock !== undefined
+          ? [{ type: "stock.modifie", ...variationDeStock }]
+          : plateformeADetacher === null
+            ? []
+            : [
+                {
+                  type: "plateforme.detachee",
+                  plateforme: plateformeADetacher,
+                },
+              ],
       humains:
         variationDHabitants === 0
           ? []
@@ -767,6 +952,7 @@ export function resoudreCrise(
     },
     variationDeStock,
     variationDHabitants,
+    plateformeADetacher,
     fait,
     evenement: {
       type: "crise.resolue",
@@ -803,6 +989,15 @@ function actionAccomplitRecuperation(
     );
   }
   if (recuperation.condition === "rejoindre-haut-puits") {
+    return (
+      action.type === "troncon-termine" &&
+      action.destination === recuperation.destination
+    );
+  }
+  if (
+    recuperation.condition === "rejoindre-marche-des-traverses" ||
+    recuperation.condition === "rejoindre-signal-zero"
+  ) {
     return (
       action.type === "troncon-termine" &&
       action.destination === recuperation.destination
@@ -846,7 +1041,9 @@ function creerFaitDeResultat(
           ? ["porte-lanterne", "habitants-haut-puits"]
           : recuperation.garantie === "cohorte-hydratee"
             ? ["porte-lanterne", "cohorte-du-sillon"]
-            : ["porte-lanterne", "techniciens-veille-basse"];
+            : recuperation.garantie === "accueil-stabilise"
+              ? ["porte-lanterne", "techniciens-veille-basse"]
+              : ["porte-lanterne", "equipes-entretien"];
   const cible =
     recuperation.garantie === "socle-de-survie"
       ? "pompe-purification"
@@ -856,7 +1053,9 @@ function creerFaitDeResultat(
           ? "foyers-exposes"
           : recuperation.garantie === "cohorte-hydratee"
             ? "hospice-du-sillon"
-            : "sas-de-veille-basse";
+            : recuperation.garantie === "accueil-stabilise"
+              ? "sas-de-veille-basse"
+              : recuperation.destination;
   return {
     id: identifiantDeFaitDeRecuperation(recuperation, statut),
     cause: recuperation.cause,

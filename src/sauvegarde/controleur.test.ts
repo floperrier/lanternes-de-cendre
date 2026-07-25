@@ -82,6 +82,7 @@ describe("contrôleur de session persistante", () => {
             approvisionnementEau: "sous-tension",
             faitAnnonceurHistoriqueIgnore: false,
             crisesSequentiellesHistoriquesIgnorees: false,
+            crisesDeTrameHistoriquesIgnorees: false,
             alerte: expect.objectContaining({ ruptureA: 180 }),
             criseActive: null,
             historique: [],

@@ -6,12 +6,14 @@ import {
 import type { EtatCampagne } from "../simulation/campagne";
 import {
   IDENTIFIANT_DE_LA_CRISE_DE_VEILLE_BASSE,
+  IDENTIFIANT_DE_LA_CRISE_DE_TRAME,
   listerDefinitionsDesReponsesALaCrise,
   reponseALaCriseEstViable,
   type GarantieDeRecuperation,
   type IdentifiantDeCrise,
   type IdentifiantDeReponseALaCrise,
 } from "../simulation/crise";
+import { listerPlateformesMobilesDetachables } from "../simulation/infrastructure";
 
 export interface ProjectionDeReponseALaCrise {
   readonly id: IdentifiantDeReponseALaCrise;
@@ -154,7 +156,8 @@ const TEXTES = {
         accomplie: "2 Matériaux engagés",
         manquee: "2 Matériaux étaient requis",
       },
-      trajetAttendu: "Coût du Tronçon vers Haut-Puits",
+      trajetAttendu: (destination: string) =>
+        `Coût du Tronçon vers ${destination}`,
       trajetManque: "Le coût du Tronçon n’a pas été engagé",
       trajetAccompli: (combustible: number, eau: number) =>
         `${combustible} Combustible + ${eau} Eau consommés`,
@@ -252,7 +255,8 @@ const TEXTES = {
         accomplie: "2 Materials committed",
         manquee: "2 Materials were required",
       },
-      trajetAttendu: "Cost of the route segment to High Well",
+      trajetAttendu: (destination: string) =>
+        `Cost of the route segment to ${destination}`,
       trajetManque: "The route segment cost was not committed",
       trajetAccompli: (combustible: number, eau: number) =>
         `${combustible} Fuel + ${eau} Water consumed`,
@@ -290,7 +294,9 @@ function formaterEcheance(secondes: number, langue: Langue): string {
 function libellerGarantie(
   garantie: GarantieDeRecuperation,
   langue: Langue,
-  textesPremium: TextesDeCriseDeVeilleBasse | undefined,
+  textesPremium:
+    | Pick<TextesDeCriseDeVeilleBasse, "garanties">
+    | undefined,
 ): string {
   return trouverTexte(
     TEXTES[langue].garanties,
@@ -302,13 +308,14 @@ function libellerGarantie(
 function libellerCoutDeRecuperation(
   recuperation: EtatCampagne["crises"]["recuperations"][number],
   langue: Langue,
+  destination: string,
 ): string {
   const textes = TEXTES[langue].coutsRecuperation;
   if (recuperation.coutAttendu === "deux-materiaux") {
     return textes.deuxMateriaux[recuperation.statut];
   }
   if (recuperation.statut === "amorcee") {
-    return textes.trajetAttendu;
+    return textes.trajetAttendu(destination);
   }
   if (recuperation.statut === "manquee") {
     return textes.trajetManque;
@@ -330,27 +337,67 @@ export function projeterCrises(
   const textes = TEXTES[langue];
   const textesDeVeilleBasse =
     lirePresentationsPremium()?.veilleBasse[langue].crise;
+  const textesDeTrame =
+    lirePresentationsPremium()?.trame?.[langue].crise;
+  const textesPremium = {
+    cicatrices: {
+      ...textesDeVeilleBasse?.cicatrices,
+      ...textesDeTrame?.cicatrices,
+    },
+    consequencesCicatrices: {
+      ...textesDeVeilleBasse?.consequencesCicatrices,
+      ...textesDeTrame?.consequencesCicatrices,
+    },
+    causes: {
+      ...textesDeVeilleBasse?.causes,
+      ...textesDeTrame?.causes,
+    },
+    garanties: {
+      ...textesDeVeilleBasse?.garanties,
+      ...textesDeTrame?.garanties,
+    },
+    conditionsRecuperation: {
+      ...textesDeVeilleBasse?.conditionsRecuperation,
+      ...textesDeTrame?.conditionsRecuperation,
+    },
+    destinations: {
+      ...textesDeVeilleBasse?.destinations,
+      ...textesDeTrame?.destinations,
+    },
+  };
   const alerte = etat.crises.alerte;
   const active = etat.crises.criseActive;
   const alerteDeVeilleBasse =
     alerte?.id === IDENTIFIANT_DE_LA_CRISE_DE_VEILLE_BASSE;
+  const alerteDeTrame =
+    alerte?.id === IDENTIFIANT_DE_LA_CRISE_DE_TRAME;
   const criseDeVeilleBasse =
     active?.id === IDENTIFIANT_DE_LA_CRISE_DE_VEILLE_BASSE;
+  const criseDeTrame =
+    active?.id === IDENTIFIANT_DE_LA_CRISE_DE_TRAME;
+  const presentationDeLAlerte = alerteDeTrame
+    ? textesDeTrame
+    : alerteDeVeilleBasse
+      ? textesDeVeilleBasse
+      : undefined;
+  const presentationDeLaCrise = criseDeTrame
+    ? textesDeTrame
+    : criseDeVeilleBasse
+      ? textesDeVeilleBasse
+      : undefined;
   return {
     alerte:
       alerte === null || active !== null
         ? null
         : {
-            titre: alerteDeVeilleBasse
-              ? (textesDeVeilleBasse?.alerteTitre ?? "")
-              : textes.alerteTitre,
-            cause: alerteDeVeilleBasse
-              ? (textesDeVeilleBasse?.alerteCause ?? "")
-              : textes.alerteCause,
+            titre:
+              presentationDeLAlerte?.alerteTitre ??
+              textes.alerteTitre,
+            cause:
+              presentationDeLAlerte?.alerteCause ??
+              textes.alerteCause,
             chaineVisible: (
-              alerteDeVeilleBasse
-                ? (textesDeVeilleBasse?.chaine ?? [])
-                : textes.chaine
+              presentationDeLAlerte?.chaine ?? textes.chaine
             ).slice(0, alerte.chaineVisible.length),
             echeance: formaterEcheance(
               Math.max(0, alerte.ruptureA - etat.tempsDuConvoi.secondes),
@@ -362,15 +409,12 @@ export function projeterCrises(
         ? null
         : {
             id: active.id,
-            titre: criseDeVeilleBasse
-              ? (textesDeVeilleBasse?.titre ?? "")
-              : textes.criseTitre,
-            cause: criseDeVeilleBasse
-              ? (textesDeVeilleBasse?.cause ?? "")
-              : textes.criseCause,
-            chaineVisible: criseDeVeilleBasse
-              ? (textesDeVeilleBasse?.chaine ?? [])
-              : textes.chaine,
+            titre:
+              presentationDeLaCrise?.titre ?? textes.criseTitre,
+            cause:
+              presentationDeLaCrise?.cause ?? textes.criseCause,
+            chaineVisible:
+              presentationDeLaCrise?.chaine ?? textes.chaine,
             instruction: textes.instruction,
             reponses: listerDefinitionsDesReponsesALaCrise(
               active.id,
@@ -379,11 +423,17 @@ export function projeterCrises(
                 reponse,
                 etat.pilotage,
                 etat.citeCaravane.habitants,
+                etat.citeCaravane.formation.plateformes.length,
+                listerPlateformesMobilesDetachables(
+                  etat.infrastructure,
+                ).filter((plateforme) =>
+                  etat.citeCaravane.formation.plateformes.includes(
+                    plateforme,
+                  ),
+                ).length,
               );
               const presentations = (
-                criseDeVeilleBasse
-                  ? textesDeVeilleBasse?.reponses
-                  : textes.reponses
+                presentationDeLaCrise?.reponses ?? textes.reponses
               ) as
                 | Readonly<Record<string, PresentationDeReponse>>
                 | undefined;
@@ -403,41 +453,52 @@ export function projeterCrises(
       id: cicatrice.id,
       titre: trouverTexte(
         textes.cicatrices,
-        textesDeVeilleBasse?.cicatrices,
+        textesPremium.cicatrices,
         cicatrice.id,
       ),
       cause: trouverTexte(
         textes.causes,
-        textesDeVeilleBasse?.causes,
+        textesPremium.causes,
         cicatrice.cause,
       ),
       consequence: trouverTexte(
         textes.consequencesCicatrices,
-        textesDeVeilleBasse?.consequencesCicatrices,
+        textesPremium.consequencesCicatrices,
         cicatrice.id,
       ),
     })),
-    recuperations: etat.crises.recuperations.map((recuperation) => ({
-      id: recuperation.id,
-      garantie: libellerGarantie(
-        recuperation.garantie,
-        langue,
-        textesDeVeilleBasse,
-      ),
-      destination: textes.destinations[recuperation.destination],
-      horizon: textes.horizon(recuperation.horizonTroncons),
-      condition: trouverTexte(
-        textes.conditionsRecuperation,
-        textesDeVeilleBasse?.conditionsRecuperation,
-        recuperation.garantie,
-      ),
-      cout: libellerCoutDeRecuperation(recuperation, langue),
-      cause: trouverTexte(
-        textes.cicatrices,
-        textesDeVeilleBasse?.cicatrices,
-        recuperation.cause,
-      ),
-      statut: textes.statutsRecuperation[recuperation.statut],
-    })),
+    recuperations: etat.crises.recuperations.map((recuperation) => {
+      const destination = trouverTexte(
+        textes.destinations,
+        textesPremium.destinations,
+        recuperation.destination,
+      );
+      return {
+        id: recuperation.id,
+        garantie: libellerGarantie(
+          recuperation.garantie,
+          langue,
+          textesPremium,
+        ),
+        destination,
+        horizon: textes.horizon(recuperation.horizonTroncons),
+        condition: trouverTexte(
+          textes.conditionsRecuperation,
+          textesPremium.conditionsRecuperation,
+          recuperation.garantie,
+        ),
+        cout: libellerCoutDeRecuperation(
+          recuperation,
+          langue,
+          destination,
+        ),
+        cause: trouverTexte(
+          textes.cicatrices,
+          textesPremium.cicatrices,
+          recuperation.cause,
+        ),
+        statut: textes.statutsRecuperation[recuperation.statut],
+      };
+    }),
   };
 }

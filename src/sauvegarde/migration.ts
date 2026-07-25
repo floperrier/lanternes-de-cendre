@@ -24,6 +24,7 @@ import {
   DEFINITIONS_DES_REPONSES_A_LA_CRISE,
   creerEtatDesCrisesInitial,
   FAIT_ANNONCANT_LA_CRISE,
+  FAIT_ANNONCANT_LA_CRISE_DE_TRAME,
   FAIT_ANNONCANT_LA_CRISE_DE_VEILLE_BASSE,
   ignorerFaitAnnonceurHistorique,
   reconstruireHistoriqueDesCrises,
@@ -52,6 +53,7 @@ import type {
 } from "./types";
 import {
   VERSION_SIMULATION_AVANT_CRISES,
+  VERSION_SIMULATION_AVANT_CRISE_DE_TRAME,
   VERSION_SIMULATION_AVANT_CRISES_SEQUENTIELLES,
   VERSION_SIMULATION_AVANT_DENOUEMENT,
   VERSION_SIMULATION_AVANT_RECUPERATIONS,
@@ -69,6 +71,7 @@ import {
   VERSION_CONTENU_COURANTE,
   VERSION_SAUVEGARDE_AVANT_ROUTES,
   VERSION_SAUVEGARDE_AVANT_CRISES,
+  VERSION_SAUVEGARDE_AVANT_CRISE_DE_TRAME,
   VERSION_SAUVEGARDE_AVANT_CRISES_SEQUENTIELLES,
   VERSION_SAUVEGARDE_AVANT_DENOUEMENT,
   VERSION_SAUVEGARDE_AVANT_RECUPERATIONS,
@@ -109,6 +112,7 @@ import {
   lireEtatV10,
   lireEtatV11,
   lireEtatV12,
+  lireEtatV13,
   lireSnapshotV4,
   lireSnapshotV5,
   lireSnapshotV6,
@@ -118,6 +122,7 @@ import {
   lireSnapshotV10,
   lireSnapshotV11,
   lireSnapshotV12,
+  lireSnapshotV13,
   marquerCausaliteHistoriqueDeNarrationSiNecessaire,
   projeterEtatAvantRoutesHistorique,
   type EtatCampagneAvantCrises,
@@ -133,6 +138,7 @@ import {
   type EtatCampagneV10,
   type EtatCampagneV11,
   type EtatCampagneV12,
+  type EtatCampagneV13,
   type ObjetInconnu,
 } from "./validation";
 
@@ -147,6 +153,130 @@ const PLATEFORMES_DE_LA_SIMULATION_V2 = [
   "forge",
 ] as const;
 
+export function promouvoirEtatV13VersCourant(
+  etat: EtatCampagneV13,
+): EtatCampagne {
+  return {
+    ...etat,
+    version: VERSION_SIMULATION_COURANTE,
+    crises: {
+      ...etat.crises,
+      crisesDeTrameHistoriquesIgnorees:
+        etat.narration.faitsDeCampagne.some(
+          ({ id }) => id === FAIT_ANNONCANT_LA_CRISE_DE_TRAME,
+        ),
+    },
+  };
+}
+
+function normaliserEtatCourantEnV13(
+  etat: EtatCampagne,
+): EtatCampagneV13 {
+  const { crisesDeTrameHistoriquesIgnorees, ...crises } = etat.crises;
+  void crisesDeTrameHistoriquesIgnorees;
+  return {
+    ...etat,
+    version: VERSION_SIMULATION_AVANT_CRISE_DE_TRAME,
+    crises,
+  };
+}
+
+export function migrerSauvegardeV13(
+  valeur: ObjetInconnu,
+): SauvegardeCampagne | undefined {
+  if (
+    valeur.format !== FORMAT_SAUVEGARDE ||
+    typeof valeur.id !== "string" ||
+    valeur.version !== VERSION_SAUVEGARDE_AVANT_CRISE_DE_TRAME ||
+    !estObjet(valeur.versions) ||
+    valeur.versions.simulation !== VERSION_SIMULATION_AVANT_CRISE_DE_TRAME ||
+    valeur.versions.contenu !== VERSIONS_DU_SNAPSHOT_COURANT.contenu ||
+    valeur.versions.aleatoire !== VERSIONS_DU_SNAPSHOT_COURANT.aleatoire ||
+    valeur.versions.empreinte !== VERSIONS_DU_SNAPSHOT_COURANT.empreinte ||
+    typeof valeur.graine !== "string" ||
+    !estObjet(valeur.horloge) ||
+    typeof valeur.horloge.secondes !== "number" ||
+    !Number.isFinite(valeur.horloge.secondes) ||
+    !estObjet(valeur.reproduction) ||
+    !Array.isArray(valeur.reproduction.commandes) ||
+    typeof valeur.reproduction.empreinteSnapshot !== "string" ||
+    !EMPREINTE.test(valeur.reproduction.empreinteSnapshot) ||
+    typeof valeur.empreinte !== "string" ||
+    !EMPREINTE.test(valeur.empreinte)
+  ) {
+    return undefined;
+  }
+
+  const snapshotV13 = lireSnapshotV13(valeur.reproduction.snapshot);
+  const etatDeclareV13 = lireEtatV13(valeur.etat);
+  if (
+    snapshotV13 === undefined ||
+    etatDeclareV13 === undefined ||
+    valeur.graine !== etatDeclareV13.graine ||
+    valeur.horloge.secondes !== etatDeclareV13.tempsDuConvoi.secondes ||
+    empreinteEtat(snapshotV13 as unknown as EtatCampagne) !==
+      valeur.reproduction.empreinteSnapshot ||
+    empreinteEtat(etatDeclareV13 as unknown as EtatCampagne) !==
+      valeur.empreinte
+  ) {
+    return undefined;
+  }
+
+  let etat = promouvoirEtatV13VersCourant(snapshotV13);
+  try {
+    for (const [index, entree] of valeur.reproduction.commandes.entries()) {
+      if (
+        !estObjet(entree) ||
+        entree.sequence !== index ||
+        !estCommande(entree.commande) ||
+        typeof entree.empreinteApres !== "string" ||
+        !EMPREINTE.test(entree.empreinteApres)
+      ) {
+        return undefined;
+      }
+      etat = appliquerCommande(etat, entree.commande, {
+        crises: "historiques-v13",
+      }).etat;
+      if (
+        empreinteEtat(
+          normaliserEtatCourantEnV13(etat) as unknown as EtatCampagne,
+        ) !== entree.empreinteApres
+      ) {
+        return undefined;
+      }
+    }
+  } catch {
+    return undefined;
+  }
+
+  if (
+    !sontStructurellementEgaux(
+      normaliserEtatCourantEnV13(etat),
+      etatDeclareV13,
+    )
+  ) {
+    return undefined;
+  }
+
+  const etatCourant = promouvoirEtatV13VersCourant(etatDeclareV13);
+  if (
+    lireSnapshotCourant(etatCourant) === undefined ||
+    lireEtatCourant(etatCourant) === undefined
+  ) {
+    return undefined;
+  }
+  const reproduction: ReproductionDeCampagne = {
+    snapshot: etatCourant,
+    empreinteSnapshot: empreinteEtat(etatCourant),
+    commandes: [],
+  };
+  const sauvegarde = creerSauvegarde(etatCourant, reproduction);
+  return {
+    ...sauvegarde,
+    id: `${valeur.id}-v${VERSION_SAUVEGARDE_COURANTE}-${sauvegarde.empreinte}`,
+  };
+}
+
 export function promouvoirEtatV12VersCourant(
   etat: EtatCampagneV12,
 ): EtatCampagne {
@@ -155,6 +285,10 @@ export function promouvoirEtatV12VersCourant(
     version: VERSION_SIMULATION_COURANTE,
     crises: {
       ...etat.crises,
+      crisesDeTrameHistoriquesIgnorees:
+        etat.narration.faitsDeCampagne.some(
+          ({ id }) => id === FAIT_ANNONCANT_LA_CRISE_DE_TRAME,
+        ),
       crisesSequentiellesHistoriquesIgnorees:
         etat.narration.faitsDeCampagne.some(
           ({ id }) =>
@@ -173,10 +307,12 @@ function normaliserEtatCourantEnV12(
   const {
     historique,
     crisesSequentiellesHistoriquesIgnorees,
+    crisesDeTrameHistoriquesIgnorees,
     ...crises
   } = etat.crises;
   void historique;
   void crisesSequentiellesHistoriquesIgnorees;
+  void crisesDeTrameHistoriquesIgnorees;
   return {
     ...etat,
     version: VERSION_SIMULATION_AVANT_CRISES_SEQUENTIELLES,
@@ -289,6 +425,12 @@ function promouvoirCrisesV11VersCourant(
 ): EtatDesCrises {
   return {
     ...crises,
+    crisesDeTrameHistoriquesIgnorees:
+      "crisesDeTrameHistoriquesIgnorees" in crises
+        ? crises.crisesDeTrameHistoriquesIgnorees
+        : faits.some(
+            ({ id }) => id === FAIT_ANNONCANT_LA_CRISE_DE_TRAME,
+          ),
     crisesSequentiellesHistoriquesIgnorees:
       "crisesSequentiellesHistoriquesIgnorees" in crises
         ? crises.crisesSequentiellesHistoriquesIgnorees
@@ -333,10 +475,12 @@ function normaliserCrisesCourantesEnV11(
   const {
     historique,
     crisesSequentiellesHistoriquesIgnorees,
+    crisesDeTrameHistoriquesIgnorees,
     ...crisesSansHistorique
   } = crises;
   void historique;
   void crisesSequentiellesHistoriquesIgnorees;
+  void crisesDeTrameHistoriquesIgnorees;
   return {
     ...crisesSansHistorique,
     recuperations: crises.recuperations.map(

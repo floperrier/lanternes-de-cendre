@@ -1,4 +1,5 @@
 import type { IdentifiantDeStock } from "./pilotage";
+import type { IdentifiantDePlateformeMobile } from "./infrastructure";
 
 export const IDENTIFIANTS_DE_FAITS_D_INCIDENT = [
   "incident.purification.pompe-instable.securisee",
@@ -16,6 +17,10 @@ export type EffetMaterielDeFait =
       readonly type: "installation.etat-modifie";
       readonly installation: "pompe-purification";
       readonly etat: "securisee" | "stabilisee" | "degradee";
+    }
+  | {
+      readonly type: "plateforme.detachee";
+      readonly plateforme: IdentifiantDePlateformeMobile;
     };
 
 export type EffetHumainDeFait =

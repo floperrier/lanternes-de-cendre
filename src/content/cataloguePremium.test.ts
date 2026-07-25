@@ -56,6 +56,43 @@ const PRESENTATION_CRISE_VALIDE = {
   ),
 };
 
+const PRESENTATION_CRISE_TRAME_VALIDE = {
+  ...PRESENTATION_CRISE_VALIDE,
+  chaine: ["Fait", "Charge", "Refroidissement", "Rupture"],
+  reponses: {
+    "etayer-chassis": PRESENTATION_CRISE_VALIDE.reponses[
+      "renforcer-accueil"
+    ],
+    "detacher-plateforme": PRESENTATION_CRISE_VALIDE.reponses[
+      "partager-reserves-cohorte"
+    ],
+  },
+  cicatrices: dictionnaire(
+    "cicatrice.chassis-etaye-dans-l-urgence",
+    "cicatrice.plateforme-detachee-trame",
+  ),
+  consequencesCicatrices: dictionnaire(
+    "cicatrice.chassis-etaye-dans-l-urgence",
+    "cicatrice.plateforme-detachee-trame",
+  ),
+  causes: dictionnaire(
+    "crise.trame.etayer-chassis",
+    "crise.trame.detacher-plateforme",
+  ),
+  garanties: dictionnaire(
+    "charge-repartie-trame",
+    "attelage-recale-trame",
+  ),
+  destinations: dictionnaire(
+    "marche-des-traverses",
+    "signal-zero",
+  ),
+  conditionsRecuperation: dictionnaire(
+    "charge-repartie-trame",
+    "attelage-recale-trame",
+  ),
+};
+
 const PRESENTATIONS_VALIDES = {
   hautPuits: { fr: { titre: "Haut-Puits" }, en: { titre: "High Well" } },
   veilleBasse: {
@@ -412,8 +449,14 @@ describe("installation du contenu narratif premium", () => {
       hautPuits: PRESENTATIONS_VALIDES.hautPuits,
       veilleBasse: PRESENTATIONS_VALIDES.veilleBasse,
       trame: {
-        fr: { titre: "Trame de Fer" },
-        en: { titre: "Iron Weave" },
+        fr: {
+          titre: "Trame de Fer",
+          crise: PRESENTATION_CRISE_TRAME_VALIDE,
+        },
+        en: {
+          titre: "Iron Weave",
+          crise: PRESENTATION_CRISE_TRAME_VALIDE,
+        },
       },
     };
     const lotAiguillage = {

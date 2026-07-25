@@ -124,7 +124,22 @@ export function calculerCoutDynamiqueDeLAiguillageZero(
   if (choixId === "assurer-transport-autonome") {
     const attelagePrepare =
       etat.trameDeFer.occasions.attelageFedere.statut === "annoncee";
-    const cible = attelagePrepare ? 6 : 14;
+    const faits = new Set(
+      etat.narration.faitsDeCampagne.map(({ id }) => id),
+    );
+    const reductionDeRecuperation = faits.has(
+      "crise.recuperation.attelage-recale-trame.accomplie",
+    )
+      ? 3
+      : faits.has(
+            "crise.recuperation.charge-repartie-trame.accomplie",
+          )
+        ? 2
+        : 0;
+    const cible = Math.max(
+      1,
+      (attelagePrepare ? 6 : 14) - reductionDeRecuperation,
+    );
     const applique = Math.min(
       etat.pilotage.economie.stocks.materiaux.quantite,
       cible,

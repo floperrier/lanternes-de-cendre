@@ -23,6 +23,7 @@ import {
   creerPilotageInitial,
   engagerTransitionDeDoctrine,
   ordonnerResolutionDIncident,
+  projeterQuantiteDUnStock,
   traiterEcheancesDePilotage,
   type CommandeDeDoctrine,
   type CommandeDIncident,
@@ -34,10 +35,12 @@ import {
   creerInfrastructureInitiale,
   ajouterPlateformeRegionale,
   ajouterPlateformeRegionaleOrdinaire,
+  detacherPlateformeMobile,
   IDENTIFIANT_DE_PLATEFORME_REGIONALE,
   engagerChantier,
   faireProgresserChantier,
   IDENTIFIANTS_DE_PLATEFORME_INITIALE,
+  listerPlateformesMobilesDetachables,
   secondesAvantFinDuChantier,
   type CommandeDInfrastructure,
   type EtatInfrastructure,
@@ -267,6 +270,33 @@ export type EvenementDeDomaine =
 export interface TransitionDeCampagne {
   readonly etat: EtatCampagne;
   readonly evenements: readonly EvenementDeDomaine[];
+}
+
+function listerPlateformesDetachablesDeLaCampagne(
+  etat: EtatCampagne,
+): readonly IdentifiantDePlateformeMobile[] {
+  const formation = new Set(etat.citeCaravane.formation.plateformes);
+  return listerPlateformesMobilesDetachables(etat.infrastructure).filter(
+    (plateforme) => formation.has(plateforme),
+  );
+}
+
+function projeterMateriauxDisponibles(
+  etat: EtatCampagne,
+  secondes: number,
+): number {
+  const chantier = etat.infrastructure.chantierActif;
+  const consommationDuChantier =
+    chantier === null
+      ? 0
+      : chantier.coutMateriaux - chantier.materiauxConsommes;
+  return Math.max(
+    0,
+    projeterQuantiteDUnStock(
+      etat.pilotage.economie.stocks.materiaux,
+      secondes,
+    ) - consommationDuChantier,
+  );
 }
 
 export function creerCampagneInitiale(graine: GraineDeCampagne): EtatCampagne {
@@ -1152,7 +1182,7 @@ type OptionsDApplicationDeCommande = {
   readonly coutsDesNacelles?: "historiques-v6";
   readonly autoriserApresDenouement?: "migration-v10";
   readonly recuperations?: "historiques-v11";
-  readonly crises?: "historiques-v12";
+  readonly crises?: "historiques-v12" | "historiques-v13";
 };
 
 function appliquerCommandeSansEvaluationDesRecuperations(
@@ -1487,12 +1517,16 @@ function appliquerCommandeSansEvaluationDesRecuperations(
   }
 
   if (commande.type === "crise.resoudre") {
+    const plateformesDetachables =
+      listerPlateformesDetachablesDeLaCampagne(etat);
     const resolution = resoudreCriseActive(
       etat.crises,
       etat.pilotage,
       etat.citeCaravane.habitants,
+      etat.citeCaravane.formation.plateformes.length,
       commande,
       etat.tempsDuConvoi.secondes,
+      plateformesDetachables,
     );
     let stocks = etat.pilotage.economie.stocks;
     if (resolution.variationDeStock !== undefined) {
@@ -1502,6 +1536,21 @@ function appliquerCommandeSansEvaluationDesRecuperations(
         [stock]: appliquerVariationAUnStock(stocks[stock], variation),
       };
     }
+    const pilotageApresStock = {
+      ...etat.pilotage,
+      economie: { ...etat.pilotage.economie, stocks },
+    };
+    const detachement =
+      resolution.plateformeADetacher === null
+        ? {
+            infrastructure: etat.infrastructure,
+            pilotage: pilotageApresStock,
+          }
+        : detacherPlateformeMobile(
+            etat.infrastructure,
+            pilotageApresStock,
+            resolution.plateformeADetacher,
+          );
     const etatResolu = enregistrerFaitsDeCampagne(
       {
         ...etat,
@@ -1509,11 +1558,19 @@ function appliquerCommandeSansEvaluationDesRecuperations(
           ...etat.citeCaravane,
           habitants:
             etat.citeCaravane.habitants + resolution.variationDHabitants,
+          formation: {
+            ...etat.citeCaravane.formation,
+            plateformes:
+              resolution.plateformeADetacher === null
+                ? etat.citeCaravane.formation.plateformes
+                : etat.citeCaravane.formation.plateformes.filter(
+                    (plateforme) =>
+                      plateforme !== resolution.plateformeADetacher,
+                  ),
+          },
         },
-        pilotage: {
-          ...etat.pilotage,
-          economie: { ...etat.pilotage.economie, stocks },
-        },
+        infrastructure: detachement.infrastructure,
+        pilotage: detachement.pilotage,
         crises: resolution.etat,
       },
       [resolution.fait],
@@ -1781,6 +1838,45 @@ export function appliquerCommande(
   commande: CommandeCampagne,
   options: OptionsDApplicationDeCommande = {},
 ): TransitionDeCampagne {
+  const preserverLesDeuxReponsesDeTrame = (
+    candidate: TransitionDeCampagne,
+  ): TransitionDeCampagne => {
+    if (
+      commande.type === "crise.resoudre" ||
+      (candidate.etat.crises.alerte?.id !==
+        "trame-fer.cascade-materielle" &&
+        candidate.etat.crises.criseActive?.id !==
+          "trame-fer.cascade-materielle")
+    ) {
+      return candidate;
+    }
+    const ruptureA =
+      candidate.etat.crises.alerte?.ruptureA ??
+      candidate.etat.tempsDuConvoi.secondes;
+    if (
+      projeterMateriauxDisponibles(
+        candidate.etat,
+        Math.max(
+          0,
+          ruptureA - candidate.etat.tempsDuConvoi.secondes,
+        ),
+      ) <
+      7
+    ) {
+      throw new Error(
+        "Sept Matériaux sont réservés aux deux réponses de la Crise.",
+      );
+    }
+    if (
+      listerPlateformesDetachablesDeLaCampagne(candidate.etat).length ===
+      0
+    ) {
+      throw new Error(
+        "Une Plateforme libre doit rester réservée aux deux réponses de la Crise.",
+      );
+    }
+    return candidate;
+  };
   const transition = appliquerCommandeSansEvaluationDesRecuperations(
     etat,
     commande,
@@ -1795,7 +1891,40 @@ export function appliquerCommande(
     const annonce = annoncerCriseApresFaits(
       candidate.etat.crises,
       candidate.etat.narration.faitsDeCampagne,
+      (() => {
+        const dernierJalon = candidate.etat.routes.jalons.at(-1);
+        const charge =
+          candidate.etat.pilotage.economie.capacites.charge;
+        return {
+          momentCourant: candidate.etat.tempsDuConvoi.secondes,
+          position: candidate.etat.routes.position,
+          margeDeCharge: charge.production - charge.demande,
+          doctrineEntretien:
+            candidate.etat.pilotage.doctrine.entretien.position,
+          materiauxDisponibles: projeterMateriauxDisponibles(
+            candidate.etat,
+            120,
+          ),
+          plateformesDisponibles:
+            1 +
+            listerPlateformesDetachablesDeLaCampagne(candidate.etat)
+              .length,
+          dernierTronconTermine: dernierJalon?.tronconId ?? null,
+          etatDuDernierTroncon:
+            dernierJalon === undefined
+              ? null
+              : (candidate.etat.routes.etatsReels[
+                  dernierJalon.tronconId
+                ] ?? null),
+        };
+      })(),
     );
+    if (
+      options.crises === "historiques-v13" &&
+      annonce.etat.alerte?.id === "trame-fer.cascade-materielle"
+    ) {
+      return candidate;
+    }
     return annonce.evenements.length === 0
       ? candidate
       : {
@@ -1804,7 +1933,7 @@ export function appliquerCommande(
         };
   };
   if (options.recuperations === "historiques-v11") {
-    return transition;
+    return preserverLesDeuxReponsesDeTrame(transition);
   }
   const engagementTermine = transition.etat.routes.engagements.find(
     (engagement) =>
@@ -1882,13 +2011,13 @@ export function appliquerCommande(
     evaluation.faits.length === 0 &&
     evaluation.variationsDeStocks.length === 0
   ) {
-    return annoncerCriseEligible({
+    return preserverLesDeuxReponsesDeTrame(annoncerCriseEligible({
       etat:
         evaluation.etat === transition.etat.crises
           ? transition.etat
           : { ...transition.etat, crises: evaluation.etat },
       evenements: transition.evenements,
-    });
+    }));
   }
 
   let stocks = transition.etat.pilotage.economie.stocks;
@@ -1912,10 +2041,10 @@ export function appliquerCommande(
     },
     evaluation.faits,
   );
-  return annoncerCriseEligible({
+  return preserverLesDeuxReponsesDeTrame(annoncerCriseEligible({
     etat: etatAvecResultat,
     evenements: [...transition.evenements, ...evaluation.evenements],
-  });
+  }));
 }
 
 export function empreinteEtat(etat: EtatCampagne): string {

@@ -93,6 +93,47 @@ function etatEnCriseAVeilleBasse(
   return etat;
 }
 
+function etatEnCriseDeTrame() {
+  const initial = creerCampagneInitiale("CENDRE-CRISE-TRAME");
+  return {
+    ...initial,
+    tempsDuConvoi: { secondes: 2_520, vitesse: 0 as const },
+    crises: {
+      ...initial.crises,
+      alerte: null,
+      criseActive: {
+        id: "trame-fer.cascade-materielle" as const,
+        cause:
+          "trame.grand-aiguillage.refroidissement-rationne" as const,
+        declencheeA: 2_520,
+        faitProduit: "crise.trame.cascade-materielle" as const,
+        chaineVisible: [
+          {
+            id: "trame.ponts-lourds-fatigues",
+            cause: "voie-des-ponts-lourds.degradee",
+            irreversible: true,
+          },
+          {
+            id: "trame.charge-sans-marge",
+            cause: "trame.ponts-lourds-fatigues",
+            irreversible: false,
+          },
+          {
+            id: "trame.refroidissement-differe",
+            cause: "trame.grand-aiguillage.refroidissement-rationne",
+            irreversible: false,
+          },
+          {
+            id: "trame.chassis-en-cascade",
+            cause: "trame.refroidissement-differe",
+            irreversible: true,
+          },
+        ],
+      },
+    },
+  };
+}
+
 describe("projection des Crises", () => {
   it("rend la chaîne, deux réponses coûteuses et le dernier recours sans pourcentage", () => {
     const projection = projeterCrises(etatEnCrise(), "fr");
@@ -302,6 +343,79 @@ describe("projection des Crises", () => {
         expect.stringContaining("Cohorte"),
         expect.stringContaining("capacités d’accueil"),
       ],
+    });
+  });
+
+  it("rend la cascade de la Trame, ses coûts, ses attributions et ses traces en deux langues", () => {
+    const enCrise = etatEnCriseDeTrame();
+
+    expect(projeterCrises(enCrise, "fr").active).toMatchObject({
+      id: "trame-fer.cascade-materielle",
+      titre: "Crise — Cascade matérielle de la Trame",
+      cause: expect.stringContaining("Charge accumulée"),
+      chaineVisible: [
+        expect.stringContaining("Ponts Lourds"),
+        expect.stringContaining("marge de Charge"),
+        expect.stringContaining("refroidissement rationné"),
+        expect.stringContaining("cèdent en cascade"),
+      ],
+      reponses: [
+        expect.objectContaining({
+          id: "etayer-chassis",
+          coutConnu: "7 Matériaux",
+          attribution: "Équipes d’entretien du convoi",
+          pireConsequence: expect.stringContaining("transport autonome"),
+        }),
+        expect.objectContaining({
+          id: "detacher-plateforme",
+          coutConnu: "1 Plateforme",
+          attribution:
+            "Équipes d’entretien et foyers de la Plateforme",
+          viable: true,
+        }),
+      ],
+    });
+
+    const resolu = appliquerCommande(enCrise, {
+      type: "crise.resoudre",
+      criseId: "trame-fer.cascade-materielle",
+      reponseId: "detacher-plateforme",
+    }).etat;
+    expect(projeterCrises(resolu, "en")).toMatchObject({
+      cicatrices: [
+        {
+          titre: "Platform detached in the Iron Weave",
+          cause: "Irreversible Platform detachment",
+          consequence: expect.stringContaining("never rejoins"),
+        },
+      ],
+      recuperations: [
+        expect.objectContaining({
+          garantie: "Consist realigned at Zero Signal",
+          destination: "Zero Signal",
+          horizon: "within 2 route segments",
+          condition: "Reach Zero Signal within two route segments.",
+          cout: "Cost of the route segment to Zero Signal",
+        }),
+      ],
+    });
+    const etaye = appliquerCommande(enCrise, {
+      type: "crise.resoudre",
+      criseId: "trame-fer.cascade-materielle",
+      reponseId: "etayer-chassis",
+    }).etat;
+    expect(projeterCrises(etaye, "fr").recuperations).toEqual([
+      expect.objectContaining({
+        destination: "Marché des Traverses",
+        cout: "Coût du Tronçon vers Marché des Traverses",
+      }),
+    ]);
+    expect(
+      projeterPilotage(resolu, "fr").journalCausal.at(-1),
+    ).toMatchObject({
+      titre: "Crise de la Trame — Plateforme détachée",
+      cause: "Cascade matérielle de la Trame de Fer",
+      cible: "Plateforme mobile détachée",
     });
   });
 });

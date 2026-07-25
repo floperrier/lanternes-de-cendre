@@ -25,9 +25,11 @@ import {
 import {
   DEFINITIONS_DES_REPONSES_A_LA_CRISE,
   reponseALaCriseEstViable,
+  type IdentifiantDeCrise,
   type IdentifiantDeReponseALaCrise,
 } from "../simulation/crise";
 import { empreinteValeurDeterministe } from "../simulation/empreinte";
+import { listerPlateformesMobilesDetachables } from "../simulation/infrastructure";
 import { SECONDES_PAR_HEURE } from "../simulation/pilotage";
 import {
   listerTronconsEngageables,
@@ -410,6 +412,7 @@ export const STRATEGIES_D_EQUILIBRAGE = [
     experience: "campagne-rejouee",
     itineraire: ITINERAIRES.basRailSeuil,
     affinites: [
+      "rationner",
       "acheter",
       "echanger",
       "prendre",
@@ -420,6 +423,8 @@ export const STRATEGIES_D_EQUILIBRAGE = [
     solutionFinale: "ancrage",
     incident: "maintenir-debit",
     reponsesDeCrise: [
+      "etayer-chassis",
+      "detacher-plateforme",
       "renforcer-accueil",
       "partager-reserves-cohorte",
       "mobiliser-les-remedes",
@@ -495,6 +500,10 @@ export interface MetriquesDeCampagneHeadless {
   readonly tronconsParcourus: number;
   readonly tronconsSousTension: number;
   readonly crises: number;
+  readonly crisesParIdentifiant: Readonly<
+    Record<IdentifiantDeCrise, number>
+  >;
+  readonly crisesCausalesEtUniques: boolean;
   readonly arriveeAuNoeud: boolean;
   readonly secondesActives: number;
   readonly secondesDeChargeDEntretien: number;
@@ -543,6 +552,7 @@ interface AccumulateurDeMetriques {
   tronconsParcourus: number;
   tronconsSousTension: number;
   crises: number;
+  crisesParIdentifiant: Record<IdentifiantDeCrise, number>;
   secondesActives: number;
   secondesDeChargeDEntretien: number;
   dureesDeHalte: number[];
@@ -965,6 +975,11 @@ function listerReponsesDeCriseViables(
       definition,
       etat.pilotage,
       etat.citeCaravane.habitants,
+      etat.citeCaravane.formation.plateformes.length,
+      listerPlateformesMobilesDetachables(etat.infrastructure).filter(
+        (plateforme) =>
+          etat.citeCaravane.formation.plateformes.includes(plateforme),
+      ).length,
     ),
   ).map(({ id }) => id);
 }
@@ -1004,6 +1019,11 @@ export function executerCampagneHeadless({
     tronconsParcourus: 0,
     tronconsSousTension: 0,
     crises: 0,
+    crisesParIdentifiant: {
+      "penurie-eau.pompe-purification": 0,
+      "veille-basse.accueil-sous-penurie": 0,
+      "trame-fer.cascade-materielle": 0,
+    },
     secondesActives: 0,
     secondesDeChargeDEntretien: 0,
     dureesDeHalte: [],
@@ -1114,6 +1134,7 @@ export function executerCampagneHeadless({
         }
         if (evenement.type === "crise.declenchee") {
           metriques.crises += 1;
+          metriques.crisesParIdentifiant[evenement.criseId] += 1;
         }
         if (evenement.type === "evenement-narratif.choix-resolu") {
           metriques.motifsNarratifs.push(motifDeChoix(evenement.choixId));
@@ -1570,6 +1591,31 @@ export function executerCampagneHeadless({
     capturerRessources(etat),
   );
   const coutFinal = coutNormalise(coutsFinaux);
+  const crisesCausalesEtUniques =
+    Object.values(metriques.crisesParIdentifiant).every(
+      (occurrences) => occurrences <= 1,
+    ) &&
+    Object.values(metriques.crisesParIdentifiant).reduce(
+      (total, occurrences) => total + occurrences,
+      0,
+    ) === metriques.crises &&
+    (metriques.crisesParIdentifiant[
+      "trame-fer.cascade-materielle"
+    ] === 0 ||
+      (faitsFinaux.includes(
+        "trame.grand-aiguillage.refroidissement-rationne",
+      ) &&
+        faitsFinaux.includes("crise.trame.cascade-materielle") &&
+        faitsFinaux.some(
+          (id) =>
+            id === "crise.trame.etayer-chassis" ||
+            id === "crise.trame.detacher-plateforme",
+        ) &&
+        faitsFinaux.some((id) =>
+          id.startsWith("crise.recuperation.") &&
+          (id.includes("charge-repartie-trame") ||
+            id.includes("attelage-recale-trame")),
+        )));
   return {
     format: "lanternes-de-cendre.campagne-headless",
     version: VERSION_FORMAT_CAMPAGNE_HEADLESS,
@@ -1587,6 +1633,8 @@ export function executerCampagneHeadless({
       tronconsParcourus: metriques.tronconsParcourus,
       tronconsSousTension: metriques.tronconsSousTension,
       crises: metriques.crises,
+      crisesParIdentifiant: metriques.crisesParIdentifiant,
+      crisesCausalesEtUniques,
       arriveeAuNoeud: etat.routes.position === "noeud-central",
       secondesActives: metriques.secondesActives,
       secondesDeChargeDEntretien:
@@ -1644,6 +1692,7 @@ export interface InvariantsDEquilibrage {
   readonly sansImpasse: boolean;
   readonly sansRecuperationGratuite: boolean;
   readonly sansBoucleProfitable: boolean;
+  readonly crisesUniquesEtCausales: boolean;
 }
 
 export interface PasseDEquilibrage {
@@ -1807,6 +1856,9 @@ export function verifierInvariantsDEquilibrage(
     sansBoucleProfitable: campagnes.every(
       ({ bouclesSondees, bouclesProfitables }) =>
         bouclesSondees > 0 && bouclesProfitables === 0,
+    ),
+    crisesUniquesEtCausales: campagnes.every(
+      ({ metriques }) => metriques.crisesCausalesEtUniques,
     ),
   };
 }

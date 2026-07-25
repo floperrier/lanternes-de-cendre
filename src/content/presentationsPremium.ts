@@ -25,6 +25,7 @@ export interface TextesDeCriseDeVeilleBasse {
   readonly consequencesCicatrices: DictionnaireDeTextes;
   readonly causes: DictionnaireDeTextes;
   readonly garanties: DictionnaireDeTextes;
+  readonly destinations?: DictionnaireDeTextes;
   readonly conditionsRecuperation: DictionnaireDeTextes;
 }
 
@@ -113,6 +114,7 @@ export interface TextesDeVeilleBasse {
 }
 
 export interface TextesDeTrameDeFer {
+  readonly crise: TextesDeCriseDeVeilleBasse;
   readonly titre: string;
   readonly statuts: DictionnaireDeTextes;
   readonly relations: DictionnaireDeTextes;
@@ -491,6 +493,80 @@ function estPresentationDeVeilleBasse(valeur: unknown): boolean {
   return (
     estArbreDeTextes(autresTextes) &&
     estPresentationDeCriseDeVeilleBasse(crise)
+  );
+}
+
+function estPresentationDeTrame(valeur: unknown): boolean {
+  if (!estObjet(valeur)) {
+    return false;
+  }
+  const { crise, ...autresTextes } = valeur;
+  if (
+    !estArbreDeTextes(autresTextes) ||
+    !estObjet(crise) ||
+    !["alerteTitre", "alerteCause", "titre", "cause"].every(
+      (champ) =>
+        typeof crise[champ] === "string" &&
+        (crise[champ] as string).length > 0,
+    ) ||
+    !Array.isArray(crise.chaine) ||
+    crise.chaine.length !== 4 ||
+    !crise.chaine.every(
+      (maillon) => typeof maillon === "string" && maillon.length > 0,
+    ) ||
+    !estObjet(crise.reponses)
+  ) {
+    return false;
+  }
+  const champsDeReponse = [
+    "intention",
+    "coutConnu",
+    "consequence",
+    "mitigation",
+    "pireConsequence",
+    "attribution",
+  ] as const;
+  const reponses = crise.reponses as Record<string, unknown>;
+  const cicatrices = [
+    "cicatrice.chassis-etaye-dans-l-urgence",
+    "cicatrice.plateforme-detachee-trame",
+  ] as const;
+  const causes = [
+    "crise.trame.etayer-chassis",
+    "crise.trame.detacher-plateforme",
+  ] as const;
+  const garanties = [
+    "charge-repartie-trame",
+    "attelage-recale-trame",
+  ] as const;
+  return (
+    ["etayer-chassis", "detacher-plateforme"].every(
+      (id) =>
+        estObjet(reponses[id]) &&
+        champsDeReponse.every(
+          (champ) =>
+            typeof (reponses[id] as Record<string, unknown>)[champ] ===
+              "string" &&
+            (
+              (reponses[id] as Record<string, unknown>)[champ] as string
+            ).length > 0,
+        ),
+    ) &&
+    estDictionnaireAvecCles(crise.cicatrices, cicatrices) &&
+    estDictionnaireAvecCles(
+      crise.consequencesCicatrices,
+      cicatrices,
+    ) &&
+    estDictionnaireAvecCles(crise.causes, causes) &&
+    estDictionnaireAvecCles(crise.garanties, garanties) &&
+    estDictionnaireAvecCles(crise.destinations, [
+      "marche-des-traverses",
+      "signal-zero",
+    ]) &&
+    estDictionnaireAvecCles(
+      crise.conditionsRecuperation,
+      garanties,
+    )
   );
 }
 
@@ -915,6 +991,8 @@ export function installerPresentationsPremium(valeur: unknown): void {
           }
           return surface === "veilleBasse"
             ? estPresentationDeVeilleBasse(presentation)
+            : surface === "trame"
+              ? estPresentationDeTrame(presentation)
             : surface === "ouvertureCouronne"
               ? estPresentationDeLOuvertureDeLaCouronne(
                   presentation,

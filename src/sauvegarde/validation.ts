@@ -11,6 +11,7 @@ import {
 import {
   VERSION_ALEATOIRE_COURANTE,
   VERSION_SIMULATION_AVANT_CRISES,
+  VERSION_SIMULATION_AVANT_CRISE_DE_TRAME,
   VERSION_SIMULATION_AVANT_CRISES_SEQUENTIELLES,
   VERSION_SIMULATION_AVANT_DENOUEMENT,
   VERSION_SIMULATION_AVANT_DEVERSOIR,
@@ -36,7 +37,9 @@ import {
   IDENTIFIANTS_DE_STOCK,
   INCIDENT_INITIAL,
   POSITIONS_DE_DOCTRINE,
+  projeterQuantiteDUnStock,
   type EtatPilotage,
+  type StockDuConvoi,
 } from "../simulation/pilotage";
 import { catalogueDEvenements, trouverEvenement } from "../content/catalogue";
 import type {
@@ -53,8 +56,11 @@ import {
   CATALOGUE_D_INSTALLATIONS,
   creerInfrastructureInitiale,
   demandeDeChargePourCategorie,
+  IDENTIFIANTS_DE_PLATEFORME_INITIALE,
+  IDENTIFIANT_DE_PLATEFORME_REGIONALE,
   IDENTIFIANTS_D_INSTALLATION,
   installationEstVitale,
+  listerPlateformesMobilesDetachables,
   trouverRefusDeConstruction,
   type EtatInfrastructure,
   type OrdreDeChantier,
@@ -105,10 +111,12 @@ import {
 import {
   DEFINITIONS_DES_REPONSES_A_LA_CRISE,
   FAIT_ANNONCANT_LA_CRISE,
+  FAIT_ANNONCANT_LA_CRISE_DE_TRAME,
   FAIT_ANNONCANT_LA_CRISE_DE_VEILLE_BASSE,
   IDENTIFIANTS_DE_FAITS_DE_CRISE,
   IDENTIFIANTS_DE_FAITS_DE_RECUPERATION,
   IDENTIFIANT_DE_LA_CRISE_DE_REFERENCE,
+  IDENTIFIANT_DE_LA_CRISE_DE_TRAME,
   IDENTIFIANT_DE_LA_CRISE_DE_VEILLE_BASSE,
   annoncerCriseApresFaits,
   creerEtatDesCrisesInitial,
@@ -340,6 +348,7 @@ export interface EtatDesCrisesV11
     EtatDesCrises,
     | "historique"
     | "crisesSequentiellesHistoriquesIgnorees"
+    | "crisesDeTrameHistoriquesIgnorees"
     | "recuperations"
   > {
   readonly recuperations: readonly {
@@ -372,13 +381,26 @@ export interface EtatCampagneV11
 
 export type EtatDesCrisesV12 = Omit<
   EtatDesCrises,
-  "historique" | "crisesSequentiellesHistoriquesIgnorees"
+  | "historique"
+  | "crisesSequentiellesHistoriquesIgnorees"
+  | "crisesDeTrameHistoriquesIgnorees"
 >;
 
 export interface EtatCampagneV12
   extends Omit<EtatCampagne, "version" | "crises"> {
   readonly version: typeof VERSION_SIMULATION_AVANT_CRISES_SEQUENTIELLES;
   readonly crises: EtatDesCrisesV12;
+}
+
+export type EtatDesCrisesV13 = Omit<
+  EtatDesCrises,
+  "crisesDeTrameHistoriquesIgnorees"
+>;
+
+export interface EtatCampagneV13
+  extends Omit<EtatCampagne, "version" | "crises"> {
+  readonly version: typeof VERSION_SIMULATION_AVANT_CRISE_DE_TRAME;
+  readonly crises: EtatDesCrisesV13;
 }
 
 export function estObjet(valeur: unknown): valeur is ObjetInconnu {
@@ -781,6 +803,16 @@ function estEffetMaterielDeFait(valeur: unknown): boolean {
       ["securisee", "stabilisee", "degradee"].includes(String(valeur.etat))
     );
   }
+  if (valeur.type === "plateforme.detachee") {
+    return (
+      typeof valeur.plateforme === "string" &&
+      valeur.plateforme !== "phare" &&
+      [
+        ...IDENTIFIANTS_DE_PLATEFORME_INITIALE,
+        IDENTIFIANT_DE_PLATEFORME_REGIONALE,
+      ].includes(valeur.plateforme as never)
+    );
+  }
   return false;
 }
 
@@ -1014,14 +1046,41 @@ export function estFaitDeCampagneV2(valeur: unknown): boolean {
         estEffetHumain(humains[0], "habitants.exposes", "nombre", 0)
       );
     }
+    if (valeur.id === IDENTIFIANTS_DE_FAITS_DE_CRISE[7]) {
+      return (
+        valeur.cause === FAIT_ANNONCANT_LA_CRISE_DE_TRAME &&
+        memesChaines(acteurs, [
+          "equipes-entretien",
+          "ateliers-grand-aiguillage",
+        ]) &&
+        valeur.cible === "chassis-de-la-cite-caravane" &&
+        materiels.length === 0 &&
+        humains.length === 1 &&
+        estEffetHumain(humains[0], "habitants.exposes", "nombre", 0)
+      );
+    }
     const definition = DEFINITIONS_DES_REPONSES_A_LA_CRISE.find(
       (candidate) => candidate.faitProduit === valeur.id,
     );
+    const plateformeDetachee =
+      valeur.id === "crise.trame.detacher-plateforme" &&
+      materiels.length === 1 &&
+      estObjet(materiels[0]) &&
+      materiels[0].type === "plateforme.detachee" &&
+      typeof materiels[0].plateforme === "string"
+        ? materiels[0].plateforme
+        : undefined;
     return (
       definition !== undefined &&
+      (valeur.id !== "crise.trame.detacher-plateforme" ||
+        plateformeDetachee !== undefined) &&
       sontStructurellementEgaux(
         valeur,
-        faitDeResolutionAttendu(definition, valeur.moment as number),
+        faitDeResolutionAttendu(
+          definition,
+          valeur.moment as number,
+          plateformeDetachee,
+        ),
       )
     );
   }
@@ -1204,6 +1263,17 @@ function estEtatInfrastructure(
   const faitDeGabarits = faits.find(
     (fait) => fait.id === "bassins.deversoir.gabarits-conserves",
   );
+  const faitDeDetachement = faits.find(
+    (fait) => fait.id === "crise.trame.detacher-plateforme",
+  );
+  const plateformeDetachee =
+    faitDeDetachement !== undefined &&
+    estObjet(faitDeDetachement.effets) &&
+    Array.isArray(faitDeDetachement.effets.materiels)
+      ? (faitDeDetachement.effets.materiels as ObjetInconnu[]).find(
+          (effet) => effet.type === "plateforme.detachee",
+        )?.plateforme
+      : undefined;
   const projetRegionalAttendu =
     faitDeScellement === undefined || faitDeProjet === undefined
       ? null
@@ -1222,15 +1292,22 @@ function estEtatInfrastructure(
               : ("charge-habitable-permanente" as const),
           scelleA: faitDeScellement.moment,
         };
+  const plateformesInitialesAttendues = initiale.plateformes.filter(
+    ({ id }) => id !== plateformeDetachee,
+  );
+  const quartiersAttendus = initiale.quartiers.filter(
+    ({ plateformeId }) => plateformeId !== plateformeDetachee,
+  );
+  const plateformeRegionaleAttendue =
+    (projetRegionalAttendu !== null || faitDeGabarits !== undefined) &&
+    plateformeDetachee !== "chassis-regional-des-bassins";
   if (
     valeur.plateformes.length !==
-      initiale.plateformes.length +
-        (projetRegionalAttendu === null && faitDeGabarits === undefined
-          ? 0
-          : 1) ||
-    valeur.quartiers.length !== initiale.quartiers.length ||
+      plateformesInitialesAttendues.length +
+        (plateformeRegionaleAttendue ? 1 : 0) ||
+    valeur.quartiers.length !== quartiersAttendus.length ||
     !valeur.quartiers.every((quartier, index) => {
-      const quartierInitial = initiale.quartiers[index];
+      const quartierInitial = quartiersAttendus[index];
       return (
         estObjet(quartier) &&
         quartier.id === quartierInitial?.id &&
@@ -1242,7 +1319,10 @@ function estEtatInfrastructure(
     return false;
   }
   const installations = new Set<string>();
-  for (const [index, plateformeInitiale] of initiale.plateformes.entries()) {
+  for (const [
+    index,
+    plateformeInitiale,
+  ] of plateformesInitialesAttendues.entries()) {
     const plateforme = valeur.plateformes[index];
     if (
       !estObjet(plateforme) ||
@@ -1294,8 +1374,11 @@ function estEtatInfrastructure(
     }
   }
   const plateformeRegionale =
-    valeur.plateformes[initiale.plateformes.length];
-  if (projetRegionalAttendu !== null) {
+    valeur.plateformes[plateformesInitialesAttendues.length];
+  if (
+    projetRegionalAttendu !== null &&
+    plateformeRegionaleAttendue
+  ) {
     if (
       !estObjet(plateformeRegionale) ||
         plateformeRegionale.id !== "chassis-regional-des-bassins" ||
@@ -1311,7 +1394,10 @@ function estEtatInfrastructure(
     ) {
       return false;
     }
-  } else if (faitDeGabarits !== undefined) {
+  } else if (
+    faitDeGabarits !== undefined &&
+    plateformeRegionaleAttendue
+  ) {
     if (
       !estObjet(plateformeRegionale) ||
       plateformeRegionale.id !== "chassis-regional-des-bassins" ||
@@ -1363,7 +1449,10 @@ function estEtatInfrastructure(
         }
       }
     }
-  } else if (plateformeRegionale !== undefined) {
+  } else if (
+    plateformeRegionale !== undefined &&
+    plateformeRegionaleAttendue
+  ) {
     return false;
   }
   if (
@@ -1376,13 +1465,14 @@ function estEtatInfrastructure(
     return false;
   }
   let dernierTerme = 0;
-  const infrastructureDeReference =
+  const infrastructureDeReferenceComplete =
     faitDeGabarits === undefined
       ? initiale
       : ajouterPlateformeRegionaleOrdinaire(initiale);
-  const emplacementsInitiaux = infrastructureDeReference.plateformes.flatMap(
-    (plateforme) => plateforme.emplacements,
-  );
+  const emplacementsInitiaux =
+    infrastructureDeReferenceComplete.plateformes.flatMap(
+      (plateforme) => plateforme.emplacements,
+    );
   const installationsAttendues = new Map(
     emplacementsInitiaux.map((emplacement) => [
       emplacement.id,
@@ -1421,28 +1511,56 @@ function estEtatInfrastructure(
       ).length <= 1
     );
   };
-  const infrastructureAttendue = (): EtatInfrastructure => ({
-    ...infrastructureDeReference,
-    plateformes: infrastructureDeReference.plateformes.map((plateforme) => ({
-      ...plateforme,
-      emplacements: plateforme.emplacements.map((emplacement) => ({
-        ...emplacement,
-        installation: installationsAttendues.get(emplacement.id) ?? null,
-      })),
-    })),
-  });
+  const infrastructureAttendue = (
+    moment = secondesCourantes,
+  ): EtatInfrastructure => {
+    const detachementDejaApplique =
+      typeof plateformeDetachee === "string" &&
+      faitDeDetachement !== undefined &&
+      (faitDeDetachement.moment as number) <= moment;
+    return {
+      ...infrastructureDeReferenceComplete,
+      plateformes: infrastructureDeReferenceComplete.plateformes
+        .filter(
+          ({ id }) =>
+            !detachementDejaApplique || id !== plateformeDetachee,
+        )
+        .map((plateforme) => ({
+          ...plateforme,
+          emplacements: plateforme.emplacements.map((emplacement) => ({
+            ...emplacement,
+            installation:
+              installationsAttendues.get(emplacement.id) ?? null,
+          })),
+        })),
+      quartiers: infrastructureDeReferenceComplete.quartiers.filter(
+        ({ plateformeId }) =>
+          !detachementDejaApplique ||
+          plateformeId !== plateformeDetachee,
+      ),
+    };
+  };
   const ordreToucheLaPlateformeRegionale = (ordre: OrdreDeChantier) =>
     (ordre.type === "deplacement"
       ? [ordre.origineId, ordre.destinationId]
       : [ordre.emplacementId]
     ).some((id) => id.startsWith("chassis-regional-des-bassins."));
+  const ordreToucheLaPlateformeDetachee = (ordre: OrdreDeChantier) =>
+    typeof plateformeDetachee === "string" &&
+    (ordre.type === "deplacement"
+      ? [ordre.origineId, ordre.destinationId]
+      : [ordre.emplacementId]
+    ).some((id) => id.startsWith(`${plateformeDetachee}.`));
   const ordreEstPosterieurAuChassis = (
     ordre: OrdreDeChantier,
     commenceA: number,
   ) =>
-    !ordreToucheLaPlateformeRegionale(ordre) ||
-    (faitDeGabarits !== undefined &&
-      commenceA >= (faitDeGabarits.moment as number));
+    (!ordreToucheLaPlateformeRegionale(ordre) ||
+      (faitDeGabarits !== undefined &&
+        commenceA >= (faitDeGabarits.moment as number))) &&
+    (!ordreToucheLaPlateformeDetachee(ordre) ||
+      faitDeDetachement === undefined ||
+      commenceA < (faitDeDetachement.moment as number));
   let momentDesMateriaux = 0;
   let quantiteDeMateriaux = PILOTAGE_INITIAL.economie.stocks.materiaux.quantite;
   let reliquatDeMateriaux =
@@ -1498,15 +1616,15 @@ function estEtatInfrastructure(
     )
       ? 0
       : 3;
-  const actualiserFluxDeMateriaux = () => {
+  const actualiserFluxDeMateriaux = (moment: number) => {
     fluxDeMateriaux =
       PILOTAGE_INITIAL.economie.stocks.materiaux.fluxParHeure +
-      (calculerModificateursEconomiques(infrastructureAttendue())
+      (calculerModificateursEconomiques(infrastructureAttendue(moment))
         .fluxDeStocks.materiaux ?? 0);
   };
   const ressourcesDeConstruction = (moment: number) => {
     const modificateurs = calculerModificateursEconomiques(
-      infrastructureAttendue(),
+      infrastructureAttendue(moment),
     );
     const capacites = PILOTAGE_INITIAL.economie.capacites;
     return {
@@ -1605,7 +1723,7 @@ function estEtatInfrastructure(
       installationsAttendues.set(ordre.origineId, null);
       installationsAttendues.set(ordre.destinationId, installation);
     }
-    actualiserFluxDeMateriaux();
+    actualiserFluxDeMateriaux(chantier.termineA);
     dernierTerme = chantier.termineA;
   }
   if (valeur.chantierActif !== null) {
@@ -1707,6 +1825,7 @@ function calculerStockAttendu(
   utiliserCoutsHistoriquesDesNacelles = false,
 ): {
   readonly quantite: number;
+  readonly fluxParHeure: number;
   readonly reliquatDeFlux: number;
   readonly coutsDeLancementDExpeditionApplicables: boolean;
   readonly possibilites: readonly {
@@ -1760,7 +1879,7 @@ function calculerStockAttendu(
       ),
     ),
   );
-  const transitions = infrastructure.chantiersTermines.map(
+  const transitionsDeChantiers = infrastructure.chantiersTermines.map(
     (chantier, index) => {
       let variationDeFlux = 0;
       if (chantier.ordre.type === "construction") {
@@ -1800,6 +1919,78 @@ function calculerStockAttendu(
       };
     },
   );
+  const transitionsDeDetachement = faits.flatMap((fait, index) => {
+    if (
+      fait.id !== "crise.trame.detacher-plateforme" ||
+      !estObjet(fait.effets) ||
+      !Array.isArray(fait.effets.materiels)
+    ) {
+      return [];
+    }
+    const effet = (fait.effets.materiels as ObjetInconnu[]).find(
+      (candidate) => candidate.type === "plateforme.detachee",
+    );
+    if (effet === undefined || typeof effet.plateforme !== "string") {
+      return [];
+    }
+    const installationsAuMoment = new Map(
+      creerInfrastructureInitiale().plateformes.flatMap((plateforme) =>
+        plateforme.emplacements.map(
+          (emplacement) =>
+            [
+              emplacement.id,
+              emplacement.installation?.definitionId ?? null,
+            ] as const,
+        ),
+      ),
+    );
+    for (const chantier of infrastructure.chantiersTermines) {
+      if (chantier.termineA > (fait.moment as number)) {
+        continue;
+      }
+      if (chantier.ordre.type === "construction") {
+        installationsAuMoment.set(
+          chantier.ordre.emplacementId,
+          chantier.ordre.definitionId,
+        );
+      } else if (chantier.ordre.type === "demontage") {
+        installationsAuMoment.set(chantier.ordre.emplacementId, null);
+      } else {
+        const definitionId = installationsAuMoment.get(
+          chantier.ordre.origineId,
+        );
+        installationsAuMoment.set(chantier.ordre.origineId, null);
+        installationsAuMoment.set(
+          chantier.ordre.destinationId,
+          definitionId ?? null,
+        );
+      }
+    }
+    let variationDeFlux = 0;
+    for (const [emplacementId, definitionId] of installationsAuMoment) {
+      if (
+        !emplacementId.startsWith(`${effet.plateforme}.`) ||
+        definitionId === null
+      ) {
+        continue;
+      }
+      variationDeFlux -=
+        CATALOGUE_D_INSTALLATIONS[definitionId].effetsEconomiques
+          .fluxDeStocks[id] ?? 0;
+    }
+    return [
+      {
+        type: "infrastructure" as const,
+        moment: fait.moment as number,
+        index: infrastructure.chantiersTermines.length + index,
+        variationDeFlux,
+      },
+    ];
+  });
+  const transitions = [
+    ...transitionsDeChantiers,
+    ...transitionsDeDetachement,
+  ];
   const causesDEvenementsDejaComptabilisees = new Set<string>();
   const faitsAvecEffetsUniques = faits.filter((fait) => {
     const definition = definitionsDeFaitsDuCatalogue().get(String(fait.id));
@@ -2071,6 +2262,7 @@ function calculerStockAttendu(
   }
   return {
     quantite: canonique.stock.quantite,
+    fluxParHeure,
     reliquatDeFlux: canonique.stock.reliquatDeFlux,
     coutsDeLancementDExpeditionApplicables:
       canonique.coutsDeLancementDExpeditionApplicables,
@@ -3276,6 +3468,7 @@ function sontStructurellementEgaux(gauche: unknown, droite: unknown): boolean {
 function faitDeResolutionAttendu(
   definition: DefinitionDeReponseALaCrise,
   moment: number,
+  plateformeDetachee?: string,
 ): FaitDeCampagne {
   const variationDeStock =
     definition.cout.stock === undefined
@@ -3294,7 +3487,20 @@ function faitDeResolutionAttendu(
     moment,
     effets: {
       materiels:
-        variationDeStock === undefined ? [] : [variationDeStock],
+        variationDeStock !== undefined
+          ? [variationDeStock]
+          : definition.cout.plateformes === undefined
+            ? []
+            : [
+                {
+                  type: "plateforme.detachee" as const,
+                  plateforme: (plateformeDetachee ??
+                    "intendance") as Exclude<
+                    IdentifiantPlateformeMobile,
+                    "phare"
+                  >,
+                },
+              ],
       humains:
         variationDHabitants === 0
           ? []
@@ -3336,6 +3542,18 @@ function acteursEtCibleDeRecuperation(
     return {
       acteurs: ["porte-lanterne", "cohorte-du-sillon"],
       cible: "hospice-du-sillon",
+    };
+  }
+  if (
+    garantie === "charge-repartie-trame" ||
+    garantie === "attelage-recale-trame"
+  ) {
+    return {
+      acteurs: ["porte-lanterne", "equipes-entretien"],
+      cible:
+        garantie === "charge-repartie-trame"
+          ? "marche-des-traverses"
+          : "signal-zero",
     };
   }
   return {
@@ -3579,6 +3797,26 @@ function appliquerResultatDeRecuperationAttendu(
   };
 }
 
+function projeterMateriauxApresChantier(
+  stock: Pick<
+    StockDuConvoi,
+    "quantite" | "fluxParHeure" | "reliquatDeFlux"
+  >,
+  infrastructure: EtatInfrastructure,
+  secondes: number,
+): number {
+  const chantier = infrastructure.chantierActif;
+  const consommationDuChantier =
+    chantier === null
+      ? 0
+      : chantier.coutMateriaux - chantier.materiauxConsommes;
+  return Math.max(
+    0,
+    projeterQuantiteDUnStock(stock, secondes) -
+      consommationDuChantier,
+  );
+}
+
 function estEtatDesCrises(
   valeur: unknown,
   secondesCourantes: number,
@@ -3586,6 +3824,8 @@ function estEtatDesCrises(
   faits: readonly ObjetInconnu[],
   evenementNarratifActif: unknown,
   infrastructure: EtatInfrastructure,
+  pilotage: EtatPilotage,
+  plateformes: readonly IdentifiantPlateformeMobile[],
   routes: EtatDesRoutes,
   expeditions: EtatDesExpeditions,
   hautPuits: EtatDeHautPuits,
@@ -3598,6 +3838,7 @@ function estEtatDesCrises(
     typeof valeur.faitAnnonceurHistoriqueIgnore !== "boolean" ||
     typeof valeur.crisesSequentiellesHistoriquesIgnorees !==
       "boolean" ||
+    typeof valeur.crisesDeTrameHistoriquesIgnorees !== "boolean" ||
     !Array.isArray(valeur.historique)
   ) {
     return false;
@@ -3608,6 +3849,9 @@ function estEtatDesCrises(
   const faitAccueilDeVeilleBassePresent = faits.some(
     (fait) =>
       fait.id === FAIT_ANNONCANT_LA_CRISE_DE_VEILLE_BASSE,
+  );
+  const faitDeTramePresent = faits.some(
+    (fait) => fait.id === FAIT_ANNONCANT_LA_CRISE_DE_TRAME,
   );
   if (
     valeur.faitAnnonceurHistoriqueIgnore &&
@@ -3623,6 +3867,12 @@ function estEtatDesCrises(
   ) {
     return false;
   }
+  if (
+    valeur.crisesDeTrameHistoriquesIgnorees &&
+    !faitDeTramePresent
+  ) {
+    return false;
+  }
 
   let attendu = {
     ...creerEtatDesCrisesInitial(),
@@ -3630,6 +3880,8 @@ function estEtatDesCrises(
       valeur.faitAnnonceurHistoriqueIgnore,
     crisesSequentiellesHistoriquesIgnorees:
       valeur.crisesSequentiellesHistoriquesIgnorees,
+    crisesDeTrameHistoriquesIgnorees:
+      valeur.crisesDeTrameHistoriquesIgnorees,
   };
   const faitsVus: ObjetInconnu[] = [];
   const identifiantsDeDeclenchement = new Map([
@@ -3641,6 +3893,10 @@ function estEtatDesCrises(
       "crise.veille-basse.accueil-sous-penurie",
       IDENTIFIANT_DE_LA_CRISE_DE_VEILLE_BASSE,
     ],
+    [
+      "crise.trame.cascade-materielle",
+      IDENTIFIANT_DE_LA_CRISE_DE_TRAME,
+    ],
   ] as const);
   const definitionsParFait = new Map(
     DEFINITIONS_DES_REPONSES_A_LA_CRISE.map((definition) => [
@@ -3651,12 +3907,172 @@ function estEtatDesCrises(
   const idsDeRecuperation = new Set<string>(
     IDENTIFIANTS_DE_FAITS_DE_RECUPERATION,
   );
+  const faitDeDeclenchementDeTrame = faits.find(
+    (fait) => fait.id === "crise.trame.cascade-materielle",
+  );
+  const alerteDeclaree =
+    estObjet(valeur.alerte) &&
+    valeur.alerte.id === IDENTIFIANT_DE_LA_CRISE_DE_TRAME
+      ? valeur.alerte
+      : undefined;
+  const criseActiveDeclaree =
+    estObjet(valeur.criseActive) &&
+    valeur.criseActive.id === IDENTIFIANT_DE_LA_CRISE_DE_TRAME
+      ? valeur.criseActive
+      : undefined;
+  const faitAnnonceurDeTrame = faits.find(
+    (fait) => fait.id === FAIT_ANNONCANT_LA_CRISE_DE_TRAME,
+  );
+  const momentAnnonceDeTrame =
+    faitDeDeclenchementDeTrame !== undefined
+      ? (faitDeDeclenchementDeTrame.moment as number) - 120
+      : alerteDeclaree !== undefined
+        ? (alerteDeclaree.annonceeA as number)
+        : criseActiveDeclaree !== undefined
+          ? (criseActiveDeclaree.declencheeA as number) - 120
+          : (faitAnnonceurDeTrame?.moment as number | undefined);
+  const criseDeTrameDeclareeCommeResolue =
+    valeur.historique.some(
+      (crise) =>
+        estObjet(crise) &&
+        crise.id === IDENTIFIANT_DE_LA_CRISE_DE_TRAME,
+    );
+  const criseDeTrameADejaEteAnnoncee =
+    alerteDeclaree !== undefined ||
+    criseActiveDeclaree !== undefined ||
+    faitDeDeclenchementDeTrame !== undefined ||
+    criseDeTrameDeclareeCommeResolue;
+  const contexteMaterielAuMoment = (
+    moment: number,
+    faitsConnus: readonly ObjetInconnu[],
+  ) => {
+    const dernierJalon = routes.jalons
+      .filter((jalon) => jalon.moment <= moment)
+      .at(-1);
+    const engagement = routes.engagements.find(
+      (candidate) =>
+        candidate.tronconId === dernierJalon?.tronconId &&
+        candidate.arriveeA === dernierJalon.moment,
+    );
+    const faitDeDetachementPosterieur = faits.find(
+      (fait) =>
+        fait.id === "crise.trame.detacher-plateforme" &&
+        (fait.moment as number) > moment,
+    );
+    const effetDeDetachement =
+      faitDeDetachementPosterieur !== undefined &&
+      estObjet(faitDeDetachementPosterieur.effets) &&
+      Array.isArray(faitDeDetachementPosterieur.effets.materiels)
+        ? (
+            faitDeDetachementPosterieur.effets
+              .materiels as ObjetInconnu[]
+          ).find((effet) => effet.type === "plateforme.detachee")
+        : undefined;
+    const plateformeInitialeARestaurer =
+      effetDeDetachement !== undefined
+        ? creerInfrastructureInitiale().plateformes.find(
+            ({ id }) => id === effetDeDetachement.plateforme,
+          )
+        : undefined;
+    const quartierInitialARestaurer =
+      plateformeInitialeARestaurer === undefined
+        ? undefined
+        : creerInfrastructureInitiale().quartiers.find(
+            ({ plateformeId }) =>
+              plateformeId === plateformeInitialeARestaurer.id,
+          );
+    const infrastructureAuMoment =
+      plateformeInitialeARestaurer === undefined
+        ? infrastructure
+        : {
+            ...infrastructure,
+            plateformes: [
+              ...infrastructure.plateformes,
+              plateformeInitialeARestaurer,
+            ],
+            quartiers:
+              quartierInitialARestaurer === undefined
+                ? infrastructure.quartiers
+                : [
+                    ...infrastructure.quartiers,
+                    quartierInitialARestaurer,
+                  ],
+          };
+    const modificateursAuMoment =
+      calculerModificateursEconomiques(infrastructureAuMoment);
+    const chargeInitiale =
+      PILOTAGE_INITIAL.economie.capacites.charge;
+    const infrastructurePourProjection =
+      criseDeTrameDeclareeCommeResolue
+        ? { ...infrastructureAuMoment, chantierActif: null }
+        : infrastructureAuMoment;
+    const materiauxAuMoment = calculerStockAttendu(
+      "materiaux",
+      moment,
+      faitsConnus,
+      infrastructureAuMoment,
+      routes,
+      expeditions,
+      hautPuits,
+      veilleBasse,
+    );
+    return {
+      momentCourant: moment,
+      position: engagement?.destination ?? routes.position,
+      margeDeCharge:
+        chargeInitiale.production -
+        (chargeInitiale.demande +
+          modificateursAuMoment.demandeDeCharge),
+      doctrineEntretien: criseDeTrameADejaEteAnnoncee
+        ? ("equilibre" as const)
+        : pilotage.doctrine.entretien.position,
+      materiauxDisponibles: projeterMateriauxApresChantier(
+        materiauxAuMoment,
+        infrastructurePourProjection,
+        120,
+      ),
+      plateformesDisponibles:
+        criseDeTrameDeclareeCommeResolue
+          ? plateformes.length +
+            (plateformeInitialeARestaurer === undefined ? 0 : 1)
+          : 1 +
+            listerPlateformesMobilesDetachables(
+              infrastructureAuMoment,
+            ).length,
+      dernierTronconTermine: dernierJalon?.tronconId ?? null,
+      etatDuDernierTroncon:
+        dernierJalon === undefined
+          ? null
+          : (routes.etatsReels[dernierJalon.tronconId] ?? null),
+    };
+  };
+  const annoncerAuMoment = (moment: number) => {
+    const annonce = annoncerCriseApresFaits(
+      attendu,
+      faitsVus as unknown as readonly FaitDeCampagne[],
+      contexteMaterielAuMoment(moment, faitsVus),
+    ).etat;
+    attendu =
+      ignorerCrisesSequentielles &&
+      annonce.alerte?.id === IDENTIFIANT_DE_LA_CRISE_DE_VEILLE_BASSE
+        ? attendu
+        : annonce;
+  };
 
   for (const fait of faits) {
+    if (
+      momentAnnonceDeTrame !== undefined &&
+      momentAnnonceDeTrame < (fait.moment as number) &&
+      attendu.alerte === null &&
+      attendu.criseActive === null
+    ) {
+      annoncerAuMoment(momentAnnonceDeTrame);
+    }
     const criseDeclenchee = identifiantsDeDeclenchement.get(
       String(fait.id) as
         | "crise.purification.eau-contaminee"
-        | "crise.veille-basse.accueil-sous-penurie",
+        | "crise.veille-basse.accueil-sous-penurie"
+        | "crise.trame.cascade-materielle",
     );
     const definition = definitionsParFait.get(
       String(fait.id) as DefinitionDeReponseALaCrise["faitProduit"],
@@ -3700,12 +4116,21 @@ function estEtatDesCrises(
       }
       attendu = declenchement.etat;
     } else if (definition !== undefined) {
+      const effets = fait.effets as ObjetInconnu;
+      const effetsMateriels = effets.materiels as ObjetInconnu[];
+      const plateformeDetachee =
+        definition.id === "detacher-plateforme" &&
+        effetsMateriels.length === 1 &&
+        effetsMateriels[0]?.type === "plateforme.detachee"
+          ? String(effetsMateriels[0].plateforme)
+          : undefined;
       if (
         !sontStructurellementEgaux(
           fait,
           faitDeResolutionAttendu(
             definition,
             fait.moment as number,
+            plateformeDetachee,
           ),
         )
       ) {
@@ -3738,15 +4163,32 @@ function estEtatDesCrises(
     }
 
     faitsVus.push(fait);
-    const annonce = annoncerCriseApresFaits(
-      attendu,
-      faitsVus as unknown as readonly FaitDeCampagne[],
-    ).etat;
-    attendu =
-      ignorerCrisesSequentielles &&
-      annonce.alerte?.id === IDENTIFIANT_DE_LA_CRISE_DE_VEILLE_BASSE
-        ? attendu
-        : annonce;
+    if (
+      momentAnnonceDeTrame === undefined ||
+      (fait.moment as number) >= momentAnnonceDeTrame
+    ) {
+      annoncerAuMoment(
+        momentAnnonceDeTrame ?? (fait.moment as number),
+      );
+    } else {
+      const annonce = annoncerCriseApresFaits(
+        attendu,
+        faitsVus as unknown as readonly FaitDeCampagne[],
+      ).etat;
+      attendu =
+        ignorerCrisesSequentielles &&
+        annonce.alerte?.id === IDENTIFIANT_DE_LA_CRISE_DE_VEILLE_BASSE
+          ? attendu
+          : annonce;
+    }
+  }
+  if (
+    momentAnnonceDeTrame !== undefined &&
+    attendu.alerte === null &&
+    attendu.criseActive === null &&
+    momentAnnonceDeTrame <= secondesCourantes
+  ) {
+    annoncerAuMoment(momentAnnonceDeTrame);
   }
 
   for (const recuperation of attendu.recuperations) {
@@ -3763,6 +4205,24 @@ function estEtatDesCrises(
     if (horizonAtteint && !aideEnAttente) {
       return false;
     }
+  }
+
+  const trameReserveSesDeuxReponses =
+    attendu.alerte?.id === IDENTIFIANT_DE_LA_CRISE_DE_TRAME ||
+    attendu.criseActive?.id === IDENTIFIANT_DE_LA_CRISE_DE_TRAME;
+  const ruptureA =
+    attendu.alerte?.ruptureA ?? secondesCourantes;
+  if (
+    trameReserveSesDeuxReponses &&
+    (projeterMateriauxApresChantier(
+      pilotage.economie.stocks.materiaux,
+      infrastructure,
+      Math.max(0, ruptureA - secondesCourantes),
+    ) <
+      7 ||
+      listerPlateformesMobilesDetachables(infrastructure).length === 0)
+  ) {
+    return false;
   }
 
   const suspensionRequise =
@@ -3807,6 +4267,43 @@ function lirePartiesCommunesDEtat(
   const temps = valeur.tempsDuConvoi;
   const cite = valeur.citeCaravane;
   const narration = valeur.narration;
+  const plateformeDetachee =
+    estObjet(narration) &&
+    Array.isArray(narration.faitsDeCampagne) &&
+    narration.faitsDeCampagne
+      .filter(
+        (fait) =>
+          estObjet(fait) &&
+          fait.id === "crise.trame.detacher-plateforme" &&
+          estObjet(fait.effets) &&
+          Array.isArray(fait.effets.materiels),
+      )
+      .flatMap((fait) =>
+        (fait.effets as ObjetInconnu).materiels as ObjetInconnu[],
+      )
+      .find((effet) => effet.type === "plateforme.detachee")
+      ?.plateforme;
+  const plateformeRegionaleHistoriquementAjoutee =
+    estObjet(narration) &&
+    Array.isArray(narration.faitsDeCampagne) &&
+    narration.faitsDeCampagne.some(
+      (fait) =>
+        estObjet(fait) &&
+        (fait.id === "bassins.deversoir.transformation-scellee" ||
+          fait.id === "bassins.deversoir.gabarits-conserves"),
+    );
+  const compositionsAttendues = [
+    plateformesAttendues,
+    ...(autoriserPlateformeRegionale &&
+    plateformeRegionaleHistoriquementAjoutee
+      ? [
+          [
+            ...plateformesAttendues,
+            "chassis-regional-des-bassins",
+          ],
+        ]
+      : []),
+  ];
 
   if (
     typeof valeur.graine !== "string" ||
@@ -3824,12 +4321,21 @@ function lirePartiesCommunesDEtat(
     cite.formation.type !== "grappe" ||
     !estTableauDeChaines(cite.formation.plateformes) ||
     !(
-      memesChaines(cite.formation.plateformes, plateformesAttendues) ||
-      (autoriserPlateformeRegionale &&
-        memesChaines(cite.formation.plateformes, [
-          ...plateformesAttendues,
-          "chassis-regional-des-bassins",
-        ]))
+      compositionsAttendues.some((composition) =>
+        memesChaines(
+          (cite.formation as ObjetInconnu).plateformes as string[],
+          composition,
+        ),
+      ) ||
+      (typeof plateformeDetachee === "string" &&
+        compositionsAttendues.some((composition) =>
+          memesChaines(
+            (cite.formation as ObjetInconnu).plateformes as string[],
+            composition.filter(
+              (plateforme) => plateforme !== plateformeDetachee,
+            ),
+          ),
+        ))
     ) ||
     !estObjet(narration) ||
     (narration.causaliteHistorique !== undefined &&
@@ -4090,12 +4596,25 @@ function lireEtatAvecSchemaCourant(
     (parties.citeCaravane.formation.plateformes.includes(
       "chassis-regional-des-bassins",
     ) !==
-      narration.faitsDeCampagne.some(
+      (narration.faitsDeCampagne.some(
         (fait) =>
           estObjet(fait) &&
           (fait.id === "bassins.deversoir.transformation-scellee" ||
             fait.id === "bassins.deversoir.gabarits-conserves"),
-      )) ||
+      ) &&
+        !narration.faitsDeCampagne.some(
+          (fait) =>
+            estObjet(fait) &&
+            fait.id === "crise.trame.detacher-plateforme" &&
+            estObjet(fait.effets) &&
+            Array.isArray(fait.effets.materiels) &&
+            (fait.effets.materiels as ObjetInconnu[]).some(
+              (effet) =>
+                effet.type === "plateforme.detachee" &&
+                effet.plateforme ===
+                  "chassis-regional-des-bassins",
+            ),
+        ))) ||
     !engagementsDuDeversoirSontCausaux(
       routes as EtatDesRoutes,
       narration.faitsDeCampagne as unknown as readonly FaitDeCampagne[],
@@ -4176,6 +4695,8 @@ function lireEtatAvecSchemaCourant(
         narration.faitsDeCampagne,
         narration.evenementActif,
         infrastructure,
+        pilotage as EtatPilotage,
+        parties.citeCaravane.formation.plateformes,
         routes,
         expeditions,
         hautPuits,
@@ -4282,6 +4803,64 @@ export function lireSnapshotCourant(
   return lireEtatAvecSchemaCourant(valeur, true, true);
 }
 
+function promouvoirCrisesV13(
+  valeur: unknown,
+  faits: readonly FaitDeCampagne[],
+): unknown {
+  if (!estObjet(valeur) || "crisesDeTrameHistoriquesIgnorees" in valeur) {
+    return valeur;
+  }
+  return {
+    ...valeur,
+    crisesDeTrameHistoriquesIgnorees: faits.some(
+      ({ id }) => id === FAIT_ANNONCANT_LA_CRISE_DE_TRAME,
+    ),
+  };
+}
+
+function lireEtatAvecSchemaV13(
+  valeur: unknown,
+  autoriserMarqueurHistoriqueSansFait = false,
+): EtatCampagneV13 | undefined {
+  if (
+    !estObjet(valeur) ||
+    valeur.version !== VERSION_SIMULATION_AVANT_CRISE_DE_TRAME ||
+    !estObjet(valeur.narration) ||
+    !Array.isArray(valeur.narration.faitsDeCampagne) ||
+    !estObjet(valeur.crises) ||
+    "crisesDeTrameHistoriquesIgnorees" in valeur.crises
+  ) {
+    return undefined;
+  }
+  const faits =
+    valeur.narration
+      .faitsDeCampagne as unknown as readonly FaitDeCampagne[];
+  const etatCourant = lireEtatAvecSchemaCourant(
+    {
+      ...valeur,
+      version: VERSION_SIMULATION_COURANTE,
+      crises: promouvoirCrisesV13(valeur.crises, faits),
+    },
+    true,
+    autoriserMarqueurHistoriqueSansFait,
+  );
+  return etatCourant === undefined
+    ? undefined
+    : (valeur as unknown as EtatCampagneV13);
+}
+
+export function lireEtatV13(
+  valeur: unknown,
+): EtatCampagneV13 | undefined {
+  return lireEtatAvecSchemaV13(valeur);
+}
+
+export function lireSnapshotV13(
+  valeur: unknown,
+): EtatCampagneV13 | undefined {
+  return lireEtatAvecSchemaV13(valeur, true);
+}
+
 function promouvoirCrisesV12(
   valeur: unknown,
   faits: readonly FaitDeCampagne[],
@@ -4291,6 +4870,9 @@ function promouvoirCrisesV12(
   }
   return {
     ...valeur,
+    crisesDeTrameHistoriquesIgnorees: faits.some(
+      ({ id }) => id === FAIT_ANNONCANT_LA_CRISE_DE_TRAME,
+    ),
     crisesSequentiellesHistoriquesIgnorees: faits.some(
       ({ id }) => id === FAIT_ANNONCANT_LA_CRISE_DE_VEILLE_BASSE,
     ),
@@ -4309,7 +4891,8 @@ function lireEtatAvecSchemaV12(
     !Array.isArray(valeur.narration.faitsDeCampagne) ||
     !estObjet(valeur.crises) ||
     "historique" in valeur.crises ||
-    "crisesSequentiellesHistoriquesIgnorees" in valeur.crises
+    "crisesSequentiellesHistoriquesIgnorees" in valeur.crises ||
+    "crisesDeTrameHistoriquesIgnorees" in valeur.crises
   ) {
     return undefined;
   }
@@ -4355,13 +4938,17 @@ function promouvoirCrisesV11(
     !Array.isArray(valeur.recuperations) ||
     !Array.isArray(valeur.cicatrices) ||
     "historique" in valeur ||
-    "crisesSequentiellesHistoriquesIgnorees" in valeur
+    "crisesSequentiellesHistoriquesIgnorees" in valeur ||
+    "crisesDeTrameHistoriquesIgnorees" in valeur
   ) {
     return valeur;
   }
   const cicatrices = valeur.cicatrices;
   return {
     ...valeur,
+    crisesDeTrameHistoriquesIgnorees: faits.some(
+      ({ id }) => id === FAIT_ANNONCANT_LA_CRISE_DE_TRAME,
+    ),
     crisesSequentiellesHistoriquesIgnorees: faits.some(
       ({ id }) => id === FAIT_ANNONCANT_LA_CRISE_DE_VEILLE_BASSE,
     ),

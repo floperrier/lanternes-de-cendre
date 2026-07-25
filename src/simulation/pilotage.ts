@@ -216,6 +216,21 @@ export function appliquerVariationAUnStock(
   };
 }
 
+export function projeterQuantiteDUnStock(
+  stock: Pick<
+    StockDuConvoi,
+    "quantite" | "fluxParHeure" | "reliquatDeFlux"
+  >,
+  secondesEcoulees: number,
+): number {
+  const numerateur =
+    stock.reliquatDeFlux + stock.fluxParHeure * secondesEcoulees;
+  return Math.max(
+    0,
+    stock.quantite + Math.trunc(numerateur / SECONDES_PAR_HEURE),
+  );
+}
+
 export interface CapaciteDuConvoi {
   readonly production: number;
   readonly demande: number;
@@ -635,7 +650,7 @@ function appliquerFluxEconomiques(
     const numerateur =
       stock.reliquatDeFlux + stock.fluxParHeure * secondesEcoulees;
     const variation = Math.trunc(numerateur / SECONDES_PAR_HEURE);
-    const quantite = Math.max(0, stock.quantite + variation);
+    const quantite = projeterQuantiteDUnStock(stock, secondesEcoulees);
     stocks[id] = {
       ...stock,
       quantite,

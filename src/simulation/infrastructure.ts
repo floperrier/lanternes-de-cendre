@@ -707,6 +707,85 @@ export function calculerModificateursEconomiques(
   return resultat;
 }
 
+function ordreTouchePlateforme(
+  ordre: OrdreDeChantier,
+  plateformeId: IdentifiantDePlateformeMobile,
+): boolean {
+  const prefixe = `${plateformeId}.`;
+  return (
+    ordre.type === "deplacement"
+      ? [ordre.origineId, ordre.destinationId]
+      : [ordre.emplacementId]
+  ).some((emplacementId) => emplacementId.startsWith(prefixe));
+}
+
+export function listerPlateformesMobilesDetachables(
+  infrastructure: EtatInfrastructure,
+): readonly IdentifiantDePlateformeMobile[] {
+  return infrastructure.plateformes
+    .map(({ id }) => id)
+    .filter(
+      (id) =>
+        id !== "phare" &&
+        (infrastructure.chantierActif === null ||
+          !ordreTouchePlateforme(infrastructure.chantierActif.ordre, id)),
+    );
+}
+
+export function detacherPlateformeMobile(
+  infrastructure: EtatInfrastructure,
+  pilotage: EtatPilotage,
+  plateformeId: IdentifiantDePlateformeMobile,
+): {
+  readonly infrastructure: EtatInfrastructure;
+  readonly pilotage: EtatPilotage;
+} {
+  if (plateformeId === "phare") {
+    throw new Error("La Plateforme du Phare ne peut pas être détachée.");
+  }
+  const plateforme = infrastructure.plateformes.find(
+    ({ id }) => id === plateformeId,
+  );
+  if (plateforme === undefined) {
+    throw new Error(`La Plateforme « ${plateformeId} » est absente.`);
+  }
+  if (
+    infrastructure.chantierActif !== null &&
+    ordreTouchePlateforme(
+      infrastructure.chantierActif.ordre,
+      plateformeId,
+    )
+  ) {
+    throw new Error("Un chantier actif retient cette Plateforme.");
+  }
+
+  let pilotageApresDetachement = pilotage;
+  for (const emplacement of plateforme.emplacements) {
+    if (emplacement.installation === null) {
+      continue;
+    }
+    pilotageApresDetachement = appliquerEffetsEconomiques(
+      pilotageApresDetachement,
+      CATALOGUE_D_INSTALLATIONS[emplacement.installation.definitionId],
+      emplacement,
+      -1,
+    );
+  }
+
+  return {
+    infrastructure: {
+      ...infrastructure,
+      plateformes: infrastructure.plateformes.filter(
+        ({ id }) => id !== plateformeId,
+      ),
+      quartiers: infrastructure.quartiers.filter(
+        ({ plateformeId: id }) => id !== plateformeId,
+      ),
+    },
+    pilotage: pilotageApresDetachement,
+  };
+}
+
 function remplacerEmplacements(
   etat: EtatInfrastructure,
   remplacements: Readonly<Record<string, EmplacementConstructible>>,

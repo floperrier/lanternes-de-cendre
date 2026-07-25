@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { empreinteValeurDeterministe } from "../simulation/empreinte";
+import { lireEtatCourant } from "../sauvegarde/validation";
 import {
   capturerEtatsEtEvenementsDesScenariosSentinelles,
   FAMILLES_DE_SCENARIOS_SENTINELLES,
@@ -64,6 +65,49 @@ describe("catalogue des scénarios sentinelles", () => {
         }
       }
     }
+  });
+
+  it("valide l’évitement préventif et le réglage préventif postérieur à l’annonce", () => {
+    const snapshot = obtenirScenariosSentinelles().find(
+      ({ id }) => id === "cascade-materielle",
+    )!.snapshot;
+    const entretienPreventif = {
+      ...snapshot.pilotage,
+      doctrine: {
+        ...snapshot.pilotage.doctrine,
+        entretien: { position: "preventif" as const, transition: null },
+      },
+    };
+    expect(
+      lireEtatCourant({
+        ...snapshot,
+        pilotage: entretienPreventif,
+      }),
+    ).toEqual({
+      ...snapshot,
+      pilotage: entretienPreventif,
+    });
+
+    const evitement = {
+      ...snapshot,
+      tempsDuConvoi: {
+        ...snapshot.tempsDuConvoi,
+        vitesse: 4 as const,
+      },
+      pilotage: entretienPreventif,
+      narration: {
+        ...snapshot.narration,
+        faitsDeCampagne: snapshot.narration.faitsDeCampagne.filter(
+          ({ id }) => id !== "crise.trame.cascade-materielle",
+        ),
+      },
+      crises: {
+        ...snapshot.crises,
+        alerte: null,
+        criseActive: null,
+      },
+    };
+    expect(lireEtatCourant(evitement)).toEqual(evitement);
   });
 });
 
@@ -170,18 +214,38 @@ describe("exécution des scénarios sentinelles", () => {
 
     expect(
       observations.find(({ conduite }) => conduite === "prudente")
-        ?.etat.crises.recuperations[0],
+        ?.etat.crises.recuperations.at(-1),
     ).toMatchObject({
       statut: "accomplie",
-      coutApplique: [{ stock: "materiaux", quantite: 2 }],
+      garantie: "charge-repartie-trame",
+      coutApplique: [
+        { stock: "combustible", quantite: 5 },
+        { stock: "eau", quantite: 6 },
+      ],
     });
     expect(
       observations.find(({ conduite }) => conduite === "risquee")
-        ?.etat.crises.recuperations[0],
+        ?.etat.crises.recuperations.at(-1),
     ).toMatchObject({
       statut: "manquee",
+      garantie: "attelage-recale-trame",
       coutApplique: [],
     });
+    const etatRisque = observations.find(
+      ({ conduite }) => conduite === "risquee",
+    )?.etat;
+    expect(etatRisque).toBeDefined();
+    expect(
+      etatRisque?.citeCaravane.formation.plateformes,
+    ).toEqual(etatRisque?.infrastructure.plateformes.map(({ id }) => id));
+    expect(
+      etatRisque?.narration.faitsDeCampagne
+        .find(({ id }) => id === "crise.trame.detacher-plateforme")
+        ?.effets.materiels,
+    ).toEqual([
+      { type: "plateforme.detachee", plateforme: "intendance" },
+    ]);
+    expect(lireEtatCourant(etatRisque)).toEqual(etatRisque);
   });
 
   it("enchaîne deux Crises dans les conduites prudente et risquée de Veille-Basse", () => {

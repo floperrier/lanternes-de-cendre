@@ -482,6 +482,11 @@ function decrireEffetMateriel(
     const action = effet.variation < 0 ? "consommé" : "récupéré";
     return `${quantite} ${NOMS_DES_STOCKS[effet.stock]} ${action}${quantite > 1 ? "s" : ""}`;
   }
+  if (effet.type === "plateforme.detachee") {
+    return langue === "en"
+      ? `Platform ${effet.plateforme} permanently detached`
+      : `Plateforme ${effet.plateforme} détachée définitivement`;
+  }
 
   const descriptions = {
     fr: {

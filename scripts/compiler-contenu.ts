@@ -340,6 +340,13 @@ const faitsPremium = new Set([
   "crise.recuperation.cohorte-hydratee.manquee",
   "crise.recuperation.accueil-stabilise.accomplie",
   "crise.recuperation.accueil-stabilise.manquee",
+  "crise.trame.cascade-materielle",
+  "crise.trame.etayer-chassis",
+  "crise.trame.detacher-plateforme",
+  "crise.recuperation.charge-repartie-trame.accomplie",
+  "crise.recuperation.charge-repartie-trame.manquee",
+  "crise.recuperation.attelage-recale-trame.accomplie",
+  "crise.recuperation.attelage-recale-trame.manquee",
   ...conseilsPremium.flatMap((conseil) =>
     conseil.sujets.flatMap((sujet) =>
       sujet.decisions.map((decision) => decision.faitProduit)
@@ -353,12 +360,17 @@ const causesPremium = new Set([
   "veille-basse.cohorte-accueillie",
   "cicatrice.reserves-partagees-veille-basse",
   "cicatrice.capacites-accueil-saturees",
+  "trame-fer.cascade-materielle",
+  "cicatrice.chassis-etaye-dans-l-urgence",
+  "cicatrice.plateforme-detachee-trame",
 ]);
 const acteursDeBase = acteurs(evenementsDeBase);
 const acteursPremium = new Set([
   ...acteurs(evenementsPremium),
   "cohorte-du-sillon",
   "techniciens-veille-basse",
+  "equipes-entretien",
+  "ateliers-grand-aiguillage",
 ]);
 const ciblesDeBase = cibles(evenementsDeBase);
 const ciblesPremium = new Set([
@@ -367,6 +379,10 @@ const ciblesPremium = new Set([
   "capacites-accueil-veille-basse",
   "hospice-du-sillon",
   "sas-de-veille-basse",
+  "chassis-de-la-cite-caravane",
+  "plateforme-mobile-detachee",
+  "marche-des-traverses",
+  "signal-zero",
 ]);
 const identifiantsDeJournalDeBase = new Set([
   ...acteursDeBase,

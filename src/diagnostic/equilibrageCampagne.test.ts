@@ -184,13 +184,29 @@ describe("Campagnes headless d’équilibrage", () => {
     expect(campagnesAvecVeilleBasse.length).toBeGreaterThan(0);
     expect(
       campagnesAvecVeilleBasse.every(
-        ({ metriques }) => metriques.crises === 2,
+        ({ metriques }) => metriques.crises >= 2,
+      ),
+    ).toBe(true);
+    const campagnesAvecCascadeMaterielle = passe.campagnes.filter(
+      ({ faitsFinaux }) =>
+        faitsFinaux.includes("crise.trame.cascade-materielle"),
+    );
+    expect(campagnesAvecCascadeMaterielle.length).toBeGreaterThan(0);
+    expect(
+      campagnesAvecCascadeMaterielle.every(
+        ({ metriques }) =>
+          metriques.crises === 3 &&
+          metriques.crisesParIdentifiant[
+            "trame-fer.cascade-materielle"
+          ] === 1 &&
+          metriques.crisesCausalesEtUniques,
       ),
     ).toBe(true);
     expect(passe.invariants).toEqual({
       sansImpasse: true,
       sansRecuperationGratuite: true,
       sansBoucleProfitable: true,
+      crisesUniquesEtCausales: true,
     });
     expect(passe.metriques).toMatchObject({
       besoinsSousTension: { unite: "ratio-troncons" },
@@ -287,11 +303,13 @@ describe("Campagnes headless d’équilibrage", () => {
         sansImpasse: true,
         sansRecuperationGratuite: true,
         sansBoucleProfitable: true,
+        crisesUniquesEtCausales: true,
       },
       {
         sansImpasse: true,
         sansRecuperationGratuite: true,
         sansBoucleProfitable: true,
+        crisesUniquesEtCausales: true,
       },
     ]);
   });
@@ -519,6 +537,7 @@ describe("Campagnes headless d’équilibrage", () => {
       sansImpasse: true,
       sansRecuperationGratuite: true,
       sansBoucleProfitable: true,
+      crisesUniquesEtCausales: true,
     });
 
     expect(
@@ -533,6 +552,7 @@ describe("Campagnes headless d’équilibrage", () => {
       sansImpasse: false,
       sansRecuperationGratuite: false,
       sansBoucleProfitable: false,
+      crisesUniquesEtCausales: true,
     });
   });
 });
@@ -561,6 +581,12 @@ function resultatMinimal(): ResultatDeCampagneHeadless {
       tronconsParcourus: 0,
       tronconsSousTension: 0,
       crises: 0,
+      crisesParIdentifiant: {
+        "penurie-eau.pompe-purification": 0,
+        "veille-basse.accueil-sous-penurie": 0,
+        "trame-fer.cascade-materielle": 0,
+      },
+      crisesCausalesEtUniques: true,
       arriveeAuNoeud: true,
       secondesActives: 0,
       secondesDeChargeDEntretien: 0,

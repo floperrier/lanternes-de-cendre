@@ -143,6 +143,75 @@ export const PRESENTATIONS_PREMIUM = {
   },
   trame: {
     fr: {
+      crise: {
+        alerteTitre: "Aggravation annoncée — cascade matérielle",
+        alerteCause:
+          "La Voie des Ponts Lourds a chargé un châssis sans marge ; l’entretien différé et le refroidissement rationné annoncent une rupture.",
+        titre: "Crise — Cascade matérielle de la Trame",
+        cause:
+          "La Charge accumulée sur la route dégradée s’est propagée dans les châssis privés de refroidissement et d’entretien préventif.",
+        chaine: [
+          "La Voie des Ponts Lourds dégradée a transmis ses efforts aux châssis.",
+          "La marge de Charge et l’entretien différé ne peuvent plus les absorber.",
+          "Le refroidissement rationné laisse la déformation progresser.",
+          "Rupture : plusieurs assemblages cèdent en cascade.",
+        ],
+        reponses: {
+          "etayer-chassis": {
+            intention: "Étayer les châssis dans l’urgence",
+            coutConnu: "7 Matériaux",
+            consequence:
+              "Les étais restent une réparation visible et irréversible de la traversée.",
+            mitigation:
+              "La Charge peut être répartie au Marché des Traverses sous un Tronçon.",
+            pireConsequence:
+              "Sans répartition au prochain Tronçon, le transport autonome restera plus coûteux.",
+            attribution: "Équipes d’entretien du convoi",
+          },
+          "detacher-plateforme": {
+            intention: "Détacher une Plateforme mobile",
+            coutConnu: "1 Plateforme",
+            consequence:
+              "La formation perd définitivement une Plateforme et ses capacités.",
+            mitigation:
+              "L’attelage allégé peut être recalé à Signal-Zéro sous deux Tronçons.",
+            pireConsequence:
+              "Sans recalage à Signal-Zéro, la perte ne soulagera aucun transport ultérieur.",
+            attribution: "Équipes d’entretien et foyers de la Plateforme",
+          },
+        },
+        cicatrices: {
+          "cicatrice.chassis-etaye-dans-l-urgence":
+            "Châssis étayé dans l’urgence",
+          "cicatrice.plateforme-detachee-trame":
+            "Plateforme détachée dans la Trame",
+        },
+        consequencesCicatrices: {
+          "cicatrice.chassis-etaye-dans-l-urgence":
+            "Les étais d’urgence restent visibles même après la répartition de la Charge.",
+          "cicatrice.plateforme-detachee-trame":
+            "La Plateforme perdue ne rejoint jamais la formation, même après le recalage.",
+        },
+        causes: {
+          "crise.trame.etayer-chassis": "Étaiement d’urgence des châssis",
+          "crise.trame.detacher-plateforme":
+            "Détachement irréversible d’une Plateforme",
+        },
+        garanties: {
+          "charge-repartie-trame": "Charge répartie dans la Trame",
+          "attelage-recale-trame": "Attelage recalé à Signal-Zéro",
+        },
+        destinations: {
+          "marche-des-traverses": "Marché des Traverses",
+          "signal-zero": "Signal-Zéro",
+        },
+        conditionsRecuperation: {
+          "charge-repartie-trame":
+            "Achever le Tronçon vers le Marché des Traverses.",
+          "attelage-recale-trame":
+            "Atteindre Signal-Zéro sous deux Tronçons.",
+        },
+      },
       titre: "Grand-Aiguillage",
       statuts: {
         "sous-controle-republicain": "Atelier sous contrôle républicain",
@@ -200,6 +269,75 @@ export const PRESENTATIONS_PREMIUM = {
       },
     },
     en: {
+      crise: {
+        alerteTitre: "Escalation announced — material cascade",
+        alerteCause:
+          "The Heavy Bridges Track loaded a chassis with no margin; deferred maintenance and rationed cooling now announce failure.",
+        titre: "Crisis — Iron Weave material cascade",
+        cause:
+          "Load accumulated on the degraded track propagated through chassis deprived of cooling and preventive maintenance.",
+        chaine: [
+          "The degraded Heavy Bridges Track transferred its strain to the chassis.",
+          "The remaining Load margin and deferred maintenance can no longer absorb it.",
+          "Rationed cooling lets the deformation keep spreading.",
+          "Failure: several assemblies break in cascade.",
+        ],
+        reponses: {
+          "etayer-chassis": {
+            intention: "Shore up the chassis immediately",
+            coutConnu: "7 Materials",
+            consequence:
+              "The braces remain a visible and irreversible scar of the crossing.",
+            mitigation:
+              "Load can be redistributed at Sleeper Market within one route segment.",
+            pireConsequence:
+              "Without redistribution on the next segment, autonomous transport stays more expensive.",
+            attribution: "Convoy maintenance crews",
+          },
+          "detacher-plateforme": {
+            intention: "Detach one mobile Platform",
+            coutConnu: "1 Platform",
+            consequence:
+              "The formation permanently loses one Platform and its capacities.",
+            mitigation:
+              "The lighter consist can be realigned at Zero Signal within two segments.",
+            pireConsequence:
+              "Without realignment at Zero Signal, the loss will ease no later transport.",
+            attribution: "Maintenance crews and the Platform’s Hearths",
+          },
+        },
+        cicatrices: {
+          "cicatrice.chassis-etaye-dans-l-urgence":
+            "Chassis shored up in an emergency",
+          "cicatrice.plateforme-detachee-trame":
+            "Platform detached in the Iron Weave",
+        },
+        consequencesCicatrices: {
+          "cicatrice.chassis-etaye-dans-l-urgence":
+            "Emergency braces remain visible even after Load is redistributed.",
+          "cicatrice.plateforme-detachee-trame":
+            "The lost Platform never rejoins the formation, even after realignment.",
+        },
+        causes: {
+          "crise.trame.etayer-chassis": "Emergency chassis shoring",
+          "crise.trame.detacher-plateforme":
+            "Irreversible Platform detachment",
+        },
+        garanties: {
+          "charge-repartie-trame": "Load redistributed in the Iron Weave",
+          "attelage-recale-trame": "Consist realigned at Zero Signal",
+        },
+        destinations: {
+          "marche-des-traverses": "Sleeper Market",
+          "signal-zero": "Zero Signal",
+        },
+        conditionsRecuperation: {
+          "charge-repartie-trame":
+            "Complete the route segment to Sleeper Market.",
+          "attelage-recale-trame":
+            "Reach Zero Signal within two route segments.",
+        },
+      },
       titre: "Grand Junction",
       statuts: {
         "sous-controle-republicain": "Workshop under republican control",
