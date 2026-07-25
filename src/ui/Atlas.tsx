@@ -5,6 +5,7 @@ import type { ProjectionDExpedition } from "../application/expeditions";
 import type { ProjectionDeLAtlas, TronconProjete } from "../application/routes";
 import { AtlasPixi } from "./AtlasPixi";
 import { ExpeditionDansAtlas } from "./ExpeditionDansAtlas";
+import { prochaineCibleDeFocus } from "./focus";
 
 interface AtlasProps {
   readonly application: ApplicationCampagne;
@@ -136,24 +137,18 @@ export function Atlas({
         "button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex='-1'])",
       ),
     );
-    const premier = elements.at(0);
-    const dernier = elements.at(-1);
-    if (premier === undefined || dernier === undefined) {
+    const cible = prochaineCibleDeFocus(
+      elements,
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null,
+      evenement.shiftKey,
+    );
+    if (cible === undefined) {
       return;
     }
-    if (
-      evenement.shiftKey &&
-      (document.activeElement === premier ||
-        !evenement.currentTarget.contains(document.activeElement))
-    ) {
-      evenement.preventDefault();
-      dernier.focus();
-      return;
-    }
-    if (!evenement.shiftKey && document.activeElement === dernier) {
-      evenement.preventDefault();
-      premier.focus();
-    }
+    evenement.preventDefault();
+    cible.focus();
   };
 
   const confirmer = () => {

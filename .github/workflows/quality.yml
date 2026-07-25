@@ -48,6 +48,13 @@ jobs:
           name: budgets-campagne
           path: artifacts/budgets/
 
+      - name: Conserver la bêta commerciale vérifiée
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: beta-commerciale
+          path: dist-beta/
+
   equilibrage-nocturne:
     if: github.event_name == 'schedule'
     runs-on: ubuntu-latest

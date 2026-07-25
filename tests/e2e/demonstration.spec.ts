@@ -130,6 +130,32 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
     sauvegarde.getByRole("button", { name: "Sauvegarder" }),
   );
   await expect(sauvegarde.getByText("Sauvegarde à jour.")).toBeVisible();
+  const telechargementCapsule = page.waitForEvent("download");
+  await activerAuClavier(
+    page,
+    sauvegarde.getByRole("button", {
+      name: "Capsule de support",
+    }),
+  );
+  const cheminCapsule = await (await telechargementCapsule).path();
+  expect(cheminCapsule).not.toBeNull();
+  const capsule = JSON.parse(await readFile(cheminCapsule!, "utf8")) as {
+    readonly format: string;
+    readonly diagnostic: {
+      readonly replay: string;
+      readonly empreinte: string;
+    };
+  };
+  expect(capsule).toMatchObject({
+    format: "lanternes-de-cendre.capsule-support",
+    diagnostic: {
+      replay: "termine",
+      empreinte: expect.stringMatching(/^[a-f0-9]{8}$/),
+    },
+  });
+  await expect(
+    sauvegarde.getByText("Capsule de support vérifiée et prête."),
+  ).toBeVisible();
 
   const compagnon = page.getByRole("region", {
     name: "Compagnon — Ilyana Voss",

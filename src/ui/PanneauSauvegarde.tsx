@@ -67,6 +67,24 @@ export function PanneauSauvegarde({
     }
   };
 
+  const exporterCapsuleSupport = () => {
+    definirMessage("Préparation de la capsule de support…");
+    try {
+      const contenu = controleur.exporterCapsuleSupport();
+      telechargerArchive(
+        contenu,
+        "lanternes-de-cendre-capsule-support.json",
+      );
+      definirMessage("Capsule de support vérifiée et prête.");
+    } catch (erreur) {
+      definirMessage(
+        erreur instanceof Error
+          ? erreur.message
+          : "La capsule de support a échoué.",
+      );
+    }
+  };
+
   const importer = async (evenement: ChangeEvent<HTMLInputElement>) => {
     const entreeFichier = evenement.currentTarget;
     const fichier = entreeFichier.files?.[0];
@@ -146,6 +164,12 @@ export function PanneauSauvegarde({
         </button>
         <button type="button" onClick={() => void exporter()}>
           Exporter
+        </button>
+        <button
+          type="button"
+          onClick={() => void exporterCapsuleSupport()}
+        >
+          Capsule de support
         </button>
         <button type="button" onClick={() => importeur.current?.click()}>
           Importer

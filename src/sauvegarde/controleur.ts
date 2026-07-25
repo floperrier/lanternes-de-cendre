@@ -29,6 +29,8 @@ import type {
   CommandeDeReproduction,
   ReproductionDeCampagne,
 } from "./types";
+import { creerCapsuleDeSupport } from "./capsuleSupport";
+import { creerSauvegarde } from "./snapshot";
 
 export type EtatDuControleurDeSession =
   | { readonly statut: "chargement" }
@@ -46,6 +48,7 @@ export interface ControleurDeSessionCampagne {
   readonly attendreOuverture: () => Promise<void>;
   readonly sauvegarderMaintenant: () => Promise<void>;
   readonly exporter: () => string;
+  readonly exporterCapsuleSupport: () => string;
   readonly importer: (archiveOriginale: string) => Promise<ResultatImportCampagne>;
   readonly fermer: () => void;
 }
@@ -402,6 +405,22 @@ export function creerControleurDeSessionCampagne({
         throw new Error("L’export attend la fin de l’import en cours.");
       }
       return exporterCampagne(application, reproductionCourante());
+    },
+    exporterCapsuleSupport: () => {
+      if (application === undefined) {
+        throw new Error("La Campagne n’est pas encore ouverte.");
+      }
+      if (remplacementEnCours) {
+        throw new Error(
+          "La capsule attend la fin de l’import en cours.",
+        );
+      }
+      return creerCapsuleDeSupport(
+        creerSauvegarde(
+          application.lireEtat(),
+          reproductionCourante(),
+        ),
+      );
     },
     importer: async (archiveOriginale) => {
       generation += 1;

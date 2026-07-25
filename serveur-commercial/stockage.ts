@@ -1,5 +1,7 @@
 import type { DatabaseSync } from "node:sqlite";
 
+export const VERSION_SCHEMA_COMMERCIAL = Number.parseInt("2", 10);
+
 export interface CommandeCommerciale {
   readonly commandeId: string;
   readonly identiteId: string;
@@ -70,29 +72,66 @@ interface LigneDeDroit {
   readonly transaction_id: string;
 }
 
+function lireVersionSchema(database: DatabaseSync): number {
+  const resultat = database
+    .prepare("PRAGMA user_version")
+    .get() as { readonly user_version: number };
+  return resultat.user_version;
+}
+
+function migrerSchemaCommercial(database: DatabaseSync): void {
+  const versionInitiale = lireVersionSchema(database);
+  if (versionInitiale > VERSION_SCHEMA_COMMERCIAL) {
+    throw new Error(
+      `Version commerciale ${versionInitiale} plus récente que ${VERSION_SCHEMA_COMMERCIAL}.`,
+    );
+  }
+  database.exec("PRAGMA journal_mode = WAL;");
+
+  database.exec("BEGIN IMMEDIATE;");
+  try {
+    let version = versionInitiale;
+    if (version === 0) {
+      database.exec(`
+        CREATE TABLE IF NOT EXISTS commandes_commerciales (
+          commande_id TEXT PRIMARY KEY,
+          identite_id TEXT NOT NULL,
+          price_id TEXT NOT NULL,
+          product_id TEXT NOT NULL,
+          quantite INTEGER NOT NULL,
+          devise TEXT NOT NULL,
+          total TEXT NOT NULL
+        ) STRICT;
+        CREATE TABLE IF NOT EXISTS droits_commerciaux (
+          identite_id TEXT PRIMARY KEY,
+          transaction_id TEXT NOT NULL,
+          permanent INTEGER NOT NULL CHECK (permanent = 1)
+        ) STRICT;
+        CREATE TABLE IF NOT EXISTS evenements_paddle (
+          evenement_id TEXT PRIMARY KEY
+        ) STRICT;
+        PRAGMA user_version = 1;
+      `);
+      version = 1;
+    }
+    if (version < 2 && VERSION_SCHEMA_COMMERCIAL >= 2) {
+      database.exec(`
+        ALTER TABLE droits_commerciaux
+        ADD COLUMN attribue_a TEXT NOT NULL DEFAULT 'migration-v1';
+        PRAGMA user_version = 2;
+      `);
+    }
+    database.exec("COMMIT;");
+  } catch (erreur) {
+    database.exec("ROLLBACK;");
+    throw erreur;
+  }
+}
+
 export function creerDonneesCommercialesSqlite(
   database: DatabaseSync,
 ): PortDeDonneesCommerciales {
-  database.exec(`
-    PRAGMA journal_mode = WAL;
-    CREATE TABLE IF NOT EXISTS commandes_commerciales (
-      commande_id TEXT PRIMARY KEY,
-      identite_id TEXT NOT NULL,
-      price_id TEXT NOT NULL,
-      product_id TEXT NOT NULL,
-      quantite INTEGER NOT NULL,
-      devise TEXT NOT NULL,
-      total TEXT NOT NULL
-    ) STRICT;
-    CREATE TABLE IF NOT EXISTS droits_commerciaux (
-      identite_id TEXT PRIMARY KEY,
-      transaction_id TEXT NOT NULL,
-      permanent INTEGER NOT NULL CHECK (permanent = 1)
-    ) STRICT;
-    CREATE TABLE IF NOT EXISTS evenements_paddle (
-      evenement_id TEXT PRIMARY KEY
-    ) STRICT;
-  `);
+  migrerSchemaCommercial(database);
   const insererCommande = database.prepare(`
     INSERT OR REPLACE INTO commandes_commerciales (
       commande_id, identite_id, price_id, product_id, quantite, devise, total

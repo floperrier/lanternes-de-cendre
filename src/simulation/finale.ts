@@ -76,6 +76,18 @@ export type VarianteFinale =
   | VarianteDeReaccord
   | VarianteDePrecipitation;
 
+export const VARIANTES_FINALES_MAJEURES = Object.freeze([
+  "refuge-commun",
+  "citadelle-de-cendre",
+  "dernier-rempart",
+  "constellation",
+  "reseau-de-fer",
+  "veilles-dispersees",
+  "ciel-rendu",
+  "terre-des-sacrifies",
+  "pluie-noire",
+] as const satisfies readonly VarianteFinale[]);
+
 export type SelectionDeSolutionFinale =
   | "aucune"
   | "ancrage-prepare"

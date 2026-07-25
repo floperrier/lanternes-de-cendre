@@ -1,7 +1,10 @@
 import react from "@vitejs/plugin-react";
 import { defineConfig, loadEnv } from "vite";
 
-import { creerPluginCommercial } from "./serveur-commercial/plugin-vite";
+import {
+  creerPluginCommercial,
+  resoudreModeCommercial,
+} from "./serveur-commercial/plugin-vite";
 
 export default defineConfig(({ mode }) => {
   const environnement = loadEnv(mode, process.cwd(), "");
@@ -20,7 +23,7 @@ export default defineConfig(({ mode }) => {
     plugins: [
       react(),
       creerPluginCommercial({
-        mode,
+        mode: resoudreModeCommercial(mode),
         origineApplication: lire("COMMERCIAL_ORIGIN"),
         cheminBaseDeDonnees:
           lire("COMMERCIAL_DATABASE_PATH") ??

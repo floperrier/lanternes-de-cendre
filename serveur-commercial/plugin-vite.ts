@@ -24,9 +24,23 @@ import {
 import { creerDonneesCommercialesSqlite } from "./stockage";
 
 const CORPS_MAXIMAL = 64 * 1_024;
+const MODES_COMMERCIAUX = [
+  "production",
+  "test",
+  "development",
+] as const;
+
+export type ModeCommercial = (typeof MODES_COMMERCIAUX)[number];
+
+export function resoudreModeCommercial(mode: string): ModeCommercial {
+  if (!MODES_COMMERCIAUX.includes(mode as ModeCommercial)) {
+    throw new Error(`Mode commercial inconnu : ${mode}.`);
+  }
+  return mode as ModeCommercial;
+}
 
 export interface OptionsDuPluginCommercial {
-  readonly mode: string;
+  readonly mode: ModeCommercial;
   readonly origineApplication?: string;
   readonly cheminBaseDeDonnees: string;
   readonly paddleClientToken?: string;
@@ -48,9 +62,12 @@ interface OptionsDuPluginCommercialResolues
 export interface ConfigurationServeurCommercialAValider {
   readonly mode: string;
   readonly origineApplication: string;
+  readonly cheminBaseDeDonnees?: string;
+  readonly paddleClientToken?: string;
   readonly secretWebhook?: string;
   readonly clePriveeDeRecu?: string;
   readonly secretBetterAuth?: string;
+  readonly produit?: ConfigurationDuProduit;
   readonly livraisonEmail?: {
     readonly url: string;
     readonly jeton: string;
@@ -94,12 +111,16 @@ function exigerHttps(valeur: string, nom: string) {
 export function validerConfigurationServeurCommercial(
   configuration: ConfigurationServeurCommercialAValider,
 ) {
+  resoudreModeCommercial(configuration.mode);
   if (configuration.mode !== "production") {
     return;
   }
   if (
+    configuration.secretWebhook?.trim() === "" ||
     configuration.secretWebhook === undefined ||
+    configuration.clePriveeDeRecu?.trim() === "" ||
     configuration.clePriveeDeRecu === undefined ||
+    configuration.secretBetterAuth?.trim() === "" ||
     configuration.secretBetterAuth === undefined
   ) {
     throw new Error(
@@ -111,6 +132,19 @@ export function validerConfigurationServeurCommercial(
       "Un expéditeur de magic links est obligatoire en production.",
     );
   }
+  if (
+    configuration.cheminBaseDeDonnees === undefined ||
+    configuration.cheminBaseDeDonnees.trim() === ""
+  ) {
+    throw new Error(
+      "Le chemin persistant de la base de données commerciale est obligatoire en production.",
+    );
+  }
+  if (configuration.livraisonEmail.jeton.trim() === "") {
+    throw new Error(
+      "Le jeton de livraison email est obligatoire en production.",
+    );
+  }
   exigerHttps(
     configuration.origineApplication,
     "COMMERCIAL_ORIGIN",
@@ -119,6 +153,18 @@ export function validerConfigurationServeurCommercial(
     configuration.livraisonEmail.url,
     "EMAIL_DELIVERY_URL",
   );
+  if (
+    !/^live_[a-zA-Z0-9]{27}$/.test(
+      configuration.paddleClientToken ?? "",
+    ) ||
+    configuration.produit === undefined ||
+    !/^pri_[a-z\d]{26}$/.test(configuration.produit.priceId) ||
+    !/^pro_[a-z\d]{26}$/.test(configuration.produit.productId)
+  ) {
+    throw new Error(
+      "Les références Paddle réelles sont obligatoires en production.",
+    );
+  }
 }
 
 function envoyerJson(
@@ -465,6 +511,127 @@ function creerGestionnaire(
   };
 }
 
+export interface RuntimeCommercial {
+  readonly gerer: ReturnType<typeof creerGestionnaire>;
+  readonly fermer: () => void;
+}
+
+export async function creerRuntimeCommercial(
+  options: OptionsDuPluginCommercial,
+  origineApplication: string,
+): Promise<RuntimeCommercial> {
+  const optionsResolues: OptionsDuPluginCommercialResolues = {
+    ...options,
+    origineApplication,
+  };
+  const secretWebhook =
+    options.secretWebhook ??
+    (options.mode === "production"
+      ? undefined
+      : "9vWN7kuUPHXCjogIq6Z5afE8eLwY1xQ3dRo0nTmB");
+  const clePriveeDeRecu =
+    options.clePriveeDeRecu ??
+    (options.mode === "production"
+      ? undefined
+      : `-----BEGIN PRIVATE KEY-----
+MC4CAQAwBQYDK2VwBCIEIGoBdws9nVuf8ZvtDfSPHmd6e3/2jumRQA4HMdla7eEZ
+-----END PRIVATE KEY-----`);
+  const secretBetterAuth =
+    options.secretBetterAuth ??
+    (options.mode === "production"
+      ? undefined
+      : "uF2w7Jp9xK4mN8qR5sV1yB6dG3hL0cZtA9eQ");
+  validerConfigurationServeurCommercial({
+    mode: options.mode,
+    origineApplication,
+    cheminBaseDeDonnees: options.cheminBaseDeDonnees,
+    paddleClientToken: options.paddleClientToken,
+    secretWebhook,
+    clePriveeDeRecu,
+    secretBetterAuth,
+    produit: options.produit,
+    livraisonEmail: options.livraisonEmail,
+  });
+  if (
+    secretWebhook === undefined ||
+    clePriveeDeRecu === undefined ||
+    secretBetterAuth === undefined
+  ) {
+    throw new Error("configuration-commerciale-incomplete");
+  }
+
+  mkdirSync(dirname(options.cheminBaseDeDonnees), {
+    recursive: true,
+  });
+  const database = new DatabaseSync(options.cheminBaseDeDonnees);
+  const donnees = creerDonneesCommercialesSqlite(database);
+  database.exec(`
+    CREATE TABLE IF NOT EXISTS audit_auth (
+      id INTEGER PRIMARY KEY,
+      evenement TEXT NOT NULL,
+      identifiant TEXT NOT NULL,
+      cree_a TEXT NOT NULL
+    ) STRICT;
+  `);
+  const auditer = database.prepare(`
+    INSERT INTO audit_auth (evenement, identifiant, cree_a)
+    VALUES (?, ?, ?)
+  `);
+  const liensDeTest = new Map<string, string>();
+  const authentification = creerAuthentificationCommerciale({
+    baseUrl: `${origineApplication}/api/auth`,
+    origineApplication,
+    secret: secretBetterAuth,
+    database,
+    cookiesSecurises:
+      options.mode === "production" ||
+      origineApplication.startsWith("https://"),
+    limitationActive: options.mode !== "development",
+    envoyerLien: async ({ email, url }) => {
+      if (options.mode !== "production") {
+        liensDeTest.set(email.toLocaleLowerCase("en-US"), url);
+        return;
+      }
+      const livraison = options.livraisonEmail!;
+      const reponse = await fetch(livraison.url, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${livraison.jeton}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          to: email,
+          template: "lanternes-magic-link",
+          variables: { url },
+        }),
+      });
+      if (!reponse.ok) {
+        throw new Error("livraison-magic-link-echouee");
+      }
+    },
+    auditer: async (evenement, identifiant) => {
+      auditer.run(evenement, identifiant, new Date().toISOString());
+    },
+  });
+  const contexte = await authentification.$context;
+  await contexte.runMigrations();
+  const service = creerServiceCommercial({
+    secretWebhook,
+    clePriveeDeRecu,
+    produit: options.produit,
+    donnees,
+  });
+  return {
+    gerer: creerGestionnaire(
+      service,
+      authentification,
+      liensDeTest,
+      optionsResolues,
+    ),
+    fermer: () => donnees.fermer(),
+  };
+}
+
 export function creerPluginCommercial(
   options: OptionsDuPluginCommercial,
 ): Plugin {
@@ -478,113 +645,13 @@ export function creerPluginCommercial(
           port: serveur.config.server.port,
           https: serveur.config.server.https,
         });
-      const optionsResolues: OptionsDuPluginCommercialResolues = {
-        ...options,
+      const runtime = await creerRuntimeCommercial(
+        options,
         origineApplication,
-      };
-      const secretWebhook =
-        options.secretWebhook ??
-        (options.mode === "production"
-          ? undefined
-          : "9vWN7kuUPHXCjogIq6Z5afE8eLwY1xQ3dRo0nTmB");
-      const clePriveeDeRecu =
-        options.clePriveeDeRecu ??
-        (options.mode === "production"
-          ? undefined
-          : `-----BEGIN PRIVATE KEY-----
-MC4CAQAwBQYDK2VwBCIEIGoBdws9nVuf8ZvtDfSPHmd6e3/2jumRQA4HMdla7eEZ
------END PRIVATE KEY-----`);
-      const secretBetterAuth =
-        options.secretBetterAuth ??
-        (options.mode === "production"
-          ? undefined
-          : "uF2w7Jp9xK4mN8qR5sV1yB6dG3hL0cZtA9eQ");
-      validerConfigurationServeurCommercial({
-        mode: options.mode,
-        origineApplication,
-        secretWebhook,
-        clePriveeDeRecu,
-        secretBetterAuth,
-        livraisonEmail: options.livraisonEmail,
-      });
-      if (
-        secretWebhook === undefined ||
-        clePriveeDeRecu === undefined ||
-        secretBetterAuth === undefined
-      ) {
-        throw new Error("configuration-commerciale-incomplete");
-      }
-
-      mkdirSync(dirname(options.cheminBaseDeDonnees), {
-        recursive: true,
-      });
-      const database = new DatabaseSync(options.cheminBaseDeDonnees);
-      const donnees = creerDonneesCommercialesSqlite(database);
-      database.exec(`
-        CREATE TABLE IF NOT EXISTS audit_auth (
-          id INTEGER PRIMARY KEY,
-          evenement TEXT NOT NULL,
-          identifiant TEXT NOT NULL,
-          cree_a TEXT NOT NULL
-        ) STRICT;
-      `);
-      const auditer = database.prepare(`
-        INSERT INTO audit_auth (evenement, identifiant, cree_a)
-        VALUES (?, ?, ?)
-      `);
-      const liensDeTest = new Map<string, string>();
-      const authentification = creerAuthentificationCommerciale({
-        baseUrl: `${origineApplication}/api/auth`,
-        origineApplication,
-        secret: secretBetterAuth,
-        database,
-        cookiesSecurises:
-          options.mode === "production" ||
-          origineApplication.startsWith("https://"),
-        limitationActive: options.mode !== "development",
-        envoyerLien: async ({ email, url }) => {
-          if (options.mode !== "production") {
-            liensDeTest.set(email.toLocaleLowerCase("en-US"), url);
-            return;
-          }
-          const livraison = options.livraisonEmail!;
-          const reponse = await fetch(livraison.url, {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${livraison.jeton}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              to: email,
-              template: "lanternes-magic-link",
-              variables: { url },
-            }),
-          });
-          if (!reponse.ok) {
-            throw new Error("livraison-magic-link-echouee");
-          }
-        },
-        auditer: async (evenement, identifiant) => {
-          auditer.run(evenement, identifiant, new Date().toISOString());
-        },
-      });
-      const contexte = await authentification.$context;
-      await contexte.runMigrations();
-      const service = creerServiceCommercial({
-        secretWebhook,
-        clePriveeDeRecu,
-        produit: options.produit,
-        donnees,
-      });
-      const gerer = creerGestionnaire(
-        service,
-        authentification,
-        liensDeTest,
-        optionsResolues,
       );
-      serveur.httpServer?.once("close", () => donnees.fermer());
+      serveur.httpServer?.once("close", runtime.fermer);
       serveur.middlewares.use((requete, reponse, suivant) => {
-        void gerer(requete, reponse)
+        void runtime.gerer(requete, reponse)
           .then((traitee) => {
             if (!traitee) {
               suivant();

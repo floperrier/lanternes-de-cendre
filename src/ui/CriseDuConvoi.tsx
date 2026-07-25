@@ -3,6 +3,7 @@ import { useEffect, useRef, type KeyboardEvent } from "react";
 import type { ApplicationCampagne } from "../application/application";
 import type { ProjectionDeCriseActive } from "../application/crise";
 import type { Langue } from "../content/types";
+import { prochaineCibleDeFocus } from "./focus";
 
 interface CriseDuConvoiProps {
   readonly application: ApplicationCampagne;
@@ -66,18 +67,19 @@ export function CriseDuConvoi({
     const controles = [...dialogue.current.querySelectorAll<HTMLElement>(
       'button:not(:disabled), [href], [tabindex]:not([tabindex="-1"])',
     )];
-    const premier = controles[0];
-    const dernier = controles.at(-1);
-    if (premier === undefined || dernier === undefined) {
-      evenement.preventDefault();
+    const cible = prochaineCibleDeFocus(
+      controles,
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null,
+      evenement.shiftKey,
+    );
+    evenement.preventDefault();
+    if (cible === undefined) {
       dialogue.current.focus();
-    } else if (evenement.shiftKey && document.activeElement === premier) {
-      evenement.preventDefault();
-      dernier.focus();
-    } else if (!evenement.shiftKey && document.activeElement === dernier) {
-      evenement.preventDefault();
-      premier.focus();
+      return;
     }
+    cible.focus();
   };
 
   return (

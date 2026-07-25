@@ -7,6 +7,7 @@ import {
   type EtatCampagne,
 } from "./campagne";
 import type { FaitDeCampagne } from "./faits";
+import { VARIANTES_FINALES_MAJEURES } from "./finale";
 
 const VARIANTES = [
   [
@@ -109,6 +110,12 @@ function choisir(etat: EtatCampagne, choixId: string): EtatCampagne {
 }
 
 describe("parcours de l’Épilogue", () => {
+  it("couvre exactement les neuf variantes majeures publiées par la bêta", () => {
+    expect(
+      VARIANTES.map(([variante]) => variante.split(".").at(-1)),
+    ).toEqual(VARIANTES_FINALES_MAJEURES);
+  });
+
   it("distingue l’arrivée au Nœud du Dénouement réussi et le rend irréversible", () => {
     const initiale = creerCampagneInitiale("CENDRE-DENOUEMENT");
     const arriveeAuNoeud = {

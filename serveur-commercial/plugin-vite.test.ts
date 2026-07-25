@@ -260,6 +260,7 @@ describe("plugin Vite du service commercial", () => {
       secretWebhook: "9vWN7kuUPHXCjogIq6Z5afE8eLwY1xQ3dRo0nTmB",
       clePriveeDeRecu: CLE_PRIVEE_DE_RECU_DE_TEST,
       secretBetterAuth: "uF2w7Jp9xK4mN8qR5sV1yB6dG3hL0cZtA9eQ",
+      cheminBaseDeDonnees: "/var/lib/lanternes/commercial.sqlite",
       livraisonEmail: {
         url: "https://email.example.test/send",
         jeton: "jeton-de-test",
@@ -282,5 +283,115 @@ describe("plugin Vite du service commercial", () => {
         },
       }),
     ).toThrow(/HTTPS/);
+  });
+
+  it("refuse une production sans références Paddle réelles", () => {
+    expect(() =>
+      validerConfigurationServeurCommercial({
+        mode: "production",
+        origineApplication: "https://jeu.example.test",
+        secretWebhook: "9vWN7kuUPHXCjogIq6Z5afE8eLwY1xQ3dRo0nTmB",
+        clePriveeDeRecu: CLE_PRIVEE_DE_RECU_DE_TEST,
+        secretBetterAuth: "uF2w7Jp9xK4mN8qR5sV1yB6dG3hL0cZtA9eQ",
+        cheminBaseDeDonnees: "/var/lib/lanternes/commercial.sqlite",
+        livraisonEmail: {
+          url: "https://email.example.test/send",
+          jeton: "jeton-de-test",
+        },
+      }),
+    ).toThrow(/Paddle/);
+  });
+
+  it("refuse un mode commercial inconnu au lieu de l'assimiler au test", () => {
+    expect(() =>
+      validerConfigurationServeurCommercial({
+        mode: "prodution",
+        origineApplication: "https://jeu.example.test",
+      }),
+    ).toThrow(/mode commercial/i);
+  });
+
+  it("refuse les références Paddle vides ou mal formées en production", () => {
+    const base = {
+      mode: "production",
+      origineApplication: "https://jeu.example.test",
+      secretWebhook: "9vWN7kuUPHXCjogIq6Z5afE8eLwY1xQ3dRo0nTmB",
+      clePriveeDeRecu: CLE_PRIVEE_DE_RECU_DE_TEST,
+      secretBetterAuth: "uF2w7Jp9xK4mN8qR5sV1yB6dG3hL0cZtA9eQ",
+      cheminBaseDeDonnees: "/var/lib/lanternes/commercial.sqlite",
+      livraisonEmail: {
+        url: "https://email.example.test/send",
+        jeton: "jeton-de-test",
+      },
+    } as const;
+
+    for (const configuration of [
+      {
+        paddleClientToken: "",
+        produit: {
+          priceId: "pri_01hv0vax6rv18t4tamj848ne4d",
+          productId: "pro_01htz88xpr0mm7b3ta2pjkr7w2",
+          quantite: 1 as const,
+          devise: "EUR" as const,
+          total: "1999" as const,
+        },
+      },
+      {
+        paddleClientToken: "live_7d279f61a3499fed520f7cd8c08",
+        produit: {
+          priceId: "",
+          productId: "",
+          quantite: 1 as const,
+          devise: "EUR" as const,
+          total: "1999" as const,
+        },
+      },
+    ]) {
+      expect(() =>
+        validerConfigurationServeurCommercial({
+          ...base,
+          ...configuration,
+        }),
+      ).toThrow(/Paddle/);
+    }
+  });
+
+  it("refuse une base temporaire ou un jeton email vide en production", () => {
+    const base = {
+      mode: "production",
+      origineApplication: "https://jeu.example.test",
+      paddleClientToken: "live_7d279f61a3499fed520f7cd8c08",
+      secretWebhook: "9vWN7kuUPHXCjogIq6Z5afE8eLwY1xQ3dRo0nTmB",
+      clePriveeDeRecu: CLE_PRIVEE_DE_RECU_DE_TEST,
+      secretBetterAuth: "uF2w7Jp9xK4mN8qR5sV1yB6dG3hL0cZtA9eQ",
+      produit: {
+        priceId: "pri_01hv0vax6rv18t4tamj848ne4d",
+        productId: "pro_01htz88xpr0mm7b3ta2pjkr7w2",
+        quantite: 1,
+        devise: "EUR",
+        total: "1999",
+      },
+      livraisonEmail: {
+        url: "https://email.example.test/send",
+        jeton: "jeton-de-production",
+      },
+    } as const;
+
+    expect(() =>
+      validerConfigurationServeurCommercial({
+        ...base,
+        cheminBaseDeDonnees: "",
+      }),
+    ).toThrow(/base de données/i);
+    expect(() =>
+      validerConfigurationServeurCommercial(base),
+    ).toThrow(/base de données/i);
+    expect(() =>
+      validerConfigurationServeurCommercial({
+        ...base,
+        cheminBaseDeDonnees: "/var/lib/lanternes/commercial.sqlite",
+        livraisonEmail: { ...base.livraisonEmail, jeton: "" },
+      }),
+    ).toThrow(/jeton.*email/i);
   });
 });

@@ -5,6 +5,7 @@ const baseURL = `http://127.0.0.1:${port}`;
 
 export default defineConfig({
   testDir: "./tests/e2e",
+  testIgnore: /beta-.*\.spec\.ts/,
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 2 : 0,
@@ -16,7 +17,8 @@ export default defineConfig({
   projects: [
     {
       name: "chromium",
-      testIgnore: /scenarios-sentinelles\.spec\.ts/,
+      testIgnore:
+        /(?:beta-.*|scenarios-sentinelles)\.spec\.ts/,
       use: { ...devices["Desktop Chrome"] },
     },
     {
@@ -26,10 +28,22 @@ export default defineConfig({
       use: { ...devices["Desktop Chrome"] },
     },
     {
+      name: "firefox",
+      testIgnore:
+        /(?:beta-.*|scenarios-sentinelles)\.spec\.ts/,
+      use: { ...devices["Desktop Firefox"] },
+    },
+    {
       name: "firefox-sentinelles",
       retries: 0,
       testMatch: /scenarios-sentinelles\.spec\.ts/,
       use: { ...devices["Desktop Firefox"] },
+    },
+    {
+      name: "webkit",
+      testIgnore:
+        /(?:beta-.*|scenarios-sentinelles)\.spec\.ts/,
+      use: { ...devices["Desktop Safari"] },
     },
     {
       name: "webkit-sentinelles",
