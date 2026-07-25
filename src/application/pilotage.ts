@@ -244,6 +244,18 @@ const JOURNAL_GENERIQUE: Readonly<
         "Crise de purification — Remèdes mobilisés",
       "crise.purification.evacuer-les-foyers-exposes":
         "Crise de purification — Foyers évacués",
+      "crise.recuperation.socle-de-survie.accomplie":
+        "Récupération — Socle de survie rétabli",
+      "crise.recuperation.socle-de-survie.manquee":
+        "Récupération — Socle de survie manqué",
+      "crise.recuperation.mobilite-minimale.accomplie":
+        "Récupération — Haut-Puits rejoint",
+      "crise.recuperation.mobilite-minimale.manquee":
+        "Récupération — Mobilité minimale perdue",
+      "crise.recuperation.aide-exterieure-identifiee.accomplie":
+        "Récupération — Aide de Haut-Puits obtenue",
+      "crise.recuperation.aide-exterieure-identifiee.manquee":
+        "Récupération — Aide extérieure manquée",
       "prologue.cohorte-accueillie": "Cohorte accueillie",
       "prologue.cohorte-orientee": "Cohorte orientée vers Veille-Basse",
     },
@@ -252,6 +264,10 @@ const JOURNAL_GENERIQUE: Readonly<
       "incident.purification.pompe-instable.debit-maintenu":
         "Pompe maintenue en service malgré le joint dégradé",
       "penurie-eau.pompe-purification": "Crise de pénurie d’Eau",
+      "cicatrice.rationnement-deau": "Rationnement de l’Eau",
+      "cicatrice.reserve-de-remedes-entamee":
+        "Réserve de Remèdes entamée",
+      "cicatrice.evacuation-des-foyers": "Évacuation des Foyers",
       "prologue.signaux-sous-la-cendre": "Des signaux sous la cendre",
     },
     acteurs: {
@@ -259,8 +275,10 @@ const JOURNAL_GENERIQUE: Readonly<
       "equipes-entretien": "Équipes d’entretien",
       "cohorte-de-refugies": "Cohorte de réfugiés",
       "equipes-purification": "Équipes de purification",
+      "equipes-medicales": "Équipes médicales",
       "foyers-du-convoi": "Foyers du convoi",
       "foyers-exposes": "Foyers exposés",
+      "habitants-haut-puits": "Habitants de Haut-Puits",
       liora: "Liora",
       "equipe-vannes-grises": "Équipe des Vannes Grises",
     },
@@ -269,6 +287,8 @@ const JOURNAL_GENERIQUE: Readonly<
       "cohorte-de-refugies": "Cohorte de réfugiés",
       "reserve-deau-purifiee": "Réserve d’Eau purifiée",
       "foyers-du-convoi": "Foyers du convoi",
+      "foyers-exposes": "Foyers exposés",
+      "haut-puits": "Haut-Puits",
       "station-vannes-grises": "Station des Vannes Grises",
       "canal-sec": "Canal sec",
       "passerelle-rompue": "Passerelle rompue",
@@ -293,6 +313,18 @@ const JOURNAL_GENERIQUE: Readonly<
         "Purification crisis — Remedies mobilized",
       "crise.purification.evacuer-les-foyers-exposes":
         "Purification crisis — Hearths evacuated",
+      "crise.recuperation.socle-de-survie.accomplie":
+        "Recovery — Survival baseline restored",
+      "crise.recuperation.socle-de-survie.manquee":
+        "Recovery — Survival baseline missed",
+      "crise.recuperation.mobilite-minimale.accomplie":
+        "Recovery — High Well reached",
+      "crise.recuperation.mobilite-minimale.manquee":
+        "Recovery — Minimum mobility lost",
+      "crise.recuperation.aide-exterieure-identifiee.accomplie":
+        "Recovery — High Well aid secured",
+      "crise.recuperation.aide-exterieure-identifiee.manquee":
+        "Recovery — Outside aid missed",
       "prologue.cohorte-accueillie": "Cohort welcomed",
       "prologue.cohorte-orientee": "Cohort directed to Veille-Basse",
     },
@@ -301,6 +333,10 @@ const JOURNAL_GENERIQUE: Readonly<
       "incident.purification.pompe-instable.debit-maintenu":
         "Pump kept running despite the degraded seal",
       "penurie-eau.pompe-purification": "Water shortage crisis",
+      "cicatrice.rationnement-deau": "Water rationing",
+      "cicatrice.reserve-de-remedes-entamee":
+        "Depleted Remedy reserve",
+      "cicatrice.evacuation-des-foyers": "Hearth evacuation",
       "prologue.signaux-sous-la-cendre": "Signals beneath the ash",
     },
     acteurs: {
@@ -308,8 +344,10 @@ const JOURNAL_GENERIQUE: Readonly<
       "equipes-entretien": "Maintenance crews",
       "cohorte-de-refugies": "Refugee cohort",
       "equipes-purification": "Purification crews",
+      "equipes-medicales": "Medical crews",
       "foyers-du-convoi": "Convoy Hearths",
       "foyers-exposes": "Exposed Hearths",
+      "habitants-haut-puits": "High Well inhabitants",
       liora: "Liora",
       "equipe-vannes-grises": "Grey Sluices team",
     },
@@ -318,6 +356,8 @@ const JOURNAL_GENERIQUE: Readonly<
       "cohorte-de-refugies": "Refugee cohort",
       "reserve-deau-purifiee": "Purified Water reserve",
       "foyers-du-convoi": "Convoy Hearths",
+      "foyers-exposes": "Exposed Hearths",
+      "haut-puits": "High Well",
       "station-vannes-grises": "Grey Sluices Station",
       "canal-sec": "Dry channel",
       "passerelle-rompue": "Broken footbridge",

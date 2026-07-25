@@ -15,6 +15,7 @@ import {
   VERSION_SIMULATION_AVANT_DEVERSOIR,
   VERSION_SIMULATION_AVANT_HAUT_PUITS,
   VERSION_SIMULATION_AVANT_NACELLES,
+  VERSION_SIMULATION_AVANT_RECUPERATIONS,
   VERSION_SIMULATION_AVANT_ROUTES,
   VERSION_SIMULATION_AVANT_TRAME_DE_FER,
   VERSION_SIMULATION_AVANT_TRAVERSE_LIBRE,
@@ -104,6 +105,7 @@ import {
   DEFINITIONS_DES_REPONSES_A_LA_CRISE,
   FAIT_ANNONCANT_LA_CRISE,
   IDENTIFIANTS_DE_FAITS_DE_CRISE,
+  IDENTIFIANTS_DE_FAITS_DE_RECUPERATION,
   IDENTIFIANT_DE_LA_CRISE_DE_REFERENCE,
   annoncerCriseApresFaits,
   creerEtatDesCrisesInitial,
@@ -187,6 +189,7 @@ function identifiantsDeFaitsConnus(): ReadonlySet<string> {
     ...IDENTIFIANTS_DE_FAITS_D_INCIDENT,
     ...IDENTIFIANTS_DE_FAITS_DU_CONSEIL,
     ...IDENTIFIANTS_DE_FAITS_DE_CRISE,
+    ...IDENTIFIANTS_DE_FAITS_DE_RECUPERATION,
   ]);
 }
 
@@ -324,9 +327,34 @@ export interface EtatCampagneV9
   readonly version: typeof VERSION_SIMULATION_AVANT_TRAVERSE_LIBRE;
 }
 
+export interface EtatDesCrisesV11
+  extends Omit<EtatDesCrises, "recuperations"> {
+  readonly recuperations: readonly {
+    readonly id: string;
+    readonly cause:
+      | "cicatrice.rationnement-deau"
+      | "cicatrice.reserve-de-remedes-entamee"
+      | "cicatrice.evacuation-des-foyers";
+    readonly garantie:
+      | "socle-de-survie"
+      | "mobilite-minimale"
+      | "aide-exterieure-identifiee";
+    readonly destination: "halte-du-puits-sec" | "haut-puits";
+    readonly horizonTroncons: 1 | 2;
+    readonly statut: "amorcee";
+  }[];
+}
+
 export interface EtatCampagneV10
-  extends Omit<EtatCampagne, "version" | "denouement"> {
+  extends Omit<EtatCampagne, "version" | "denouement" | "crises"> {
   readonly version: typeof VERSION_SIMULATION_AVANT_DENOUEMENT;
+  readonly crises: EtatDesCrisesV11;
+}
+
+export interface EtatCampagneV11
+  extends Omit<EtatCampagne, "version" | "crises"> {
+  readonly version: typeof VERSION_SIMULATION_AVANT_RECUPERATIONS;
+  readonly crises: EtatDesCrisesV11;
 }
 
 export function estObjet(valeur: unknown): valeur is ObjetInconnu {
@@ -973,6 +1001,43 @@ export function estFaitDeCampagneV2(valeur: unknown): boolean {
       materiels.length === 0 &&
       humains.length === 1 &&
       estEffetHumain(humains[0], "habitants.modifies", "variation", -8)
+    );
+  }
+
+  if (
+    IDENTIFIANTS_DE_FAITS_DE_RECUPERATION.includes(
+      valeur.id as never,
+    )
+  ) {
+    const identifiant = String(valeur.id);
+    const accomplie = identifiant.endsWith(".accomplie");
+    const socle = identifiant.includes(".socle-de-survie.");
+    const mobilite = identifiant.includes(".mobilite-minimale.");
+    const causeAttendue = socle
+      ? "cicatrice.rationnement-deau"
+      : mobilite
+        ? "cicatrice.reserve-de-remedes-entamee"
+        : "cicatrice.evacuation-des-foyers";
+    const acteursAttendus = socle
+      ? ["porte-lanterne", "equipes-purification"]
+      : mobilite
+        ? ["porte-lanterne", "equipes-medicales"]
+        : ["porte-lanterne", "habitants-haut-puits"];
+    const cibleAttendue = socle
+      ? "pompe-purification"
+      : mobilite
+        ? "haut-puits"
+        : "foyers-exposes";
+    const coutMaterielAttendu = accomplie && !mobilite;
+    return (
+      valeur.cause === causeAttendue &&
+      memesChaines(acteurs, acteursAttendus) &&
+      valeur.cible === cibleAttendue &&
+      humains.length === 0 &&
+      (coutMaterielAttendu
+        ? materiels.length === 1 &&
+          estEffetStock(materiels[0], -2, "materiaux")
+        : materiels.length === 0)
     );
   }
 
@@ -3194,6 +3259,7 @@ function estEtatDesCrises(
   secondesCourantes: number,
   vitesse: VitesseDuConvoi,
   faits: readonly ObjetInconnu[],
+  evenementNarratifActif: unknown,
   infrastructure: EtatInfrastructure,
   routes: EtatDesRoutes,
   expeditions: EtatDesExpeditions,
@@ -3215,12 +3281,18 @@ function estEtatDesCrises(
   const faitsDeResolution = faits.filter((fait) =>
     identifiantsDeResolution.includes(fait.id as never),
   );
+  const faitsDeResultatDeRecuperation = faits.filter((fait) =>
+    IDENTIFIANTS_DE_FAITS_DE_RECUPERATION.includes(fait.id as never),
+  );
   if (
     faits.filter((fait) => fait.id === IDENTIFIANTS_DE_FAITS_DE_CRISE[0])
       .length > 1 ||
     faitsDeResolution.length > 1 ||
+    faitsDeResultatDeRecuperation.length > 1 ||
     (faitDeRupture !== undefined && faitAnnonceur === undefined) ||
-    (faitsDeResolution.length > 0 && faitDeRupture === undefined)
+    (faitsDeResolution.length > 0 && faitDeRupture === undefined) ||
+    (faitsDeResultatDeRecuperation.length > 0 &&
+      faitsDeResolution.length === 0)
   ) {
     return false;
   }
@@ -3271,7 +3343,14 @@ function estEtatDesCrises(
       faitDeRupture.moment as number,
       faitsAvantRupture,
       infrastructure,
-      routes,
+      {
+        ...routes,
+        engagements: routes.engagements.filter(
+          (engagement) =>
+            engagement.engageA <
+            (faitDeRupture.moment as number),
+        ),
+      },
       expeditions,
       hautPuits,
       veilleBasse,
@@ -3333,9 +3412,137 @@ function estEtatDesCrises(
           ...definition.recuperation,
           id: "recuperation.1",
           cause: cicatrice.id,
+          amorceeA: faitDeResolution.moment as number,
+          statut: "amorcee",
+          accomplieA: null,
+          manqueeA: null,
+          faitResultat: null,
+          coutApplique: [],
         },
       ],
     };
+
+    const recuperation = attendu.recuperations[0]!;
+    const faitDeResultat = faitsDeResultatDeRecuperation[0];
+    const jalonsApresAmorce = routes.jalons
+      .filter((jalon) => jalon.moment > recuperation.amorceeA)
+      .sort((gauche, droite) => gauche.moment - droite.moment);
+    if (faitDeResultat !== undefined) {
+      const statut = String(faitDeResultat.id).endsWith(".accomplie")
+        ? "accomplie"
+        : "manquee";
+      const identifiantAttendu =
+        `crise.recuperation.${recuperation.garantie}.${statut}`;
+      const effets = faitDeResultat.effets;
+      if (
+        faitDeResultat.id !== identifiantAttendu ||
+        faitDeResultat.cause !== recuperation.cause ||
+        typeof faitDeResultat.moment !== "number" ||
+        faitDeResultat.moment < recuperation.amorceeA ||
+        !estObjet(effets) ||
+        !Array.isArray(effets.materiels) ||
+        !Array.isArray(effets.humains) ||
+        effets.humains.length !== 0
+      ) {
+        return false;
+      }
+
+      let coutApplique: readonly {
+        readonly stock:
+          | "vivres"
+          | "eau"
+          | "combustible"
+          | "materiaux"
+          | "remedes";
+        readonly quantite: number;
+      }[];
+      if (statut === "accomplie") {
+        if (recuperation.coutAttendu === "deux-materiaux") {
+          if (
+            effets.materiels.length !== 1 ||
+            !estObjet(effets.materiels[0]) ||
+            effets.materiels[0].type !== "stock.modifie" ||
+            effets.materiels[0].stock !== "materiaux" ||
+            effets.materiels[0].variation !== -2
+          ) {
+            return false;
+          }
+          coutApplique = [{ stock: "materiaux", quantite: 2 }];
+        } else {
+          if (effets.materiels.length !== 0) {
+            return false;
+          }
+          const engagement = routes.engagements.find(
+            (candidat) =>
+              candidat.statut === "termine" &&
+              candidat.destination === recuperation.destination &&
+              candidat.arriveeA === faitDeResultat.moment,
+          );
+          if (engagement === undefined) {
+            return false;
+          }
+          const troncon = trouverTronconDeRoute(engagement.tronconId);
+          coutApplique = [
+            {
+              stock: "combustible",
+              quantite:
+                engagement.consommationsAppliquees?.combustible ??
+                troncon.consommationConnue.quantite,
+            },
+            {
+              stock: "eau",
+              quantite:
+                engagement.consommationsAppliquees?.eau ??
+                troncon.consommationIncertaine.quantiteReelle,
+            },
+          ];
+        }
+        attendu = {
+          ...attendu,
+          approvisionnementEau: "assure",
+          recuperations: [
+            {
+              ...recuperation,
+              statut: "accomplie",
+              accomplieA: faitDeResultat.moment,
+              faitResultat: faitDeResultat.id as string,
+              coutApplique,
+            },
+          ],
+        };
+      } else {
+        const jalonDEcheance =
+          jalonsApresAmorce[recuperation.horizonTroncons - 1];
+        if (
+          effets.materiels.length !== 0 ||
+          jalonDEcheance === undefined ||
+          faitDeResultat.moment !== jalonDEcheance.moment
+        ) {
+          return false;
+        }
+        attendu = {
+          ...attendu,
+          recuperations: [
+            {
+              ...recuperation,
+              statut: "manquee",
+              manqueeA: faitDeResultat.moment,
+              faitResultat: faitDeResultat.id as string,
+            },
+          ],
+        };
+      }
+    } else {
+      const horizonAtteint =
+        jalonsApresAmorce.length >= recuperation.horizonTroncons;
+      const aideEnAttente =
+        recuperation.condition === "demander-aide-haut-puits" &&
+        evenementNarratifActif ===
+          "bassins-fendus.eau-de-haut-puits";
+      if (horizonAtteint && !aideEnAttente) {
+        return false;
+      }
+    }
   }
   const suspensionRequise =
     attendu.criseActive !== null ||
@@ -3745,6 +3952,7 @@ function lireEtatAvecSchemaCourant(
         parties.tempsDuConvoi.secondes,
         parties.tempsDuConvoi.vitesse,
         narration.faitsDeCampagne,
+        narration.evenementActif,
         infrastructure,
         routes,
         expeditions,
@@ -3851,6 +4059,96 @@ export function lireSnapshotCourant(
   return lireEtatAvecSchemaCourant(valeur, true, true);
 }
 
+function promouvoirCrisesV11(valeur: unknown): unknown {
+  if (
+    !estObjet(valeur) ||
+    !Array.isArray(valeur.recuperations) ||
+    !Array.isArray(valeur.cicatrices)
+  ) {
+    return valeur;
+  }
+  const cicatrices = valeur.cicatrices;
+  return {
+    ...valeur,
+    recuperations: valeur.recuperations.map((recuperation) => {
+      if (!estObjet(recuperation)) {
+        return recuperation;
+      }
+      const definition = DEFINITIONS_DES_REPONSES_A_LA_CRISE.find(
+        ({ recuperation: attendue }) =>
+          attendue.garantie === recuperation.garantie &&
+          attendue.destination === recuperation.destination &&
+          attendue.horizonTroncons === recuperation.horizonTroncons,
+      );
+      const cicatrice = cicatrices.find(
+        (candidate) =>
+          estObjet(candidate) && candidate.id === recuperation.cause,
+      );
+      if (
+        definition === undefined ||
+        !estObjet(cicatrice) ||
+        typeof cicatrice.acquiseA !== "number"
+      ) {
+        return recuperation;
+      }
+      return {
+        ...recuperation,
+        condition: definition.recuperation.condition,
+        coutAttendu: definition.recuperation.coutAttendu,
+        amorceeA: cicatrice.acquiseA,
+        accomplieA: null,
+        manqueeA: null,
+        faitResultat: null,
+        coutApplique: [],
+      };
+    }),
+  };
+}
+
+function lireEtatAvecSchemaV11(
+  valeur: unknown,
+  autoriserMarqueurHistoriqueSansFait = false,
+): EtatCampagneV11 | undefined {
+  if (
+    !estObjet(valeur) ||
+    valeur.version !== VERSION_SIMULATION_AVANT_RECUPERATIONS ||
+    !estObjet(valeur.narration) ||
+    !Array.isArray(valeur.narration.faitsDeCampagne) ||
+    valeur.narration.faitsDeCampagne.some(
+      (fait) =>
+        estObjet(fait) &&
+        typeof fait.id === "string" &&
+        fait.id.startsWith("crise.recuperation."),
+    )
+  ) {
+    return undefined;
+  }
+  const etatCourant = lireEtatAvecSchemaCourant(
+    {
+      ...valeur,
+      version: VERSION_SIMULATION_COURANTE,
+      crises: promouvoirCrisesV11(valeur.crises),
+    },
+    true,
+    autoriserMarqueurHistoriqueSansFait,
+  );
+  return etatCourant === undefined
+    ? undefined
+    : (valeur as unknown as EtatCampagneV11);
+}
+
+export function lireEtatV11(
+  valeur: unknown,
+): EtatCampagneV11 | undefined {
+  return lireEtatAvecSchemaV11(valeur);
+}
+
+export function lireSnapshotV11(
+  valeur: unknown,
+): EtatCampagneV11 | undefined {
+  return lireEtatAvecSchemaV11(valeur, true);
+}
+
 function lireEtatAvecSchemaV10(
   valeur: unknown,
   autoriserMarqueurHistoriqueSansFait = false,
@@ -3872,6 +4170,7 @@ function lireEtatAvecSchemaV10(
         valeur.narration
           .faitsDeCampagne as unknown as readonly FaitDeCampagne[],
       ),
+      crises: promouvoirCrisesV11(valeur.crises),
     },
     true,
     autoriserMarqueurHistoriqueSansFait,
@@ -3971,6 +4270,7 @@ function lireEtatAvecSchemaV9(
       ...valeur,
       version: VERSION_SIMULATION_COURANTE,
       denouement: CAMPAGNE_EN_COURS,
+      crises: promouvoirCrisesV11(valeur.crises),
       routes: {
         ...valeur.routes,
         etatsReels: {
@@ -4066,6 +4366,7 @@ function lireEtatAvecSchemaV8(
       ...valeur,
       version: VERSION_SIMULATION_COURANTE,
       denouement: CAMPAGNE_EN_COURS,
+      crises: promouvoirCrisesV11(valeur.crises),
       routes: {
         ...valeur.routes,
         etatsReels: {
@@ -4157,6 +4458,7 @@ function lireEtatAvecSchemaV7(
       ...valeur,
       version: VERSION_SIMULATION_COURANTE,
       denouement: CAMPAGNE_EN_COURS,
+      crises: promouvoirCrisesV11(valeur.crises),
       hautPuits: {
         ...valeur.hautPuits,
         projetRegional: null,
@@ -4234,6 +4536,7 @@ function lireEtatAvecSchemaV6(
       ...valeur,
       version: VERSION_SIMULATION_COURANTE,
       denouement: CAMPAGNE_EN_COURS,
+      crises: promouvoirCrisesV11(valeur.crises),
       devenirsDesSites: null,
       trameDeFer: creerEtatInitialDeLaTrameDeFer(),
       traverseLibre: creerEtatInitialDeTraverseLibre(),
@@ -4276,6 +4579,7 @@ function lireEtatAvecSchemaV5(
       ...valeur,
       version: VERSION_SIMULATION_COURANTE,
       denouement: CAMPAGNE_EN_COURS,
+      crises: promouvoirCrisesV11(valeur.crises),
       hautPuits: creerEtatDeHautPuitsInitial(),
       devenirsDesSites: null,
       trameDeFer: creerEtatInitialDeLaTrameDeFer(),
@@ -4320,6 +4624,7 @@ function lireEtatAvecSchemaV4(
       ...valeur,
       version: VERSION_SIMULATION_COURANTE,
       denouement: CAMPAGNE_EN_COURS,
+      crises: promouvoirCrisesV11(valeur.crises),
       veilleBasse: creerEtatInitialDeVeilleBasse(),
       hautPuits: creerEtatDeHautPuitsInitial(),
       devenirsDesSites: null,

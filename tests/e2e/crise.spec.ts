@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 import { installerHorlogeFixe } from "./horloge";
 
-test("la Crise suspend le convoi, expose ses coûts et persiste sa récupération", async ({
+test("la Crise suspend le convoi et persiste sa Récupération accomplie", async ({
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
@@ -93,8 +93,21 @@ test("la Crise suspend le convoi, expose ses coûts et persiste sa récupératio
   await expect(etatDesCrises).toContainText("Water rationing");
   await expect(etatDesCrises).toContainText("Survival baseline preserved");
   await expect(etatDesCrises).toContainText(
-    "Build or obtain purification capacity.",
+    "Deploy the Halt at Dry Well.",
   );
+  await expect(etatDesCrises).toContainText("Recovery underway");
+  await expect(etatDesCrises).toContainText("Cost : 2 Materials");
+  await expect(etatDesCrises).toContainText("Cause : Water rationing");
+
+  await page.getByRole("button", { name: "Pause" }).click();
+  await page
+    .getByRole("region", { name: "Infrastructure" })
+    .getByRole("button", { name: "Deploy the Halt" })
+    .click();
+
+  await expect(etatDesCrises).toContainText("Recovery accomplished");
+  await expect(etatDesCrises).toContainText("Cost : 2 Materials committed");
+  await expect(etatDesCrises).toContainText("Cause : Water rationing");
 
   await page.getByRole("button", { name: "Sauvegarder" }).click();
   await expect(page.getByText("Sauvegarde à jour.")).toBeVisible();
@@ -104,4 +117,14 @@ test("la Crise suspend le convoi, expose ses coûts et persiste sa récupératio
     page.getByRole("region", { name: "Crises et Cicatrices" }),
   ).toContainText("Rationnement de l’Eau");
   await expect(page.getByText("Socle de survie préservé")).toBeVisible();
+  const recuperationReprise = page.getByRole("region", {
+    name: "Crises et Cicatrices",
+  });
+  await expect(recuperationReprise).toContainText("Récupération accomplie");
+  await expect(recuperationReprise).toContainText(
+    "Coût : 2 Matériaux engagés",
+  );
+  await expect(recuperationReprise).toContainText(
+    "Cause : Rationnement de l’Eau",
+  );
 });

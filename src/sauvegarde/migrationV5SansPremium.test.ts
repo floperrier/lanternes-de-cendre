@@ -126,9 +126,9 @@ describe("migration v5 sans catalogue premium installé", () => {
     expect(importation).toMatchObject({
       statut: "migree",
       sauvegarde: {
-        version: 11,
+        version: 12,
         etat: {
-          version: 11,
+          version: 12,
           narration: {
             evenementsJoues: expect.arrayContaining([
               "veille-basse.la-place-sous-le-phare",

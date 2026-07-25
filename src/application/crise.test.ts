@@ -82,7 +82,54 @@ describe("projection des Crises", () => {
         garantie: "Survival baseline preserved",
         horizon: "within 2 route segments",
         statut: "Recovery underway",
-        condition: "Build or obtain purification capacity.",
+        condition: "Deploy the Halt at Dry Well.",
+        cout: "2 Materials",
+        cause: "Water rationing",
+      }),
+    ]);
+  });
+
+  it("distingue une Récupération accomplie et manquée avec son coût et sa cause", () => {
+    const socleAmorce = appliquerCommande(etatEnCrise(), {
+      type: "crise.resoudre",
+      criseId: "penurie-eau.pompe-purification",
+      reponseId: "isoler-et-rationner",
+    }).etat;
+    const socleAccompli = appliquerCommande(socleAmorce, {
+      type: "halte.deployer",
+    }).etat;
+
+    expect(projeterCrises(socleAccompli, "fr").recuperations).toEqual([
+      expect.objectContaining({
+        statut: "Récupération accomplie",
+        cout: "2 Matériaux engagés",
+        cause: "Rationnement de l’Eau",
+      }),
+    ]);
+
+    let aideManquee = appliquerCommande(etatEnCrise(), {
+      type: "crise.resoudre",
+      criseId: "penurie-eau.pompe-purification",
+      reponseId: "evacuer-les-foyers-exposes",
+    }).etat;
+    aideManquee = appliquerCommande(aideManquee, {
+      type: "engagement-de-route.confirmer",
+      tronconId: "chaussee-de-veille-basse",
+    }).etat;
+    aideManquee = appliquerCommande(aideManquee, {
+      type: "temps-du-convoi.regler-vitesse",
+      vitesse: 4,
+    }).etat;
+    aideManquee = appliquerCommande(aideManquee, {
+      type: "temps-du-convoi.ecouler",
+      secondesReelles: 120,
+    }).etat;
+
+    expect(projeterCrises(aideManquee, "en").recuperations).toEqual([
+      expect.objectContaining({
+        statut: "Recovery missed",
+        cout: "2 Materials were required",
+        cause: "Hearth evacuation",
       }),
     ]);
   });

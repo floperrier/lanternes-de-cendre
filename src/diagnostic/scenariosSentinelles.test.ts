@@ -40,7 +40,7 @@ describe("catalogue des scénarios sentinelles", () => {
     for (const scenario of obtenirScenariosSentinelles()) {
       expect(scenario).toMatchObject({
         format: "lanternes-de-cendre.scenario-sentinelle",
-        version: 2,
+        version: 3,
         graine: expect.any(String),
         empreinteSnapshot: expect.stringMatching(/^[0-9a-f]{8}$/),
         invariants: INVARIANTS_SENTINELLES,
@@ -164,6 +164,26 @@ describe("exécution des scénarios sentinelles", () => {
     }
   });
 
+  it("couvre une Récupération accomplie et une Récupération manquée", () => {
+    const observations = capturerEtatsEtEvenementsDesScenariosSentinelles()
+      .filter(({ scenarioId }) => scenarioId === "cascade-materielle");
+
+    expect(
+      observations.find(({ conduite }) => conduite === "prudente")
+        ?.etat.crises.recuperations[0],
+    ).toMatchObject({
+      statut: "accomplie",
+      coutApplique: [{ stock: "materiaux", quantite: 2 }],
+    });
+    expect(
+      observations.find(({ conduite }) => conduite === "risquee")
+        ?.etat.crises.recuperations[0],
+    ).toMatchObject({
+      statut: "manquee",
+      coutApplique: [],
+    });
+  });
+
   it("produit une capsule minimale au premier désaccord", () => {
     const scenario = obtenirScenariosSentinelles()[0]!;
     const premiereEtape = scenario.conduites.prudente.commandes[0]!;
@@ -195,14 +215,14 @@ describe("exécution des scénarios sentinelles", () => {
         format: "lanternes-de-cendre.capsule-sentinelle",
         version: 1,
         versions: {
-          scenarios: 2,
+          scenarios: 3,
           simulation: expect.any(Number),
           aleatoire: expect.any(Number),
           empreinte: expect.any(Number),
         },
         scenario: {
           id: scenario.id,
-          version: 2,
+          version: 3,
           conduite: "prudente",
         },
         graine: scenario.graine,

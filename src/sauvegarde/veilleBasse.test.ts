@@ -301,9 +301,9 @@ describe("persistance de Veille-Basse", () => {
     expect(importation).toMatchObject({
       statut: "compatible",
       sauvegarde: {
-        version: 11,
+        version: 12,
         etat: {
-          version: 11,
+          version: 12,
           veilleBasse: {
             colonie: { statut: "fragile" },
             cohorte: {
@@ -316,7 +316,7 @@ describe("persistance de Veille-Basse", () => {
         },
         reproduction: {
           snapshot: {
-            version: 11,
+            version: 12,
             veilleBasse: {
               cohorte: { specialite: "charpente-etanche" },
             },
@@ -365,15 +365,15 @@ describe("persistance de Veille-Basse", () => {
     expect(importation).toMatchObject({
       statut: "migree",
       sauvegarde: {
-        version: 11,
+        version: 12,
         etat: {
-          version: 11,
+          version: 12,
           veilleBasse: etatCourant.veilleBasse,
           hautPuits: creerEtatDeHautPuitsInitial(),
         },
         reproduction: {
           snapshot: {
-            version: 11,
+            version: 12,
             veilleBasse: etatCourant.veilleBasse,
             hautPuits: creerEtatDeHautPuitsInitial(),
           },
@@ -441,15 +441,15 @@ describe("persistance de Veille-Basse", () => {
     expect(importation).toMatchObject({
       statut: "migree",
       sauvegarde: {
-        version: 11,
+        version: 12,
         etat: {
-          version: 11,
+          version: 12,
           tempsDuConvoi: { vitesse: 2 },
           veilleBasse: creerEtatInitialDeVeilleBasse(),
         },
         reproduction: {
           snapshot: {
-            version: 11,
+            version: 12,
             veilleBasse: creerEtatInitialDeVeilleBasse(),
           },
           commandes: [

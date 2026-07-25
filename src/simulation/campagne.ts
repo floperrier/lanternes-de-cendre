@@ -69,6 +69,7 @@ import {
   creerEtatDesCrisesInitial,
   criseAttendSonCheckpoint,
   declencherCrise,
+  evaluerRecuperationsDeCrise,
   prochaineSecondeDeCrise,
   resoudreCrise as resoudreCriseActive,
   type CommandeDeDeclenchementDeCrise,
@@ -1147,13 +1148,16 @@ function choisirDansEvenement(
   };
 }
 
-export function appliquerCommande(
+type OptionsDApplicationDeCommande = {
+  readonly coutsDesNacelles?: "historiques-v6";
+  readonly autoriserApresDenouement?: "migration-v10";
+  readonly recuperations?: "historiques-v11";
+};
+
+function appliquerCommandeSansEvaluationDesRecuperations(
   etat: EtatCampagne,
   commande: CommandeCampagne,
-  options: {
-    readonly coutsDesNacelles?: "historiques-v6";
-    readonly autoriserApresDenouement?: "migration-v10";
-  } = {},
+  options: OptionsDApplicationDeCommande = {},
 ): TransitionDeCampagne {
   if (
     etat.denouement.statut !== "en-cours" &&
@@ -1768,6 +1772,121 @@ export function appliquerCommande(
         vitesse: commande.vitesse,
       },
     ],
+  };
+}
+
+export function appliquerCommande(
+  etat: EtatCampagne,
+  commande: CommandeCampagne,
+  options: OptionsDApplicationDeCommande = {},
+): TransitionDeCampagne {
+  const transition = appliquerCommandeSansEvaluationDesRecuperations(
+    etat,
+    commande,
+    options,
+  );
+  if (options.recuperations === "historiques-v11") {
+    return transition;
+  }
+  const engagementTermine = transition.etat.routes.engagements.find(
+    (engagement) =>
+      engagement.statut === "termine" &&
+      etat.routes.engagements.some(
+        (precedent) =>
+          precedent.id === engagement.id && precedent.statut === "en-cours",
+      ),
+  );
+  const action =
+    transition.evenements.some(
+      ({ type }) => type === "halte.deployee",
+    ) &&
+    (transition.etat.routes.position === "halte-du-puits-sec" ||
+      transition.etat.routes.position === "haut-puits")
+      ? ({
+          type: "halte-deployee",
+          destination: transition.etat.routes.position,
+        } as const)
+      : engagementTermine !== undefined
+        ? (() => {
+            const troncon = trouverTronconDeRoute(
+              engagementTermine.tronconId,
+            );
+            return {
+              type: "troncon-termine" as const,
+              destination: engagementTermine.destination,
+              coutApplique: [
+                {
+                  stock: "combustible" as const,
+                  quantite:
+                    engagementTermine.consommationsAppliquees?.combustible ??
+                    troncon.consommationConnue.quantite,
+                },
+                {
+                  stock: "eau" as const,
+                  quantite:
+                    engagementTermine.consommationsAppliquees?.eau ??
+                    troncon.consommationIncertaine.quantiteReelle,
+                },
+              ],
+            };
+          })()
+        : commande.type === "evenement-narratif.choisir" &&
+            commande.evenementId ===
+              "bassins-fendus.eau-de-haut-puits" &&
+            commande.choixId === "promettre-partage"
+          ? ({ type: "aide-demandee-haut-puits" } as const)
+          : null;
+  const evaluation = evaluerRecuperationsDeCrise(transition.etat.crises, {
+    moment:
+      engagementTermine?.arriveeA ??
+      transition.etat.tempsDuConvoi.secondes,
+    action,
+    momentsDesTronconsTermines: transition.etat.routes.jalons.map(
+      ({ moment }) => moment,
+    ),
+    materiauxDisponibles:
+      transition.etat.pilotage.economie.stocks.materiaux.quantite,
+    demandeDAideEnAttente:
+      transition.etat.narration.evenementActif ===
+      "bassins-fendus.eau-de-haut-puits",
+  });
+  if (
+    evaluation.faits.length === 0 &&
+    evaluation.variationsDeStocks.length === 0
+  ) {
+    return {
+      etat:
+        evaluation.etat === transition.etat.crises
+          ? transition.etat
+          : { ...transition.etat, crises: evaluation.etat },
+      evenements: transition.evenements,
+    };
+  }
+
+  let stocks = transition.etat.pilotage.economie.stocks;
+  for (const { stock, variation } of evaluation.variationsDeStocks) {
+    stocks = {
+      ...stocks,
+      [stock]: appliquerVariationAUnStock(stocks[stock], variation),
+    };
+  }
+  const etatAvecResultat = enregistrerFaitsDeCampagne(
+    {
+      ...transition.etat,
+      crises: evaluation.etat,
+      pilotage: {
+        ...transition.etat.pilotage,
+        economie: {
+          ...transition.etat.pilotage.economie,
+          stocks,
+        },
+      },
+    },
+    evaluation.faits,
+  );
+  return {
+    etat: etatAvecResultat,
+    evenements: [...transition.evenements, ...evaluation.evenements],
   };
 }
 

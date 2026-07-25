@@ -48,6 +48,8 @@ export interface ProjectionDesCrises {
     readonly destination: string;
     readonly horizon: string;
     readonly condition: string;
+    readonly cout: string;
+    readonly cause: string;
     readonly statut: string;
   }[];
 }
@@ -126,14 +128,29 @@ const TEXTES = {
     },
     conditionsRecuperation: {
       "socle-de-survie":
-        "Construire ou obtenir une capacité de purification.",
+        "Déployer la Halte au puits sec.",
       "mobilite-minimale":
-        "Rejoindre Haut-Puits et négocier l’accès à sa citerne.",
+        "Achever le Tronçon vers Haut-Puits.",
       "aide-exterieure-identifiee":
         "Demander l’accueil et l’Eau d’urgence de Haut-Puits.",
     },
     horizon: (nombre: number) => `sous ${nombre} Tronçon${nombre > 1 ? "s" : ""}`,
-    statut: "Récupération amorcée",
+    statutsRecuperation: {
+      amorcee: "Récupération amorcée",
+      accomplie: "Récupération accomplie",
+      manquee: "Récupération manquée",
+    },
+    coutsRecuperation: {
+      deuxMateriaux: {
+        amorcee: "2 Matériaux",
+        accomplie: "2 Matériaux engagés",
+        manquee: "2 Matériaux étaient requis",
+      },
+      trajetAttendu: "Coût du Tronçon vers Haut-Puits",
+      trajetManque: "Le coût du Tronçon n’a pas été engagé",
+      trajetAccompli: (combustible: number, eau: number) =>
+        `${combustible} Combustible + ${eau} Eau consommés`,
+    },
   },
   en: {
     alerteTitre: "Escalation announced — unstable purification",
@@ -207,15 +224,30 @@ const TEXTES = {
       "haut-puits": "High Well",
     },
     conditionsRecuperation: {
-      "socle-de-survie": "Build or obtain purification capacity.",
+      "socle-de-survie": "Deploy the Halt at Dry Well.",
       "mobilite-minimale":
-        "Reach High Well and negotiate access to its cistern.",
+        "Complete the route segment to High Well.",
       "aide-exterieure-identifiee":
         "Request emergency shelter and Water from High Well.",
     },
     horizon: (nombre: number) =>
       `within ${nombre} route segment${nombre > 1 ? "s" : ""}`,
-    statut: "Recovery underway",
+    statutsRecuperation: {
+      amorcee: "Recovery underway",
+      accomplie: "Recovery accomplished",
+      manquee: "Recovery missed",
+    },
+    coutsRecuperation: {
+      deuxMateriaux: {
+        amorcee: "2 Materials",
+        accomplie: "2 Materials committed",
+        manquee: "2 Materials were required",
+      },
+      trajetAttendu: "Cost of the route segment to High Well",
+      trajetManque: "The route segment cost was not committed",
+      trajetAccompli: (combustible: number, eau: number) =>
+        `${combustible} Fuel + ${eau} Water consumed`,
+    },
   },
 } as const;
 
@@ -231,6 +263,30 @@ function libellerGarantie(
   langue: Langue,
 ): string {
   return TEXTES[langue].garanties[garantie];
+}
+
+function libellerCoutDeRecuperation(
+  recuperation: EtatCampagne["crises"]["recuperations"][number],
+  langue: Langue,
+): string {
+  const textes = TEXTES[langue].coutsRecuperation;
+  if (recuperation.coutAttendu === "deux-materiaux") {
+    return textes.deuxMateriaux[recuperation.statut];
+  }
+  if (recuperation.statut === "amorcee") {
+    return textes.trajetAttendu;
+  }
+  if (recuperation.statut === "manquee") {
+    return textes.trajetManque;
+  }
+  const combustible =
+    recuperation.coutApplique.find(
+      ({ stock }) => stock === "combustible",
+    )?.quantite ?? 0;
+  const eau =
+    recuperation.coutApplique.find(({ stock }) => stock === "eau")
+      ?.quantite ?? 0;
+  return textes.trajetAccompli(combustible, eau);
 }
 
 export function projeterCrises(
@@ -288,7 +344,9 @@ export function projeterCrises(
       destination: textes.destinations[recuperation.destination],
       horizon: textes.horizon(recuperation.horizonTroncons),
       condition: textes.conditionsRecuperation[recuperation.garantie],
-      statut: textes.statut,
+      cout: libellerCoutDeRecuperation(recuperation, langue),
+      cause: textes.cicatrices[recuperation.cause],
+      statut: textes.statutsRecuperation[recuperation.statut],
     })),
   };
 }

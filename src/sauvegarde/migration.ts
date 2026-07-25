@@ -21,9 +21,11 @@ import {
   executerAvecTronconsTemporaires,
 } from "../simulation/routes";
 import {
+  DEFINITIONS_DES_REPONSES_A_LA_CRISE,
   creerEtatDesCrisesInitial,
   FAIT_ANNONCANT_LA_CRISE,
   ignorerFaitAnnonceurHistorique,
+  type EtatDesCrises,
 } from "../simulation/crise";
 import { creerEtatDesExpeditionsInitial } from "../simulation/expeditions";
 import { creerEtatInitialDeVeilleBasse } from "../simulation/veilleBasse";
@@ -49,6 +51,7 @@ import type {
 import {
   VERSION_SIMULATION_AVANT_CRISES,
   VERSION_SIMULATION_AVANT_DENOUEMENT,
+  VERSION_SIMULATION_AVANT_RECUPERATIONS,
   VERSION_SIMULATION_AVANT_DEVERSOIR,
   VERSION_SIMULATION_AVANT_HAUT_PUITS,
   VERSION_SIMULATION_AVANT_NACELLES,
@@ -64,6 +67,7 @@ import {
   VERSION_SAUVEGARDE_AVANT_ROUTES,
   VERSION_SAUVEGARDE_AVANT_CRISES,
   VERSION_SAUVEGARDE_AVANT_DENOUEMENT,
+  VERSION_SAUVEGARDE_AVANT_RECUPERATIONS,
   VERSION_SAUVEGARDE_AVANT_DEVERSOIR,
   VERSION_SAUVEGARDE_AVANT_HAUT_PUITS,
   VERSION_SAUVEGARDE_AVANT_NACELLES,
@@ -99,6 +103,7 @@ import {
   lireEtatV8,
   lireEtatV9,
   lireEtatV10,
+  lireEtatV11,
   lireSnapshotV4,
   lireSnapshotV5,
   lireSnapshotV6,
@@ -106,6 +111,7 @@ import {
   lireSnapshotV8,
   lireSnapshotV9,
   lireSnapshotV10,
+  lireSnapshotV11,
   marquerCausaliteHistoriqueDeNarrationSiNecessaire,
   projeterEtatAvantRoutesHistorique,
   type EtatCampagneAvantCrises,
@@ -119,6 +125,7 @@ import {
   type EtatCampagneV8,
   type EtatCampagneV9,
   type EtatCampagneV10,
+  type EtatCampagneV11,
   type ObjetInconnu,
 } from "./validation";
 
@@ -133,12 +140,199 @@ const PLATEFORMES_DE_LA_SIMULATION_V2 = [
   "forge",
 ] as const;
 
+function promouvoirCrisesV11VersCourant(
+  crises:
+    | EtatDesCrises
+    | EtatCampagneV11["crises"],
+): EtatDesCrises {
+  return {
+    ...crises,
+    recuperations: crises.recuperations.map((recuperation) => {
+      if ("condition" in recuperation) {
+        return recuperation;
+      }
+      const definition = DEFINITIONS_DES_REPONSES_A_LA_CRISE.find(
+        ({ recuperation: attendue }) =>
+          attendue.garantie === recuperation.garantie &&
+          attendue.destination === recuperation.destination &&
+          attendue.horizonTroncons === recuperation.horizonTroncons,
+      );
+      const cicatrice = crises.cicatrices.find(
+        ({ id }) => id === recuperation.cause,
+      );
+      if (definition === undefined || cicatrice === undefined) {
+        throw new Error("La Récupération v11 ne possède pas de cause valide.");
+      }
+      return {
+        ...recuperation,
+        condition: definition.recuperation.condition,
+        coutAttendu: definition.recuperation.coutAttendu,
+        amorceeA: cicatrice.acquiseA,
+        accomplieA: null,
+        manqueeA: null,
+        faitResultat: null,
+        coutApplique: [],
+      };
+    }),
+  };
+}
+
+function normaliserCrisesCourantesEnV11(
+  crises: EtatDesCrises,
+): EtatCampagneV11["crises"] {
+  return {
+    ...crises,
+    recuperations: crises.recuperations.map(
+      ({
+        condition,
+        coutAttendu,
+        amorceeA,
+        accomplieA,
+        manqueeA,
+        faitResultat,
+        coutApplique,
+        ...recuperation
+      }) => {
+        void condition;
+        void coutAttendu;
+        void amorceeA;
+        void accomplieA;
+        void manqueeA;
+        void faitResultat;
+        void coutApplique;
+        return {
+          ...recuperation,
+          statut: "amorcee" as const,
+        };
+      },
+    ),
+  };
+}
+
+export function promouvoirEtatV11VersCourant(
+  etat: EtatCampagneV11,
+): EtatCampagne {
+  return {
+    ...etat,
+    version: VERSION_SIMULATION_COURANTE,
+    crises: promouvoirCrisesV11VersCourant(etat.crises),
+  };
+}
+
+function normaliserEtatCourantEnV11(
+  etat: EtatCampagne,
+): EtatCampagneV11 {
+  return {
+    ...etat,
+    version: VERSION_SIMULATION_AVANT_RECUPERATIONS,
+    crises: normaliserCrisesCourantesEnV11(etat.crises),
+  };
+}
+
+export function migrerSauvegardeV11(
+  valeur: ObjetInconnu,
+): SauvegardeCampagne | undefined {
+  if (
+    valeur.format !== FORMAT_SAUVEGARDE ||
+    typeof valeur.id !== "string" ||
+    valeur.version !== VERSION_SAUVEGARDE_AVANT_RECUPERATIONS ||
+    !estObjet(valeur.versions) ||
+    valeur.versions.simulation !==
+      VERSION_SIMULATION_AVANT_RECUPERATIONS ||
+    valeur.versions.contenu !== VERSIONS_DU_SNAPSHOT_COURANT.contenu ||
+    valeur.versions.aleatoire !== VERSIONS_DU_SNAPSHOT_COURANT.aleatoire ||
+    valeur.versions.empreinte !== VERSIONS_DU_SNAPSHOT_COURANT.empreinte ||
+    typeof valeur.graine !== "string" ||
+    !estObjet(valeur.horloge) ||
+    typeof valeur.horloge.secondes !== "number" ||
+    !Number.isFinite(valeur.horloge.secondes) ||
+    !estObjet(valeur.reproduction) ||
+    !Array.isArray(valeur.reproduction.commandes) ||
+    typeof valeur.reproduction.empreinteSnapshot !== "string" ||
+    !EMPREINTE.test(valeur.reproduction.empreinteSnapshot) ||
+    typeof valeur.empreinte !== "string" ||
+    !EMPREINTE.test(valeur.empreinte)
+  ) {
+    return undefined;
+  }
+
+  const snapshotV11 = lireSnapshotV11(valeur.reproduction.snapshot);
+  const etatDeclareV11 = lireEtatV11(valeur.etat);
+  if (
+    snapshotV11 === undefined ||
+    etatDeclareV11 === undefined ||
+    valeur.graine !== etatDeclareV11.graine ||
+    valeur.horloge.secondes !== etatDeclareV11.tempsDuConvoi.secondes ||
+    empreinteEtat(snapshotV11 as unknown as EtatCampagne) !==
+      valeur.reproduction.empreinteSnapshot ||
+    empreinteEtat(etatDeclareV11 as unknown as EtatCampagne) !==
+      valeur.empreinte
+  ) {
+    return undefined;
+  }
+
+  let etat = promouvoirEtatV11VersCourant(snapshotV11);
+  try {
+    for (const [index, entree] of valeur.reproduction.commandes.entries()) {
+      if (
+        !estObjet(entree) ||
+        entree.sequence !== index ||
+        !estCommande(entree.commande) ||
+        typeof entree.empreinteApres !== "string" ||
+        !EMPREINTE.test(entree.empreinteApres)
+      ) {
+        return undefined;
+      }
+      etat = appliquerCommande(etat, entree.commande, {
+        recuperations: "historiques-v11",
+      }).etat;
+      if (
+        empreinteEtat(
+          normaliserEtatCourantEnV11(etat) as unknown as EtatCampagne,
+        ) !== entree.empreinteApres
+      ) {
+        return undefined;
+      }
+    }
+  } catch {
+    return undefined;
+  }
+
+  if (
+    !sontStructurellementEgaux(
+      normaliserEtatCourantEnV11(etat),
+      etatDeclareV11,
+    )
+  ) {
+    return undefined;
+  }
+
+  const etatCourant = promouvoirEtatV11VersCourant(etatDeclareV11);
+  if (
+    lireSnapshotCourant(etatCourant) === undefined ||
+    lireEtatCourant(etatCourant) === undefined
+  ) {
+    return undefined;
+  }
+  const reproduction: ReproductionDeCampagne = {
+    snapshot: etatCourant,
+    empreinteSnapshot: empreinteEtat(etatCourant),
+    commandes: [],
+  };
+  const sauvegarde = creerSauvegarde(etatCourant, reproduction);
+  return {
+    ...sauvegarde,
+    id: `${valeur.id}-v${VERSION_SAUVEGARDE_COURANTE}-${sauvegarde.empreinte}`,
+  };
+}
+
 export function promouvoirEtatV10VersCourant(
   etat: EtatCampagneV10,
 ): EtatCampagne {
   return {
     ...etat,
     version: VERSION_SIMULATION_COURANTE,
+    crises: promouvoirCrisesV11VersCourant(etat.crises),
     denouement: reconstruireDenouementReussi(
       etat.narration.faitsDeCampagne,
     ),
@@ -153,6 +347,7 @@ function normaliserEtatCourantEnV10(
   return {
     ...sansDenouement,
     version: VERSION_SIMULATION_AVANT_DENOUEMENT,
+    crises: normaliserCrisesCourantesEnV11(etat.crises),
   };
 }
 
@@ -211,6 +406,7 @@ export function migrerSauvegardeV10(
       }
       etat = appliquerCommande(etat, entree.commande, {
         autoriserApresDenouement: "migration-v10",
+        recuperations: "historiques-v11",
       }).etat;
       if (
         empreinteEtat(
@@ -643,6 +839,7 @@ export function promouvoirEtatV4VersCourant(
     ...etat,
     version: VERSION_SIMULATION_COURANTE,
     denouement: CAMPAGNE_EN_COURS,
+    crises: promouvoirCrisesV11VersCourant(etat.crises),
     veilleBasse: creerEtatInitialDeVeilleBasse(),
     hautPuits: creerEtatDeHautPuitsInitial(),
     trameDeFer: creerEtatInitialDeLaTrameDeFer(),
@@ -661,6 +858,7 @@ export function promouvoirEtatV6VersCourant(
     ...etat,
     version: VERSION_SIMULATION_COURANTE,
     denouement: CAMPAGNE_EN_COURS,
+    crises: promouvoirCrisesV11VersCourant(etat.crises),
     trameDeFer: creerEtatInitialDeLaTrameDeFer(),
     traverseLibre: creerEtatInitialDeTraverseLibre(),
     devenirsDesSites: null,
@@ -683,6 +881,7 @@ function promouvoirEtatV6PourReplay(
     ...etat,
     version: VERSION_SIMULATION_COURANTE,
     denouement: CAMPAGNE_EN_COURS,
+    crises: promouvoirCrisesV11VersCourant(etat.crises),
     trameDeFer: creerEtatInitialDeLaTrameDeFer(),
     traverseLibre: creerEtatInitialDeTraverseLibre(),
     devenirsDesSites: null,
@@ -780,6 +979,7 @@ function appliquerCommandeSelonCatalogueAvantNacelles(
   const evenementActifAvant = etat.narration.evenementActif;
   const applique = appliquerCommande(etat, commande, {
     coutsDesNacelles: "historiques-v6",
+    recuperations: "historiques-v11",
   }).etat;
   const nouvelEvenement = applique.narration.evenementActif;
   return marquerCausaliteHistoriqueDeNarrationSiNecessaire(
@@ -918,6 +1118,7 @@ function promouvoirEtatV7PourReplay(
     ...etat,
     version: VERSION_SIMULATION_COURANTE,
     denouement: CAMPAGNE_EN_COURS,
+    crises: promouvoirCrisesV11VersCourant(etat.crises),
     hautPuits: {
       ...etat.hautPuits,
       projetRegional: null,
@@ -1101,7 +1302,9 @@ function migrerSauvegardeV7AvecCatalogueHistorique(
       ) {
         return undefined;
       }
-      etat = appliquerCommande(etat, entree.commande).etat;
+      etat = appliquerCommande(etat, entree.commande, {
+        recuperations: "historiques-v11",
+      }).etat;
       if (
         empreinteEtat(
           normaliserEtatCourantEnV7(etat) as unknown as EtatCampagne,
@@ -1181,6 +1384,7 @@ export function promouvoirEtatV8VersCourant(
     ...etat,
     version: VERSION_SIMULATION_COURANTE,
     denouement: CAMPAGNE_EN_COURS,
+    crises: promouvoirCrisesV11VersCourant(etat.crises),
     routes: {
       ...etat.routes,
       etatsReels: {
@@ -1314,7 +1518,9 @@ export function migrerSauvegardeV8(
       ) {
         return undefined;
       }
-      etat = appliquerCommande(etat, entree.commande).etat;
+      etat = appliquerCommande(etat, entree.commande, {
+        recuperations: "historiques-v11",
+      }).etat;
       if (
         empreinteEtat(
           normaliserEtatCourantEnV8(etat) as unknown as EtatCampagne,
@@ -1363,6 +1569,7 @@ export function promouvoirEtatV9VersCourant(
     ...etat,
     version: VERSION_SIMULATION_COURANTE,
     denouement: CAMPAGNE_EN_COURS,
+    crises: promouvoirCrisesV11VersCourant(etat.crises),
     routes: {
       ...etat.routes,
       etatsReels: {
@@ -1485,7 +1692,9 @@ export function migrerSauvegardeV9(
       ) {
         return undefined;
       }
-      etat = appliquerCommande(etat, entree.commande).etat;
+      etat = appliquerCommande(etat, entree.commande, {
+        recuperations: "historiques-v11",
+      }).etat;
       if (
         empreinteEtat(
           normaliserEtatCourantEnV9(etat) as unknown as EtatCampagne,
@@ -1558,6 +1767,7 @@ export function promouvoirEtatV5VersCourant(
     ...etat,
     version: VERSION_SIMULATION_COURANTE,
     denouement: CAMPAGNE_EN_COURS,
+    crises: promouvoirCrisesV11VersCourant(etat.crises),
     hautPuits: creerEtatDeHautPuitsInitial(),
     trameDeFer: creerEtatInitialDeLaTrameDeFer(),
     traverseLibre: creerEtatInitialDeTraverseLibre(),
@@ -1593,7 +1803,9 @@ function appliquerCommandeSelonCatalogueAvantHautPuits(
   commande: Parameters<typeof appliquerCommande>[1],
 ): EtatCampagne {
   const evenementActifAvant = etat.narration.evenementActif;
-  const applique = appliquerCommande(etat, commande).etat;
+  const applique = appliquerCommande(etat, commande, {
+    recuperations: "historiques-v11",
+  }).etat;
   const nouvelEvenement = applique.narration.evenementActif;
   return marquerCausaliteHistoriqueDeNarrationSiNecessaire(
     evenementActifAvant === null &&
@@ -1734,7 +1946,9 @@ function appliquerCommandeSelonCatalogueAvantVeilleBasse(
   commande: Parameters<typeof appliquerCommande>[1],
 ): EtatCampagne {
   const evenementActifAvant = etat.narration.evenementActif;
-  const applique = appliquerCommande(etat, commande).etat;
+  const applique = appliquerCommande(etat, commande, {
+    recuperations: "historiques-v11",
+  }).etat;
   const nouvelEvenement = applique.narration.evenementActif;
   const doitRetablirAncienConflit =
     evenementActifAvant === null &&

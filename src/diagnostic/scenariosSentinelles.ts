@@ -16,7 +16,7 @@ import {
   VERSION_SIMULATION_COURANTE,
 } from "../simulation/versions";
 
-export const VERSION_SCENARIOS_SENTINELLES = 2 as const;
+export const VERSION_SCENARIOS_SENTINELLES = 3 as const;
 
 export const FAMILLES_DE_SCENARIOS_SENTINELLES = [
   "debut-nominal",
@@ -211,306 +211,312 @@ interface CalibrationDeScenario {
   readonly risquee: CalibrationDeConduite;
 }
 
-const CALIBRATIONS_V2: Readonly<Record<string, CalibrationDeScenario>> = {
+const CALIBRATIONS_V3: Readonly<Record<string, CalibrationDeScenario>> = {
   "debut-nominal": {
-    snapshot: "0db783fb",
+    snapshot: "0dbe3fc0",
     prudente: {
       etapes: [
-        ["appliquee", "cedb3ef7", "aff2fb9e"],
-        ["appliquee", "f72442a4", "c26287a4"],
-        ["appliquee", "e8ae8962", "e0b6bb78"],
-        ["appliquee", "181de9c5", "8149ac96"],
-        ["appliquee", "daad45d6", "3e258581"],
-        ["appliquee", "1b4400d8", "ba64ef9e"],
+        ["appliquee", "cee38dbc", "aff2fb9e"],
+        ["appliquee", "f71bf3df", "c26287a4"],
+        ["appliquee", "e8b0c7f9", "e0b6bb78"],
+        ["appliquee", "181bab2e", "8149ac96"],
+        ["appliquee", "dab1176d", "3e258581"],
+        ["appliquee", "1b3bb213", "ba64ef9e"],
       ],
-      resultat: ["1b4400d8", "c7894952", 120],
+      resultat: ["1b3bb213", "c7894952", 120],
     },
     risquee: {
       etapes: [
-        ["appliquee", "960678e6", "d79c674f"],
-        ["appliquee", "3bd7c590", "0f114506"],
-        ["appliquee", "4718ab0d", "3e258581"],
-        ["appliquee", "fb93ad89", "debfe5f7"],
+        ["appliquee", "9608b77d", "d79c674f"],
+        ["appliquee", "3bd109cb", "0f114506"],
+        ["appliquee", "47166c76", "3e258581"],
+        ["appliquee", "fb8fdbf2", "debfe5f7"],
       ],
-      resultat: ["fb93ad89", "d14466cc", 120],
+      resultat: ["fb8fdbf2", "d14466cc", 120],
     },
   },
   "double-tension": {
-    snapshot: "c8dfa1de",
+    snapshot: "c8e1e075",
     prudente: {
       etapes: [
-        ["appliquee", "70ba224e", "a5237aae"],
-        ["appliquee", "8ece1474", "f96f7e6d"],
-        ["appliquee", "276ae385", "a7678a5a"],
+        ["appliquee", "70bc60e5", "a5237aae"],
+        ["appliquee", "8ec758af", "f96f7e6d"],
+        ["appliquee", "2768a4ee", "a7678a5a"],
       ],
-      resultat: ["276ae385", "40a813d5", 30],
+      resultat: ["2768a4ee", "40a813d5", 30],
     },
     risquee: {
       etapes: [
-        ["appliquee", "c666069e", "b95c389e"],
-        ["appliquee", "e72cf9e5", "47eb7a00"],
-        ["appliquee", "43e5bfb6", "ab10e6fd"],
+        ["appliquee", "c6684535", "b95c389e"],
+        ["appliquee", "e72abb4e", "47eb7a00"],
+        ["appliquee", "43e7fe4d", "ab10e6fd"],
       ],
-      resultat: ["43e5bfb6", "151bbec1", 30],
+      resultat: ["43e7fe4d", "151bbec1", 30],
     },
   },
   "cascade-materielle": {
-    snapshot: "b5c0d6dd",
+    snapshot: "b5be9846",
     prudente: {
       etapes: [
-        ["appliquee", "95f81ad5", "d284e99e"],
-        ["appliquee", "86d3326f", "e4980f26"],
+        ["appliquee", "75ec30e7", "a42349ff"],
+        ["appliquee", "4c142638", "1100ad93"],
+        ["appliquee", "6193557a", "1438bf5c"],
+        ["appliquee", "3d8379fc", "776f9614"],
+        ["appliquee", "e3b2c3e1", "14255f38"],
       ],
-      resultat: ["86d3326f", "c456841d", 180],
+      resultat: ["e3b2c3e1", "694487fe", 180],
     },
     risquee: {
       etapes: [
-        ["appliquee", "75f2ecac", "a42349ff"],
-        ["appliquee", "4c0bd773", "1100ad93"],
-        ["appliquee", "61959411", "1438bf5c"],
-        ["appliquee", "f87fa082", "1d683a82"],
+        ["appliquee", "75ec30e7", "a42349ff"],
+        ["appliquee", "4c142638", "1100ad93"],
+        ["appliquee", "6193557a", "1438bf5c"],
+        ["appliquee", "c38d1ece", "1d683a82"],
+        ["appliquee", "3227b623", "fc727786"],
+        ["appliquee", "c053eb57", "941c4c66"],
+        ["appliquee", "934ecd6c", "33c001c0"],
       ],
-      resultat: ["f87fa082", "9e78eddb", 180],
+      resultat: ["934ecd6c", "bf1803ae", 660],
     },
   },
   "cohorte-en-penurie": {
-    snapshot: "a755dbfa",
+    snapshot: "a7581a91",
     prudente: {
       etapes: [
-        ["appliquee", "c5eaf0f9", "125e5b8d"],
-        ["appliquee", "3992e6bb", "f5ef49ed"],
-        ["appliquee", "d68c26b0", "71fb9131"],
-        ["appliquee", "c4c846ab", "ae290aaf"],
-        ["appliquee", "5e950819", "cd410d13"],
+        ["appliquee", "c5e8b262", "125e5b8d"],
+        ["appliquee", "3999a280", "f5ef49ed"],
+        ["appliquee", "d6856aeb", "71fb9131"],
+        ["appliquee", "c4d09570", "ae290aaf"],
+        ["appliquee", "5e92c982", "cd410d13"],
       ],
-      resultat: ["5e950819", "c13085d5", 1080],
+      resultat: ["5e92c982", "c13085d5", 1080],
     },
     risquee: {
       etapes: [
-        ["appliquee", "ee63ff15", "9fbaf835"],
-        ["appliquee", "9bf71082", "e8e394c3"],
-        ["appliquee", "d39bc874", "7fa12c7f"],
-        ["appliquee", "884ba5f3", "ae290aaf"],
-        ["appliquee", "09809ae4", "62b77ccb"],
+        ["appliquee", "ee61c07e", "9fbaf835"],
+        ["appliquee", "9bf94f19", "e8e394c3"],
+        ["appliquee", "d3950caf", "7fa12c7f"],
+        ["appliquee", "8853f4b8", "ae290aaf"],
+        ["appliquee", "0979df1f", "62b77ccb"],
       ],
-      resultat: ["09809ae4", "90ca5c3d", 1080],
+      resultat: ["0979df1f", "90ca5c3d", 1080],
     },
   },
   "expeditions-simultanees": {
-    snapshot: "3bbc216e",
+    snapshot: "3bbe6005",
     prudente: {
       etapes: [
-        ["appliquee", "f904767d", "350e6008"],
-        ["appliquee", "7b611f3a", "6ba3e117"],
+        ["appliquee", "f90237e6", "350e6008"],
+        ["appliquee", "7b635dd1", "6ba3e117"],
       ],
-      resultat: ["7b611f3a", "ffe03cba", 2520],
+      resultat: ["7b635dd1", "ffe03cba", 2520],
     },
     risquee: {
       etapes: [
-        ["appliquee", "f904767d", "350e6008"],
-        ["appliquee", "51a961ab", "97e71c42"],
-        ["appliquee", "7d09dcd7", "3a41ef3c"],
+        ["appliquee", "f90237e6", "350e6008"],
+        ["appliquee", "51b1b070", "97e71c42"],
+        ["appliquee", "7d122b9c", "3a41ef3c"],
       ],
-      resultat: ["7d09dcd7", "2718450c", 2520],
+      resultat: ["7d122b9c", "2718450c", 2520],
     },
   },
   "compagnon-indisponible": {
-    snapshot: "c4c59b85",
+    snapshot: "c4c35cee",
     prudente: {
-      etapes: [["appliquee", "28c7f2b7", "d284e99e"]],
-      resultat: ["28c7f2b7", "d284e99e", 0],
+      etapes: [["appliquee", "28ceae7c", "d284e99e"]],
+      resultat: ["28ceae7c", "d284e99e", 0],
     },
     risquee: {
       etapes: [
-        ["refusee", "c4c59b85", "741638a5", "Ilyana Voss est indisponible."],
+        ["refusee", "c4c35cee", "741638a5", "Ilyana Voss est indisponible."],
       ],
-      resultat: ["c4c59b85", "741638a5", 0],
+      resultat: ["c4c35cee", "741638a5", 0],
     },
   },
   surcharge: {
-    snapshot: "2c673aca",
+    snapshot: "2c697961",
     prudente: {
       etapes: [
-        ["appliquee", "57825897", "0de8de41"],
-        ["appliquee", "101ecb96", "1673dac6"],
-        ["appliquee", "d4a333a5", "be402c9b"],
-        ["appliquee", "07055a78", "09387469"],
-        ["appliquee", "ec50bd32", "1417d5bd"],
+        ["appliquee", "5789145c", "0de8de41"],
+        ["appliquee", "10210a2d", "1673dac6"],
+        ["appliquee", "d4a0f50e", "be402c9b"],
+        ["appliquee", "06fe9eb3", "09387469"],
+        ["appliquee", "ec52fbc9", "1417d5bd"],
       ],
-      resultat: ["ec50bd32", "95d8b8e8", 45],
+      resultat: ["ec52fbc9", "95d8b8e8", 45],
     },
     risquee: {
       etapes: [
-        ["appliquee", "57825897", "0de8de41"],
-        ["appliquee", "101ecb96", "1673dac6"],
+        ["appliquee", "5789145c", "0de8de41"],
+        ["appliquee", "10210a2d", "1673dac6"],
         [
           "refusee",
-          "101ecb96",
+          "10210a2d",
           "741638a5",
           "La contrainte de Charge empêche ce Chantier.",
         ],
       ],
-      resultat: ["101ecb96", "2f0e1c5a", 0],
+      resultat: ["10210a2d", "2f0e1c5a", 0],
     },
   },
   "route-coupee": {
-    snapshot: "2e6de2c1",
+    snapshot: "2e6ba42a",
     prudente: {
-      etapes: [["appliquee", "67c2f160", "25d5c8de"]],
-      resultat: ["67c2f160", "25d5c8de", 0],
+      etapes: [["appliquee", "67bc359b", "25d5c8de"]],
+      resultat: ["67bc359b", "25d5c8de", 0],
     },
     risquee: {
       etapes: [
         [
           "refusee",
-          "2e6de2c1",
+          "2e6ba42a",
           "741638a5",
           "Le Tronçon de route « digue-des-puits » n’est plus physiquement praticable.",
         ],
       ],
-      resultat: ["2e6de2c1", "741638a5", 0],
+      resultat: ["2e6ba42a", "741638a5", 0],
     },
   },
   "abondance-exploitable": {
-    snapshot: "c40f159c",
+    snapshot: "c406c6d7",
     prudente: {
       etapes: [
-        ["appliquee", "c403fb09", "0de8de41"],
-        ["appliquee", "3b0278da", "1673dac6"],
-        ["appliquee", "b609e224", "bca5f9de"],
-        ["appliquee", "15f23d31", "09387469"],
-        ["appliquee", "7505fd3c", "c5dddfda"],
+        ["appliquee", "c4002972", "0de8de41"],
+        ["appliquee", "3b04b771", "1673dac6"],
+        ["appliquee", "b601935f", "bca5f9de"],
+        ["appliquee", "15effe9a", "09387469"],
+        ["appliquee", "74fdae77", "c5dddfda"],
       ],
-      resultat: ["7505fd3c", "9f9e6a2e", 60],
+      resultat: ["74fdae77", "9f9e6a2e", 60],
     },
     risquee: {
       etapes: [
-        ["appliquee", "8e8f74a5", "350e6008"],
-        ["appliquee", "db2a82b9", "513acc4d"],
-        ["appliquee", "33381606", "6ceb4d77"],
+        ["appliquee", "8e8d360e", "350e6008"],
+        ["appliquee", "db284422", "513acc4d"],
+        ["appliquee", "333a549d", "6ceb4d77"],
       ],
-      resultat: ["33381606", "2307eca8", 9420],
+      resultat: ["333a549d", "2307eca8", 9420],
     },
   },
   "revelation-aiguillage-zero": {
-    snapshot: "a13a83ca",
+    snapshot: "a13cc261",
     prudente: {
       etapes: [
-        ["appliquee", "ff8bf7fb", "467956df"],
-        ["appliquee", "57e5cf76", "a870ec52"],
+        ["appliquee", "ff92b3c0", "467956df"],
+        ["appliquee", "57e80e0d", "a870ec52"],
       ],
-      resultat: ["57e5cf76", "045e9e5c", 3000],
+      resultat: ["57e80e0d", "045e9e5c", 3000],
     },
     risquee: {
       etapes: [
-        ["appliquee", "ff8bf7fb", "467956df"],
-        ["appliquee", "75beb365", "f89e7fce"],
+        ["appliquee", "ff92b3c0", "467956df"],
+        ["appliquee", "75bc74ce", "f89e7fce"],
       ],
-      resultat: ["75beb365", "6320eee0", 3000],
+      resultat: ["75bc74ce", "6320eee0", 3000],
     },
   },
   "revelation-couronne": {
-    snapshot: "0ac845f1",
+    snapshot: "0ac6075a",
     prudente: {
       etapes: [
-        ["appliquee", "c1380243", "43e3ae52"],
-        ["appliquee", "194d4f1b", "5f214b23"],
+        ["appliquee", "c1405108", "43e3ae52"],
+        ["appliquee", "19540ae0", "5f214b23"],
       ],
-      resultat: ["194d4f1b", "dd33a9cc", 4000],
+      resultat: ["19540ae0", "dd33a9cc", 4000],
     },
     risquee: {
       etapes: [
-        ["appliquee", "c1380243", "43e3ae52"],
-        ["appliquee", "2c04bc62", "7d4bc53b"],
+        ["appliquee", "c1405108", "43e3ae52"],
+        ["appliquee", "2c06faf9", "7d4bc53b"],
       ],
-      resultat: ["2c04bc62", "6bb41470", 4000],
+      resultat: ["2c06faf9", "6bb41470", 4000],
     },
   },
   "solution-finale-ancrer": {
-    snapshot: "d140c348",
+    snapshot: "d13a0783",
     prudente: {
       etapes: [
-        ["appliquee", "2ca95514", "69df907f"],
-        ["appliquee", "26f8b65d", "3dd45549"],
-        ["appliquee", "c2cad31f", "4cb0cde2"],
-        ["appliquee", "d84397bb", "9b41cbb2"],
-        ["appliquee", "68c90355", "74b3c65a"],
-        ["appliquee", "2a3473a1", "13d66448"],
-        ["appliquee", "00c9751f", "1fe7740e"],
-        ["appliquee", "6c8a1391", "4314612c"],
+        ["appliquee", "2ca2994f", "69df907f"],
+        ["appliquee", "26f677c6", "3dd45549"],
+        ["appliquee", "c2d18ee4", "4cb0cde2"],
+        ["appliquee", "d84a5380", "9b41cbb2"],
+        ["appliquee", "68c531be", "74b3c65a"],
+        ["appliquee", "2a30a20a", "13d66448"],
+        ["appliquee", "00d030e4", "1fe7740e"],
+        ["appliquee", "6c87d4fa", "4314612c"],
       ],
-      resultat: ["6c8a1391", "bed5661d", 4200],
+      resultat: ["6c87d4fa", "bed5661d", 4200],
     },
     risquee: {
       etapes: [
-        ["appliquee", "2ca95514", "69df907f"],
-        ["appliquee", "26f8b65d", "3dd45549"],
-        ["appliquee", "c2cad31f", "4cb0cde2"],
-        ["appliquee", "d84397bb", "9b41cbb2"],
-        ["appliquee", "68c90355", "74b3c65a"],
-        ["appliquee", "d084d52e", "39015b8e"],
-        ["appliquee", "255ebc24", "1fe7740e"],
-        ["appliquee", "22ae6868", "71963b84"],
+        ["appliquee", "2ca2994f", "69df907f"],
+        ["appliquee", "26f677c6", "3dd45549"],
+        ["appliquee", "c2d18ee4", "4cb0cde2"],
+        ["appliquee", "d84a5380", "9b41cbb2"],
+        ["appliquee", "68c531be", "74b3c65a"],
+        ["appliquee", "d08713c5", "39015b8e"],
+        ["appliquee", "25566d5f", "1fe7740e"],
+        ["appliquee", "22a619a3", "71963b84"],
       ],
-      resultat: ["22ae6868", "ecf47983", 4200],
+      resultat: ["22a619a3", "ecf47983", 4200],
     },
   },
   "solution-finale-reaccorder": {
-    snapshot: "5ed06614",
+    snapshot: "5ec9aa4f",
     prudente: {
       etapes: [
-        ["appliquee", "de70875e", "69df907f"],
-        ["appliquee", "9126c5a1", "3dd45549"],
-        ["appliquee", "dcbecaaf", "4cb0cde2"],
-        ["appliquee", "aa4fc6d3", "81171206"],
-        ["appliquee", "8f2ba423", "e79d67c6"],
-        ["appliquee", "73e738f7", "bf7a66fe"],
-        ["appliquee", "b9fa57d9", "1fe7740e"],
-        ["appliquee", "35e4b35b", "4314612c"],
+        ["appliquee", "de72c5f5", "69df907f"],
+        ["appliquee", "9122f40a", "3dd45549"],
+        ["appliquee", "dcc58674", "4cb0cde2"],
+        ["appliquee", "aa568298", "81171206"],
+        ["appliquee", "8f33f2e8", "e79d67c6"],
+        ["appliquee", "73ef87bc", "bf7a66fe"],
+        ["appliquee", "b9f81942", "1fe7740e"],
+        ["appliquee", "35ed0220", "4314612c"],
       ],
-      resultat: ["35e4b35b", "aca1224b", 4200],
+      resultat: ["35ed0220", "aca1224b", 4200],
     },
     risquee: {
       etapes: [
-        ["appliquee", "de70875e", "69df907f"],
-        ["appliquee", "9126c5a1", "3dd45549"],
-        ["appliquee", "dcbecaaf", "4cb0cde2"],
-        ["appliquee", "aa4fc6d3", "81171206"],
-        ["appliquee", "8f2ba423", "e79d67c6"],
-        ["appliquee", "e1c00eed", "cef11d62"],
-        ["appliquee", "05bb944f", "1fe7740e"],
-        ["appliquee", "1e51d7e5", "71963b84"],
+        ["appliquee", "de72c5f5", "69df907f"],
+        ["appliquee", "9122f40a", "3dd45549"],
+        ["appliquee", "dcc58674", "4cb0cde2"],
+        ["appliquee", "aa568298", "81171206"],
+        ["appliquee", "8f33f2e8", "e79d67c6"],
+        ["appliquee", "e1bc3d56", "cef11d62"],
+        ["appliquee", "05c25014", "1fe7740e"],
+        ["appliquee", "1e4f994e", "71963b84"],
       ],
-      resultat: ["1e51d7e5", "26674e67", 4200],
+      resultat: ["1e4f994e", "26674e67", 4200],
     },
   },
   "solution-finale-precipiter": {
-    snapshot: "e3f76aaf",
+    snapshot: "e3fe2674",
     prudente: {
       etapes: [
-        ["appliquee", "a3493aa1", "69df907f"],
-        ["appliquee", "0ee1f5da", "3dd45549"],
-        ["appliquee", "b85d0fb4", "4cb0cde2"],
-        ["appliquee", "15fbf290", "8bbdb43b"],
-        ["appliquee", "3f496a61", "ee76a539"],
-        ["appliquee", "d0e916c6", "4abf338b"],
-        ["appliquee", "1fb54774", "1fe7740e"],
-        ["appliquee", "d3ff61e0", "4314612c"],
+        ["appliquee", "a345690a", "69df907f"],
+        ["appliquee", "0ee43471", "3dd45549"],
+        ["appliquee", "b854c0ef", "4cb0cde2"],
+        ["appliquee", "15f536cb", "8bbdb43b"],
+        ["appliquee", "3f472bca", "ee76a539"],
+        ["appliquee", "d0eb555d", "4abf338b"],
+        ["appliquee", "1fae8baf", "1fe7740e"],
+        ["appliquee", "d3f8a61b", "4314612c"],
       ],
-      resultat: ["d3ff61e0", "403fd334", 4200],
+      resultat: ["d3f8a61b", "403fd334", 4200],
     },
     risquee: {
       etapes: [
-        ["appliquee", "a3493aa1", "69df907f"],
-        ["appliquee", "0ee1f5da", "3dd45549"],
-        ["appliquee", "b85d0fb4", "4cb0cde2"],
-        ["appliquee", "15fbf290", "8bbdb43b"],
-        ["appliquee", "3f496a61", "ee76a539"],
-        ["appliquee", "abb9ff45", "931d2144"],
-        ["appliquee", "af75633f", "1fe7740e"],
-        ["appliquee", "695c0965", "71963b84"],
+        ["appliquee", "a345690a", "69df907f"],
+        ["appliquee", "0ee43471", "3dd45549"],
+        ["appliquee", "b854c0ef", "4cb0cde2"],
+        ["appliquee", "15f536cb", "8bbdb43b"],
+        ["appliquee", "3f472bca", "ee76a539"],
+        ["appliquee", "abb7c0ae", "931d2144"],
+        ["appliquee", "af7db204", "1fe7740e"],
+        ["appliquee", "6959cace", "71963b84"],
       ],
-      resultat: ["695c0965", "54b76d85", 4200],
+      resultat: ["6959cace", "54b76d85", 4200],
     },
   },
 };
@@ -615,10 +621,10 @@ function conduite(
 }
 
 function scenario(definition: ScenarioNonCalibre): ScenarioSentinelle {
-  const calibration = CALIBRATIONS_V2[definition.id];
+  const calibration = CALIBRATIONS_V3[definition.id];
   if (calibration === undefined) {
     throw new Error(
-      `Le scénario sentinelle « ${definition.id} » n’a pas de calibration V2.`,
+      `Le scénario sentinelle « ${definition.id} » n’a pas de calibration V3.`,
     );
   }
   const calibrerConduite = (
@@ -1036,7 +1042,7 @@ function construireScenariosSentinelles(): readonly ScenarioSentinelle[] {
             commande: {
               type: "incident.ordonner",
               incidentId: "purification.pompe-instable",
-              ordre: "securiser-pompe",
+              ordre: "maintenir-debit",
             },
           },
           {
@@ -1045,6 +1051,20 @@ function construireScenariosSentinelles(): readonly ScenarioSentinelle[] {
               secondesReelles: 180,
             },
           },
+          {
+            commande: {
+              type: "crise.declencher",
+              criseId: "penurie-eau.pompe-purification",
+            },
+          },
+          {
+            commande: {
+              type: "crise.resoudre",
+              criseId: "penurie-eau.pompe-purification",
+              reponseId: "isoler-et-rationner",
+            },
+          },
+          { commande: { type: "halte.deployer" } },
         ]),
         risquee: conduite([
           {
@@ -1071,6 +1091,24 @@ function construireScenariosSentinelles(): readonly ScenarioSentinelle[] {
               type: "crise.resoudre",
               criseId: "penurie-eau.pompe-purification",
               reponseId: "evacuer-les-foyers-exposes",
+            },
+          },
+          {
+            commande: {
+              type: "engagement-de-route.confirmer",
+              tronconId: "chaussee-de-veille-basse",
+            },
+          },
+          {
+            commande: {
+              type: "temps-du-convoi.regler-vitesse",
+              vitesse: 4,
+            },
+          },
+          {
+            commande: {
+              type: "temps-du-convoi.ecouler",
+              secondesReelles: 120,
             },
           },
         ]),
@@ -1629,6 +1667,22 @@ function verifierRecuperation(etat: EtatCampagne): boolean {
   return (
     etat.crises.criseActive === null &&
     etat.crises.cicatrices.every(({ id }) => causesDeRecuperation.has(id)) &&
+    etat.crises.recuperations.every((recuperation) => {
+      if (recuperation.statut === "amorcee") {
+        return recuperation.faitResultat === null;
+      }
+      const fait = etat.narration.faitsDeCampagne.find(
+        ({ id }) => id === recuperation.faitResultat,
+      );
+      return (
+        fait?.cause === recuperation.cause &&
+        (recuperation.statut === "manquee" ||
+          (recuperation.coutApplique.length > 0 &&
+            recuperation.coutApplique.every(
+              ({ quantite }) => Number.isFinite(quantite) && quantite > 0,
+            )))
+      );
+    }) &&
     etat.citeCaravane.habitants > 0
   );
 }

@@ -26,6 +26,71 @@ function declencherCrise(): EtatCampagne {
   }).etat;
 }
 
+function declencherCriseApresPrologue(): EtatCampagne {
+  let etat = annoncerRupture();
+  etat = appliquerCommande(etat, {
+    type: "temps-du-convoi.ecouler",
+    secondesReelles: 60,
+  }).etat;
+  const choixDuPrologue = [
+    ["prologue.signaux-sous-la-cendre", "accueillir"],
+    ["prologue.reponse-du-phare", "consigner-harmonique"],
+    ["prologue.filtres-de-la-veille", "proteger-foyers"],
+    ["prologue.ilyana-au-clapet", "confier-clapet"],
+  ] as const;
+  for (const [evenementId, choixId] of choixDuPrologue) {
+    etat = appliquerCommande(etat, {
+      type: "evenement-narratif.choisir",
+      evenementId,
+      choixId,
+    }).etat;
+    if (evenementId !== "prologue.ilyana-au-clapet") {
+      etat = appliquerCommande(etat, {
+        type: "temps-du-convoi.ecouler",
+        secondesReelles: 1,
+      }).etat;
+    }
+  }
+  const checkpoint = appliquerCommande(etat, {
+    type: "temps-du-convoi.ecouler",
+    secondesReelles: 117,
+  }).etat;
+  return appliquerCommande(checkpoint, {
+    type: "crise.declencher",
+    criseId: "penurie-eau.pompe-purification",
+  }).etat;
+}
+
+function resoudreCrise(
+  etat: EtatCampagne,
+  reponseId: IdentifiantDeReponseALaCrise,
+): EtatCampagne {
+  return appliquerCommande(etat, {
+    type: "crise.resoudre",
+    criseId: "penurie-eau.pompe-purification",
+    reponseId,
+  }).etat;
+}
+
+function parcourir(
+  etat: EtatCampagne,
+  tronconId: "digue-des-puits" | "chaussee-de-veille-basse",
+  secondes: number,
+): ReturnType<typeof appliquerCommande> {
+  const engagement = appliquerCommande(etat, {
+    type: "engagement-de-route.confirmer",
+    tronconId,
+  }).etat;
+  const enMarche = appliquerCommande(engagement, {
+    type: "temps-du-convoi.regler-vitesse",
+    vitesse: 4,
+  }).etat;
+  return appliquerCommande(enMarche, {
+    type: "temps-du-convoi.ecouler",
+    secondesReelles: secondes / 4,
+  });
+}
+
 describe("Crise de pénurie et récupération", () => {
   it("annonce la chaîne puis ne progresse que d’un maillon irréversible par fenêtre", () => {
     const annonce = appliquerCommande(creerCampagneInitiale("CENDRE-01"), {
@@ -221,5 +286,203 @@ describe("Crise de pénurie et récupération", () => {
         humains: [{ type: "habitants.modifies", variation: -8 }],
       },
     });
+  });
+
+  it("accomplit le Socle de survie par une Halte coûteuse, produit un Fait et ne paie qu’une fois", () => {
+    const apresResolution = resoudreCrise(
+      declencherCrise(),
+      "isoler-et-rationner",
+    );
+    const materiauxAvant =
+      apresResolution.pilotage.economie.stocks.materiaux.quantite;
+
+    const accomplissement = appliquerCommande(apresResolution, {
+      type: "halte.deployer",
+    });
+
+    expect(
+      accomplissement.etat.pilotage.economie.stocks.materiaux.quantite,
+    ).toBe(materiauxAvant - 2);
+    expect(accomplissement.etat.crises.recuperations[0]).toMatchObject({
+      statut: "accomplie",
+      condition: "halte-de-purification",
+      accomplieA: 180,
+      faitResultat:
+        "crise.recuperation.socle-de-survie.accomplie",
+      coutApplique: [{ stock: "materiaux", quantite: 2 }],
+    });
+    expect(accomplissement.etat.crises.cicatrices).toEqual(
+      apresResolution.crises.cicatrices,
+    );
+    expect(accomplissement.etat.narration.faitsDeCampagne.at(-1)).toMatchObject({
+      id: "crise.recuperation.socle-de-survie.accomplie",
+      cause: "cicatrice.rationnement-deau",
+      effets: {
+        materiels: [
+          { type: "stock.modifie", stock: "materiaux", variation: -2 },
+        ],
+      },
+    });
+    expect(accomplissement.evenements).toContainEqual(
+      expect.objectContaining({
+        type: "crise.recuperation-accomplie",
+        recuperationId: "recuperation.1",
+      }),
+    );
+
+    const repetition = appliquerCommande(accomplissement.etat, {
+      type: "halte.deployer",
+    });
+    expect(repetition.etat).toEqual(accomplissement.etat);
+    expect(repetition.evenements).toEqual([]);
+  });
+
+  it("n’accomplit pas le Socle avec une commande redondante quand la Halte était déjà déployée", () => {
+    let etat = creerCampagneInitiale("CENDRE-01");
+    etat = appliquerCommande(etat, {
+      type: "temps-du-convoi.regler-vitesse",
+      vitesse: 0,
+    }).etat;
+    etat = appliquerCommande(etat, { type: "halte.deployer" }).etat;
+    etat = appliquerCommande(etat, {
+      type: "incident.ordonner",
+      incidentId: "purification.pompe-instable",
+      ordre: "maintenir-debit",
+    }).etat;
+    etat = appliquerCommande(etat, {
+      type: "temps-du-convoi.regler-vitesse",
+      vitesse: 1,
+    }).etat;
+    etat = appliquerCommande(etat, {
+      type: "temps-du-convoi.ecouler",
+      secondesReelles: 181,
+    }).etat;
+    etat = appliquerCommande(etat, {
+      type: "crise.declencher",
+      criseId: "penurie-eau.pompe-purification",
+    }).etat;
+    etat = resoudreCrise(etat, "isoler-et-rationner");
+    const materiauxAvant =
+      etat.pilotage.economie.stocks.materiaux.quantite;
+
+    const commandeRedondante = appliquerCommande(etat, {
+      type: "halte.deployer",
+    });
+
+    expect(commandeRedondante.etat.crises.recuperations[0]?.statut).toBe(
+      "amorcee",
+    );
+    expect(
+      commandeRedondante.etat.pilotage.economie.stocks.materiaux.quantite,
+    ).toBe(materiauxAvant);
+    expect(commandeRedondante.evenements).toEqual([]);
+  });
+
+  it("accomplit la mobilité à Haut-Puits avec le coût réel du Tronçon", () => {
+    const apresResolution = resoudreCrise(
+      declencherCrise(),
+      "mobiliser-les-remedes",
+    );
+
+    const arrivee = parcourir(
+      apresResolution,
+      "digue-des-puits",
+      360,
+    );
+
+    expect(arrivee.etat.routes.position).toBe("haut-puits");
+    expect(arrivee.etat.crises.recuperations[0]).toMatchObject({
+      statut: "accomplie",
+      condition: "rejoindre-haut-puits",
+      faitResultat:
+        "crise.recuperation.mobilite-minimale.accomplie",
+      coutApplique: [
+        { stock: "combustible", quantite: 3 },
+        { stock: "eau", quantite: 4 },
+      ],
+    });
+    expect(arrivee.etat.narration.faitsDeCampagne.at(-1)).toMatchObject({
+      id: "crise.recuperation.mobilite-minimale.accomplie",
+      effets: { materiels: [], humains: [] },
+    });
+  });
+
+  it("laisse la demande d’aide ouverte au Jalon puis l’accomplit par le partage", () => {
+    const apresResolution = resoudreCrise(
+      declencherCriseApresPrologue(),
+      "evacuer-les-foyers-exposes",
+    );
+    const arrivee = parcourir(
+      apresResolution,
+      "digue-des-puits",
+      360,
+    ).etat;
+
+    expect(arrivee.narration.evenementActif).toBe(
+      "bassins-fendus.eau-de-haut-puits",
+    );
+    expect(arrivee.crises.recuperations[0]?.statut).toBe("amorcee");
+    const materiauxAvant =
+      arrivee.pilotage.economie.stocks.materiaux.quantite;
+
+    const aide = appliquerCommande(arrivee, {
+      type: "evenement-narratif.choisir",
+      evenementId: "bassins-fendus.eau-de-haut-puits",
+      choixId: "promettre-partage",
+    });
+
+    expect(aide.etat.pilotage.economie.stocks.materiaux.quantite).toBe(
+      materiauxAvant - 2,
+    );
+    expect(aide.etat.crises.recuperations[0]).toMatchObject({
+      statut: "accomplie",
+      condition: "demander-aide-haut-puits",
+      faitResultat:
+        "crise.recuperation.aide-exterieure-identifiee.accomplie",
+      coutApplique: [{ stock: "materiaux", quantite: 2 }],
+    });
+  });
+
+  it("manque définitivement la demande d’aide au mauvais premier Jalon", () => {
+    const apresResolution = resoudreCrise(
+      declencherCriseApresPrologue(),
+      "evacuer-les-foyers-exposes",
+    );
+
+    const echec = parcourir(
+      apresResolution,
+      "chaussee-de-veille-basse",
+      480,
+    );
+
+    expect(echec.etat.routes.position).toBe("veille-basse");
+    expect(echec.etat.crises.recuperations[0]).toMatchObject({
+      statut: "manquee",
+      manqueeA: 660,
+      faitResultat:
+        "crise.recuperation.aide-exterieure-identifiee.manquee",
+      coutApplique: [],
+    });
+    expect(echec.etat.crises.cicatrices).toEqual(
+      apresResolution.crises.cicatrices,
+    );
+    expect(echec.etat.narration.faitsDeCampagne.at(-1)).toMatchObject({
+      id: "crise.recuperation.aide-exterieure-identifiee.manquee",
+      cause: "cicatrice.evacuation-des-foyers",
+      effets: { materiels: [], humains: [] },
+    });
+
+    const plusTard = appliquerCommande(echec.etat, {
+      type: "temps-du-convoi.ecouler",
+      secondesReelles: 10,
+    });
+    expect(plusTard.etat.crises.recuperations).toEqual(
+      echec.etat.crises.recuperations,
+    );
+    expect(
+      plusTard.etat.narration.faitsDeCampagne.filter((fait) =>
+        fait.id.endsWith(".manquee"),
+      ),
+    ).toHaveLength(1);
   });
 });

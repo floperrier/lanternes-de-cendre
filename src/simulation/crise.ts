@@ -11,6 +11,14 @@ export const IDENTIFIANTS_DE_FAITS_DE_CRISE = [
   "crise.purification.mobiliser-les-remedes",
   "crise.purification.evacuer-les-foyers-exposes",
 ] as const;
+export const IDENTIFIANTS_DE_FAITS_DE_RECUPERATION = [
+  "crise.recuperation.socle-de-survie.accomplie",
+  "crise.recuperation.socle-de-survie.manquee",
+  "crise.recuperation.mobilite-minimale.accomplie",
+  "crise.recuperation.mobilite-minimale.manquee",
+  "crise.recuperation.aide-exterieure-identifiee.accomplie",
+  "crise.recuperation.aide-exterieure-identifiee.manquee",
+] as const;
 
 export type IdentifiantDeFaitDeCrise =
   (typeof IDENTIFIANTS_DE_FAITS_DE_CRISE)[number];
@@ -22,6 +30,16 @@ export type GarantieDeRecuperation =
   | "socle-de-survie"
   | "mobilite-minimale"
   | "aide-exterieure-identifiee";
+export type ConditionDeRecuperation =
+  | "halte-de-purification"
+  | "rejoindre-haut-puits"
+  | "demander-aide-haut-puits";
+export type StatutDeRecuperation = "amorcee" | "accomplie" | "manquee";
+
+export interface CoutAppliqueAUneRecuperation {
+  readonly stock: IdentifiantDeStock;
+  readonly quantite: number;
+}
 
 export interface AlerteDeCrise {
   readonly id: typeof IDENTIFIANT_DE_LA_CRISE_DE_REFERENCE;
@@ -75,8 +93,15 @@ export interface RecuperationDeCrise {
   readonly cause: CicatriceDeCampagne["id"];
   readonly garantie: GarantieDeRecuperation;
   readonly destination: "halte-du-puits-sec" | "haut-puits";
+  readonly condition: ConditionDeRecuperation;
   readonly horizonTroncons: 1 | 2;
-  readonly statut: "amorcee";
+  readonly coutAttendu: "deux-materiaux" | "cout-du-troncon";
+  readonly amorceeA: number;
+  readonly statut: StatutDeRecuperation;
+  readonly accomplieA: number | null;
+  readonly manqueeA: number | null;
+  readonly faitResultat: string | null;
+  readonly coutApplique: readonly CoutAppliqueAUneRecuperation[];
 }
 
 export interface EtatDesCrises {
@@ -99,7 +124,14 @@ export interface DefinitionDeReponseALaCrise {
   readonly dernierRecours: boolean;
   readonly cout: CoutDeReponse;
   readonly cicatrice: Omit<CicatriceDeCampagne, "cause" | "acquiseA">;
-  readonly recuperation: Omit<RecuperationDeCrise, "id" | "cause">;
+  readonly recuperation: Pick<
+    RecuperationDeCrise,
+    | "garantie"
+    | "destination"
+    | "condition"
+    | "horizonTroncons"
+    | "coutAttendu"
+  >;
 }
 
 export const DEFINITIONS_DES_REPONSES_A_LA_CRISE = [
@@ -114,8 +146,9 @@ export const DEFINITIONS_DES_REPONSES_A_LA_CRISE = [
     recuperation: {
       garantie: "socle-de-survie",
       destination: "halte-du-puits-sec",
+      condition: "halte-de-purification",
       horizonTroncons: 2,
-      statut: "amorcee",
+      coutAttendu: "deux-materiaux",
     },
   },
   {
@@ -129,8 +162,9 @@ export const DEFINITIONS_DES_REPONSES_A_LA_CRISE = [
     recuperation: {
       garantie: "mobilite-minimale",
       destination: "haut-puits",
+      condition: "rejoindre-haut-puits",
       horizonTroncons: 2,
-      statut: "amorcee",
+      coutAttendu: "cout-du-troncon",
     },
   },
   {
@@ -144,8 +178,9 @@ export const DEFINITIONS_DES_REPONSES_A_LA_CRISE = [
     recuperation: {
       garantie: "aide-exterieure-identifiee",
       destination: "haut-puits",
+      condition: "demander-aide-haut-puits",
       horizonTroncons: 1,
-      statut: "amorcee",
+      coutAttendu: "deux-materiaux",
     },
   },
 ] as const satisfies readonly DefinitionDeReponseALaCrise[];
@@ -186,7 +221,57 @@ export type EvenementDeCrise =
       readonly cicatriceId: CicatriceDeCampagne["id"];
       readonly garantie: GarantieDeRecuperation;
       readonly maillonIrreversible: CicatriceDeCampagne["id"];
+    }
+  | {
+      readonly type: "crise.recuperation-accomplie";
+      readonly recuperationId: string;
+      readonly garantie: GarantieDeRecuperation;
+      readonly cause: CicatriceDeCampagne["id"];
+      readonly moment: number;
+      readonly faitProduit: string;
+      readonly coutApplique: readonly CoutAppliqueAUneRecuperation[];
+    }
+  | {
+      readonly type: "crise.recuperation-manquee";
+      readonly recuperationId: string;
+      readonly garantie: GarantieDeRecuperation;
+      readonly cause: CicatriceDeCampagne["id"];
+      readonly moment: number;
+      readonly faitProduit: string;
+      readonly horizonTroncons: 1 | 2;
     };
+
+export type ActionSignificativeDeRecuperation =
+  | {
+      readonly type: "halte-deployee";
+      readonly destination: "halte-du-puits-sec" | "haut-puits";
+    }
+  | {
+      readonly type: "troncon-termine";
+      readonly destination: string;
+      readonly coutApplique: readonly CoutAppliqueAUneRecuperation[];
+    }
+  | {
+      readonly type: "aide-demandee-haut-puits";
+    };
+
+export interface ContexteDEvaluationDesRecuperations {
+  readonly moment: number;
+  readonly action: ActionSignificativeDeRecuperation | null;
+  readonly momentsDesTronconsTermines: readonly number[];
+  readonly materiauxDisponibles: number;
+  readonly demandeDAideEnAttente: boolean;
+}
+
+export interface TransitionDesRecuperations {
+  readonly etat: EtatDesCrises;
+  readonly variationsDeStocks: readonly {
+    readonly stock: IdentifiantDeStock;
+    readonly variation: number;
+  }[];
+  readonly faits: readonly FaitDeCampagne[];
+  readonly evenements: readonly EvenementDeCrise[];
+}
 
 export interface CommandeDeResolutionDeCrise {
   readonly type: "crise.resoudre";
@@ -443,6 +528,12 @@ export function resoudreCrise(
     ...reponse.recuperation,
     id: `recuperation.${etat.recuperations.length + 1}`,
     cause: cicatrice.id,
+    amorceeA: moment,
+    statut: "amorcee",
+    accomplieA: null,
+    manqueeA: null,
+    faitResultat: null,
+    coutApplique: [],
   };
   return {
     etat: {
@@ -466,5 +557,197 @@ export function resoudreCrise(
       garantie: recuperation.garantie,
       maillonIrreversible: cicatrice.id,
     },
+  };
+}
+
+function identifiantDeFaitDeRecuperation(
+  recuperation: RecuperationDeCrise,
+  statut: Exclude<StatutDeRecuperation, "amorcee">,
+): (typeof IDENTIFIANTS_DE_FAITS_DE_RECUPERATION)[number] {
+  return `crise.recuperation.${recuperation.garantie}.${statut}` as
+    (typeof IDENTIFIANTS_DE_FAITS_DE_RECUPERATION)[number];
+}
+
+function actionAccomplitRecuperation(
+  recuperation: RecuperationDeCrise,
+  action: ActionSignificativeDeRecuperation | null,
+): boolean {
+  if (action === null) {
+    return false;
+  }
+  if (recuperation.condition === "halte-de-purification") {
+    return (
+      action.type === "halte-deployee" &&
+      action.destination === recuperation.destination
+    );
+  }
+  if (recuperation.condition === "rejoindre-haut-puits") {
+    return (
+      action.type === "troncon-termine" &&
+      action.destination === recuperation.destination
+    );
+  }
+  return action.type === "aide-demandee-haut-puits";
+}
+
+function coutPourAccomplir(
+  recuperation: RecuperationDeCrise,
+  contexte: ContexteDEvaluationDesRecuperations,
+): readonly CoutAppliqueAUneRecuperation[] | undefined {
+  if (recuperation.coutAttendu === "deux-materiaux") {
+    return contexte.materiauxDisponibles >= 2
+      ? [{ stock: "materiaux", quantite: 2 }]
+      : undefined;
+  }
+  return contexte.action?.type === "troncon-termine"
+    ? contexte.action.coutApplique
+    : undefined;
+}
+
+function creerFaitDeResultat(
+  recuperation: RecuperationDeCrise,
+  statut: Exclude<StatutDeRecuperation, "amorcee">,
+  moment: number,
+  coutApplique: readonly CoutAppliqueAUneRecuperation[],
+): FaitDeCampagne {
+  const acteurs =
+    recuperation.garantie === "socle-de-survie"
+      ? ["porte-lanterne", "equipes-purification"]
+      : recuperation.garantie === "mobilite-minimale"
+        ? ["porte-lanterne", "equipes-medicales"]
+        : ["porte-lanterne", "habitants-haut-puits"];
+  const cible =
+    recuperation.garantie === "socle-de-survie"
+      ? "pompe-purification"
+      : recuperation.garantie === "mobilite-minimale"
+        ? "haut-puits"
+        : "foyers-exposes";
+  return {
+    id: identifiantDeFaitDeRecuperation(recuperation, statut),
+    cause: recuperation.cause,
+    acteurs,
+    cible,
+    moment,
+    effets: {
+      materiels:
+        statut === "accomplie" &&
+        recuperation.coutAttendu === "deux-materiaux"
+          ? coutApplique.map(({ stock, quantite }) => ({
+              type: "stock.modifie" as const,
+              stock,
+              variation: -quantite,
+            }))
+          : [],
+      humains: [],
+    },
+  };
+}
+
+export function evaluerRecuperationsDeCrise(
+  etat: EtatDesCrises,
+  contexte: ContexteDEvaluationDesRecuperations,
+): TransitionDesRecuperations {
+  const faits: FaitDeCampagne[] = [];
+  const evenements: EvenementDeCrise[] = [];
+  const variationsDeStocks: {
+    stock: IdentifiantDeStock;
+    variation: number;
+  }[] = [];
+  let materiauxDisponibles = contexte.materiauxDisponibles;
+  let approvisionnementEau = etat.approvisionnementEau;
+
+  const recuperations = etat.recuperations.map((recuperation) => {
+    if (recuperation.statut !== "amorcee") {
+      return recuperation;
+    }
+
+    if (actionAccomplitRecuperation(recuperation, contexte.action)) {
+      const coutApplique = coutPourAccomplir(recuperation, {
+        ...contexte,
+        materiauxDisponibles,
+      });
+      if (coutApplique !== undefined) {
+        const fait = creerFaitDeResultat(
+          recuperation,
+          "accomplie",
+          contexte.moment,
+          coutApplique,
+        );
+        for (const cout of coutApplique) {
+          if (
+            recuperation.coutAttendu === "deux-materiaux" &&
+            cout.stock === "materiaux"
+          ) {
+            variationsDeStocks.push({
+              stock: cout.stock,
+              variation: -cout.quantite,
+            });
+            materiauxDisponibles -= cout.quantite;
+          }
+        }
+        faits.push(fait);
+        evenements.push({
+          type: "crise.recuperation-accomplie",
+          recuperationId: recuperation.id,
+          garantie: recuperation.garantie,
+          cause: recuperation.cause,
+          moment: contexte.moment,
+          faitProduit: fait.id,
+          coutApplique,
+        });
+        approvisionnementEau = "assure";
+        return {
+          ...recuperation,
+          statut: "accomplie" as const,
+          accomplieA: contexte.moment,
+          faitResultat: fait.id,
+          coutApplique,
+        };
+      }
+    }
+
+    const tronconsParcourus = contexte.momentsDesTronconsTermines.filter(
+      (moment) => moment > recuperation.amorceeA,
+    ).length;
+    const actionDAideEncorePossible =
+      recuperation.condition === "demander-aide-haut-puits" &&
+      contexte.demandeDAideEnAttente;
+    if (
+      tronconsParcourus < recuperation.horizonTroncons ||
+      actionDAideEncorePossible
+    ) {
+      return recuperation;
+    }
+
+    const fait = creerFaitDeResultat(
+      recuperation,
+      "manquee",
+      contexte.moment,
+      [],
+    );
+    faits.push(fait);
+    evenements.push({
+      type: "crise.recuperation-manquee",
+      recuperationId: recuperation.id,
+      garantie: recuperation.garantie,
+      cause: recuperation.cause,
+      moment: contexte.moment,
+      faitProduit: fait.id,
+      horizonTroncons: recuperation.horizonTroncons,
+    });
+    return {
+      ...recuperation,
+      statut: "manquee" as const,
+      manqueeA: contexte.moment,
+      faitResultat: fait.id,
+      coutApplique: [],
+    };
+  });
+
+  return {
+    etat: { ...etat, approvisionnementEau, recuperations },
+    variationsDeStocks,
+    faits,
+    evenements,
   };
 }

@@ -8,6 +8,7 @@ import {
   creerCampagneInitiale,
   empreinteEtat,
   type CommandeCampagne,
+  type EvenementDeDomaine,
   type EtatCampagne,
   type GraineDeCampagne,
 } from "../simulation/campagne";
@@ -31,6 +32,7 @@ import { SECONDES_PAR_HEURE } from "../simulation/pilotage";
 import {
   listerTronconsEngageables,
   trouverEngagementDeRouteActif,
+  trouverTronconDeRoute,
   type IdentifiantDeLieu,
   type IdentifiantDeTroncon,
 } from "../simulation/routes";
@@ -713,6 +715,52 @@ function resolutionAUnCout(
   );
 }
 
+type EvenementDeRecuperationAccomplie = Extract<
+  EvenementDeDomaine,
+  { readonly type: "crise.recuperation-accomplie" }
+>;
+
+export function recuperationAUnCoutReel(
+  avant: EtatCampagne,
+  apres: EtatCampagne,
+  evenement: EvenementDeRecuperationAccomplie,
+): boolean {
+  if (
+    evenement.coutApplique.length === 0 ||
+    evenement.coutApplique.some(
+      ({ quantite }) => !Number.isFinite(quantite) || quantite <= 0,
+    )
+  ) {
+    return false;
+  }
+  const engagementPaye = apres.routes.engagements.find(
+    ({ statut, arriveeA }) =>
+      statut === "termine" && arriveeA === evenement.moment,
+  );
+  return evenement.coutApplique.every(({ stock, quantite }) => {
+    const quantiteAvant =
+      avant.pilotage.economie.stocks[stock].quantite;
+    const quantiteApres =
+      apres.pilotage.economie.stocks[stock].quantite;
+    if (quantiteAvant - quantiteApres >= quantite) {
+      return true;
+    }
+    if (stock !== "combustible" && stock !== "eau") {
+      return false;
+    }
+    if (engagementPaye === undefined) {
+      return false;
+    }
+    const tronconPaye = trouverTronconDeRoute(engagementPaye.tronconId);
+    const coutDeRoute =
+      engagementPaye.consommationsAppliquees?.[stock] ??
+      (stock === "combustible"
+        ? tronconPaye.consommationConnue.quantite
+        : tronconPaye.consommationIncertaine.quantiteReelle);
+    return coutDeRoute === quantite;
+  });
+}
+
 function ressourcesSontUneAmeliorationStricte(
   reference: VecteurDeRessources,
   candidate: VecteurDeRessources,
@@ -1053,6 +1101,14 @@ export function executerCampagneHeadless({
         !resolutionAUnCout(avant, etat)
       ) {
         metriques.recuperationsGratuites += 1;
+      }
+      for (const evenement of transition.evenements) {
+        if (
+          evenement.type === "crise.recuperation-accomplie" &&
+          !recuperationAUnCoutReel(avant, etat, evenement)
+        ) {
+          metriques.recuperationsGratuites += 1;
+        }
       }
       commandes.push({
         sequence: nombreDeCommandesExecutees,

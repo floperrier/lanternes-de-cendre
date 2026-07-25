@@ -12,6 +12,7 @@ const TEXTES = {
     fenetre: "Fenêtre de décision",
     cicatrices: "Cicatrices de campagne",
     cause: "Cause",
+    cout: "Coût",
     recuperation: "Récupération",
   },
   en: {
@@ -19,6 +20,7 @@ const TEXTES = {
     fenetre: "Decision window",
     cicatrices: "Campaign Scars",
     cause: "Cause",
+    cout: "Cost",
     recuperation: "Recovery",
   },
 } as const;
@@ -69,6 +71,8 @@ export function EtatDesCrisesDuConvoi({
                 {recuperation.destination} · {recuperation.horizon}
               </p>
               <p>{recuperation.condition}</p>
+              <p>{textes.cout} : {recuperation.cout}</p>
+              <p>{textes.cause} : {recuperation.cause}</p>
             </article>
           ))}
         </div>

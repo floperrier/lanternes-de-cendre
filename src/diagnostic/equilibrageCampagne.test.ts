@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { creerCampagneInitiale } from "../simulation/campagne";
+import {
+  appliquerCommande,
+  creerCampagneInitiale,
+} from "../simulation/campagne";
 import {
   NOMBRE_DE_GRAINES_NOCTURNE,
   NOMBRE_DE_GRAINES_STANDARD,
@@ -11,6 +14,7 @@ import {
   detecterStrategieDominante,
   executerCampagneHeadless,
   executerPasseDEquilibrage,
+  recuperationAUnCoutReel,
   rejouerPasseAvecCommandesImposees,
   sonderBouclesSemantiques,
   validerReferenceDEquilibrage,
@@ -19,6 +23,78 @@ import {
 } from "./equilibrageCampagne";
 
 describe("Campagnes headless d’équilibrage", () => {
+  it("exige une variation réelle ou un coût de route persisté pour toute Récupération accomplie", () => {
+    const avant = creerCampagneInitiale("TEST-COUT-RECUPERATION");
+    const evenementMateriaux = {
+      type: "crise.recuperation-accomplie",
+      recuperationId: "recuperation.1",
+      garantie: "socle-de-survie",
+      cause: "cicatrice.rationnement-deau",
+      moment: 0,
+      faitProduit: "crise.recuperation.socle-de-survie.accomplie",
+      coutApplique: [{ stock: "materiaux", quantite: 2 }],
+    } as const;
+    expect(
+      recuperationAUnCoutReel(avant, avant, evenementMateriaux),
+    ).toBe(false);
+
+    const apresPaiement = {
+      ...avant,
+      pilotage: {
+        ...avant.pilotage,
+        economie: {
+          ...avant.pilotage.economie,
+          stocks: {
+            ...avant.pilotage.economie.stocks,
+            materiaux: {
+              ...avant.pilotage.economie.stocks.materiaux,
+              quantite:
+                avant.pilotage.economie.stocks.materiaux.quantite - 2,
+            },
+          },
+        },
+      },
+    };
+    expect(
+      recuperationAUnCoutReel(
+        avant,
+        apresPaiement,
+        evenementMateriaux,
+      ),
+    ).toBe(true);
+
+    const enRoute = appliquerCommande(avant, {
+      type: "engagement-de-route.confirmer",
+      tronconId: "digue-des-puits",
+    }).etat;
+    const apresRoutePayee = {
+      ...enRoute,
+      routes: {
+        ...enRoute.routes,
+        position: "haut-puits" as const,
+        engagements: enRoute.routes.engagements.map((engagement) => ({
+          ...engagement,
+          statut: "termine" as const,
+        })),
+      },
+    };
+    expect(
+      recuperationAUnCoutReel(enRoute, apresRoutePayee, {
+        type: "crise.recuperation-accomplie",
+        recuperationId: "recuperation.1",
+        garantie: "mobilite-minimale",
+        cause: "cicatrice.reserve-de-remedes-entamee",
+        moment: apresRoutePayee.routes.engagements[0]!.arriveeA,
+        faitProduit:
+          "crise.recuperation.mobilite-minimale.accomplie",
+        coutApplique: [
+          { stock: "combustible", quantite: 3 },
+          { stock: "eau", quantite: 4 },
+        ],
+      }),
+    ).toBe(true);
+  });
+
   it("versionne dix stratégies déterministes et les deux tailles de passe", () => {
     expect(STRATEGIES_D_EQUILIBRAGE).toHaveLength(10);
     expect(new Set(STRATEGIES_D_EQUILIBRAGE.map(({ id }) => id)).size).toBe(10);
