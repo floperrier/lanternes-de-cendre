@@ -21,6 +21,7 @@ import { lireEtatCourant } from "./validation";
 function normaliserEnV4(etat: EtatCampagne): Record<string, unknown> {
   const ancien = { ...etat } as Record<string, unknown>;
   ancien.version = 4;
+  delete ancien.denouement;
   delete ancien.veilleBasse;
   delete ancien.hautPuits;
   delete ancien.trameDeFer;
@@ -32,6 +33,7 @@ function normaliserEnV4(etat: EtatCampagne): Record<string, unknown> {
 function normaliserEnV5(etat: EtatCampagne): Record<string, unknown> {
   const ancien = { ...etat } as Record<string, unknown>;
   ancien.version = 5;
+  delete ancien.denouement;
   delete ancien.hautPuits;
   delete ancien.trameDeFer;
   delete ancien.traverseLibre;
@@ -299,9 +301,9 @@ describe("persistance de Veille-Basse", () => {
     expect(importation).toMatchObject({
       statut: "compatible",
       sauvegarde: {
-        version: 10,
+        version: 11,
         etat: {
-          version: 10,
+          version: 11,
           veilleBasse: {
             colonie: { statut: "fragile" },
             cohorte: {
@@ -314,7 +316,7 @@ describe("persistance de Veille-Basse", () => {
         },
         reproduction: {
           snapshot: {
-            version: 10,
+            version: 11,
             veilleBasse: {
               cohorte: { specialite: "charpente-etanche" },
             },
@@ -363,15 +365,15 @@ describe("persistance de Veille-Basse", () => {
     expect(importation).toMatchObject({
       statut: "migree",
       sauvegarde: {
-        version: 10,
+        version: 11,
         etat: {
-          version: 10,
+          version: 11,
           veilleBasse: etatCourant.veilleBasse,
           hautPuits: creerEtatDeHautPuitsInitial(),
         },
         reproduction: {
           snapshot: {
-            version: 10,
+            version: 11,
             veilleBasse: etatCourant.veilleBasse,
             hautPuits: creerEtatDeHautPuitsInitial(),
           },
@@ -439,15 +441,15 @@ describe("persistance de Veille-Basse", () => {
     expect(importation).toMatchObject({
       statut: "migree",
       sauvegarde: {
-        version: 10,
+        version: 11,
         etat: {
-          version: 10,
+          version: 11,
           tempsDuConvoi: { vitesse: 2 },
           veilleBasse: creerEtatInitialDeVeilleBasse(),
         },
         reproduction: {
           snapshot: {
-            version: 10,
+            version: 11,
             veilleBasse: creerEtatInitialDeVeilleBasse(),
           },
           commandes: [

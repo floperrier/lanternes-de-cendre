@@ -30,6 +30,10 @@ import { creerEtatInitialDeVeilleBasse } from "../simulation/veilleBasse";
 import { creerEtatDeHautPuitsInitial } from "../simulation/hautPuits";
 import { creerEtatInitialDeLaTrameDeFer } from "../simulation/trameFer";
 import { creerEtatInitialDeTraverseLibre } from "../simulation/traverseLibre";
+import {
+  CAMPAGNE_EN_COURS,
+  reconstruireDenouementReussi,
+} from "../simulation/denouement";
 import { EVENEMENTS_HISTORIQUES_V5 } from "./catalogueHistoriqueV5";
 import {
   EVENEMENTS_HISTORIQUES_V6,
@@ -44,6 +48,7 @@ import type {
 } from "./types";
 import {
   VERSION_SIMULATION_AVANT_CRISES,
+  VERSION_SIMULATION_AVANT_DENOUEMENT,
   VERSION_SIMULATION_AVANT_DEVERSOIR,
   VERSION_SIMULATION_AVANT_HAUT_PUITS,
   VERSION_SIMULATION_AVANT_NACELLES,
@@ -58,6 +63,7 @@ import {
   VERSION_CONTENU_COURANTE,
   VERSION_SAUVEGARDE_AVANT_ROUTES,
   VERSION_SAUVEGARDE_AVANT_CRISES,
+  VERSION_SAUVEGARDE_AVANT_DENOUEMENT,
   VERSION_SAUVEGARDE_AVANT_DEVERSOIR,
   VERSION_SAUVEGARDE_AVANT_HAUT_PUITS,
   VERSION_SAUVEGARDE_AVANT_NACELLES,
@@ -92,12 +98,14 @@ import {
   lireEtatV7,
   lireEtatV8,
   lireEtatV9,
+  lireEtatV10,
   lireSnapshotV4,
   lireSnapshotV5,
   lireSnapshotV6,
   lireSnapshotV7,
   lireSnapshotV8,
   lireSnapshotV9,
+  lireSnapshotV10,
   marquerCausaliteHistoriqueDeNarrationSiNecessaire,
   projeterEtatAvantRoutesHistorique,
   type EtatCampagneAvantCrises,
@@ -110,6 +118,7 @@ import {
   type EtatCampagneV7,
   type EtatCampagneV8,
   type EtatCampagneV9,
+  type EtatCampagneV10,
   type ObjetInconnu,
 } from "./validation";
 
@@ -123,6 +132,125 @@ const PLATEFORMES_DE_LA_SIMULATION_V2 = [
   "vigie",
   "forge",
 ] as const;
+
+export function promouvoirEtatV10VersCourant(
+  etat: EtatCampagneV10,
+): EtatCampagne {
+  return {
+    ...etat,
+    version: VERSION_SIMULATION_COURANTE,
+    denouement: reconstruireDenouementReussi(
+      etat.narration.faitsDeCampagne,
+    ),
+  };
+}
+
+function normaliserEtatCourantEnV10(
+  etat: EtatCampagne,
+): EtatCampagneV10 {
+  const { denouement, ...sansDenouement } = etat;
+  void denouement;
+  return {
+    ...sansDenouement,
+    version: VERSION_SIMULATION_AVANT_DENOUEMENT,
+  };
+}
+
+export function migrerSauvegardeV10(
+  valeur: ObjetInconnu,
+): SauvegardeCampagne | undefined {
+  if (
+    valeur.format !== FORMAT_SAUVEGARDE ||
+    typeof valeur.id !== "string" ||
+    valeur.version !== VERSION_SAUVEGARDE_AVANT_DENOUEMENT ||
+    !estObjet(valeur.versions) ||
+    valeur.versions.simulation !== VERSION_SIMULATION_AVANT_DENOUEMENT ||
+    valeur.versions.contenu !== VERSIONS_DU_SNAPSHOT_COURANT.contenu ||
+    valeur.versions.aleatoire !== VERSIONS_DU_SNAPSHOT_COURANT.aleatoire ||
+    valeur.versions.empreinte !== VERSIONS_DU_SNAPSHOT_COURANT.empreinte ||
+    typeof valeur.graine !== "string" ||
+    !estObjet(valeur.horloge) ||
+    typeof valeur.horloge.secondes !== "number" ||
+    !Number.isFinite(valeur.horloge.secondes) ||
+    !estObjet(valeur.reproduction) ||
+    !Array.isArray(valeur.reproduction.commandes) ||
+    typeof valeur.reproduction.empreinteSnapshot !== "string" ||
+    !EMPREINTE.test(valeur.reproduction.empreinteSnapshot) ||
+    typeof valeur.empreinte !== "string" ||
+    !EMPREINTE.test(valeur.empreinte)
+  ) {
+    return undefined;
+  }
+
+  const snapshotV10 = lireSnapshotV10(valeur.reproduction.snapshot);
+  const etatDeclareV10 = lireEtatV10(valeur.etat);
+  if (
+    snapshotV10 === undefined ||
+    etatDeclareV10 === undefined ||
+    valeur.graine !== etatDeclareV10.graine ||
+    valeur.horloge.secondes !== etatDeclareV10.tempsDuConvoi.secondes ||
+    empreinteEtat(snapshotV10 as unknown as EtatCampagne) !==
+      valeur.reproduction.empreinteSnapshot ||
+    empreinteEtat(etatDeclareV10 as unknown as EtatCampagne) !==
+      valeur.empreinte
+  ) {
+    return undefined;
+  }
+
+  let etat = promouvoirEtatV10VersCourant(snapshotV10);
+  try {
+    for (const [index, entree] of valeur.reproduction.commandes.entries()) {
+      if (
+        !estObjet(entree) ||
+        entree.sequence !== index ||
+        !estCommande(entree.commande) ||
+        typeof entree.empreinteApres !== "string" ||
+        !EMPREINTE.test(entree.empreinteApres)
+      ) {
+        return undefined;
+      }
+      etat = appliquerCommande(etat, entree.commande, {
+        autoriserApresDenouement: "migration-v10",
+      }).etat;
+      if (
+        empreinteEtat(
+          normaliserEtatCourantEnV10(etat) as unknown as EtatCampagne,
+        ) !== entree.empreinteApres
+      ) {
+        return undefined;
+      }
+    }
+  } catch {
+    return undefined;
+  }
+
+  if (
+    !sontStructurellementEgaux(
+      normaliserEtatCourantEnV10(etat),
+      etatDeclareV10,
+    )
+  ) {
+    return undefined;
+  }
+
+  const etatCourant = promouvoirEtatV10VersCourant(etatDeclareV10);
+  if (
+    lireSnapshotCourant(etatCourant) === undefined ||
+    lireEtatCourant(etatCourant) === undefined
+  ) {
+    return undefined;
+  }
+  const reproduction: ReproductionDeCampagne = {
+    snapshot: etatCourant,
+    empreinteSnapshot: empreinteEtat(etatCourant),
+    commandes: [],
+  };
+  const sauvegarde = creerSauvegarde(etatCourant, reproduction);
+  return {
+    ...sauvegarde,
+    id: `${valeur.id}-v${VERSION_SAUVEGARDE_COURANTE}-${sauvegarde.empreinte}`,
+  };
+}
 
 function creerEtatDesCrisesDepuisHistorique(
   faits: readonly { readonly id: string }[],
@@ -221,6 +349,7 @@ function migrerEtatV1(etat: EtatCampagneV1): EtatCampagne {
   return {
     ...etat,
     version: VERSION_SIMULATION_COURANTE,
+    denouement: CAMPAGNE_EN_COURS,
     narration: {
       ...etat.narration,
       faitsDeCampagne: [
@@ -274,6 +403,7 @@ function migrerEtatV2(
   return {
     ...etat,
     version: VERSION_SIMULATION_COURANTE,
+    denouement: CAMPAGNE_EN_COURS,
     citeCaravane: {
       ...etat.citeCaravane,
       formation: {
@@ -324,6 +454,7 @@ function migrerEtatAvantRoutes(
   return {
     ...etat,
     version: VERSION_SIMULATION_COURANTE,
+    denouement: CAMPAGNE_EN_COURS,
     pilotage: {
       ...etat.pilotage,
       economie: {
@@ -358,6 +489,7 @@ function migrerEtatAvantCrises(
   return {
     ...etat,
     version: VERSION_SIMULATION_COURANTE,
+    denouement: CAMPAGNE_EN_COURS,
     crises: creerEtatDesCrisesDepuisHistorique(
       etat.narration.faitsDeCampagne,
       ignorerFaitAnnonceur,
@@ -510,6 +642,7 @@ export function promouvoirEtatV4VersCourant(
   return marquerCausaliteHistoriqueDeNarrationSiNecessaire({
     ...etat,
     version: VERSION_SIMULATION_COURANTE,
+    denouement: CAMPAGNE_EN_COURS,
     veilleBasse: creerEtatInitialDeVeilleBasse(),
     hautPuits: creerEtatDeHautPuitsInitial(),
     trameDeFer: creerEtatInitialDeLaTrameDeFer(),
@@ -527,6 +660,7 @@ export function promouvoirEtatV6VersCourant(
   return marquerCausaliteHistoriqueDeNarrationSiNecessaire({
     ...etat,
     version: VERSION_SIMULATION_COURANTE,
+    denouement: CAMPAGNE_EN_COURS,
     trameDeFer: creerEtatInitialDeLaTrameDeFer(),
     traverseLibre: creerEtatInitialDeTraverseLibre(),
     devenirsDesSites: null,
@@ -548,6 +682,7 @@ function promouvoirEtatV6PourReplay(
   return marquerCausaliteHistoriqueDeNarrationSiNecessaire({
     ...etat,
     version: VERSION_SIMULATION_COURANTE,
+    denouement: CAMPAGNE_EN_COURS,
     trameDeFer: creerEtatInitialDeLaTrameDeFer(),
     traverseLibre: creerEtatInitialDeTraverseLibre(),
     devenirsDesSites: null,
@@ -557,7 +692,13 @@ function promouvoirEtatV6PourReplay(
 function normaliserEtatCourantEnV6(
   etat: EtatCampagne,
 ): EtatCampagneV6 {
-  const { trameDeFer, traverseLibre, ...sansTrame } = etat;
+  const {
+    denouement,
+    trameDeFer,
+    traverseLibre,
+    ...sansTrame
+  } = etat;
+  void denouement;
   void trameDeFer;
   void traverseLibre;
   const { causaliteHistorique, ...narrationV6 } = sansTrame.narration;
@@ -776,6 +917,7 @@ function promouvoirEtatV7PourReplay(
   return marquerCausaliteHistoriqueDeNarrationSiNecessaire({
     ...etat,
     version: VERSION_SIMULATION_COURANTE,
+    denouement: CAMPAGNE_EN_COURS,
     hautPuits: {
       ...etat.hautPuits,
       projetRegional: null,
@@ -813,11 +955,13 @@ function normaliserEtatCourantEnV7(
   etat: EtatCampagne,
 ): EtatCampagneV7 {
   const {
+    denouement,
     devenirsDesSites,
     trameDeFer,
     traverseLibre,
     ...sansDevenirs
   } = etat;
+  void denouement;
   void devenirsDesSites;
   void trameDeFer;
   void traverseLibre;
@@ -1036,6 +1180,7 @@ export function promouvoirEtatV8VersCourant(
   return {
     ...etat,
     version: VERSION_SIMULATION_COURANTE,
+    denouement: CAMPAGNE_EN_COURS,
     routes: {
       ...etat.routes,
       etatsReels: {
@@ -1051,7 +1196,13 @@ export function promouvoirEtatV8VersCourant(
 function normaliserEtatCourantEnV8(
   etat: EtatCampagne,
 ): EtatCampagneV8 {
-  const { trameDeFer, traverseLibre, ...sansTrame } = etat;
+  const {
+    denouement,
+    trameDeFer,
+    traverseLibre,
+    ...sansTrame
+  } = etat;
+  void denouement;
   void trameDeFer;
   void traverseLibre;
   const {
@@ -1211,6 +1362,7 @@ export function promouvoirEtatV9VersCourant(
   return {
     ...etat,
     version: VERSION_SIMULATION_COURANTE,
+    denouement: CAMPAGNE_EN_COURS,
     routes: {
       ...etat.routes,
       etatsReels: {
@@ -1225,7 +1377,8 @@ export function promouvoirEtatV9VersCourant(
 function normaliserEtatCourantEnV9(
   etat: EtatCampagne,
 ): EtatCampagneV9 {
-  const { traverseLibre, ...sansTraverse } = etat;
+  const { denouement, traverseLibre, ...sansTraverse } = etat;
+  void denouement;
   void traverseLibre;
   const {
     "embranchement-de-pompe-neuve": embranchementDePompeNeuve,
@@ -1377,12 +1530,14 @@ function normaliserEtatCourantEnV4(
   etat: EtatCampagne,
 ): EtatCampagneV4 {
   const {
+    denouement,
     veilleBasse,
     hautPuits,
     trameDeFer,
     traverseLibre,
     ...etatV4
   } = etat;
+  void denouement;
   void veilleBasse;
   void hautPuits;
   void trameDeFer;
@@ -1402,6 +1557,7 @@ export function promouvoirEtatV5VersCourant(
   return marquerCausaliteHistoriqueDeNarrationSiNecessaire({
     ...etat,
     version: VERSION_SIMULATION_COURANTE,
+    denouement: CAMPAGNE_EN_COURS,
     hautPuits: creerEtatDeHautPuitsInitial(),
     trameDeFer: creerEtatInitialDeLaTrameDeFer(),
     traverseLibre: creerEtatInitialDeTraverseLibre(),
@@ -1412,7 +1568,14 @@ export function promouvoirEtatV5VersCourant(
 function normaliserEtatCourantEnV5(
   etat: EtatCampagne,
 ): EtatCampagneV5 {
-  const { hautPuits, trameDeFer, traverseLibre, ...etatV5 } = etat;
+  const {
+    denouement,
+    hautPuits,
+    trameDeFer,
+    traverseLibre,
+    ...etatV5
+  } = etat;
+  void denouement;
   void hautPuits;
   void trameDeFer;
   void traverseLibre;

@@ -79,7 +79,8 @@ export interface PolitiqueDAccesAuContenu {
 export interface RefusDeCommande {
   readonly code:
     | "acces-premium-requis"
-    | "checkpoint-finale-requis";
+    | "checkpoint-finale-requis"
+    | "campagne-denouee";
 }
 
 export class ErreurDeCommandeRefusee extends Error {
@@ -487,13 +488,17 @@ function creerApplication(
       evenements: readonly EvenementDeDomaine[],
     ) => void
   >();
+  const verifierCommande = (commande: CommandeCampagne): RefusDeCommande | null =>
+    etat.denouement.statut === "en-cours"
+      ? politiqueDAcces.verifierCommande(etat, commande)
+      : { code: "campagne-denouee" };
 
   return {
     lireEtat: () => etat,
     commandeEstAutorisee: (commande) =>
-      politiqueDAcces.verifierCommande(etat, commande) === null,
+      verifierCommande(commande) === null,
     envoyerCommande: (commande) => {
-      const refus = politiqueDAcces.verifierCommande(etat, commande);
+      const refus = verifierCommande(commande);
       if (refus !== null) {
         throw new ErreurDeCommandeRefusee(refus);
       }

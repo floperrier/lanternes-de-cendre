@@ -96,6 +96,14 @@ _Avoid_: Destination inconnue, Simple refuge
 L’immense système météorologique qui progresse derrière la cité-caravane, dépasse durablement la capacité des abris ordinaires, condamne progressivement les routes traversées sans imposer un compte à rebours strict et rend les passages de région irréversibles.
 _Avoid_: Minuteur de campagne
 
+**Dénouement de campagne**:
+La conclusion irréversible d’une Campagne, soit par une Solution finale accomplie au Nœud central, soit par une Défaite de campagne avant le Nœud ; l’arrivée seule ne constitue pas un Dénouement.
+_Avoid_: Arrivée au Nœud, Impasse, Erreur
+
+**Défaite de campagne**:
+Le Dénouement produit par une Crise terminale après une chaîne visible de décisions et de Récupérations manquées, lorsque aucune réponse ne peut plus préserver la Cité-caravane mais que le Porte-Lanterne choisit encore comment en assumer la perte.
+_Avoid_: Renoncement volontaire, Tirage mortel, Impasse
+
 **Solution finale**:
 L’orientation technique et politique explicitement choisie par le Porte-Lanterne lors du dernier conseil ; les trois solutions sont présentées, mais les actions antérieures rendent chacune préparée, risquée ou impossible et en déterminent le coût sans sélectionner automatiquement la décision à sa place. Une impossibilité est expliquée et ne peut pas être choisie ; une solution risquée entraîne un coût déterminé et annoncé, jamais un tirage aléatoire final.
 _Avoid_: Fin attribuée par un score caché
@@ -204,8 +212,8 @@ Un événement issu de l’état du convoi qui laisse au Porte-Lanterne un déla
 _Avoid_: Événement aléatoire périodique
 
 **Crise**:
-Un événement aux conséquences irréversibles qui suspend automatiquement le Temps du convoi jusqu’à une décision du Porte-Lanterne.
-_Avoid_: Alerte ordinaire
+Un événement aux conséquences irréversibles qui suspend automatiquement le Temps du convoi jusqu’à une décision du Porte-Lanterne. Une Crise non terminale offre plusieurs réponses coûteuses et une Récupération ; une Crise terminale conclut par une Défaite de campagne dont le Porte-Lanterne répartit encore les pertes.
+_Avoid_: Alerte ordinaire, Échec automatique
 
 **Temps du convoi**:
 Le temps continu de la simulation, librement suspendu ou accéléré par le Porte-Lanterne ; seules les décisions irréversibles imposent une pause automatique.
@@ -214,6 +222,10 @@ _Avoid_: Temps réel non interruptible
 **Cicatrice de campagne**:
 Une conséquence durable d’un revers qui transforme les possibilités et les relations sans condamner à elle seule la campagne.
 _Avoid_: Pénalité permanente
+
+**Récupération de Crise**:
+La voie coûteuse et nommée qui permet de stabiliser les conséquences d’une Crise sous un ou deux Tronçons sans effacer sa Cicatrice ; elle peut être amorcée, accomplie ou manquée par les actions ordinaires du Porte-Lanterne.
+_Avoid_: Remise à zéro, Récupération gratuite, Action isolée de récupération
 
 **Affectation**:
 L’ordre persistant donné à un compagnon de diriger un poste ou un quartier mobile jusqu’à modification, avec un délai de transfert et sans gestion de son horaire individuel.

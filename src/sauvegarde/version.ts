@@ -16,7 +16,8 @@ export const VERSION_SAUVEGARDE_AVANT_NACELLES = 6 as const;
 export const VERSION_SAUVEGARDE_AVANT_DEVERSOIR = 7 as const;
 export const VERSION_SAUVEGARDE_AVANT_TRAME_DE_FER = 8 as const;
 export const VERSION_SAUVEGARDE_AVANT_TRAVERSE_LIBRE = 9 as const;
-export const VERSION_SAUVEGARDE_COURANTE = 10 as const;
+export const VERSION_SAUVEGARDE_AVANT_DENOUEMENT = 10 as const;
+export const VERSION_SAUVEGARDE_COURANTE = 11 as const;
 export { VERSION_CONTENU_COURANTE } from "../content/types";
 
 export const VERSIONS_DU_SNAPSHOT_COURANT = Object.freeze({

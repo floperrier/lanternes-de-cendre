@@ -9,6 +9,26 @@ import {
 
 export interface ProjectionDeLEpilogue {
   readonly visible: boolean;
+  readonly denouement: {
+    readonly titre: string;
+    readonly statut: string;
+    readonly solution: {
+      readonly libelle: string;
+      readonly valeur: string;
+    };
+    readonly variante: {
+      readonly libelle: string;
+      readonly valeur: string;
+    };
+    readonly cause: {
+      readonly libelle: string;
+      readonly valeur: string;
+    };
+    readonly moment: {
+      readonly libelle: string;
+      readonly valeur: string;
+    };
+  } | null;
   readonly titre: string;
   readonly eyebrow: string;
   readonly introduction: string;
@@ -58,6 +78,7 @@ export interface ProjectionDeLEpilogue {
 
 const PROJECTION_MASQUEE: ProjectionDeLEpilogue = {
   visible: false,
+  denouement: null,
   titre: "",
   eyebrow: "",
   introduction: "",
@@ -68,6 +89,53 @@ const PROJECTION_MASQUEE: ProjectionDeLEpilogue = {
   retours: [],
   libelles: {},
 };
+
+const TEXTES_DU_DENOUEMENT = {
+  fr: {
+    titre: "Dénouement de campagne",
+    statut: "Campagne conclue",
+    libelles: {
+      solution: "Solution finale",
+      variante: "Variante",
+      cause: "Cause",
+      moment: "Moment du Dénouement",
+    },
+    causes: {
+      "finale.ancrage.la-derniere-negociation":
+        "Dernière négociation de l’Ancrage",
+      "finale.reaccord.la-derniere-negociation-du-reseau":
+        "Dernière négociation du Réaccord",
+      "finale.precipitation.la-derniere-negociation-des-bassins":
+        "Dernière négociation de la Précipitation",
+    },
+  },
+  en: {
+    titre: "Campaign denouement",
+    statut: "Campaign concluded",
+    libelles: {
+      solution: "Final Solution",
+      variante: "Variant",
+      cause: "Cause",
+      moment: "Denouement time",
+    },
+    causes: {
+      "finale.ancrage.la-derniere-negociation":
+        "Final negotiation for Anchoring the heart",
+      "finale.reaccord.la-derniere-negociation-du-reseau":
+        "Final negotiation for Retuning the network",
+      "finale.precipitation.la-derniere-negociation-des-bassins":
+        "Final negotiation for Bringing down the ash",
+    },
+  },
+} as const;
+
+function formaterMomentDuDenouement(secondes: number): string {
+  const minutes = Math.floor(secondes / 60);
+  const secondesRestantes = secondes % 60;
+  return `${minutes.toString().padStart(2, "0")}:${secondesRestantes
+    .toString()
+    .padStart(2, "0")}`;
+}
 
 function humaniserIdentifiant(id: string): string {
   return id
@@ -135,9 +203,38 @@ export function projeterEpilogue(
     "engagements",
     "traces",
   ] as const;
+  const textesDuDenouement = TEXTES_DU_DENOUEMENT[langue];
+  const denouement =
+    etat.denouement.statut === "solution-finale"
+      ? {
+          titre: textesDuDenouement.titre,
+          statut: textesDuDenouement.statut,
+          solution: {
+            libelle: textesDuDenouement.libelles.solution,
+            valeur: textesDeFinale.solutions[etat.denouement.solution]!,
+          },
+          variante: {
+            libelle: textesDuDenouement.libelles.variante,
+            valeur: textesDeFinale.variantes[etat.denouement.variante]!,
+          },
+          cause: {
+            libelle: textesDuDenouement.libelles.cause,
+            valeur:
+              textesDuDenouement.causes[
+                etat.denouement
+                  .cause as keyof typeof textesDuDenouement.causes
+              ] ?? nommer(etat.denouement.cause),
+          },
+          moment: {
+            libelle: textesDuDenouement.libelles.moment,
+            valeur: formaterMomentDuDenouement(etat.denouement.moment),
+          },
+        }
+      : null;
 
   return {
     visible: true,
+    denouement,
     titre: textes.titre,
     eyebrow: textes.eyebrow,
     introduction: textes.introduction,

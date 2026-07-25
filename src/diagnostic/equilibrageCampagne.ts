@@ -507,6 +507,7 @@ export interface ResultatDeCampagneHeadless {
   readonly statut: "terminee" | "impasse" | "erreur";
   readonly raisonDEchec: string | null;
   readonly positionFinale: IdentifiantDeLieu;
+  readonly denouementFinal: EtatCampagne["denouement"];
   readonly commandes: readonly EtapeDeCampagneHeadless[];
   readonly faitsFinaux: readonly string[];
   readonly metriques: MetriquesDeCampagneHeadless;
@@ -867,14 +868,7 @@ function motifDeChoix(choixId: string): string {
 }
 
 function campagneEstTerminee(etat: EtatCampagne): boolean {
-  const faits = new Set(etat.narration.faitsDeCampagne.map(({ id }) => id));
-  return (
-    etat.routes.position === "noeud-central" &&
-    (faits.has("epilogue.compagnons.devenirs-partages") ||
-      faits.has("epilogue.compagnons.devenirs-confies")) &&
-    (faits.has("epilogue.revelation.registre-rendu-public") ||
-      faits.has("epilogue.revelation.copies-confiees-aux-colonies"))
-  );
+  return etat.denouement.statut !== "en-cours";
 }
 
 function choisirReponseDeCrise(
@@ -1239,7 +1233,7 @@ export function executerCampagneHeadless({
         choixId,
         choixDisponibles,
       );
-      if (!verifierSuiteNarrative()) {
+      if (!campagneEstTerminee(etat) && !verifierSuiteNarrative()) {
         break;
       }
       continue;
@@ -1493,6 +1487,7 @@ export function executerCampagneHeadless({
     statut,
     raisonDEchec,
     positionFinale: etat.routes.position,
+    denouementFinal: etat.denouement,
     commandes,
     faitsFinaux,
     metriques: {

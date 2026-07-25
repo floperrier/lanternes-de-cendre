@@ -21,8 +21,9 @@ import {
 } from "./version";
 
 function normaliserEnV8(etat: EtatCampagne) {
-  const { trameDeFer, traverseLibre, ...sansTrame } =
+  const { denouement, trameDeFer, traverseLibre, ...sansTrame } =
     structuredClone(etat);
+  void denouement;
   void trameDeFer;
   void traverseLibre;
   const {

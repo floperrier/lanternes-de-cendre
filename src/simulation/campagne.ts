@@ -132,6 +132,11 @@ import {
   choixDeLAiguillageZeroEstDisponible,
 } from "./aiguillageZero";
 import { choixDeFinaleEstDisponible } from "./finale";
+import {
+  CAMPAGNE_EN_COURS,
+  reconstruireDenouementReussi,
+  type DenouementDeCampagne,
+} from "./denouement";
 
 export type { GraineDeCampagne } from "./graine";
 export const IDENTIFIANTS_PLATEFORMES_MOBILES =
@@ -152,6 +157,7 @@ export interface EcheanceDeCampagne {
 export interface EtatCampagne {
   readonly version: typeof VERSION_SIMULATION_COURANTE;
   readonly graine: GraineDeCampagne;
+  readonly denouement: DenouementDeCampagne;
   readonly tempsDuConvoi: {
     readonly secondes: number;
     readonly vitesse: VitesseDuConvoi;
@@ -266,6 +272,7 @@ export function creerCampagneInitiale(graine: GraineDeCampagne): EtatCampagne {
   return {
     version: VERSION_SIMULATION_COURANTE,
     graine,
+    denouement: CAMPAGNE_EN_COURS,
     tempsDuConvoi: {
       secondes: 0,
       vitesse: 1,
@@ -1104,8 +1111,7 @@ function choisirDansEvenement(
     effets: effetsDeFait,
   }));
 
-  return {
-    etat: {
+  const nouvelEtat = {
       ...etatApresDecision,
       narration: {
         ...etatApresDecision.narration,
@@ -1113,6 +1119,20 @@ function choisirDansEvenement(
         evenementsJoues: [...etat.narration.evenementsJoues, evenement.id],
         faitsDeCampagne: [...etat.narration.faitsDeCampagne, ...faitsProduits],
       },
+    };
+
+  const denouement = reconstruireDenouementReussi(
+    nouvelEtat.narration.faitsDeCampagne,
+  );
+
+  return {
+    etat: {
+      ...nouvelEtat,
+      tempsDuConvoi:
+        denouement.statut === "solution-finale"
+          ? { ...nouvelEtat.tempsDuConvoi, vitesse: 0 }
+          : nouvelEtat.tempsDuConvoi,
+      denouement,
     },
     evenements: [
       {
@@ -1132,8 +1152,15 @@ export function appliquerCommande(
   commande: CommandeCampagne,
   options: {
     readonly coutsDesNacelles?: "historiques-v6";
+    readonly autoriserApresDenouement?: "migration-v10";
   } = {},
 ): TransitionDeCampagne {
+  if (
+    etat.denouement.statut !== "en-cours" &&
+    options.autoriserApresDenouement !== "migration-v10"
+  ) {
+    throw new Error("La Campagne est déjà dénouée.");
+  }
   const checkpointDeCriseRequis = criseAttendSonCheckpoint(
     etat.crises,
     etat.tempsDuConvoi.secondes,

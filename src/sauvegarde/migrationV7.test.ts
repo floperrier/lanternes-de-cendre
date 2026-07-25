@@ -30,6 +30,7 @@ import {
 function normaliserEnV7(etat: EtatCampagne): Record<string, unknown> {
   const historique = structuredClone(etat) as unknown as {
     version: number;
+    denouement?: unknown;
     devenirsDesSites?: unknown;
     trameDeFer?: unknown;
     traverseLibre?: unknown;
@@ -44,6 +45,7 @@ function normaliserEnV7(etat: EtatCampagne): Record<string, unknown> {
     };
   };
   historique.version = VERSION_SIMULATION_AVANT_DEVERSOIR;
+  delete historique.denouement;
   delete historique.devenirsDesSites;
   delete historique.trameDeFer;
   delete historique.traverseLibre;
@@ -390,9 +392,9 @@ describe("migration v7 avant le Déversoir Noir", () => {
     }
     expect(importation.sauvegarde).toMatchObject({
       version: VERSION_SAUVEGARDE_COURANTE,
-      versions: { simulation: 10 },
+      versions: { simulation: 11 },
       etat: {
-        version: 10,
+        version: 11,
         devenirsDesSites: null,
         hautPuits: { projetRegional: null },
         routes: {
@@ -405,7 +407,7 @@ describe("migration v7 avant le Déversoir Noir", () => {
       },
       reproduction: {
         commandes: [],
-        snapshot: { version: 10 },
+        snapshot: { version: 11 },
       },
     });
   });

@@ -44,6 +44,10 @@ describe("Campagnes headless d’équilibrage", () => {
 
     expect(premiere.statut).toBe("terminee");
     expect(premiere.positionFinale).toBe("noeud-central");
+    expect(premiere.denouementFinal).toMatchObject({
+      statut: "solution-finale",
+      solution: "ancrer",
+    });
     expect(premiere.faitsFinaux).toEqual(
       expect.arrayContaining([
         "finale.ancrage.selection-preparee",
@@ -456,6 +460,13 @@ function resultatMinimal(): ResultatDeCampagneHeadless {
     statut: "terminee",
     raisonDEchec: null,
     positionFinale: "noeud-central",
+    denouementFinal: {
+      statut: "solution-finale",
+      solution: "ancrer",
+      variante: "refuge-commun",
+      cause: "finale.ancrage.la-derniere-negociation",
+      moment: 4200,
+    },
     commandes: [],
     faitsFinaux: [],
     metriques: {

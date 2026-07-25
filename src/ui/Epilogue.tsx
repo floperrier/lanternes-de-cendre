@@ -33,6 +33,31 @@ export function Epilogue({
         <p>{projection.introduction}</p>
       </header>
 
+      {projection.denouement === null ? null : (
+        <section
+          className="epilogue-campagne__denouement"
+          aria-labelledby="titre-denouement-campagne"
+        >
+          <h3 id="titre-denouement-campagne">
+            {projection.denouement.titre}
+          </h3>
+          <p>{projection.denouement.statut}</p>
+          <dl>
+            {([
+              projection.denouement.solution,
+              projection.denouement.variante,
+              projection.denouement.cause,
+              projection.denouement.moment,
+            ] as const).map(({ libelle, valeur }) => (
+              <div key={libelle}>
+                <dt>{libelle}</dt>
+                <dd>{valeur}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      )}
+
       <section
         className="epilogue-campagne__bilan"
         aria-labelledby="titre-bilan-epilogue"

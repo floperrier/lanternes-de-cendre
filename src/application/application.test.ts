@@ -145,6 +145,35 @@ describe("application de Campagne", () => {
     );
   });
 
+  it("refuse sémantiquement toute commande d’une Campagne dénouée", () => {
+    const etat = creerApplicationCampagne("CENDRE-DENOUEMENT").lireEtat();
+    const etatDenoue = {
+      ...etat,
+      denouement: {
+        statut: "solution-finale" as const,
+        solution: "ancrer" as const,
+        variante: "refuge-commun" as const,
+        cause: "finale.ancrage.la-derniere-negociation",
+        moment: 4200,
+      },
+    };
+    const application = reprendreApplicationCampagne(etatDenoue, {
+      politiqueDAcces: ACCES_AU_CONTENU_COMPLET,
+    });
+    const commande = {
+      type: "temps-du-convoi.regler-vitesse" as const,
+      vitesse: 1 as const,
+    };
+
+    expect(application.commandeEstAutorisee(commande)).toBe(false);
+    expect(() => application.envoyerCommande(commande)).toThrow(
+      expect.objectContaining({
+        refus: { code: "campagne-denouee" },
+      }),
+    );
+    expect(application.lireEtat()).toBe(etatDenoue);
+  });
+
   it("porte la limite de la Démonstration dans une politique d’accès remplaçable", () => {
     const application = creerApplicationCampagne("CENDRE-01");
     application.envoyerCommande({

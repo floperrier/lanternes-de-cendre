@@ -1368,6 +1368,19 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
       name: "Bilan de la Solution",
     }),
   ).toBeVisible();
+  await expect(
+    epilogueDeCampagne.getByRole("heading", {
+      name: "Dénouement de campagne",
+    }),
+  ).toBeVisible();
+  await expect(epilogueDeCampagne).toContainText("Campagne conclue");
+  await expect(epilogueDeCampagne).toContainText(
+    "Faire tomber la cendre",
+  );
+  await expect(epilogueDeCampagne).toContainText("Ciel rendu");
+  await expect(epilogueDeCampagne).toContainText(
+    "Dernière négociation de la Précipitation",
+  );
   await expect(epilogueDeCampagne).toContainText("Stabilité technique");
   await expect(epilogueDeCampagne).toContainText(
     "précipitation lente et confinée",
@@ -1450,6 +1463,14 @@ test("la Démonstration complète atteint sa porte premium sans sollicitation an
     name: "Campaign Epilogue",
   });
   await expect(campaignEpilogue).toHaveAttribute("lang", "en");
+  await expect(
+    campaignEpilogue.getByRole("heading", {
+      name: "Campaign denouement",
+    }),
+  ).toBeVisible();
+  await expect(campaignEpilogue).toContainText("Campaign concluded");
+  await expect(campaignEpilogue).toContainText("Bring down the ash");
+  await expect(campaignEpilogue).toContainText("Returned Sky");
   await expect(campaignEpilogue).toContainText(
     "Zero Junction autonomous transport",
   );

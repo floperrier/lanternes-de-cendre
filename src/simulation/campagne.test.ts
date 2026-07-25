@@ -17,8 +17,9 @@ describe("Graine de campagne", () => {
     const etat = creerCampagneInitiale("CENDRE-01");
 
     expect(JSON.parse(JSON.stringify(etat))).toEqual({
-      version: 10,
+      version: 11,
       graine: "CENDRE-01",
+      denouement: { statut: "en-cours" },
       tempsDuConvoi: {
         secondes: 0,
         vitesse: 1,

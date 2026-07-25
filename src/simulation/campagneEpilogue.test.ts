@@ -109,6 +109,49 @@ function choisir(etat: EtatCampagne, choixId: string): EtatCampagne {
 }
 
 describe("parcours de l’Épilogue", () => {
+  it("distingue l’arrivée au Nœud du Dénouement réussi et le rend irréversible", () => {
+    const initiale = creerCampagneInitiale("CENDRE-DENOUEMENT");
+    const arriveeAuNoeud = {
+      ...initiale,
+      routes: { ...initiale.routes, position: "noeud-central" as const },
+    };
+
+    expect(initiale.denouement).toEqual({ statut: "en-cours" });
+    expect(arriveeAuNoeud.denouement).toEqual({ statut: "en-cours" });
+
+    const revelation = reveiller(
+      apresVariante(...VARIANTES[0]),
+    );
+    const veille = reveiller(
+      choisir(revelation, "rendre-registre-public"),
+    );
+    const conclue = choisir(
+      {
+        ...veille,
+        tempsDuConvoi: { ...veille.tempsDuConvoi, vitesse: 4 },
+      },
+      "partager-les-devenirs",
+    );
+
+    expect(conclue.denouement).toEqual({
+      statut: "solution-finale",
+      solution: "ancrer",
+      variante: "refuge-commun",
+      cause: "finale.ancrage.la-derniere-negociation",
+      moment: 4200,
+    });
+    expect(conclue.tempsDuConvoi.vitesse).toBe(0);
+
+    const empreinteAvantRefus = JSON.stringify(conclue);
+    expect(() =>
+      appliquerCommande(conclue, {
+        type: "temps-du-convoi.regler-vitesse",
+        vitesse: 1,
+      }),
+    ).toThrow("La Campagne est déjà dénouée.");
+    expect(JSON.stringify(conclue)).toBe(empreinteAvantRefus);
+  });
+
   it.each(VARIANTES)(
     "garantit la révélation après %s",
     (variante, evenementDeConclusion) => {

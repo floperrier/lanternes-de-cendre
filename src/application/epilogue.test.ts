@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 
 import type { FaitDeCampagne } from "../simulation/faits";
 import { creerCampagneInitiale } from "../simulation/campagne";
+import { Epilogue } from "../ui/Epilogue";
 import { projeterEpilogue } from "./epilogue";
 
 function fait(id: string): FaitDeCampagne {
@@ -20,6 +23,14 @@ describe("projection accessible de l’Épilogue", () => {
     const initial = creerCampagneInitiale("CENDRE-01");
     const etat = {
       ...initial,
+      tempsDuConvoi: { secondes: 1800, vitesse: 0 as const },
+      denouement: {
+        statut: "solution-finale" as const,
+        solution: "ancrer" as const,
+        variante: "refuge-commun" as const,
+        cause: "finale.ancrage.la-derniere-negociation",
+        moment: 1800,
+      },
       narration: {
         ...initial.narration,
         evenementsJoues: [
@@ -43,6 +54,26 @@ describe("projection accessible de l’Épilogue", () => {
     const projection = projeterEpilogue(etat, "fr");
 
     expect(projection.visible).toBe(true);
+    expect(projection.denouement).toEqual({
+      titre: "Dénouement de campagne",
+      statut: "Campagne conclue",
+      solution: {
+        libelle: "Solution finale",
+        valeur: "Ancrer le cœur",
+      },
+      variante: {
+        libelle: "Variante",
+        valeur: "Refuge commun",
+      },
+      cause: {
+        libelle: "Cause",
+        valeur: "Dernière négociation de l’Ancrage",
+      },
+      moment: {
+        libelle: "Moment du Dénouement",
+        valeur: "30:00",
+      },
+    });
     expect(projection.axes.map(({ libelle }) => libelle)).toEqual([
       "Stabilité technique",
       "Contrôle politique",
@@ -70,12 +101,27 @@ describe("projection accessible de l’Épilogue", () => {
         .flatMap(({ elements }) => elements)
         .every(({ causes }) => causes.length > 0),
     ).toBe(true);
+
+    const html = renderToStaticMarkup(
+      createElement(Epilogue, { projection, langue: "fr" }),
+    );
+    expect(html).toContain("Dénouement de campagne");
+    expect(html).toContain("Ancrer le cœur");
+    expect(html).toContain("Bilan de la Solution");
   });
 
   it("localise le même contrat en anglais", () => {
     const initial = creerCampagneInitiale("CENDRE-01");
     const etat = {
       ...initial,
+      tempsDuConvoi: { secondes: 1800, vitesse: 0 as const },
+      denouement: {
+        statut: "solution-finale" as const,
+        solution: "reaccorder" as const,
+        variante: "constellation" as const,
+        cause: "finale.reaccord.la-derniere-negociation-du-reseau",
+        moment: 1800,
+      },
       trameDeFer: {
         ...initial.trameDeFer,
         engagements: [
@@ -103,6 +149,18 @@ describe("projection accessible de l’Épilogue", () => {
     const projection = projeterEpilogue(etat, "en");
 
     expect(projection.titre).toBe("Campaign Epilogue");
+    expect(projection.denouement).toMatchObject({
+      titre: "Campaign denouement",
+      statut: "Campaign concluded",
+      solution: {
+        libelle: "Final Solution",
+        valeur: "Retune the network",
+      },
+      variante: {
+        libelle: "Variant",
+        valeur: "Constellation",
+      },
+    });
     expect(projection.axes[0]).toEqual({
       id: "stabilite-technique",
       libelle: "Technical stability",

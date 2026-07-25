@@ -20,7 +20,9 @@ import {
 } from "./version";
 
 function normaliserEnV9(etat: EtatCampagne) {
-  const { traverseLibre, ...sansTraverse } = structuredClone(etat);
+  const { denouement, traverseLibre, ...sansTraverse } =
+    structuredClone(etat);
+  void denouement;
   void traverseLibre;
   const {
     "embranchement-de-pompe-neuve": embranchementDePompeNeuve,

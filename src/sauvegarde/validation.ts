@@ -11,6 +11,7 @@ import {
 import {
   VERSION_ALEATOIRE_COURANTE,
   VERSION_SIMULATION_AVANT_CRISES,
+  VERSION_SIMULATION_AVANT_DENOUEMENT,
   VERSION_SIMULATION_AVANT_DEVERSOIR,
   VERSION_SIMULATION_AVANT_HAUT_PUITS,
   VERSION_SIMULATION_AVANT_NACELLES,
@@ -21,6 +22,10 @@ import {
   VERSION_SIMULATION_COURANTE,
   VERSION_SIMULATION_INITIALE,
 } from "../simulation/versions";
+import {
+  CAMPAGNE_EN_COURS,
+  reconstruireDenouementReussi,
+} from "../simulation/denouement";
 import {
   appliquerVariationAUnStock,
   creerPilotageInitial,
@@ -199,6 +204,7 @@ export interface EtatCampagneV2
   extends Omit<
     EtatCampagne,
     | "version"
+    | "denouement"
     | "routes"
     | "infrastructure"
     | "crises"
@@ -223,6 +229,7 @@ export interface EtatCampagneAvantRoutes
   extends Omit<
     EtatCampagne,
     | "version"
+    | "denouement"
     | "routes"
     | "crises"
     | "expeditions"
@@ -239,6 +246,7 @@ export interface EtatCampagneAvantCrises
   extends Omit<
     EtatCampagne,
     | "version"
+    | "denouement"
     | "crises"
     | "expeditions"
     | "veilleBasse"
@@ -256,6 +264,7 @@ export interface EtatCampagneV4
   extends Omit<
     EtatCampagne,
     | "version"
+    | "denouement"
     | "veilleBasse"
     | "hautPuits"
     | "devenirsDesSites"
@@ -269,6 +278,7 @@ export interface EtatCampagneV5
   extends Omit<
     EtatCampagne,
     | "version"
+    | "denouement"
     | "hautPuits"
     | "devenirsDesSites"
     | "trameDeFer"
@@ -280,7 +290,11 @@ export interface EtatCampagneV5
 export interface EtatCampagneV6
   extends Omit<
     EtatCampagne,
-    "version" | "devenirsDesSites" | "trameDeFer" | "traverseLibre"
+    | "version"
+    | "denouement"
+    | "devenirsDesSites"
+    | "trameDeFer"
+    | "traverseLibre"
   > {
   readonly version: typeof VERSION_SIMULATION_AVANT_NACELLES;
 }
@@ -288,19 +302,31 @@ export interface EtatCampagneV6
 export interface EtatCampagneV7
   extends Omit<
     EtatCampagne,
-    "version" | "devenirsDesSites" | "trameDeFer" | "traverseLibre"
+    | "version"
+    | "denouement"
+    | "devenirsDesSites"
+    | "trameDeFer"
+    | "traverseLibre"
   > {
   readonly version: typeof VERSION_SIMULATION_AVANT_DEVERSOIR;
 }
 
 export interface EtatCampagneV8
-  extends Omit<EtatCampagne, "version" | "trameDeFer" | "traverseLibre"> {
+  extends Omit<
+    EtatCampagne,
+    "version" | "denouement" | "trameDeFer" | "traverseLibre"
+  > {
   readonly version: typeof VERSION_SIMULATION_AVANT_TRAME_DE_FER;
 }
 
 export interface EtatCampagneV9
-  extends Omit<EtatCampagne, "version" | "traverseLibre"> {
+  extends Omit<EtatCampagne, "version" | "denouement" | "traverseLibre"> {
   readonly version: typeof VERSION_SIMULATION_AVANT_TRAVERSE_LIBRE;
+}
+
+export interface EtatCampagneV10
+  extends Omit<EtatCampagne, "version" | "denouement"> {
+  readonly version: typeof VERSION_SIMULATION_AVANT_DENOUEMENT;
 }
 
 export function estObjet(valeur: unknown): valeur is ObjetInconnu {
@@ -3574,6 +3600,7 @@ function lireEtatAvecSchemaCourant(
   const trameDeFer = valeur.trameDeFer;
   const traverseLibre = valeur.traverseLibre;
   const devenirsDesSites = valeur.devenirsDesSites;
+  const denouement = valeur.denouement;
   const faitDePassageRegional =
     estObjet(narration) &&
     Array.isArray(narration.faitsDeCampagne) &&
@@ -3614,6 +3641,12 @@ function lireEtatAvecSchemaCourant(
     !faitsSontChronologiques(
       narration.faitsDeCampagne,
       parties.tempsDuConvoi.secondes,
+    ) ||
+    !sontStructurellementEgaux(
+      denouement,
+      reconstruireDenouementReussi(
+        narration.faitsDeCampagne as unknown as readonly FaitDeCampagne[],
+      ),
     ) ||
     !estEtatInfrastructure(
       infrastructure,
@@ -3818,6 +3851,48 @@ export function lireSnapshotCourant(
   return lireEtatAvecSchemaCourant(valeur, true, true);
 }
 
+function lireEtatAvecSchemaV10(
+  valeur: unknown,
+  autoriserMarqueurHistoriqueSansFait = false,
+): EtatCampagneV10 | undefined {
+  if (
+    !estObjet(valeur) ||
+    valeur.version !== VERSION_SIMULATION_AVANT_DENOUEMENT ||
+    "denouement" in valeur ||
+    !estObjet(valeur.narration) ||
+    !Array.isArray(valeur.narration.faitsDeCampagne)
+  ) {
+    return undefined;
+  }
+  const etatCourant = lireEtatAvecSchemaCourant(
+    {
+      ...valeur,
+      version: VERSION_SIMULATION_COURANTE,
+      denouement: reconstruireDenouementReussi(
+        valeur.narration
+          .faitsDeCampagne as unknown as readonly FaitDeCampagne[],
+      ),
+    },
+    true,
+    autoriserMarqueurHistoriqueSansFait,
+  );
+  return etatCourant === undefined
+    ? undefined
+    : (valeur as unknown as EtatCampagneV10);
+}
+
+export function lireEtatV10(
+  valeur: unknown,
+): EtatCampagneV10 | undefined {
+  return lireEtatAvecSchemaV10(valeur);
+}
+
+export function lireSnapshotV10(
+  valeur: unknown,
+): EtatCampagneV10 | undefined {
+  return lireEtatAvecSchemaV10(valeur, true);
+}
+
 function lireEtatAvecSchemaV9(
   valeur: unknown,
   autoriserMarqueurHistoriqueSansFait = false,
@@ -3895,6 +3970,7 @@ function lireEtatAvecSchemaV9(
     {
       ...valeur,
       version: VERSION_SIMULATION_COURANTE,
+      denouement: CAMPAGNE_EN_COURS,
       routes: {
         ...valeur.routes,
         etatsReels: {
@@ -3989,6 +4065,7 @@ function lireEtatAvecSchemaV8(
     {
       ...valeur,
       version: VERSION_SIMULATION_COURANTE,
+      denouement: CAMPAGNE_EN_COURS,
       routes: {
         ...valeur.routes,
         etatsReels: {
@@ -4079,6 +4156,7 @@ function lireEtatAvecSchemaV7(
     {
       ...valeur,
       version: VERSION_SIMULATION_COURANTE,
+      denouement: CAMPAGNE_EN_COURS,
       hautPuits: {
         ...valeur.hautPuits,
         projetRegional: null,
@@ -4155,6 +4233,7 @@ function lireEtatAvecSchemaV6(
     {
       ...valeur,
       version: VERSION_SIMULATION_COURANTE,
+      denouement: CAMPAGNE_EN_COURS,
       devenirsDesSites: null,
       trameDeFer: creerEtatInitialDeLaTrameDeFer(),
       traverseLibre: creerEtatInitialDeTraverseLibre(),
@@ -4196,6 +4275,7 @@ function lireEtatAvecSchemaV5(
     {
       ...valeur,
       version: VERSION_SIMULATION_COURANTE,
+      denouement: CAMPAGNE_EN_COURS,
       hautPuits: creerEtatDeHautPuitsInitial(),
       devenirsDesSites: null,
       trameDeFer: creerEtatInitialDeLaTrameDeFer(),
@@ -4239,6 +4319,7 @@ function lireEtatAvecSchemaV4(
     {
       ...valeur,
       version: VERSION_SIMULATION_COURANTE,
+      denouement: CAMPAGNE_EN_COURS,
       veilleBasse: creerEtatInitialDeVeilleBasse(),
       hautPuits: creerEtatDeHautPuitsInitial(),
       devenirsDesSites: null,
@@ -4308,6 +4389,7 @@ export function lireEtatAvantRoutes(
   const etatNormalise = lireEtatAvecSchemaCourant({
     ...valeurNormalisee,
     version: VERSION_SIMULATION_COURANTE,
+    denouement: CAMPAGNE_EN_COURS,
     routes,
     crises: creerEtatDesCrisesInitial(),
     expeditions: creerEtatDesExpeditionsInitial(),
@@ -4393,6 +4475,7 @@ export function lireEtatV3(valeur: unknown): EtatCampagneV3 | undefined {
   const etatCourant = lireEtatAvecSchemaCourant({
     ...valeur,
     version: VERSION_SIMULATION_COURANTE,
+    denouement: CAMPAGNE_EN_COURS,
     crises: creerEtatDesCrisesInitial(),
     expeditions: creerEtatDesExpeditionsInitial(),
     veilleBasse: creerEtatInitialDeVeilleBasse(),
@@ -4421,6 +4504,7 @@ export function lireEtatV2(valeur: unknown): EtatCampagneV2 | undefined {
   const etatCourant = lireEtatAvecSchemaCourant({
     ...valeur,
     version: VERSION_SIMULATION_COURANTE,
+    denouement: CAMPAGNE_EN_COURS,
     citeCaravane: estObjet(valeur.citeCaravane)
       ? {
           ...valeur.citeCaravane,

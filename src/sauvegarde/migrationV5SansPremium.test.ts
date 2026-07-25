@@ -11,6 +11,7 @@ import {
 function normaliserEnV5(etat: EtatCampagne): Record<string, unknown> {
   const ancien = { ...etat } as Record<string, unknown>;
   ancien.version = 5;
+  delete ancien.denouement;
   delete ancien.hautPuits;
   delete ancien.trameDeFer;
   delete ancien.traverseLibre;
@@ -125,9 +126,9 @@ describe("migration v5 sans catalogue premium installé", () => {
     expect(importation).toMatchObject({
       statut: "migree",
       sauvegarde: {
-        version: 10,
+        version: 11,
         etat: {
-          version: 10,
+          version: 11,
           narration: {
             evenementsJoues: expect.arrayContaining([
               "veille-basse.la-place-sous-le-phare",

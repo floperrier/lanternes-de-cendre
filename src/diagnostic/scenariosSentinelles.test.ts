@@ -40,7 +40,7 @@ describe("catalogue des scénarios sentinelles", () => {
     for (const scenario of obtenirScenariosSentinelles()) {
       expect(scenario).toMatchObject({
         format: "lanternes-de-cendre.scenario-sentinelle",
-        version: 1,
+        version: 2,
         graine: expect.any(String),
         empreinteSnapshot: expect.stringMatching(/^[0-9a-f]{8}$/),
         invariants: INVARIANTS_SENTINELLES,
@@ -195,14 +195,14 @@ describe("exécution des scénarios sentinelles", () => {
         format: "lanternes-de-cendre.capsule-sentinelle",
         version: 1,
         versions: {
-          scenarios: 1,
+          scenarios: 2,
           simulation: expect.any(Number),
           aleatoire: expect.any(Number),
           empreinte: expect.any(Number),
         },
         scenario: {
           id: scenario.id,
-          version: 1,
+          version: 2,
           conduite: "prudente",
         },
         graine: scenario.graine,

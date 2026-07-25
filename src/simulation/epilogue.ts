@@ -9,6 +9,10 @@ import {
   type IdentifiantDeCompagnon,
 } from "./vivier";
 import { reconstruireEtatDeLaVoieDesColonies } from "./voieColonies";
+import {
+  FAITS_D_ACHEVEMENT_DE_L_EPILOGUE,
+  FAITS_DE_REVELATION_DE_L_EPILOGUE,
+} from "./denouement";
 
 export type StatutDUnCompagnonDansLEpilogue =
   | "recrute"
@@ -125,16 +129,6 @@ export interface EtatDeLEpilogue {
     readonly traces: readonly RetourModulaireDeLEpilogue[];
   };
 }
-
-const FAITS_D_ACHEVEMENT_DE_L_EPILOGUE = [
-  "epilogue.compagnons.devenirs-partages",
-  "epilogue.compagnons.devenirs-confies",
-] as const;
-
-const FAITS_DE_REVELATION = [
-  "epilogue.revelation.registre-rendu-public",
-  "epilogue.revelation.copies-confiees-aux-colonies",
-] as const;
 
 const FAITS_D_ENGAGEMENT_RESTITUES = [
   "bassins.haut-puits.pacte-partage",
@@ -622,7 +616,7 @@ export function reconstruireEpilogue(etat: EtatCampagne): EtatDeLEpilogue {
     ],
     sortDuCoeur: finale.bilan.sortDuCoeur,
     revelation:
-      FAITS_DE_REVELATION.find((id) => faits.has(id)) ??
+      FAITS_DE_REVELATION_DE_L_EPILOGUE.find((id) => faits.has(id)) ??
       "inconnue",
     compagnons: reconstruireCompagnons(faits),
     retours: construireRetours(etat, faits),

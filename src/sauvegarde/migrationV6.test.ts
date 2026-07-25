@@ -8,6 +8,7 @@ import {
   type EtatCampagne,
 } from "../simulation/campagne";
 import { VERSION_SIMULATION_AVANT_NACELLES } from "../simulation/versions";
+import { CAMPAGNE_EN_COURS } from "../simulation/denouement";
 import { creerEtatInitialDeLaTrameDeFer } from "../simulation/trameFer";
 import { creerEtatInitialDeTraverseLibre } from "../simulation/traverseLibre";
 import { importerSauvegarde } from "./portable";
@@ -20,7 +21,8 @@ import {
 } from "./version";
 
 function sansRouteBasse(etat: EtatCampagne) {
-  const { trameDeFer, traverseLibre, ...sansTrame } = etat;
+  const { denouement, trameDeFer, traverseLibre, ...sansTrame } = etat;
+  void denouement;
   void trameDeFer;
   void traverseLibre;
   const {
@@ -102,6 +104,7 @@ function creerArchiveV6() {
       {
         ...snapshot,
         version: VERSIONS_DU_SNAPSHOT_COURANT.simulation,
+        denouement: CAMPAGNE_EN_COURS,
         trameDeFer: creerEtatInitialDeLaTrameDeFer(),
         traverseLibre: creerEtatInitialDeTraverseLibre(),
       },
@@ -228,6 +231,7 @@ function creerArchiveV6ApresLeChenal() {
     const avant = {
       ...etat,
       version: VERSIONS_DU_SNAPSHOT_COURANT.simulation,
+      denouement: CAMPAGNE_EN_COURS,
     } as EtatCampagne;
     let apres = appliquerCommande(avant, commande, {
       coutsDesNacelles: "historiques-v6",
